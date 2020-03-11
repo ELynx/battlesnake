@@ -18,9 +18,52 @@ class BattlesnakeApplicationTests {
     @Autowired
     private MockMvc mockMvc;
 
+    private String ApiExampleGameState = "{\n" +
+            "  \"game\": {\n" +
+            "    \"id\": \"game-id-string\"\n" +
+            "  },\n" +
+            "  \"turn\": 4,\n" +
+            "  \"board\": {\n" +
+            "    \"height\": 15,\n" +
+            "    \"width\": 15,\n" +
+            "    \"food\": [\n" +
+            "      {\n" +
+            "        \"x\": 1,\n" +
+            "        \"y\": 3\n" +
+            "      }\n" +
+            "    ],\n" +
+            "    \"snakes\": [\n" +
+            "      {\n" +
+            "        \"id\": \"snake-id-string\",\n" +
+            "        \"name\": \"Sneky Snek\",\n" +
+            "        \"health\": 90,\n" +
+            "        \"body\": [\n" +
+            "          {\n" +
+            "            \"x\": 1,\n" +
+            "            \"y\": 3\n" +
+            "          }\n" +
+            "        ],\n" +
+            "        \"shout\": \"Hello my name is Sneky Snek\"\n" +
+            "      }\n" +
+            "    ]\n" +
+            "  },\n" +
+            "  \"you\": {\n" +
+            "    \"id\": \"snake-id-string\",\n" +
+            "    \"name\": \"Sneky Snek\",\n" +
+            "    \"health\": 90,\n" +
+            "    \"body\": [\n" +
+            "      {\n" +
+            "        \"x\": 1,\n" +
+            "        \"y\": 3\n" +
+            "      }\n" +
+            "    ],\n" +
+            "    \"shout\": \"Hello my name is Sneky Snek\"\n" +
+            "  }\n" +
+            "}";
+
     @Test
     public void startHasColor() throws Exception {
-        mockMvc.perform(post("/start"))
+        mockMvc.perform(post("/start").content(ApiExampleGameState))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("color")));
@@ -28,7 +71,7 @@ class BattlesnakeApplicationTests {
 
     @Test
     public void moveHasMove() throws Exception {
-        mockMvc.perform(post("/move"))
+        mockMvc.perform(post("/move").content(ApiExampleGameState))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("move")));
@@ -36,7 +79,7 @@ class BattlesnakeApplicationTests {
 
     @Test
     public void endIsOk() throws Exception {
-        mockMvc.perform(post("/end"))
+        mockMvc.perform(post("/end").content(ApiExampleGameState))
                 .andExpect(status().isOk());
     }
 
