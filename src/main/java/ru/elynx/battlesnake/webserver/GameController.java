@@ -1,27 +1,33 @@
 package ru.elynx.battlesnake.webserver;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.elynx.battlesnake.protocol.GameState;
+import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.protocol.SnakeConfig;
 
 @RestController
 public class GameController {
+    static private Move hardcode = new Move("up", "2% ready");
+
     @PostMapping("/start")
-    public String start(String argument) {
-        return "{ \"color\": \"#ffbf00\", \"headType\": \"smile\", \"tailType\": \"regular\" }";
+    public ResponseEntity<SnakeConfig> start(GameState gameState) {
+        return ResponseEntity.ok(SnakeConfig.DEFAULT_SNAKE_CONFIG);
     }
 
     @PostMapping("/move")
-    public String move(String argument) {
-        return "{ \"move\": \"up\", \"shout\": \"1% ready\" }";
+    public ResponseEntity<Move> move(GameState gameState) {
+        return ResponseEntity.ok(hardcode);
     }
 
     @PostMapping("/end")
-    public String end(String argument) {
-        return "";
+    public ResponseEntity<Void> end(GameState gameState) {
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/ping")
-    public String ping(String argument) {
-        return "";
+    public ResponseEntity<Void> ping() {
+        return ResponseEntity.ok().build();
     }
 }
