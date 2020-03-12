@@ -85,7 +85,7 @@ class BattlesnakeApplicationTests {
 
     @Test
     public void pingIsOk() throws Exception {
-        mockMvc.perform(post("/start"))
+        mockMvc.perform(post("/ping"))
                 .andExpect(status().isOk());
     }
 }
