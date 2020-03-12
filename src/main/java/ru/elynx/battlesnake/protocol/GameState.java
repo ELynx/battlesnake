@@ -16,28 +16,8 @@ public class GameState {
         if (gameState.getGame() == null || gameState.getTurn() == null || gameState.getBoard() == null || gameState.getYou() == null)
             return true;
 
-        if (gameState.getGame().getId() == null || gameState.getGame().getId().isEmpty())
-            return true;
-
-        if (gameState.getTurn() < 0)
-            return true;
-
         if (gameState.getBoard().getFood() == null || gameState.getBoard().getSnakes() == null)
             return true;
-
-        if (gameState.getBoard().getHeight() < 1 || gameState.getBoard().getWidth() < 1)
-            return true;
-
-        for (Coords coords : gameState.getBoard().getFood()) {
-            if (coords == null || coords.getX() == null || coords.getY() == null)
-                return true;
-
-            if (coords.getX() < 0 || coords.getY() < 0)
-                return true;
-
-            if (coords.getX() >= gameState.getBoard().getWidth() || coords.getY() >= gameState.getBoard().getHeight())
-                return true;
-        }
 
         return false;
     }
