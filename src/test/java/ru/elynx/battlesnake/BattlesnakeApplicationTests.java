@@ -88,4 +88,10 @@ class BattlesnakeApplicationTests {
         mockMvc.perform(post("/ping"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void invalidInputNotOk() throws Exception {
+        mockMvc.perform(post("/start").content("No carrier"))
+                .andExpect(status().isBadRequest());
+    }
 }

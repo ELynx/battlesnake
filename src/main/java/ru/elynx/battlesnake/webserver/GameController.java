@@ -13,16 +13,25 @@ public class GameController {
 
     @PostMapping("/start")
     public ResponseEntity<SnakeConfig> start(GameState gameState) {
+        if (GameState.isInvalid(gameState))
+            return ResponseEntity.badRequest().build();
+
         return ResponseEntity.ok(SnakeConfig.DEFAULT_SNAKE_CONFIG);
     }
 
     @PostMapping("/move")
     public ResponseEntity<Move> move(GameState gameState) {
+        if (GameState.isInvalid(gameState))
+            return ResponseEntity.badRequest().build();
+
         return ResponseEntity.ok(hardcode);
     }
 
     @PostMapping("/end")
     public ResponseEntity<Void> end(GameState gameState) {
+        if (GameState.isInvalid(gameState))
+            return ResponseEntity.badRequest().build();
+
         return ResponseEntity.ok().build();
     }
 
