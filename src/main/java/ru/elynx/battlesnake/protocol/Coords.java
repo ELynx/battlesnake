@@ -7,6 +7,11 @@ public class Coords {
     public Coords() {
     }
 
+    public Coords(Integer x, Integer y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public Integer getX() {
         return x;
     }

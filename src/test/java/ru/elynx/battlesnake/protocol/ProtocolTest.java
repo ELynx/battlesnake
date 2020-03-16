@@ -3,9 +3,6 @@ package ru.elynx.battlesnake.protocol;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.elynx.battlesnake.protocol.GameState;
-import ru.elynx.battlesnake.protocol.Move;
-import ru.elynx.battlesnake.protocol.SnakeConfig;
 
 @SpringBootTest
 public class ProtocolTest {

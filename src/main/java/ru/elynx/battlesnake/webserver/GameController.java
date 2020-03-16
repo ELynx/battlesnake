@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.webserver;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,14 +20,12 @@ import java.io.InvalidObjectException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
 
 @RestController
 public class GameController {
-    private Logger logger = LoggerFactory.getLogger(GameController.class);
-
     private final static long STALE_GAME_ENGINE_ROUTINE_DELAY = 10000; // milliseconds
     private final static long STALE_GAME_ENGINE_AGE = 5000; // milliseconds
+    private Logger logger = LoggerFactory.getLogger(GameController.class);
     private IGameEngineFactory gameEngineFactory;
     private Map<String, GameEngineWithMeta> gameEngines = new ConcurrentHashMap<>();
 
