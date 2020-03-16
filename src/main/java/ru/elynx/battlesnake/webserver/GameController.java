@@ -43,7 +43,7 @@ public class GameController {
     private GameEngineWithMeta getGameEngine(String gameId) {
         return gameEngines.compute(gameId, (key, value) -> {
             if (value == null) {
-                logger.info("Creating new game engine instance for game [" + key + "]");
+                logger.debug("Creating new game engine instance for game [" + key + "]");
                 return new GameEngineWithMeta(gameEngineFactory.makeGameEngine());
             }
 
@@ -54,7 +54,7 @@ public class GameController {
     }
 
     private GameEngineWithMeta releaseGameEngine(String gameId) {
-        logger.info("Releasing game engine instance for game [" + gameId + "]");
+        logger.debug("Releasing game engine instance for game [" + gameId + "]");
         return gameEngines.remove(gameId);
     }
 
