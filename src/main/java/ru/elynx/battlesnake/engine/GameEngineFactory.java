@@ -1,7 +1,10 @@
 package ru.elynx.battlesnake.engine;
 
-public class GameEngineFactory {
-    public static IGameEngine makeGameEngine() {
+import org.springframework.stereotype.Service;
+
+@Service
+public class GameEngineFactory implements IGameEngineFactory {
+    public GameEngine makeGameEngine() {
         return new GameEngine();
     }
 }

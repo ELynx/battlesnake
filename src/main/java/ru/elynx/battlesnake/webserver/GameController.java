@@ -1,33 +1,49 @@
 package ru.elynx.battlesnake.webserver;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.elynx.battlesnake.engine.GameEngine;
-import ru.elynx.battlesnake.engine.GameEngineFactory;
 import ru.elynx.battlesnake.engine.IGameEngine;
+import ru.elynx.battlesnake.engine.IGameEngineFactory;
 import ru.elynx.battlesnake.protocol.GameState;
 import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.SnakeConfig;
 
 import java.io.InvalidObjectException;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class GameController {
-    private Map<String, IGameEngine> gameEngines = new ConcurrentHashMap<>();
+    private IGameEngineFactory gameEngineFactory;
+    private Map<String, GameEngineWithMeta> gameEngines = new ConcurrentHashMap<>();
 
-    IGameEngine getGameEngine(String gameId) {
-        return gameEngines.computeIfAbsent(gameId, key -> GameEngineFactory.makeGameEngine());
+    @Autowired
+    public GameController(IGameEngineFactory gameEngineFactory) {
+        this.gameEngineFactory = gameEngineFactory;
     }
 
     private static void ValidateGameState(GameState gameState) throws InvalidObjectException {
         if (GameState.isInvalid(gameState))
             throw new InvalidObjectException("Provided GameState is not valid");
+    }
+
+    private GameEngineWithMeta getGameEngine(String gameId) {
+        return gameEngines.compute(gameId, (key, value) -> {
+            if (value == null) return new GameEngineWithMeta(gameEngineFactory.makeGameEngine());
+
+            value.accessTime = Instant.now();
+            return value;
+        });
+    }
+
+    private GameEngineWithMeta releaseGameEngine(String gameId) {
+        return gameEngines.remove(gameId);
     }
 
     @ExceptionHandler(InvalidObjectException.class)
@@ -38,23 +54,41 @@ public class GameController {
     @PostMapping(path = "/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SnakeConfig> start(@RequestBody GameState gameState) throws InvalidObjectException {
         ValidateGameState(gameState);
-        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).processStart(gameState));
+        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).gameEngine.processStart(gameState));
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Move> move(@RequestBody GameState gameState) throws InvalidObjectException {
         ValidateGameState(gameState);
-        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).processMove(gameState));
+        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).gameEngine.processMove(gameState));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@RequestBody GameState gameState) throws InvalidObjectException {
         ValidateGameState(gameState);
-        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).processEnd(gameState));
+
+        GameEngineWithMeta value = releaseGameEngine(gameState.getGame().getId());
+        if (value != null) {
+            value.gameEngine.processEnd(gameState);
+        }
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/ping")
     public ResponseEntity<Void> ping() {
         return ResponseEntity.ok().build();
+    }
+
+    private static class GameEngineWithMeta {
+        IGameEngine gameEngine;
+        Instant startTime;
+        Instant accessTime;
+
+        GameEngineWithMeta(IGameEngine gameEngine) {
+            this.gameEngine = gameEngine;
+            this.startTime = Instant.now();
+            this.accessTime = this.startTime;
+        }
     }
 }
