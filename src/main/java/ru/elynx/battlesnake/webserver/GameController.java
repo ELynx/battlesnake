@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.webserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class GameController {
+    private final static long STALE_GAME_ENGINE_ROUTINE_DELAY = 10000; // milliseconds
+    private final static long STALE_GAME_ENGINE_AGE = 5000; // milliseconds
     private IGameEngineFactory gameEngineFactory;
     private Map<String, GameEngineWithMeta> gameEngines = new ConcurrentHashMap<>();
 
@@ -44,6 +47,15 @@ public class GameController {
 
     private GameEngineWithMeta releaseGameEngine(String gameId) {
         return gameEngines.remove(gameId);
+    }
+
+    @Scheduled(fixedDelay = STALE_GAME_ENGINE_ROUTINE_DELAY)
+    private void cleanStaleGameEngines() {
+        if (gameEngines.isEmpty())
+            return;
+
+        Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_ENGINE_AGE);
+        gameEngines.values().removeIf(meta -> meta.accessTime.isBefore(staleGameTime));
     }
 
     @ExceptionHandler(InvalidObjectException.class)
