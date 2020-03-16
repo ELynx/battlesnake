@@ -71,4 +71,39 @@ public class GameEngineBasicTest {
         IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
         gameEngine.processEnd(dummyGameState);
     }
+
+    @Test
+    public void gameEngineDoesNotGoIntoWall() throws Exception {
+        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
+
+        dummyGameState.getYou().getBody().get(0).setY(0);
+
+        for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
+            dummyGameState.getYou().getBody().get(0).setX(x);
+
+            Move move = gameEngine.processMove(dummyGameState);
+            assert (!"up".equalsIgnoreCase(move.getMove()));
+        }
+
+        for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
+            dummyGameState.getYou().getBody().get(0).setY(y);
+
+            Move move = gameEngine.processMove(dummyGameState);
+            assert (!"right".equalsIgnoreCase(move.getMove()));
+        }
+
+        for (int x = dummyGameState.getBoard().getWidth() - 1; x >= 0; --x) {
+            dummyGameState.getYou().getBody().get(0).setX(x);
+
+            Move move = gameEngine.processMove(dummyGameState);
+            assert (!"down".equalsIgnoreCase(move.getMove()));
+        }
+
+        for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0 ; --y) {
+            dummyGameState.getYou().getBody().get(0).setY(y);
+
+            Move move = gameEngine.processMove(dummyGameState);
+            assert (!"left".equalsIgnoreCase(move.getMove()));
+        }
+    }
 }
