@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake;
+package ru.elynx.battlesnake.protocol;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
