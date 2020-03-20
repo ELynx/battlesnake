@@ -99,7 +99,7 @@ public class GameEngineBasicTest {
             assert (!"down".equalsIgnoreCase(move.getMove()));
         }
 
-        for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0 ; --y) {
+        for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
             dummyGameState.getYou().getBody().get(0).setY(y);
 
             Move move = gameEngine.processMove(dummyGameState);
