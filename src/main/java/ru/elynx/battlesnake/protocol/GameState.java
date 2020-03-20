@@ -19,6 +19,9 @@ public class GameState {
         if (gameState.getBoard().getFood() == null || gameState.getBoard().getSnakes() == null)
             return true;
 
+        if (gameState.getGame().getId() == null || gameState.getGame().getId().isEmpty())
+            return true;
+
         return false;
     }
 
