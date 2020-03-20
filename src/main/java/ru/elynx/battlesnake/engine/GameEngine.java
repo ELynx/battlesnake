@@ -10,7 +10,6 @@ public class GameEngine implements IGameEngine {
     private static String RIGHT = "right";
     private static String DOWN = "down";
     private static String LEFT = "left";
-    String move = UP;
 
     @Override
     public SnakeConfig processStart(GameState gameState) {
@@ -26,14 +25,25 @@ public class GameEngine implements IGameEngine {
         int x = head.getX();
         int y = head.getY();
 
-        if (y == 0 && UP.equals(move))
+        String move = UP;
+
+        if (y == 0)
             move = RIGHT;
-        else if (x == width - 1 && RIGHT.equals(move))
+
+        if (x == width - 1)
             move = DOWN;
-        else if (y == height - 1 && DOWN.equals(move))
+
+        if (y == height - 1)
             move = LEFT;
-        else if (x == 0 && LEFT.equals(move))
-            move = UP;
+
+        if (x == 0) {
+            if (y > 0) {
+                move = UP;
+            } else {
+                // the only "edge case to stateless logic"
+                move = RIGHT;
+            }
+        }
 
         return new Move(move, "4% ready");
     }
