@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class Matrix {
+    private final static double DEFAULT_SPLASH = 2.0d;
+
     private final int width;
     private final int height;
     private final double[] values;
@@ -48,6 +50,10 @@ public class Matrix {
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
+        return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
         // no impact - no setter
         if (valueAtImpact == 0.0d)
             return false;
@@ -61,7 +67,7 @@ public class Matrix {
 
         unsafeAddValue(index, valueAtImpact);
 
-        valueAtImpact = valueAtImpact / 2.0d;
+        valueAtImpact = valueAtImpact / denominator;
 
         addValue(x, y - 1, valueAtImpact);
         addValue(x - 1, y, valueAtImpact);
@@ -72,10 +78,14 @@ public class Matrix {
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
+        return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
         // TODO can be optimized af
 
-        if (splash1stOrder(x, y, valueAtImpact)) {
-            valueAtImpact = valueAtImpact / 4.0d;
+        if (splash1stOrder(x, y, valueAtImpact, denominator)) {
+            valueAtImpact = valueAtImpact / denominator / denominator;
 
             addValue(x - 1, y - 1, valueAtImpact);
             addValue(x + 1, y - 1, valueAtImpact);

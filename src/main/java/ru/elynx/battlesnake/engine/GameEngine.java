@@ -1,14 +1,17 @@
 package ru.elynx.battlesnake.engine;
 
 import ru.elynx.battlesnake.engine.math.Matrix;
+import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.protocol.*;
 
 import java.util.List;
 
 public class GameEngine implements IGameEngine {
-    private final static double WALL_WEIGHT = -10.0d;
+    private final static double WALL_WEIGHT = -1.0d;
+    private final static double MIN_FOOD_WEIGHT = 0.1d;
+    private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
-    private final static double SNAKE_BODY_WEIGHT = -1.0d;
+    private final static double SNAKE_BODY_WEIGHT = WALL_WEIGHT;
 
     private final static String UP = "up";
     private final static String RIGHT = "right";
@@ -42,14 +45,12 @@ public class GameEngine implements IGameEngine {
     protected void applyGameState(GameState gameState) {
         matrix.zero();
 
-        int ownHealth = gameState.getYou().getHealth();
-        int ownSize = gameState.getYou().getBody().size();
-
-        // apply soft coefficients
+        final int ownHealth = gameState.getYou().getHealth();
+        final int ownSize = gameState.getYou().getBody().size();
 
         // apply hunger
-        if (ownHealth < maxHealth) {
-            double foodWeight = 1.0d - (double) ownHealth / (double) maxHealth;
+        {
+            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, ownHealth, maxHealth, MAX_FOOD_WEIGHT);
 
             for (Coords food : gameState.getBoard().getFood()) {
                 Integer x = food.getX();
@@ -59,22 +60,23 @@ public class GameEngine implements IGameEngine {
             }
         }
 
-        // apply hard coefficients
+        // apply snake bodies for collision and hunt
+        {
+            // cell with three pieces of snake around should cost less than piece of snake
+            final double denominator = 4.0;
 
-        // apply snake bodies for collision
-        for (Snake snake : gameState.getBoard().getSnakes()) {
-            List<Coords> body = snake.getBody();
-            for (int i = 0, size = body.size(); i < size; ++i) {
-                Integer x = body.get(i).getX();
-                Integer y = body.get(i).getY();
+            for (Snake snake : gameState.getBoard().getSnakes()) {
+                List<Coords> body = snake.getBody();
+                for (int i = 0, size = body.size(); i < size; ++i) {
+                    Integer x = body.get(i).getX();
+                    Integer y = body.get(i).getY();
 
-                // since we are looking for strictly less own body will get into wall category
-                if (i == 0 && size < ownSize) {
-                    matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
-                    matrix.setValue(x, y, LESSER_SNAKE_HEAD_WEIGHT);
-                } else {
-                    matrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT);
-                    matrix.setValue(x, y, SNAKE_BODY_WEIGHT); // avoid
+                    // since we are looking for strictly less own body will get into wall category
+                    if (i == 0 && size < ownSize) {
+                        matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
+                    } else {
+                        matrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+                    }
                 }
             }
         }
