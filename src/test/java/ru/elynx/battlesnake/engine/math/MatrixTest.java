@@ -6,8 +6,9 @@ public class MatrixTest {
     @Test
     public void zeroMatrix() {
         final int w = 11, h = 15;
+        final double wl = -2.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(w, h);
+        Matrix matrix = Matrix.zeroMatrix(w, h, wl);
 
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -19,9 +20,10 @@ public class MatrixTest {
     @Test
     public void getSetZero() {
         final int w = 11, h = 15;
+        final double wl = -2.0d;
         final double v = 123.4;
 
-        Matrix matrix = Matrix.zeroMatrix(w, h);
+        Matrix matrix = Matrix.zeroMatrix(w, h, wl);
 
         for (int x = -1; x < w + 1; ++x) {
             for (int y = -1; y < h + 1; ++y) {
@@ -29,7 +31,7 @@ public class MatrixTest {
 
                 double v2 = matrix.getValue(x, y);
 
-                assert (v2 == v || v2 == -1.0d); // TODO indexes
+                assert (v2 == v || v2 == wl); // TODO indexes
             }
         }
 
@@ -47,7 +49,7 @@ public class MatrixTest {
     public void splash1stOrder() {
         final double v = 1.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(4, 4);
+        Matrix matrix = Matrix.zeroMatrix(4, 4, -123.0);
 
         assert (!matrix.splash1stOrder(-1, -1, v));
         assert (!matrix.splash1stOrder(4, 4, v));
@@ -65,7 +67,7 @@ public class MatrixTest {
     public void splash2ndOrder() {
         final double v = 1.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(4, 4);
+        Matrix matrix = Matrix.zeroMatrix(4, 4, -123.0);
 
         assert (!matrix.splash2ndOrder(-1, -1, v));
         assert (!matrix.splash2ndOrder(4, 4, v));

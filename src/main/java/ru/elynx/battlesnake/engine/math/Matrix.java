@@ -4,15 +4,17 @@ public class Matrix {
     private final int width;
     private final int height;
     private final double[] values;
+    private final double outsideValue;
 
-    protected Matrix(int width, int height) {
+    protected Matrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
         this.values = new double[width * height];
+        this.outsideValue = outsideValue;
     }
 
-    public static Matrix zeroMatrix(int width, int height) {
-        return new Matrix(width, height);
+    public static Matrix zeroMatrix(int width, int height, double outsideValue) {
+        return new Matrix(width, height, outsideValue);
     }
 
     public void zero() {
@@ -24,7 +26,7 @@ public class Matrix {
     public double getValue(int x, int y) {
         int index = safeIndex(x, y);
         if (index < 0)
-            return -1.0d; //TODO theory
+            return outsideValue;
 
         return unsafeGetValue(index);
     }

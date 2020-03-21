@@ -6,8 +6,9 @@ import ru.elynx.battlesnake.protocol.*;
 import java.util.List;
 
 public class GameEngine implements IGameEngine {
-    private final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
-    private final double SNAKE_BODY_WEIGHT = -1.0d;
+    private final static double WALL_WEIGHT = -10.0d;
+    private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
+    private final static double SNAKE_BODY_WEIGHT = -1.0d;
 
     private final static String UP = "up";
     private final static String RIGHT = "right";
@@ -22,7 +23,11 @@ public class GameEngine implements IGameEngine {
         if (initialized)
             return;
 
-        matrix = Matrix.zeroMatrix(gameState.getBoard().getWidth(), gameState.getBoard().getHeight());
+        matrix = Matrix.zeroMatrix(
+                gameState.getBoard().getWidth(),
+                gameState.getBoard().getHeight(),
+                WALL_WEIGHT);
+
         maxHealth = gameState.getYou().getHealth();
 
         initialized = true;
@@ -67,8 +72,7 @@ public class GameEngine implements IGameEngine {
                 if (i == 0 && size < ownSize) {
                     matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
                     matrix.setValue(x, y, LESSER_SNAKE_HEAD_WEIGHT);
-                }
-                else {
+                } else {
                     matrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT);
                     matrix.setValue(x, y, SNAKE_BODY_WEIGHT); // avoid
                 }
