@@ -6,6 +6,9 @@ import ru.elynx.battlesnake.protocol.*;
 import java.util.List;
 
 public class GameEngine implements IGameEngine {
+    private final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
+    private final double SNAKE_BODY_WEIGHT = -1.0d;
+
     private final static String UP = "up";
     private final static String RIGHT = "right";
     private final static String DOWN = "down";
@@ -61,10 +64,14 @@ public class GameEngine implements IGameEngine {
                 Integer y = body.get(i).getY();
 
                 // since we are looking for strictly less own body will get into wall category
-                if (i == 0 && size < ownSize)
-                    matrix.setValue(x, y, 0.75); // TODO as parameter
-                else
-                    matrix.setValue(x, y, -1.0d); // avoid
+                if (i == 0 && size < ownSize) {
+                    matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
+                    matrix.setValue(x, y, LESSER_SNAKE_HEAD_WEIGHT);
+                }
+                else {
+                    matrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT);
+                    matrix.setValue(x, y, SNAKE_BODY_WEIGHT); // avoid
+                }
             }
         }
     }
