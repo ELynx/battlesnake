@@ -65,7 +65,7 @@ public class Matrix {
         if (index < 0)
             return false;
 
-        unsafeAddValue(index, valueAtImpact);
+        unsafeSetValue(index, valueAtImpact);
 
         valueAtImpact = valueAtImpact / denominator;
 
