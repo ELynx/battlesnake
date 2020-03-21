@@ -15,6 +15,12 @@ public class Matrix {
         return new Matrix(width, height);
     }
 
+    public void zero() {
+        for (int i = 0, l = width * height; i < l; ++i) {
+            values[i] = 0.0d;
+        }
+    }
+
     public double getValue(int x, int y) {
         int index = safeIndex(x, y);
         if (index < 0)
@@ -73,6 +79,8 @@ public class Matrix {
             addValue(x + 1, y - 1, valueAtImpact);
             addValue(x - 1, y + 1, valueAtImpact);
             addValue(x + 1, y + 1, valueAtImpact);
+
+            return true;
         }
 
         return false;

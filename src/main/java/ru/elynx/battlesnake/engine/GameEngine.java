@@ -11,9 +11,9 @@ public class GameEngine implements IGameEngine {
     private final static String DOWN = "down";
     private final static String LEFT = "left";
 
+    protected Matrix matrix;
+    protected int maxHealth;
     protected boolean initialized = false;
-    Matrix matrix;
-    int maxHealth;
 
     protected void initOnce(GameState gameState) {
         if (initialized)
@@ -21,6 +21,8 @@ public class GameEngine implements IGameEngine {
 
         matrix = Matrix.zeroMatrix(gameState.getBoard().getWidth(), gameState.getBoard().getHeight());
         maxHealth = gameState.getYou().getHealth();
+
+        initialized = true;
     }
 
     @Override
@@ -30,8 +32,26 @@ public class GameEngine implements IGameEngine {
     }
 
     protected void applyGameState(GameState gameState) {
-        int ownSize = gameState.getYou().getBody().size();
+        matrix.zero();
+
         int ownHealth = gameState.getYou().getHealth();
+        int ownSize = gameState.getYou().getBody().size();
+
+        // apply soft coefficients
+
+        // apply hunger
+        if (ownHealth < maxHealth) {
+            double foodWeight = 1.0d - (double) ownHealth / (double) maxHealth;
+
+            for (Coords food : gameState.getBoard().getFood()) {
+                Integer x = food.getX();
+                Integer y = food.getY();
+
+                matrix.splash2ndOrder(x, y, foodWeight);
+            }
+        }
+
+        // apply hard coefficients
 
         // apply snake bodies for collision
         for (Snake snake : gameState.getBoard().getSnakes()) {
@@ -42,20 +62,9 @@ public class GameEngine implements IGameEngine {
 
                 // since we are looking for strictly less own body will get into wall category
                 if (i == 0 && size < ownSize)
-                    matrix.splash1stOrder(x, y, 0.75); // TODO as parameter
+                    matrix.setValue(x, y, 0.75); // TODO as parameter
                 else
                     matrix.setValue(x, y, -1.0d); // avoid
-            }
-        }
-
-        if (ownHealth < maxHealth) {
-            double foodWeight = 1.0d - (double) ownHealth / (double) maxHealth;
-
-            for (Coords food : gameState.getBoard().getFood()) {
-                Integer x = food.getX();
-                Integer y = food.getY();
-
-                matrix.splash2ndOrder(x, y, foodWeight);
             }
         }
     }
@@ -91,15 +100,15 @@ public class GameEngine implements IGameEngine {
     }
 
     protected String makeMove(GameState gameState) {
-        initOnce(gameState);
         applyGameState(gameState);
         return bestMove(gameState.getYou().getBody().get(0));
     }
 
     @Override
     public Move processMove(GameState gameState) {
+        initOnce(gameState);
         String move = makeMove(gameState);
-        return new Move(move, "4% ready");
+        return new Move(move, "5% ready");
     }
 
     @Override
