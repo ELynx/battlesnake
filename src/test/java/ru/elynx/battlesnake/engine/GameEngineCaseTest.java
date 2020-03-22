@@ -55,8 +55,14 @@ public class GameEngineCaseTest {
         turn113.getBoard().setSnakes(new LinkedList<>());
         turn113.getBoard().getSnakes().add(turn113.getYou());
 
-        Move move = gameEngine.processMove(turn113);
+        Move moveMaxHealth = gameEngine.processMove(turn113);
 
-        assert (!"up".equalsIgnoreCase(move.getMove()));
+        assert (!"up".equalsIgnoreCase(moveMaxHealth.getMove()));
+
+        turn113.getYou().setHealth(0);
+
+        Move moveMinHealth = gameEngine.processMove(turn113);
+
+        assert (!"up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
 }
