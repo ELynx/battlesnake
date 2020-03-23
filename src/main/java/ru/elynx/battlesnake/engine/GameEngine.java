@@ -45,12 +45,9 @@ public class GameEngine implements IGameEngine {
     protected void applyGameState(GameState gameState) {
         matrix.zero();
 
-        final int ownHealth = gameState.getYou().getHealth();
-        final int ownSize = gameState.getYou().getBody().size();
-
         // apply hunger
         {
-            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, ownHealth, maxHealth, MAX_FOOD_WEIGHT);
+            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
 
             for (Coords food : gameState.getBoard().getFood()) {
                 Integer x = food.getX();
@@ -65,6 +62,8 @@ public class GameEngine implements IGameEngine {
             // cell with three pieces of snake around should cost less than piece of snake
             final double denominator = 4.0;
 
+            int ownSize = gameState.getYou().getBody().size();
+
             for (Snake snake : gameState.getBoard().getSnakes()) {
                 List<Coords> body = snake.getBody();
                 for (int i = 0, size = body.size(); i < size; ++i) {
@@ -72,6 +71,7 @@ public class GameEngine implements IGameEngine {
                     Integer y = body.get(i).getY();
 
                     // since we are looking for strictly less own body will get into wall category
+                    // side effect for using splash: all but last pieces get splash
                     if (i == 0 && size < ownSize) {
                         matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
                     } else {
@@ -82,6 +82,15 @@ public class GameEngine implements IGameEngine {
         }
     }
 
+    private double getCrossWeight(int x, int y) {
+        double result = matrix.getValue(x, y - 1);
+        result += matrix.getValue(x - 1, y);
+        result += matrix.getValue(x, y);
+        result += matrix.getValue(x + 1, y);
+        result += matrix.getValue(x, y + 1);
+        return result;
+    }
+
     protected String bestMove(Coords head) {
         Integer x = head.getX();
         Integer y = head.getY();
@@ -89,21 +98,21 @@ public class GameEngine implements IGameEngine {
         // index ascending order
 
         String bestDirection = UP;
-        double bestValue = matrix.getValue(x, y - 1);
+        double bestValue = getCrossWeight(x, y - 1);
 
-        double nextValue = matrix.getValue(x - 1, y);
+        double nextValue = getCrossWeight(x - 1, y);
         if (nextValue > bestValue) {
             bestDirection = LEFT;
             bestValue = nextValue;
         }
 
-        nextValue = matrix.getValue(x + 1, y);
+        nextValue = getCrossWeight(x + 1, y);
         if (nextValue > bestValue) {
             bestDirection = RIGHT;
             bestValue = nextValue;
         }
 
-        nextValue = matrix.getValue(x, y + 1);
+        nextValue = getCrossWeight(x, y + 1);
         if (nextValue > bestValue) {
             bestDirection = DOWN;
             //bestValue = nextValue;
