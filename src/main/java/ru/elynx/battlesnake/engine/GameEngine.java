@@ -12,6 +12,7 @@ public class GameEngine implements IGameEngine {
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private final static double SNAKE_BODY_WEIGHT = WALL_WEIGHT;
+    private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01;
 
     private final static String UP = "up";
     private final static String RIGHT = "right";
@@ -20,6 +21,7 @@ public class GameEngine implements IGameEngine {
 
     protected Matrix matrix;
     protected int maxHealth;
+    protected String lastMove;
     protected boolean initialized = false;
 
     protected void initOnce(GameState gameState) {
@@ -32,6 +34,7 @@ public class GameEngine implements IGameEngine {
                 WALL_WEIGHT);
 
         maxHealth = gameState.getYou().getHealth();
+        lastMove = UP;
 
         initialized = true;
     }
@@ -91,6 +94,12 @@ public class GameEngine implements IGameEngine {
         return result;
     }
 
+    private double getDirectionWeight(String direction) {
+        if (direction.equals(lastMove))
+            return REPEAT_LAST_MOVE_WEIGHT;
+        return 0.0d;
+    }
+
     protected String bestMove(Coords head) {
         Integer x = head.getX();
         Integer y = head.getY();
@@ -98,21 +107,21 @@ public class GameEngine implements IGameEngine {
         // index ascending order
 
         String bestDirection = UP;
-        double bestValue = getCrossWeight(x, y - 1);
+        double bestValue = getCrossWeight(x, y - 1) + getDirectionWeight(UP);
 
-        double nextValue = getCrossWeight(x - 1, y);
+        double nextValue = getCrossWeight(x - 1, y) + getDirectionWeight(LEFT);
         if (nextValue > bestValue) {
             bestDirection = LEFT;
             bestValue = nextValue;
         }
 
-        nextValue = getCrossWeight(x + 1, y);
+        nextValue = getCrossWeight(x + 1, y) + getDirectionWeight(RIGHT);
         if (nextValue > bestValue) {
             bestDirection = RIGHT;
             bestValue = nextValue;
         }
 
-        nextValue = getCrossWeight(x, y + 1);
+        nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(DOWN);
         if (nextValue > bestValue) {
             bestDirection = DOWN;
             //bestValue = nextValue;
@@ -130,6 +139,7 @@ public class GameEngine implements IGameEngine {
     public Move processMove(GameState gameState) {
         initOnce(gameState);
         String move = makeMove(gameState);
+        lastMove = move;
         return new Move(move, "5% ready");
     }
 
