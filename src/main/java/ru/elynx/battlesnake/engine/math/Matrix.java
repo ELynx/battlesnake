@@ -5,13 +5,15 @@ public class Matrix {
 
     private final int width;
     private final int height;
+    private final int length;
     private final double[] values;
     private final double outsideValue;
 
     protected Matrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
-        this.values = new double[width * height];
+        this.length = this.width * this.height;
+        this.values = new double[this.length];
         this.outsideValue = outsideValue;
     }
 
@@ -20,7 +22,7 @@ public class Matrix {
     }
 
     public void zero() {
-        for (int i = 0, l = width * height; i < l; ++i) {
+        for (int i = 0; i < length; ++i) {
             values[i] = 0.0d;
         }
     }
@@ -33,12 +35,13 @@ public class Matrix {
         return unsafeGetValue(index);
     }
 
-    public void setValue(int x, int y, double value) {
+    public boolean setValue(int x, int y, double value) {
         int index = safeIndex(x, y);
         if (index < 0)
-            return;
+            return false;
 
         unsafeSetValue(index, value);
+        return true;
     }
 
     protected void addValue(int x, int y, double value) {
@@ -53,37 +56,33 @@ public class Matrix {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
+    // TODO can be optimized
     public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
         // no impact - no setter
         if (valueAtImpact == 0.0d)
             return false;
 
-        // TODO can be optimized
-
         // if impact is out of matrix ignore the setter
-        int index = safeIndex(x, y);
-        if (index < 0)
-            return false;
+        if (setValue(x, y, valueAtImpact)) {
+            valueAtImpact = valueAtImpact / denominator;
 
-        unsafeSetValue(index, valueAtImpact);
+            addValue(x, y - 1, valueAtImpact);
+            addValue(x - 1, y, valueAtImpact);
+            addValue(x + 1, y, valueAtImpact);
+            addValue(x, y + 1, valueAtImpact);
 
-        valueAtImpact = valueAtImpact / denominator;
+            return true;
+        }
 
-        addValue(x, y - 1, valueAtImpact);
-        addValue(x - 1, y, valueAtImpact);
-        addValue(x + 1, y, valueAtImpact);
-        addValue(x, y + 1, valueAtImpact);
-
-        return true;
+        return false;
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
         return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
+    // TODO can be optimized af
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
-        // TODO can be optimized af
-
         if (splash1stOrder(x, y, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
