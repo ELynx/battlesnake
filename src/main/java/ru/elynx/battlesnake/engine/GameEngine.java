@@ -50,7 +50,7 @@ public class GameEngine implements IGameEngine {
 
         // apply hunger
         {
-            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
+            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, maxHealth - gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
 
             for (Coords food : gameState.getBoard().getFood()) {
                 Integer x = food.getX();
