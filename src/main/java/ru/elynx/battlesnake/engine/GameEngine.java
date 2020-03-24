@@ -12,7 +12,7 @@ public class GameEngine implements IGameEngine {
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private final static double SNAKE_BODY_WEIGHT = WALL_WEIGHT;
-    private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01;
+    private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
 
     private final static String UP = "up";
     private final static String RIGHT = "right";
