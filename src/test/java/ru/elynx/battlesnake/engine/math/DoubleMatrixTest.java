@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
-public class MatrixTest {
+public class DoubleMatrixTest {
     private final static double fuzz = 0.0001d;
 
     @Test
@@ -14,7 +14,7 @@ public class MatrixTest {
         final int w = 11, h = 15;
         final double wl = -2.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(w, h, wl);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(w, h, wl);
 
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -29,7 +29,7 @@ public class MatrixTest {
         final double wl = -2.0d;
         final double v = 123.4d;
 
-        Matrix matrix = Matrix.zeroMatrix(w, h, wl);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(w, h, wl);
 
         for (int x = -1; x < w + 1; ++x) {
             for (int y = -1; y < h + 1; ++y) {
@@ -55,7 +55,7 @@ public class MatrixTest {
     public void splash1stOrder() throws Exception {
         final double v = 1.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(4, 4, -123.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
 
         assert (!matrix.splash1stOrder(-1, -1, v));
         assert (!matrix.splash1stOrder(4, 4, v));
@@ -73,7 +73,7 @@ public class MatrixTest {
     public void splash2ndOrder() throws Exception {
         final double v = 1.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(4, 4, -123.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
 
         assert (!matrix.splash2ndOrder(-1, -1, v));
         assert (!matrix.splash2ndOrder(4, 4, v));
@@ -97,7 +97,7 @@ public class MatrixTest {
         final double v = 1.0d;
         final double d = 4.0d;
 
-        Matrix matrix = Matrix.zeroMatrix(4, 4, -456.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -456.0d);
 
         assert (!matrix.splash1stOrder(-1, -1, v, d));
         assert (!matrix.splash1stOrder(4, 4, v, d));
@@ -131,7 +131,7 @@ public class MatrixTest {
 
     @Test
     public void splashImpactOrder() throws Exception {
-        Matrix matrix = Matrix.zeroMatrix(2, 2, -1.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
 
         matrix.splash2ndOrder(0, 0, 4.0d);
         matrix.splash2ndOrder(1, 1, -1.0d);

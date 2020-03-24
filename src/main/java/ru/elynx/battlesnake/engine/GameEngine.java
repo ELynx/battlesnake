@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine;
 
-import ru.elynx.battlesnake.engine.math.Matrix;
+import ru.elynx.battlesnake.engine.math.DoubleMatrix;
+import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.protocol.*;
 
@@ -12,6 +13,7 @@ public class GameEngine implements IGameEngine {
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private final static double SNAKE_BODY_WEIGHT = WALL_WEIGHT;
+    private final static double BLOCKED_MOVE_WEIGHT = -100.0d; // TODO minus infinity
     private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
 
     private final static String UP = "up";
@@ -19,7 +21,8 @@ public class GameEngine implements IGameEngine {
     private final static String DOWN = "down";
     private final static String LEFT = "left";
 
-    protected Matrix matrix;
+    protected DoubleMatrix weightMatrix;
+    protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
     protected boolean initialized = false;
@@ -28,10 +31,15 @@ public class GameEngine implements IGameEngine {
         if (initialized)
             return;
 
-        matrix = Matrix.zeroMatrix(
+        weightMatrix = DoubleMatrix.zeroMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
                 WALL_WEIGHT);
+
+        blockedMatrix = FlagMatrix.falseMatrix(
+                gameState.getBoard().getWidth(),
+                gameState.getBoard().getHeight(),
+                true);
 
         maxHealth = gameState.getYou().getHealth();
         lastMove = UP;
@@ -46,7 +54,8 @@ public class GameEngine implements IGameEngine {
     }
 
     protected void applyGameState(GameState gameState) {
-        matrix.zero();
+        weightMatrix.zero();
+        blockedMatrix.reset();
 
         // apply hunger
         {
@@ -56,7 +65,7 @@ public class GameEngine implements IGameEngine {
                 Integer x = food.getX();
                 Integer y = food.getY();
 
-                matrix.splash2ndOrder(x, y, foodWeight);
+                weightMatrix.splash2ndOrder(x, y, foodWeight);
             }
         }
 
@@ -76,21 +85,26 @@ public class GameEngine implements IGameEngine {
                     // since we are looking for strictly less own body will get into wall category
                     // side effect for using splash: all but last pieces get splash
                     if (i == 0 && size < ownSize) {
-                        matrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
+                        weightMatrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
                     } else {
-                        matrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+                        weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
                     }
+
+                    blockedMatrix.setValue(x, y, true);
                 }
             }
         }
     }
 
     private double getCrossWeight(int x, int y) {
-        double result = matrix.getValue(x, y - 1);
-        result += matrix.getValue(x - 1, y);
-        result += matrix.getValue(x, y);
-        result += matrix.getValue(x + 1, y);
-        result += matrix.getValue(x, y + 1);
+        if (blockedMatrix.getValue(x, y))
+            return BLOCKED_MOVE_WEIGHT;
+
+        double result = weightMatrix.getValue(x, y - 1);
+        result += weightMatrix.getValue(x - 1, y);
+        result += weightMatrix.getValue(x, y);
+        result += weightMatrix.getValue(x + 1, y);
+        result += weightMatrix.getValue(x, y + 1);
         return result;
     }
 
@@ -140,7 +154,7 @@ public class GameEngine implements IGameEngine {
         initOnce(gameState);
         String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "5% ready");
+        return new Move(move, "6% ready");
     }
 
     @Override

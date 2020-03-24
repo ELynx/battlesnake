@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.math;
 
-public class Matrix {
+public class DoubleMatrix {
     private final static double DEFAULT_SPLASH = 2.0d;
 
     private final int width;
@@ -9,7 +9,7 @@ public class Matrix {
     private final double[] values;
     private final double outsideValue;
 
-    protected Matrix(int width, int height, double outsideValue) {
+    protected DoubleMatrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
@@ -17,8 +17,8 @@ public class Matrix {
         this.outsideValue = outsideValue;
     }
 
-    public static Matrix zeroMatrix(int width, int height, double outsideValue) {
-        return new Matrix(width, height, outsideValue);
+    public static DoubleMatrix zeroMatrix(int width, int height, double outsideValue) {
+        return new DoubleMatrix(width, height, outsideValue);
     }
 
     public void zero() {
