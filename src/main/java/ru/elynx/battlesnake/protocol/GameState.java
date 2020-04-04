@@ -56,4 +56,16 @@ public class GameState {
     public void setYou(Snake you) {
         this.you = you;
     }
+
+    public String terseIdentification() {
+        return new StringBuilder()
+                .append("ID [")
+                .append(getGame() == null ? "unknown" : getGame().getId())
+                .append("] Turn [")
+                .append(getTurn() == null ? "unknown" : getTurn().intValue())
+                .append("] Snake [")
+                .append(getYou() == null ? "unknown" : getYou().getName())
+                .append(']')
+                .toString();
+    }
 }

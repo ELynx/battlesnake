@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 public class ProtocolTest {
     private ObjectMapper mapper = new ObjectMapper();
@@ -55,55 +57,83 @@ public class ProtocolTest {
     public void deserializeApiExampleGameState() throws Exception {
         GameState gameState = mapper.readValue(ApiExampleGameState, GameState.class);
 
-        assert (gameState != null);
+        assertNotNull(gameState);
 
-        assert (gameState.getGame().getId().equals("game-id-string"));
+        assertEquals("game-id-string", gameState.getGame().getId());
 
-        assert (gameState.getTurn().equals(4));
+        assertEquals(4, gameState.getTurn());
 
-        assert (gameState.getBoard().getHeight().equals(15));
-        assert (gameState.getBoard().getWidth().equals(15));
-        assert (gameState.getBoard().getFood().size() == 1);
-        assert (gameState.getBoard().getFood().get(0).getX().equals(1));
-        assert (gameState.getBoard().getFood().get(0).getY().equals(3));
+        assertEquals(15, gameState.getBoard().getHeight());
+        assertEquals(15, gameState.getBoard().getWidth());
+        assertEquals(1, gameState.getBoard().getFood().size());
+        assertEquals(1, gameState.getBoard().getFood().get(0).getX());
+        assertEquals(3, gameState.getBoard().getFood().get(0).getY());
 
-        assert (gameState.getBoard().getSnakes().size() == 1);
-        assert (gameState.getBoard().getSnakes().get(0).getId().equals("snake-id-string"));
-        assert (gameState.getBoard().getSnakes().get(0).getName().equals("Sneky Snek"));
-        assert (gameState.getBoard().getSnakes().get(0).getHealth().equals(90));
-        assert (gameState.getBoard().getSnakes().get(0).getBody().size() == 1);
-        assert (gameState.getBoard().getSnakes().get(0).getBody().get(0).getX().equals(1));
-        assert (gameState.getBoard().getSnakes().get(0).getBody().get(0).getY().equals(3));
-        assert (gameState.getBoard().getSnakes().get(0).getShout().equals("Hello my name is Sneky Snek"));
+        assertEquals(1, gameState.getBoard().getSnakes().size());
+        assertEquals("snake-id-string", gameState.getBoard().getSnakes().get(0).getId());
+        assertEquals("Sneky Snek", gameState.getBoard().getSnakes().get(0).getName());
+        assertEquals(90, gameState.getBoard().getSnakes().get(0).getHealth());
+        assertEquals(1, gameState.getBoard().getSnakes().get(0).getBody().size());
+        assertEquals(1, gameState.getBoard().getSnakes().get(0).getBody().get(0).getX());
+        assertEquals(3, gameState.getBoard().getSnakes().get(0).getBody().get(0).getY());
+        assertEquals("Hello my name is Sneky Snek", gameState.getBoard().getSnakes().get(0).getShout());
 
-        assert (gameState.getYou().getId().equals("snake-id-string"));
-        assert (gameState.getYou().getName().equals("Sneky Snek"));
-        assert (gameState.getYou().getHealth().equals(90));
-        assert (gameState.getYou().getBody().size() == 1);
-        assert (gameState.getYou().getBody().get(0).getX().equals(1));
-        assert (gameState.getYou().getBody().get(0).getY().equals(3));
-        assert (gameState.getYou().getShout().equals("Hello my name is Sneky Snek"));
+        assertEquals("snake-id-string", gameState.getYou().getId());
+        assertEquals("Sneky Snek", gameState.getYou().getName());
+        assertEquals(90, gameState.getYou().getHealth());
+        assertEquals(1, gameState.getYou().getBody().size());
+        assertEquals(1, gameState.getYou().getBody().get(0).getX());
+        assertEquals(3, gameState.getYou().getBody().get(0).getY());
+        assertEquals("Hello my name is Sneky Snek", gameState.getYou().getShout());
     }
 
     @Test
     public void serializeSnakeConfig() throws Exception {
         String serialized = mapper.writeValueAsString(new SnakeConfig("#dedbff", "begin", "end"));
 
-        assert (serialized.matches(".*\\\"color\\\"\\s*\\:\\s*\\\"\\#dedbff\\\".*"));
-        assert (serialized.matches(".*\\\"headType\\\"\\s*\\:\\s*\\\"begin\\\".*"));
-        assert (serialized.matches(".*\\\"tailType\\\"\\s*\\:\\s*\\\"end\\\".*"));
+        assertTrue(serialized.matches(".*\"color\"\\s*:\\s*\"#dedbff\".*"));
+        assertTrue(serialized.matches(".*\"headType\"\\s*:\\s*\"begin\".*"));
+        assertTrue(serialized.matches(".*\"tailType\"\\s*:\\s*\"end\".*"));
     }
 
     @Test
     public void serializeMove() throws Exception {
         String serialized = mapper.writeValueAsString(new Move("down", "shshshout"));
 
-        assert (serialized.matches(".*\\\"move\\\"\\s*\\:\\s*\\\"down\\\".*"));
-        assert (serialized.matches(".*\\\"shout\\\"\\s*\\:\\s*\\\"shshshout\\\".*"));
+        assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"down\".*"));
+        assertTrue(serialized.matches(".*\"shout\"\\s*:\\s*\"shshshout\".*"));
 
         serialized = mapper.writeValueAsString(new Move("right"));
 
-        assert (serialized.matches(".*\\\"move\\\"\\s*\\:\\s*\\\"right\\\".*"));
-        assert (!serialized.matches(".*\\\"shout\\\".*"));
+        assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"right\".*"));
+        assertFalse(serialized.matches(".*\"shout\".*"));
+    }
+
+    @Test
+    public void gameStateTerseIdentifier() throws Exception {
+        GameState gameState = mapper.readValue(ApiExampleGameState, GameState.class);
+
+        assertNotNull(gameState);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        //String humanReadable = gameState.terseIdentification();
+
+        gameState.getGame().setId(null);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        gameState.setGame(null);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        gameState.setTurn(null);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        gameState.setBoard(null);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        gameState.getYou().setName(null);
+        assertDoesNotThrow(gameState::terseIdentification);
+
+        gameState.setYou(null);
+        assertDoesNotThrow(gameState::terseIdentification);
     }
 }

@@ -86,7 +86,7 @@ public class GameController {
     public ResponseEntity<SnakeConfig> start(@RequestBody GameState gameState) throws InvalidObjectException {
         logger.info("Processing request game start");
         ValidateGameState(gameState);
-        logger.debug("Game [" + gameState.getGame().getId() + "]");
+        logger.info("Game [" + gameState.terseIdentification() + "]");
         return ResponseEntity.ok(getGame(gameState).gameStrategy.processStart(gameState));
     }
 
@@ -94,7 +94,7 @@ public class GameController {
     public ResponseEntity<Move> move(@RequestBody GameState gameState) throws InvalidObjectException {
         logger.debug("Processing request game move");
         ValidateGameState(gameState);
-        logger.debug("Game [" + gameState.getGame().getId() + "]");
+        logger.debug("Game [" + gameState.terseIdentification() + "]");
         return ResponseEntity.ok(getGame(gameState).gameStrategy.processMove(gameState));
     }
 
@@ -102,7 +102,7 @@ public class GameController {
     public ResponseEntity<Void> end(@RequestBody GameState gameState) throws InvalidObjectException {
         logger.info("Processing request game end");
         ValidateGameState(gameState);
-        logger.debug("Game [" + gameState.getGame().getId() + "]");
+        logger.info("Game [" + gameState.terseIdentification() + "]");
 
         Game value = releaseGame(gameState);
         if (value != null) {
