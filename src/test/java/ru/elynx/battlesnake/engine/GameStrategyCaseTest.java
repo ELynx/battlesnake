@@ -1,6 +1,5 @@
 package ru.elynx.battlesnake.engine;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,8 @@ import ru.elynx.battlesnake.protocol.*;
 
 import java.util.LinkedList;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_INDEXES;
 
 @SpringBootTest
@@ -62,13 +63,13 @@ public class GameStrategyCaseTest {
 
         Move moveMaxHealth = gameStrategy.processMove(turn113);
 
-        assert (!"up".equalsIgnoreCase(moveMaxHealth.getMove()));
+        assertFalse("up".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn113.getYou().setHealth(0);
 
         Move moveMinHealth = gameStrategy.processMove(turn113);
 
-        assert (!"up".equalsIgnoreCase(moveMinHealth.getMove()));
+        assertFalse("up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
 
     @ParameterizedTest
@@ -135,12 +136,12 @@ public class GameStrategyCaseTest {
 
         Move moveMaxHealth = gameStrategy.processMove(turn49);
 
-        assert ("down".equalsIgnoreCase(moveMaxHealth.getMove()));
+        assertTrue("down".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn49.getYou().setHealth(0);
 
         Move moveMinHealth = gameStrategy.processMove(turn49);
 
-        assert ("down".equalsIgnoreCase(moveMinHealth.getMove()));
+        assertTrue("down".equalsIgnoreCase(moveMinHealth.getMove()));
     }
 }
