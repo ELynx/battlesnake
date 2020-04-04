@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.engine;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
@@ -12,12 +14,13 @@ public class GameStrategyCaseTest {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
-    @Test
-    public void avoidFruitSurroundedBySnake() throws Exception {
+    @ParameterizedTest
+    @MethodSource("ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes")
+    public void avoidFruitSurroundedBySnake(Integer index) throws Exception {
         // https://play.battlesnake.com/g/01a12be5-d44a-4d23-a073-8757fcab9db2/
         // wrong decision at turn 113
 
-        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
 
         GameState turn113 = new GameState();
 
@@ -66,12 +69,13 @@ public class GameStrategyCaseTest {
         assert (!"up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
 
-    @Test
-    public void emptySpaceBetterThanSnake() throws Exception {
+    @ParameterizedTest
+    @MethodSource("ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes")
+    public void emptySpaceBetterThanSnake(Integer index) throws Exception {
         // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
         // wrong decision at turn 49
 
-        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
 
         GameState turn49 = new GameState();
 

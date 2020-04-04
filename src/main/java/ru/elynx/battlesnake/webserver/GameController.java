@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class GameController {
-    private final static long STALE_GAME_ROUTINE_DELAY = 10000; // milliseconds
+    private final static long STALE_GAME_ROUTINE_DELAY = 60000; // milliseconds
     private final static long STALE_GAME_AGE = 5000; // milliseconds
     private Logger logger = LoggerFactory.getLogger(GameController.class);
     private IGameStrategyFactory gameStrategyFactory;
@@ -39,11 +39,13 @@ public class GameController {
             throw new InvalidObjectException("Provided GameState is not valid");
     }
 
-    private Game getGame(String gameId) {
+    private Game getGame(GameState gameState) {
+        String gameId = gameState.getGame().getId();
+
         return activeGames.compute(gameId, (key, value) -> {
             if (value == null) {
                 logger.debug("Creating new game instance for game [" + key + "]");
-                return new Game(gameStrategyFactory.makeGameStrategy());
+                return new Game(gameStrategyFactory.makeGameStrategy(gameState));
             }
 
             logger.debug("Accessing existing game instance for game [" + key + "]");
@@ -52,7 +54,9 @@ public class GameController {
         });
     }
 
-    private Game releaseGame(String gameId) {
+    private Game releaseGame(GameState gameState) {
+        String gameId = gameState.getGame().getId();
+
         logger.debug("Releasing game instance for game [" + gameId + "]");
         return activeGames.remove(gameId);
     }
@@ -83,7 +87,7 @@ public class GameController {
         logger.info("Processing request game start");
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
-        return ResponseEntity.ok(getGame(gameState.getGame().getId()).gameStrategy.processStart(gameState));
+        return ResponseEntity.ok(getGame(gameState).gameStrategy.processStart(gameState));
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -91,7 +95,7 @@ public class GameController {
         logger.debug("Processing request game move");
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
-        return ResponseEntity.ok(getGame(gameState.getGame().getId()).gameStrategy.processMove(gameState));
+        return ResponseEntity.ok(getGame(gameState).gameStrategy.processMove(gameState));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -100,7 +104,7 @@ public class GameController {
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
 
-        Game value = releaseGame(gameState.getGame().getId());
+        Game value = releaseGame(gameState);
         if (value != null) {
             value.gameStrategy.processEnd(gameState);
         }

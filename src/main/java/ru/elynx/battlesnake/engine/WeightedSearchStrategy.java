@@ -7,8 +7,7 @@ import ru.elynx.battlesnake.protocol.*;
 
 import java.util.List;
 
-public class GameStrategy implements IGameStrategy {
-    private final static double WALL_WEIGHT = -1.0d;
+public class WeightedSearchStrategy implements IGameStrategy {
     private final static double MIN_FOOD_WEIGHT = 0.1d;
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
@@ -21,11 +20,24 @@ public class GameStrategy implements IGameStrategy {
     private final static String DOWN = "down";
     private final static String LEFT = "left";
 
+    protected final double wallWeight;
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
     protected boolean initialized = false;
+
+    private WeightedSearchStrategy(double wallWeight) {
+        this.wallWeight = wallWeight;
+    }
+
+    static public WeightedSearchStrategy wallWeightNegativeOne() {
+        return new WeightedSearchStrategy(-1.0);
+    }
+
+    static public WeightedSearchStrategy wallWeightZero() {
+        return new WeightedSearchStrategy(0.0d);
+    }
 
     protected void initOnce(GameState gameState) {
         if (initialized)
@@ -34,7 +46,7 @@ public class GameStrategy implements IGameStrategy {
         weightMatrix = DoubleMatrix.zeroMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
-                WALL_WEIGHT);
+                wallWeight);
 
         blockedMatrix = FlagMatrix.falseMatrix(
                 gameState.getBoard().getWidth(),
