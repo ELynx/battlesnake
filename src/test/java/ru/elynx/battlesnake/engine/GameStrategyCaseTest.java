@@ -8,16 +8,16 @@ import ru.elynx.battlesnake.protocol.*;
 import java.util.LinkedList;
 
 @SpringBootTest
-public class GameEngineCaseTest {
+public class GameStrategyCaseTest {
     @Autowired
-    IGameEngineFactory gameEngineFactory;
+    IGameStrategyFactory gameStrategyFactory;
 
     @Test
     public void avoidFruitSurroundedBySnake() throws Exception {
         // https://play.battlesnake.com/g/01a12be5-d44a-4d23-a073-8757fcab9db2/
         // wrong decision at turn 113
 
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
 
         GameState turn113 = new GameState();
 
@@ -55,13 +55,13 @@ public class GameEngineCaseTest {
         turn113.getBoard().setSnakes(new LinkedList<>());
         turn113.getBoard().getSnakes().add(turn113.getYou());
 
-        Move moveMaxHealth = gameEngine.processMove(turn113);
+        Move moveMaxHealth = gameStrategy.processMove(turn113);
 
         assert (!"up".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn113.getYou().setHealth(0);
 
-        Move moveMinHealth = gameEngine.processMove(turn113);
+        Move moveMinHealth = gameStrategy.processMove(turn113);
 
         assert (!"up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
@@ -71,7 +71,7 @@ public class GameEngineCaseTest {
         // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
         // wrong decision at turn 49
 
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
 
         GameState turn49 = new GameState();
 
@@ -127,13 +127,13 @@ public class GameEngineCaseTest {
         turn49.getBoard().getSnakes().get(2).getBody().add(new Coords(4, 4));
         turn49.getBoard().getSnakes().get(2).setShout("enemy 2");
 
-        Move moveMaxHealth = gameEngine.processMove(turn49);
+        Move moveMaxHealth = gameStrategy.processMove(turn49);
 
         assert ("down".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn49.getYou().setHealth(0);
 
-        Move moveMinHealth = gameEngine.processMove(turn49);
+        Move moveMinHealth = gameStrategy.processMove(turn49);
 
         assert ("down".equalsIgnoreCase(moveMinHealth.getMove()));
     }

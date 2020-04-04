@@ -4,7 +4,7 @@ import ru.elynx.battlesnake.protocol.GameState;
 import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.SnakeConfig;
 
-public interface IGameEngine {
+public interface IGameStrategy {
     SnakeConfig processStart(GameState gameState);
 
     Move processMove(GameState gameState);

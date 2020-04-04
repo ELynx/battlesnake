@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.elynx.battlesnake.engine.IGameEngine;
-import ru.elynx.battlesnake.engine.IGameEngineFactory;
+import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.IGameStrategyFactory;
 import ru.elynx.battlesnake.protocol.GameState;
 import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.SnakeConfig;
@@ -23,15 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class GameController {
-    private final static long STALE_GAME_ENGINE_ROUTINE_DELAY = 10000; // milliseconds
-    private final static long STALE_GAME_ENGINE_AGE = 5000; // milliseconds
+    private final static long STALE_GAME_ROUTINE_DELAY = 10000; // milliseconds
+    private final static long STALE_GAME_AGE = 5000; // milliseconds
     private Logger logger = LoggerFactory.getLogger(GameController.class);
-    private IGameEngineFactory gameEngineFactory;
-    private Map<String, GameEngineWithMeta> gameEngines = new ConcurrentHashMap<>();
+    private IGameStrategyFactory gameStrategyFactory;
+    private Map<String, Game> activeGames = new ConcurrentHashMap<>();
 
     @Autowired
-    public GameController(IGameEngineFactory gameEngineFactory) {
-        this.gameEngineFactory = gameEngineFactory;
+    public GameController(IGameStrategyFactory gameStrategyFactory) {
+        this.gameStrategyFactory = gameStrategyFactory;
     }
 
     private static void ValidateGameState(GameState gameState) throws InvalidObjectException {
@@ -39,37 +39,37 @@ public class GameController {
             throw new InvalidObjectException("Provided GameState is not valid");
     }
 
-    private GameEngineWithMeta getGameEngine(String gameId) {
-        return gameEngines.compute(gameId, (key, value) -> {
+    private Game getGame(String gameId) {
+        return activeGames.compute(gameId, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new game engine instance for game [" + key + "]");
-                return new GameEngineWithMeta(gameEngineFactory.makeGameEngine());
+                logger.debug("Creating new game instance for game [" + key + "]");
+                return new Game(gameStrategyFactory.makeGameStrategy());
             }
 
-            logger.debug("Accessing existing game engine instance for game [" + key + "]");
+            logger.debug("Accessing existing game instance for game [" + key + "]");
             value.accessTime = Instant.now();
             return value;
         });
     }
 
-    private GameEngineWithMeta releaseGameEngine(String gameId) {
-        logger.debug("Releasing game engine instance for game [" + gameId + "]");
-        return gameEngines.remove(gameId);
+    private Game releaseGame(String gameId) {
+        logger.debug("Releasing game instance for game [" + gameId + "]");
+        return activeGames.remove(gameId);
     }
 
-    @Scheduled(fixedDelay = STALE_GAME_ENGINE_ROUTINE_DELAY)
-    private void cleanStaleGameEngines() {
-        logger.debug("Cleaning stale game engines");
-        if (gameEngines.isEmpty()) {
+    @Scheduled(fixedDelay = STALE_GAME_ROUTINE_DELAY)
+    private void cleanStaleGames() {
+        logger.debug("Cleaning stale games");
+        if (activeGames.isEmpty()) {
             logger.debug("Nothing to clean");
             return;
         }
 
-        Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_ENGINE_AGE);
-        logger.debug("Cleaning game engines older than [" + staleGameTime.toString() + "]");
-        logger.debug("Game engines before [" + gameEngines.size() + "]");
-        gameEngines.values().removeIf(meta -> meta.accessTime.isBefore(staleGameTime));
-        logger.debug("Game engines after [" + gameEngines.size() + "]");
+        Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_AGE);
+        logger.debug("Cleaning games older than [" + staleGameTime.toString() + "]");
+        logger.debug("Games before [" + activeGames.size() + "]");
+        activeGames.values().removeIf(meta -> meta.accessTime.isBefore(staleGameTime));
+        logger.debug("Games after [" + activeGames.size() + "]");
     }
 
     @ExceptionHandler(InvalidObjectException.class)
@@ -83,7 +83,7 @@ public class GameController {
         logger.info("Processing request game start");
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
-        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).gameEngine.processStart(gameState));
+        return ResponseEntity.ok(getGame(gameState.getGame().getId()).gameStrategy.processStart(gameState));
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -91,7 +91,7 @@ public class GameController {
         logger.debug("Processing request game move");
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
-        return ResponseEntity.ok(getGameEngine(gameState.getGame().getId()).gameEngine.processMove(gameState));
+        return ResponseEntity.ok(getGame(gameState.getGame().getId()).gameStrategy.processMove(gameState));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -100,9 +100,9 @@ public class GameController {
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.getGame().getId() + "]");
 
-        GameEngineWithMeta value = releaseGameEngine(gameState.getGame().getId());
+        Game value = releaseGame(gameState.getGame().getId());
         if (value != null) {
-            value.gameEngine.processEnd(gameState);
+            value.gameStrategy.processEnd(gameState);
         }
 
         return ResponseEntity.ok().build();
@@ -114,13 +114,13 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
-    private static class GameEngineWithMeta {
-        IGameEngine gameEngine;
+    private static class Game {
+        IGameStrategy gameStrategy;
         Instant startTime;
         Instant accessTime;
 
-        GameEngineWithMeta(IGameEngine gameEngine) {
-            this.gameEngine = gameEngine;
+        Game(IGameStrategy gameStrategy) {
+            this.gameStrategy = gameStrategy;
             this.startTime = Instant.now();
             this.accessTime = this.startTime;
         }

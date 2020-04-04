@@ -10,17 +10,17 @@ import ru.elynx.battlesnake.protocol.*;
 import java.util.LinkedList;
 
 @SpringBootTest
-public class GameEngineBasicTest {
+public class GameStrategyBasicTest {
     static GameState dummyGameState;
     @Autowired
-    IGameEngineFactory gameEngineFactory;
+    IGameStrategyFactory gameStrategyFactory;
 
     @BeforeAll
     static void fillDummies() {
         dummyGameState = new GameState();
 
         dummyGameState.setGame(new Game());
-        dummyGameState.getGame().setId(GameEngineBasicTest.class.getSimpleName());
+        dummyGameState.getGame().setId(GameStrategyBasicTest.class.getSimpleName());
 
         dummyGameState.setBoard(new Board());
         dummyGameState.getBoard().setHeight(11);
@@ -46,63 +46,63 @@ public class GameEngineBasicTest {
     }
 
     @Test
-    public void factoryMakesGameEngine() throws Exception {
-        assert (gameEngineFactory != null);
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
-        assert (gameEngine != null);
+    public void factoryMakesGameStrategy() throws Exception {
+        assert (gameStrategyFactory != null);
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        assert (gameStrategy != null);
     }
 
     @Test
-    public void gameEngineGivesConfig() throws Exception {
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
-        SnakeConfig snakeConfig = gameEngine.processStart(dummyGameState);
+    public void gameStrategyGivesConfig() throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        SnakeConfig snakeConfig = gameStrategy.processStart(dummyGameState);
         assert (snakeConfig != null);
     }
 
     @Test
-    public void gameEngineGivesMove() throws Exception {
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
-        Move move = gameEngine.processMove(dummyGameState);
+    public void gameStrategyGivesMove() throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        Move move = gameStrategy.processMove(dummyGameState);
         assert (move != null);
     }
 
     @Test
-    public void gameEngineDoesNotThrowOnEnd() throws Exception {
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
-        gameEngine.processEnd(dummyGameState);
+    public void gameStrategyDoesNotThrowOnEnd() throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
+        gameStrategy.processEnd(dummyGameState);
     }
 
     @Test
-    public void gameEngineDoesNotGoIntoWall() throws Exception {
-        IGameEngine gameEngine = gameEngineFactory.makeGameEngine();
+    public void gameStrategyDoesNotGoIntoWall() throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.makeGameStrategy();
 
         dummyGameState.getYou().getBody().get(0).setY(0);
 
         for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
             dummyGameState.getYou().getBody().get(0).setX(x);
 
-            Move move = gameEngine.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assert (!"up".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
             dummyGameState.getYou().getBody().get(0).setY(y);
 
-            Move move = gameEngine.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assert (!"right".equalsIgnoreCase(move.getMove()));
         }
 
         for (int x = dummyGameState.getBoard().getWidth() - 1; x >= 0; --x) {
             dummyGameState.getYou().getBody().get(0).setX(x);
 
-            Move move = gameEngine.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assert (!"down".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
             dummyGameState.getYou().getBody().get(0).setY(y);
 
-            Move move = gameEngine.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assert (!"left".equalsIgnoreCase(move.getMove()));
         }
     }

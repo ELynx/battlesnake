@@ -7,7 +7,7 @@ import ru.elynx.battlesnake.protocol.*;
 
 import java.util.List;
 
-public class GameEngine implements IGameEngine {
+public class GameStrategy implements IGameStrategy {
     private final static double WALL_WEIGHT = -1.0d;
     private final static double MIN_FOOD_WEIGHT = 0.1d;
     private final static double MAX_FOOD_WEIGHT = 1.0d;
