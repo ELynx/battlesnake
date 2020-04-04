@@ -9,13 +9,15 @@ import ru.elynx.battlesnake.protocol.*;
 
 import java.util.LinkedList;
 
+import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_INDEXES;
+
 @SpringBootTest
 public class GameStrategyCaseTest {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
     @ParameterizedTest
-    @MethodSource("ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void avoidFruitSurroundedBySnake(Integer index) throws Exception {
         // https://play.battlesnake.com/g/01a12be5-d44a-4d23-a073-8757fcab9db2/
         // wrong decision at turn 113
@@ -70,7 +72,7 @@ public class GameStrategyCaseTest {
     }
 
     @ParameterizedTest
-    @MethodSource("ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void emptySpaceBetterThanSnake(Integer index) throws Exception {
         // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
         // wrong decision at turn 49

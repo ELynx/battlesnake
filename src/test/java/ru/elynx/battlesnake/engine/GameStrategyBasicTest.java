@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class GameStrategyBasicTest {
+    public static final String STRATEGY_INDEXES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes";
+
     static GameState dummyGameState;
 
     @Autowired
@@ -95,14 +97,14 @@ public class GameStrategyBasicTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void factoryGetGameStrategy(Integer index) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
         assertNotNull(gameStrategy);
     }
 
     @ParameterizedTest
-    @MethodSource("provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void gameStrategyGivesConfig(Integer index) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
         SnakeConfig snakeConfig = gameStrategy.processStart(dummyGameState);
@@ -110,7 +112,7 @@ public class GameStrategyBasicTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void gameStrategyGivesMove(Integer index) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
         Move move = gameStrategy.processMove(dummyGameState);
@@ -118,14 +120,14 @@ public class GameStrategyBasicTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void gameStrategyDoesNotThrowOnEnd(Integer index) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
         assertDoesNotThrow(() -> gameStrategy.processEnd(dummyGameState));
     }
 
     @ParameterizedTest
-    @MethodSource("provideStrategyIndexes")
+    @MethodSource(STRATEGY_INDEXES)
     public void gameStrategyDoesNotGoIntoWall(Integer index) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
 
