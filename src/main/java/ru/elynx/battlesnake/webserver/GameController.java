@@ -27,6 +27,7 @@ public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, Game> activeGames = new ConcurrentHashMap<>();
+    private final Statistics statistics = new Statistics();
 
     @Autowired
     public GameController(IGameStrategyFactory gameStrategyFactory) {
@@ -130,6 +131,7 @@ public class GameController {
         ValidateGameState(gameState);
         logger.info("Game [" + terseIdentification(gameState) + "]");
         System.out.println("count#game.controller.end=1");
+        statistics.handleEnd(gameState);
 
         Game game = releaseGame(gameState);
         if (game != null) {
@@ -155,6 +157,16 @@ public class GameController {
             this.gameStrategy = gameStrategy;
             this.startTime = Instant.now();
             this.accessTime = this.startTime;
+        }
+    }
+
+    private static class Statistics {
+        public void handleEnd(GameStateDto gameState) {
+            final String snakeName = gameState.getYou().getName().replace(' ', '_').trim();
+            final boolean victory = gameState.getBoard().getSnakes().size() == 1;
+            final int turnsToEnd = gameState.getTurn();
+
+            System.out.println("source=" + snakeName + " measure#" + (victory ? "win" : "lose") + "=" + turnsToEnd);
         }
     }
 }
