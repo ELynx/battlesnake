@@ -1,13 +1,20 @@
 package ru.elynx.battlesnake.protocol;
 
-public class Coords {
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+
+public class CoordsDto {
+    @NotNull
+    @PositiveOrZero
     private Integer x;
+    @NotNull
+    @PositiveOrZero
     private Integer y;
 
-    public Coords() {
+    public CoordsDto() {
     }
 
-    public Coords(Integer x, Integer y) {
+    public CoordsDto(Integer x, Integer y) {
         this.x = x;
         this.y = y;
     }

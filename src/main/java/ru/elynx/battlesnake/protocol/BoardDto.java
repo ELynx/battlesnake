@@ -1,14 +1,22 @@
 package ru.elynx.battlesnake.protocol;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
-public class Board {
+public class BoardDto {
+    @NotNull
+    @Positive
     private Integer height;
+    @NotNull
+    @Positive
     private Integer width;
-    private List<Coords> food;
-    private List<Snake> snakes;
+    @NotNull
+    private List<CoordsDto> food;
+    @NotNull
+    private List<SnakeDto> snakes;
 
-    public Board() {
+    public BoardDto() {
     }
 
     public Integer getHeight() {
@@ -27,19 +35,19 @@ public class Board {
         this.width = width;
     }
 
-    public List<Coords> getFood() {
+    public List<CoordsDto> getFood() {
         return food;
     }
 
-    public void setFood(List<Coords> food) {
+    public void setFood(List<CoordsDto> food) {
         this.food = food;
     }
 
-    public List<Snake> getSnakes() {
+    public List<SnakeDto> getSnakes() {
         return snakes;
     }
 
-    public void setSnakes(List<Snake> snakes) {
+    public void setSnakes(List<SnakeDto> snakes) {
         this.snakes = snakes;
     }
 }

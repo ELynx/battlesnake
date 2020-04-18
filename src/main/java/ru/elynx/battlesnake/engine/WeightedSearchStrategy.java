@@ -1,14 +1,17 @@
 package ru.elynx.battlesnake.engine;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.protocol.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-public class GameEngine implements IGameEngine {
-    private final static double WALL_WEIGHT = -1.0d;
+public class WeightedSearchStrategy implements IGameStrategy {
     private final static double MIN_FOOD_WEIGHT = 0.1d;
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
@@ -21,20 +24,25 @@ public class GameEngine implements IGameEngine {
     private final static String DOWN = "down";
     private final static String LEFT = "left";
 
+    protected final double wallWeight;
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
     protected boolean initialized = false;
 
-    protected void initOnce(GameState gameState) {
+    private WeightedSearchStrategy(double wallWeight) {
+        this.wallWeight = wallWeight;
+    }
+
+    protected void initOnce(GameStateDto gameState) {
         if (initialized)
             return;
 
         weightMatrix = DoubleMatrix.zeroMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
-                WALL_WEIGHT);
+                wallWeight);
 
         blockedMatrix = FlagMatrix.falseMatrix(
                 gameState.getBoard().getWidth(),
@@ -48,12 +56,12 @@ public class GameEngine implements IGameEngine {
     }
 
     @Override
-    public SnakeConfig processStart(GameState gameState) {
+    public SnakeConfigDto processStart(GameStateDto gameState) {
         initOnce(gameState);
         return getSnakeConfig();
     }
 
-    protected void applyGameState(GameState gameState) {
+    protected void applyGameState(GameStateDto gameState) {
         weightMatrix.zero();
         blockedMatrix.reset();
 
@@ -61,7 +69,7 @@ public class GameEngine implements IGameEngine {
         {
             double foodWeight = Util.scale(MIN_FOOD_WEIGHT, maxHealth - gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
 
-            for (Coords food : gameState.getBoard().getFood()) {
+            for (CoordsDto food : gameState.getBoard().getFood()) {
                 Integer x = food.getX();
                 Integer y = food.getY();
 
@@ -76,8 +84,8 @@ public class GameEngine implements IGameEngine {
 
             int ownSize = gameState.getYou().getBody().size();
 
-            for (Snake snake : gameState.getBoard().getSnakes()) {
-                List<Coords> body = snake.getBody();
+            for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+                List<CoordsDto> body = snake.getBody();
                 for (int i = 0, size = body.size(); i < size; ++i) {
                     Integer x = body.get(i).getX();
                     Integer y = body.get(i).getY();
@@ -114,7 +122,7 @@ public class GameEngine implements IGameEngine {
         return 0.0d;
     }
 
-    protected String bestMove(Coords head) {
+    protected String bestMove(CoordsDto head) {
         Integer x = head.getX();
         Integer y = head.getY();
 
@@ -144,21 +152,35 @@ public class GameEngine implements IGameEngine {
         return bestDirection;
     }
 
-    protected String makeMove(GameState gameState) {
+    protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
         return bestMove(gameState.getYou().getBody().get(0));
     }
 
     @Override
-    public Move processMove(GameState gameState) {
+    public MoveDto processMove(GameStateDto gameState) {
         initOnce(gameState);
         String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "6% ready");
+        return new MoveDto(move, "6% ready");
     }
 
     @Override
-    public Void processEnd(GameState gameState) {
+    public Void processEnd(GameStateDto gameState) {
         return null;
+    }
+
+    @Configuration
+    public static class WeightedSearchStrategyConfiguration {
+        @Bean("Snake 1")
+        @Primary
+        public Supplier<IGameStrategy> wallWeightNegativeOne() {
+            return () -> new WeightedSearchStrategy(-1.0);
+        }
+
+        @Bean("Snake 1a")
+        public Supplier<IGameStrategy> wallWeightZero() {
+            return () -> new WeightedSearchStrategy(0.0d);
+        }
     }
 }

@@ -1,16 +1,20 @@
 package ru.elynx.battlesnake.protocol;
 
-public class SnakeConfig {
-    public static SnakeConfig DEFAULT_SNAKE_CONFIG = new SnakeConfig("#ffbf00", "smile", "regular");
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
-    private String color; // TODO color
-    private String headType; // TODO enum
-    private String tailType; // TODO enum
+public class SnakeConfigDto {
+    @Pattern(regexp = "#[[:xdigit:]]{6}")
+    private String color;
+    @NotEmpty
+    private String headType;
+    @NotEmpty
+    private String tailType;
 
-    public SnakeConfig() {
+    public SnakeConfigDto() {
     }
 
-    public SnakeConfig(String color, String headType, String tailType) {
+    public SnakeConfigDto(String color, String headType, String tailType) {
         this.color = color;
         this.headType = headType;
         this.tailType = tailType;

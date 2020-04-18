@@ -1,15 +1,22 @@
 package ru.elynx.battlesnake.protocol;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-public class Snake {
+public class SnakeDto {
+    @NotEmpty
     private String id;
+    @NotNull
     private String name;
+    @PositiveOrZero
     private Integer health;
-    private List<Coords> body;
+    @NotNull
+    private List<CoordsDto> body;
     private String shout;
 
-    public Snake() {
+    public SnakeDto() {
     }
 
     public String getId() {
@@ -36,11 +43,11 @@ public class Snake {
         this.health = health;
     }
 
-    public List<Coords> getBody() {
+    public List<CoordsDto> getBody() {
         return body;
     }
 
-    public void setBody(List<Coords> body) {
+    public void setBody(List<CoordsDto> body) {
         this.body = body;
     }
 

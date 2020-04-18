@@ -1,9 +1,14 @@
 package ru.elynx.battlesnake.protocol;
 
-public class Game {
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+public class GameDto {
+    @NotNull
+    @NotEmpty
     private String id;
 
-    public Game() {
+    public GameDto() {
     }
 
     public String getId() {
