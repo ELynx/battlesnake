@@ -64,6 +64,7 @@ public class GameController {
         return activeGames.compute(gameId, (key, value) -> {
             if (value == null) {
                 logger.debug("Creating new game instance for game [" + key + "]");
+                System.out.println("count#game.controller.new_game=1");
                 return new Game(gameStrategyFactory.makeGameStrategy(gameState));
             }
 
@@ -77,6 +78,7 @@ public class GameController {
         final String gameId = gameState.getGame().getId();
 
         logger.debug("Releasing game instance for game [" + gameId + "]");
+        System.out.println("count#game.controller.end_game=1");
         return activeGames.remove(gameId);
     }
 
@@ -85,14 +87,17 @@ public class GameController {
         logger.debug("Cleaning stale games");
         if (activeGames.isEmpty()) {
             logger.debug("Nothing to clean");
+            System.out.println("count#game.controller.stale=0");
             return;
         }
 
         Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_AGE);
         logger.debug("Cleaning games older than [" + staleGameTime.toString() + "]");
         logger.debug("Games before [" + activeGames.size() + "]");
+        System.out.println("count#game.controller.stale=" + activeGames.size());
         activeGames.values().removeIf(meta -> meta.accessTime.isBefore(staleGameTime));
         logger.debug("Games after [" + activeGames.size() + "]");
+        System.out.println("count#game.controller.stale=-" + activeGames.size());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -106,6 +111,7 @@ public class GameController {
         logger.info("Processing request game start");
         ValidateGameState(gameState);
         logger.info("Game [" + terseIdentification(gameState) + "]");
+        System.out.println("count#game.controller.start=1");
         return ResponseEntity.ok(getGame(gameState).gameStrategy.processStart(gameState));
     }
 
@@ -114,6 +120,7 @@ public class GameController {
         logger.debug("Processing request game move");
         ValidateGameState(gameState);
         logger.debug("Game [" + terseIdentification(gameState) + "]");
+        System.out.println("count#game.controller.move=1");
         return ResponseEntity.ok(getGame(gameState).gameStrategy.processMove(gameState));
     }
 
@@ -122,6 +129,7 @@ public class GameController {
         logger.info("Processing request game end");
         ValidateGameState(gameState);
         logger.info("Game [" + terseIdentification(gameState) + "]");
+        System.out.println("count#game.controller.end=1");
 
         Game game = releaseGame(gameState);
         if (game != null) {
@@ -134,6 +142,7 @@ public class GameController {
     @PostMapping("/ping")
     public ResponseEntity<Void> ping() {
         logger.debug("Processing request web ping");
+        System.out.println("count#game.controller.ping=1");
         return ResponseEntity.ok().build();
     }
 
