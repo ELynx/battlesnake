@@ -1,11 +1,15 @@
 package ru.elynx.battlesnake.engine;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.protocol.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class WeightedSearchStrategy implements IGameStrategy {
     private final static double MIN_FOOD_WEIGHT = 0.1d;
@@ -29,14 +33,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     private WeightedSearchStrategy(double wallWeight) {
         this.wallWeight = wallWeight;
-    }
-
-    static public WeightedSearchStrategy wallWeightNegativeOne() {
-        return new WeightedSearchStrategy(-1.0);
-    }
-
-    static public WeightedSearchStrategy wallWeightZero() {
-        return new WeightedSearchStrategy(0.0d);
     }
 
     protected void initOnce(GameState gameState) {
@@ -172,5 +168,19 @@ public class WeightedSearchStrategy implements IGameStrategy {
     @Override
     public Void processEnd(GameState gameState) {
         return null;
+    }
+
+    @Configuration
+    public static class WeightedSearchStrategyConfiguration {
+        @Bean("Snake 1")
+        @Primary
+        public Supplier<IGameStrategy> wallWeightNegativeOne() {
+            return () -> new WeightedSearchStrategy(-1.0);
+        }
+
+        @Bean("Snake 1a")
+        public Supplier<IGameStrategy> wallWeightZero() {
+            return () -> new WeightedSearchStrategy(0.0d);
+        }
     }
 }

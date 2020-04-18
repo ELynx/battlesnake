@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_INDEXES;
+import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 
 @SpringBootTest
 public class GameStrategyCaseTest {
@@ -18,12 +18,12 @@ public class GameStrategyCaseTest {
     IGameStrategyFactory gameStrategyFactory;
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void avoidFruitSurroundedBySnake(Integer index) throws Exception {
+    @MethodSource(STRATEGY_NAMES)
+    public void avoidFruitSurroundedBySnake(String name) throws Exception {
         // https://play.battlesnake.com/g/01a12be5-d44a-4d23-a073-8757fcab9db2/
         // wrong decision at turn 113
 
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         GameState turn113 = new GameState();
 
@@ -73,12 +73,12 @@ public class GameStrategyCaseTest {
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void emptySpaceBetterThanSnake(Integer index) throws Exception {
+    @MethodSource(STRATEGY_NAMES)
+    public void emptySpaceBetterThanSnake(String name) throws Exception {
         // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
         // wrong decision at turn 49
 
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         GameState turn49 = new GameState();
 

@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
 
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class GameStrategyBasicTest {
-    public static final String STRATEGY_INDEXES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyIndexes";
+    public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
 
     static GameState dummyGameState;
 
@@ -37,8 +37,8 @@ public class GameStrategyBasicTest {
         dummyGameState.getBoard().setWidth(15);
     }
 
-    public static Stream<Integer> provideStrategyIndexes() {
-        return Stream.of(0, 1);
+    public static Stream<String> provideStrategyNames() {
+        return Stream.of("Snake 1", "Snake 1a");
     }
 
     @BeforeEach
@@ -74,62 +74,58 @@ public class GameStrategyBasicTest {
     }
 
     @Test
-    public void factoryStrategySizeIsGreaterThanZero() {
-        assertTrue(gameStrategyFactory.getGameStrategySize() > 0);
+    public void factoryHasStrategies() {
+        assertTrue(gameStrategyFactory.getRegisteredStrategies().size() > 0);
     }
 
     @Test
     public void factoryGetGameStrategyThrowsOnInvalidIndex() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy(-1));
-        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy(gameStrategyFactory.getGameStrategySize()));
+        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy(null));
+        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy("Foo"));
     }
 
     @Test
     public void allStrategiesAreTested() throws Exception {
-        Stream<Integer> testedStrategies = provideStrategyIndexes();
+        Stream<String> testedStrategies = provideStrategyNames();
+        Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
 
-        List<Integer> indexes = new LinkedList<>();
-        for (int i = 0; i < gameStrategyFactory.getGameStrategySize(); ++i) {
-            indexes.add(i);
-        }
-
-        assertIterableEquals(testedStrategies.collect(Collectors.toList()), indexes);
+        assertIterableEquals(testedStrategies.collect(Collectors.toSet()), knownStrategies);
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void factoryGetGameStrategy(Integer index) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+    @MethodSource(STRATEGY_NAMES)
+    public void factoryGetGameStrategy(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         assertNotNull(gameStrategy);
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void gameStrategyGivesConfig(Integer index) throws Exception {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+    @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyGivesConfig(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         SnakeConfig snakeConfig = gameStrategy.processStart(dummyGameState);
         assertNotNull(snakeConfig);
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void gameStrategyGivesMove(Integer index) throws Exception {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+    @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyGivesMove(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         Move move = gameStrategy.processMove(dummyGameState);
         assertNotNull(move);
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void gameStrategyDoesNotThrowOnEnd(Integer index) throws Exception {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+    @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyDoesNotThrowOnEnd(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         assertDoesNotThrow(() -> gameStrategy.processEnd(dummyGameState));
     }
 
     @ParameterizedTest
-    @MethodSource(STRATEGY_INDEXES)
-    public void gameStrategyDoesNotGoIntoWall(Integer index) throws Exception {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(index);
+    @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyDoesNotGoIntoWall(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         dummyGameState.getYou().getBody().get(0).setY(0);
 
