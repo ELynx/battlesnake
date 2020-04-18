@@ -34,7 +34,7 @@ public class GameManager {
         return activeGames.compute(gameId, (key, value) -> {
             if (value == null) {
                 logger.debug("Creating new game instance for game [" + key + "]");
-                System.out.println("count#game.controller.new_game=1");
+                System.out.println("count#game.manager.new_game=1");
                 return new Game(gameStrategyFactory.makeGameStrategy(gameState));
             }
 
@@ -48,26 +48,35 @@ public class GameManager {
         final String gameId = gameState.getGame().getId();
 
         logger.debug("Releasing game instance for game [" + gameId + "]");
-        System.out.println("count#game.controller.end_game=1");
+        System.out.println("count#game.manager.end_game=1");
         return activeGames.remove(gameId);
     }
 
-    @Scheduled(fixedDelay = STALE_GAME_ROUTINE_DELAY)
+    @Scheduled(initialDelay = STALE_GAME_ROUTINE_DELAY, fixedDelay = STALE_GAME_ROUTINE_DELAY)
     private void cleanStaleGames() {
-        logger.debug("Cleaning stale games");
         if (activeGames.isEmpty()) {
-            logger.debug("Nothing to clean");
-            System.out.println("count#game.controller.stale=0");
+            logger.debug("Cleaning stale games, nothing to clean");
+            System.out.println("count#game.manager.stale=0");
             return;
         }
 
-        Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_AGE);
-        logger.debug("Cleaning games older than [" + staleGameTime.toString() + "]");
-        logger.debug("Games before [" + activeGames.size() + "]");
-        System.out.println("count#game.controller.stale=" + activeGames.size());
+        final int sizeBefore = activeGames.size();
+
+        final Instant staleGameTime = Instant.now().minusMillis(STALE_GAME_AGE);
         activeGames.values().removeIf(meta -> meta.accessTime.isBefore(staleGameTime));
-        logger.debug("Games after [" + activeGames.size() + "]");
-        System.out.println("count#game.controller.stale=-" + activeGames.size());
+
+        final int sizeAfter = activeGames.size();
+
+        if (sizeAfter == sizeBefore) {
+            logger.debug("Cleaning stale games, no stale games");
+            System.out.println("count#game.manager.stale=0");
+            return;
+        }
+
+        final int delta = sizeBefore - sizeAfter;
+        logger.debug("Cleaning stale games, cleaned [" + delta +
+                "] games older than [" + staleGameTime.toString() + "]");
+        System.out.println("count#game.manager.stale=" + delta);
     }
 
     public SnakeConfigDto start(GameStateDto gameState) {
@@ -88,8 +97,8 @@ public class GameManager {
     }
 
     private static class Game {
-        IGameStrategy gameStrategy;
-        Instant startTime;
+        final IGameStrategy gameStrategy;
+        final Instant startTime;
         Instant accessTime;
 
         Game(IGameStrategy gameStrategy) {
