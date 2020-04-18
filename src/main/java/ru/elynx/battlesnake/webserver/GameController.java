@@ -16,7 +16,6 @@ import ru.elynx.battlesnake.protocol.GameState;
 import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.SnakeConfig;
 
-import java.io.InvalidObjectException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,22 +24,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameController {
     private final static long STALE_GAME_ROUTINE_DELAY = 60000; // milliseconds
     private final static long STALE_GAME_AGE = 5000; // milliseconds
-    private Logger logger = LoggerFactory.getLogger(GameController.class);
-    private IGameStrategyFactory gameStrategyFactory;
-    private Map<String, Game> activeGames = new ConcurrentHashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(GameController.class);
+    private final IGameStrategyFactory gameStrategyFactory;
+    private final Map<String, Game> activeGames = new ConcurrentHashMap<>();
 
     @Autowired
     public GameController(IGameStrategyFactory gameStrategyFactory) {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
-    private static void ValidateGameState(GameState gameState) throws InvalidObjectException {
+    private static void ValidateGameState(GameState gameState) throws IllegalArgumentException {
         if (GameState.isInvalid(gameState))
-            throw new InvalidObjectException("Provided GameState is not valid");
+            throw new IllegalArgumentException("Provided GameState is not valid");
     }
 
     private Game getGame(GameState gameState) {
-        String gameId = gameState.getGame().getId();
+        final String gameId = gameState.getGame().getId();
 
         return activeGames.compute(gameId, (key, value) -> {
             if (value == null) {
@@ -55,7 +54,7 @@ public class GameController {
     }
 
     private Game releaseGame(GameState gameState) {
-        String gameId = gameState.getGame().getId();
+        final String gameId = gameState.getGame().getId();
 
         logger.debug("Releasing game instance for game [" + gameId + "]");
         return activeGames.remove(gameId);
@@ -76,14 +75,14 @@ public class GameController {
         logger.debug("Games after [" + activeGames.size() + "]");
     }
 
-    @ExceptionHandler(InvalidObjectException.class)
-    public ResponseEntity<String> handleException(InvalidObjectException e) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleException(IllegalArgumentException e) {
         logger.error("Handling", e);
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @PostMapping(path = "/start", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SnakeConfig> start(@RequestBody GameState gameState) throws InvalidObjectException {
+    public ResponseEntity<SnakeConfig> start(@RequestBody GameState gameState) throws IllegalArgumentException {
         logger.info("Processing request game start");
         ValidateGameState(gameState);
         logger.info("Game [" + gameState.terseIdentification() + "]");
@@ -91,7 +90,7 @@ public class GameController {
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Move> move(@RequestBody GameState gameState) throws InvalidObjectException {
+    public ResponseEntity<Move> move(@RequestBody GameState gameState) throws IllegalArgumentException {
         logger.debug("Processing request game move");
         ValidateGameState(gameState);
         logger.debug("Game [" + gameState.terseIdentification() + "]");
@@ -99,14 +98,14 @@ public class GameController {
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> end(@RequestBody GameState gameState) throws InvalidObjectException {
+    public ResponseEntity<Void> end(@RequestBody GameState gameState) throws IllegalArgumentException {
         logger.info("Processing request game end");
         ValidateGameState(gameState);
         logger.info("Game [" + gameState.terseIdentification() + "]");
 
-        Game value = releaseGame(gameState);
-        if (value != null) {
-            value.gameStrategy.processEnd(gameState);
+        Game game = releaseGame(gameState);
+        if (game != null) {
+            game.gameStrategy.processEnd(gameState);
         }
 
         return ResponseEntity.ok().build();
