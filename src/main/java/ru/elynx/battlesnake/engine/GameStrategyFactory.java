@@ -21,10 +21,8 @@ public class GameStrategyFactory implements IGameStrategyFactory {
     Supplier<IGameStrategy> primaryGameStrategy;
 
     public IGameStrategy makeGameStrategy(GameStateDto gameState) {
-        String snakeName = "undefined";
-
         try {
-            snakeName = gameState.getYou().getName();
+            final String snakeName = gameState.getYou().getName();
             return getGameStrategy(snakeName);
         } catch (Exception e) {
             logger.error("Exception choosing game strategy", e);
