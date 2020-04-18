@@ -34,21 +34,21 @@ public class GameController {
 
     @PostMapping(path = "/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SnakeConfigDto> start(@RequestBody @Valid GameStateDto gameState) {
-        logger.info("Processing request game start [" + terseIdentification(gameState) + "]");
+        logger.info("Processing request game start " + terseIdentification(gameState));
         statisticsTracker.start(gameState);
         return ResponseEntity.ok(gameManager.start(gameState));
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@RequestBody @Valid GameStateDto gameState) {
-        logger.debug("Processing request game move [" + terseIdentification(gameState) + "]");
+        logger.debug("Processing request game move " + terseIdentification(gameState));
         statisticsTracker.move(gameState);
         return ResponseEntity.ok(gameManager.move(gameState));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@RequestBody @Valid GameStateDto gameState) {
-        logger.info("Processing request game end [" + terseIdentification(gameState) + "]");
+        logger.info("Processing request game end " + terseIdentification(gameState));
         statisticsTracker.end(gameState);
         return ResponseEntity.ok(gameManager.end(gameState));
     }
