@@ -1,11 +1,19 @@
 package ru.elynx.battlesnake.protocol;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 public class BoardDto {
+    @NotNull
+    @Positive
     private Integer height;
+    @NotNull
+    @Positive
     private Integer width;
+    @NotNull
     private List<CoordsDto> food;
+    @NotNull
     private List<SnakeDto> snakes;
 
     public BoardDto() {

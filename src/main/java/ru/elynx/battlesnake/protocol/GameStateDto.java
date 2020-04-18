@@ -1,9 +1,17 @@
 package ru.elynx.battlesnake.protocol;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+
 public class GameStateDto {
+    @NotNull
     private GameDto game;
+    @NotNull
+    @PositiveOrZero
     private Integer turn;
+    @NotNull
     private BoardDto board;
+    @NotNull
     private SnakeDto you;
 
     public GameStateDto() {

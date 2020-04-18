@@ -114,34 +114,4 @@ class GameControllerTest {
             }
         }
     }
-
-    @Test
-    public void gameStateDtoTerseIdentifier() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-
-        GameStateDto gameState = mapper.readValue(ApiExampleGameState, GameStateDto.class);
-        assertNotNull(gameState);
-
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        //String humanReadable = GameController.terseIdentification(gameState);
-
-        gameState.getGame().setId(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        gameState.setGame(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        gameState.setTurn(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        gameState.setBoard(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        gameState.getYou().setName(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-
-        gameState.setYou(null);
-        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
-    }
 }
