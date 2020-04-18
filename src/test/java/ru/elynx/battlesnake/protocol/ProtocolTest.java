@@ -55,7 +55,7 @@ public class ProtocolTest {
 
     @Test
     public void deserializeApiExampleGameState() throws Exception {
-        GameState gameState = mapper.readValue(ApiExampleGameState, GameState.class);
+        GameStateDto gameState = mapper.readValue(ApiExampleGameState, GameStateDto.class);
 
         assertNotNull(gameState);
 
@@ -89,7 +89,7 @@ public class ProtocolTest {
 
     @Test
     public void serializeSnakeConfig() throws Exception {
-        String serialized = mapper.writeValueAsString(new SnakeConfig("#dedbff", "begin", "end"));
+        String serialized = mapper.writeValueAsString(new SnakeConfigDto("#dedbff", "begin", "end"));
 
         assertTrue(serialized.matches(".*\"color\"\\s*:\\s*\"#dedbff\".*"));
         assertTrue(serialized.matches(".*\"headType\"\\s*:\\s*\"begin\".*"));
@@ -98,42 +98,14 @@ public class ProtocolTest {
 
     @Test
     public void serializeMove() throws Exception {
-        String serialized = mapper.writeValueAsString(new Move("down", "shshshout"));
+        String serialized = mapper.writeValueAsString(new MoveDto("down", "shshshout"));
 
         assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"down\".*"));
         assertTrue(serialized.matches(".*\"shout\"\\s*:\\s*\"shshshout\".*"));
 
-        serialized = mapper.writeValueAsString(new Move("right"));
+        serialized = mapper.writeValueAsString(new MoveDto("right"));
 
         assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"right\".*"));
         assertFalse(serialized.matches(".*\"shout\".*"));
-    }
-
-    @Test
-    public void gameStateTerseIdentifier() throws Exception {
-        GameState gameState = mapper.readValue(ApiExampleGameState, GameState.class);
-
-        assertNotNull(gameState);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        //String humanReadable = gameState.terseIdentification();
-
-        gameState.getGame().setId(null);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        gameState.setGame(null);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        gameState.setTurn(null);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        gameState.setBoard(null);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        gameState.getYou().setName(null);
-        assertDoesNotThrow(gameState::terseIdentification);
-
-        gameState.setYou(null);
-        assertDoesNotThrow(gameState::terseIdentification);
     }
 }

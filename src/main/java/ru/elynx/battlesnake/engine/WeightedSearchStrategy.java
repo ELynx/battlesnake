@@ -35,7 +35,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         this.wallWeight = wallWeight;
     }
 
-    protected void initOnce(GameState gameState) {
+    protected void initOnce(GameStateDto gameState) {
         if (initialized)
             return;
 
@@ -56,12 +56,12 @@ public class WeightedSearchStrategy implements IGameStrategy {
     }
 
     @Override
-    public SnakeConfig processStart(GameState gameState) {
+    public SnakeConfigDto processStart(GameStateDto gameState) {
         initOnce(gameState);
         return getSnakeConfig();
     }
 
-    protected void applyGameState(GameState gameState) {
+    protected void applyGameState(GameStateDto gameState) {
         weightMatrix.zero();
         blockedMatrix.reset();
 
@@ -69,7 +69,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         {
             double foodWeight = Util.scale(MIN_FOOD_WEIGHT, maxHealth - gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
 
-            for (Coords food : gameState.getBoard().getFood()) {
+            for (CoordsDto food : gameState.getBoard().getFood()) {
                 Integer x = food.getX();
                 Integer y = food.getY();
 
@@ -84,8 +84,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
             int ownSize = gameState.getYou().getBody().size();
 
-            for (Snake snake : gameState.getBoard().getSnakes()) {
-                List<Coords> body = snake.getBody();
+            for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+                List<CoordsDto> body = snake.getBody();
                 for (int i = 0, size = body.size(); i < size; ++i) {
                     Integer x = body.get(i).getX();
                     Integer y = body.get(i).getY();
@@ -122,7 +122,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         return 0.0d;
     }
 
-    protected String bestMove(Coords head) {
+    protected String bestMove(CoordsDto head) {
         Integer x = head.getX();
         Integer y = head.getY();
 
@@ -152,21 +152,21 @@ public class WeightedSearchStrategy implements IGameStrategy {
         return bestDirection;
     }
 
-    protected String makeMove(GameState gameState) {
+    protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
         return bestMove(gameState.getYou().getBody().get(0));
     }
 
     @Override
-    public Move processMove(GameState gameState) {
+    public MoveDto processMove(GameStateDto gameState) {
         initOnce(gameState);
         String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "6% ready");
+        return new MoveDto(move, "6% ready");
     }
 
     @Override
-    public Void processEnd(GameState gameState) {
+    public Void processEnd(GameStateDto gameState) {
         return null;
     }
 

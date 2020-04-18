@@ -1,13 +1,13 @@
 package ru.elynx.battlesnake.protocol;
 
-public class Coords {
+public class CoordsDto {
     private Integer x;
     private Integer y;
 
-    public Coords() {
+    public CoordsDto() {
     }
 
-    public Coords(Integer x, Integer y) {
+    public CoordsDto(Integer x, Integer y) {
         this.x = x;
         this.y = y;
     }

@@ -1,9 +1,9 @@
 package ru.elynx.battlesnake.protocol;
 
-public class Game {
+public class GameDto {
     private String id;
 
-    public Game() {
+    public GameDto() {
     }
 
     public String getId() {

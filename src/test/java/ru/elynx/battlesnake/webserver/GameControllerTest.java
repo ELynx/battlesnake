@@ -1,16 +1,20 @@
 package ru.elynx.battlesnake.webserver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.elynx.battlesnake.protocol.GameStateDto;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -109,5 +113,35 @@ class GameControllerTest {
                         .andExpect(status().isBadRequest());
             }
         }
+    }
+
+    @Test
+    public void gameStateDtoTerseIdentifier() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        GameStateDto gameState = mapper.readValue(ApiExampleGameState, GameStateDto.class);
+        assertNotNull(gameState);
+
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        //String humanReadable = GameController.terseIdentification(gameState);
+
+        gameState.getGame().setId(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        gameState.setGame(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        gameState.setTurn(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        gameState.setBoard(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        gameState.getYou().setName(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
+
+        gameState.setYou(null);
+        assertDoesNotThrow(() -> GameController.terseIdentification(gameState));
     }
 }

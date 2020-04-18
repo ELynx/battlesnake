@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.elynx.battlesnake.protocol.GameState;
+import ru.elynx.battlesnake.protocol.GameStateDto;
 
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +20,7 @@ public class GameStrategyFactory implements IGameStrategyFactory {
     @Autowired
     Supplier<IGameStrategy> primaryGameStrategy;
 
-    public IGameStrategy makeGameStrategy(GameState gameState) {
+    public IGameStrategy makeGameStrategy(GameStateDto gameState) {
         String snakeName = "undefined";
 
         try {

@@ -1,16 +1,14 @@
 package ru.elynx.battlesnake.protocol;
 
-public class SnakeConfig {
-    public static SnakeConfig DEFAULT_SNAKE_CONFIG = new SnakeConfig("#ffbf00", "smile", "regular");
-
+public class SnakeConfigDto {
     private String color; // TODO color
     private String headType; // TODO enum
     private String tailType; // TODO enum
 
-    public SnakeConfig() {
+    public SnakeConfigDto() {
     }
 
-    public SnakeConfig(String color, String headType, String tailType) {
+    public SnakeConfigDto(String color, String headType, String tailType) {
         this.color = color;
         this.headType = headType;
         this.tailType = tailType;

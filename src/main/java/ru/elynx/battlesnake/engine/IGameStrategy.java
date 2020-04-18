@@ -1,17 +1,19 @@
 package ru.elynx.battlesnake.engine;
 
-import ru.elynx.battlesnake.protocol.GameState;
-import ru.elynx.battlesnake.protocol.Move;
-import ru.elynx.battlesnake.protocol.SnakeConfig;
+import ru.elynx.battlesnake.protocol.GameStateDto;
+import ru.elynx.battlesnake.protocol.MoveDto;
+import ru.elynx.battlesnake.protocol.SnakeConfigDto;
 
 public interface IGameStrategy {
-    SnakeConfig processStart(GameState gameState);
+    SnakeConfigDto DEFAULT_SNAKE_CONFIG = new SnakeConfigDto("#ffbf00", "smile", "regular");
 
-    Move processMove(GameState gameState);
+    SnakeConfigDto processStart(GameStateDto gameState);
 
-    Void processEnd(GameState gameState);
+    MoveDto processMove(GameStateDto gameState);
 
-    default SnakeConfig getSnakeConfig() {
-        return SnakeConfig.DEFAULT_SNAKE_CONFIG;
+    Void processEnd(GameStateDto gameState);
+
+    default SnakeConfigDto getSnakeConfig() {
+        return DEFAULT_SNAKE_CONFIG;
     }
 }

@@ -2,14 +2,14 @@ package ru.elynx.battlesnake.protocol;
 
 import java.util.List;
 
-public class Snake {
+public class SnakeDto {
     private String id;
     private String name;
     private Integer health;
-    private List<Coords> body;
+    private List<CoordsDto> body;
     private String shout;
 
-    public Snake() {
+    public SnakeDto() {
     }
 
     public String getId() {
@@ -36,11 +36,11 @@ public class Snake {
         this.health = health;
     }
 
-    public List<Coords> getBody() {
+    public List<CoordsDto> getBody() {
         return body;
     }
 
-    public void setBody(List<Coords> body) {
+    public void setBody(List<CoordsDto> body) {
         this.body = body;
     }
 
