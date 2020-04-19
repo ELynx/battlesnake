@@ -30,26 +30,27 @@ public class SnakeManager {
 
     private Snake getSnake(GameStateDto gameState) {
         final String gameId = gameState.getGame().getId();
+        final String snakeId = gameState.getYou().getId();
 
-        return activeSnakes.compute(gameId, (key, value) -> {
+        return activeSnakes.compute(snakeId, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new snake instance for game [" + key + "]");
+                logger.debug("Creating new snake instance [" + snakeId + "] for game [" + gameId + "]");
                 System.out.println("count#snake.manager.new_game=1");
                 return new Snake(gameStrategyFactory.makeGameStrategy(gameState));
             }
 
-            logger.debug("Accessing existing snake instance for game [" + key + "]");
+            logger.debug("Accessing existing snake instance [" + snakeId + "]");
             value.accessTime = Instant.now();
             return value;
         });
     }
 
     private Snake releaseSnake(GameStateDto gameState) {
-        final String gameId = gameState.getGame().getId();
+        final String snakeId = gameState.getYou().getId();
 
-        logger.debug("Releasing snake instance for game [" + gameId + "]");
+        logger.debug("Releasing snake instance [" + snakeId + "]");
         System.out.println("count#snake.manager.end_game=1");
-        return activeSnakes.remove(gameId);
+        return activeSnakes.remove(snakeId);
     }
 
     @Scheduled(initialDelay = STALE_SNAKE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_ROUTINE_DELAY)
