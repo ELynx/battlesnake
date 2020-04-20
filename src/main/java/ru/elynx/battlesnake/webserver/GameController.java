@@ -17,12 +17,12 @@ import javax.validation.Valid;
 @RestController
 public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
-    private final GameManager gameManager;
+    private final SnakeManager snakeManager;
     private final StatisticsTracker statisticsTracker;
 
     @Autowired
-    public GameController(GameManager gameManager, StatisticsTracker statisticsTracker) {
-        this.gameManager = gameManager;
+    public GameController(SnakeManager snakeManager, StatisticsTracker statisticsTracker) {
+        this.snakeManager = snakeManager;
         this.statisticsTracker = statisticsTracker;
     }
 
@@ -36,21 +36,21 @@ public class GameController {
     public ResponseEntity<SnakeConfigDto> start(@RequestBody @Valid GameStateDto gameState) {
         logger.info("Processing request game start " + terseIdentification(gameState));
         statisticsTracker.start(gameState);
-        return ResponseEntity.ok(gameManager.start(gameState));
+        return ResponseEntity.ok(snakeManager.start(gameState));
     }
 
     @PostMapping(path = "/move", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@RequestBody @Valid GameStateDto gameState) {
         logger.debug("Processing request game move " + terseIdentification(gameState));
         statisticsTracker.move(gameState);
-        return ResponseEntity.ok(gameManager.move(gameState));
+        return ResponseEntity.ok(snakeManager.move(gameState));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@RequestBody @Valid GameStateDto gameState) {
         logger.info("Processing request game end " + terseIdentification(gameState));
         statisticsTracker.end(gameState);
-        return ResponseEntity.ok(gameManager.end(gameState));
+        return ResponseEntity.ok(snakeManager.end(gameState));
     }
 
     @PostMapping("/ping")
