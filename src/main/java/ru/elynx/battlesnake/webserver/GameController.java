@@ -35,7 +35,7 @@ public class GameController {
     // TODO consumes?
     @GetMapping(path = "/battlesnake/api/v1/snake/{name}")
     public ResponseEntity<BattlesnakeInfoDto> root(
-            @PathVariable(name = "name")
+            @PathVariable
             @NotNull
             @Pattern(regexp = "[\\w ]+")
                     String name) {
@@ -46,7 +46,7 @@ public class GameController {
 
     @PostMapping(path = "/battlesnake/api/v1/snake/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(
-            @PathVariable(name = "name")
+            @PathVariable
             @NotNull
             @Pattern(regexp = "[\\w ]+")
                     String name,
@@ -58,7 +58,7 @@ public class GameController {
 
     @PostMapping(path = "/battlesnake/api/v1/snake/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(
-            @PathVariable(name = "name")
+            @PathVariable
             @NotNull
             @Pattern(regexp = "[\\w ]+")
                     String name,
@@ -70,7 +70,7 @@ public class GameController {
 
     @PostMapping(path = "/battlesnake/api/v1/snake/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(
-            @PathVariable(name = "name")
+            @PathVariable
             @NotNull
             @Pattern(regexp = "[\\w ]+")
                     String name,
