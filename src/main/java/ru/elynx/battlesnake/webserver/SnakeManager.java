@@ -7,9 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.IGameStrategyFactory;
+import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.MoveDto;
-import ru.elynx.battlesnake.protocol.SnakeConfigDto;
+import ru.elynx.battlesnake.protocol.Move;
 
 import java.time.Instant;
 import java.util.Map;
@@ -28,15 +28,22 @@ public class SnakeManager {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
+    private BattlesnakeInfo getSnakeInfo(String name) {
+        // TODO cheapen the call to just get meta
+        IGameStrategy tmp = gameStrategyFactory.alwaysGetGameStrategy(name);
+        return tmp.getBattesnakeInfo();
+    }
+
     private Snake getSnake(GameStateDto gameState) {
         final String gameId = gameState.getGame().getId();
         final String snakeId = gameState.getYou().getId();
+        final String snakeName = gameState.getYou().getName();
 
         return activeSnakes.compute(snakeId, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new snake instance [" + snakeId + "] for game [" + gameId + "]");
+                logger.debug("Creating new [" + snakeName + "] instance [" + snakeId + "] for game [" + gameId + "]");
                 System.out.println("count#snake.manager.new_game=1");
-                return new Snake(gameStrategyFactory.alwaysGetGameStrategy(gameState));
+                return new Snake(gameStrategyFactory.alwaysGetGameStrategy(snakeName));
             }
 
             logger.debug("Accessing existing snake instance [" + snakeId + "]");
@@ -80,18 +87,22 @@ public class SnakeManager {
         System.out.println("count#snake.manager.stale=" + delta);
     }
 
-    public SnakeConfigDto start(GameStateDto gameState) {
+    public BattlesnakeInfo meta(String name) {
+        return getSnakeInfo(name);
+    }
+
+    public Void start(GameStateDto gameState) {
         return getSnake(gameState).gameStrategy.processStart(gameState);
     }
 
-    public MoveDto move(GameStateDto gameState) {
+    public Move move(GameStateDto gameState) {
         return getSnake(gameState).gameStrategy.processMove(gameState);
     }
 
     public Void end(GameStateDto gameState) {
         Snake snake = releaseSnake(gameState);
         if (snake != null) {
-            snake.gameStrategy.processEnd(gameState);
+            return snake.gameStrategy.processEnd(gameState);
         }
 
         return null;

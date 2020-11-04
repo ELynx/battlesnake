@@ -5,12 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.MoveDto;
-import ru.elynx.battlesnake.protocol.SnakeConfigDto;
 
 import javax.validation.Valid;
 
@@ -32,8 +33,17 @@ public class GameController {
                 "] Snake [" + gameState.getYou().getName() + ']';
     }
 
+    // TODO consumes?
+    @GetMapping(path = "/")
+    public ResponseEntity<BattlesnakeInfoDto> root() {
+        logger.info("Processing root meta call");
+        statisticsTracker.root();
+        final String name = "Snake 1"; // FIXME encode in path?
+        return ResponseEntity.ok(new BattlesnakeInfoDto(snakeManager.meta(name)));
+    }
+
     @PostMapping(path = "/start", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SnakeConfigDto> start(@RequestBody @Valid GameStateDto gameState) {
+    public ResponseEntity<Void> start(@RequestBody @Valid GameStateDto gameState) {
         logger.info("Processing request game start " + terseIdentification(gameState));
         statisticsTracker.start(gameState);
         return ResponseEntity.ok(snakeManager.start(gameState));
@@ -43,7 +53,7 @@ public class GameController {
     public ResponseEntity<MoveDto> move(@RequestBody @Valid GameStateDto gameState) {
         logger.debug("Processing request game move " + terseIdentification(gameState));
         statisticsTracker.move(gameState);
-        return ResponseEntity.ok(snakeManager.move(gameState));
+        return ResponseEntity.ok(new MoveDto(snakeManager.move(gameState)));
     }
 
     @PostMapping(path = "/end", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -51,12 +61,5 @@ public class GameController {
         logger.info("Processing request game end " + terseIdentification(gameState));
         statisticsTracker.end(gameState);
         return ResponseEntity.ok(snakeManager.end(gameState));
-    }
-
-    @PostMapping("/ping")
-    public ResponseEntity<Void> ping() {
-        logger.debug("Processing request web ping");
-        statisticsTracker.ping();
-        return ResponseEntity.ok().build();
     }
 }

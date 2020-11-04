@@ -5,6 +5,9 @@ import ru.elynx.battlesnake.protocol.GameStateDto;
 
 @Service
 class StatisticsTracker {
+    public void root() {
+    }
+
     public void start(GameStateDto gameState) {
     }
 
@@ -18,8 +21,5 @@ class StatisticsTracker {
         final int turnsToEnd = gameState.getTurn();
 
         System.out.println("source=" + snakeName + " measure#" + (victory ? "win" : "lose") + "=" + turnsToEnd);
-    }
-
-    public void ping() {
     }
 }
