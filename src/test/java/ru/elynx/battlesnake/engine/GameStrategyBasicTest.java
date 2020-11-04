@@ -66,10 +66,10 @@ public class GameStrategyBasicTest {
 
     @Test
     public void factoryAlwaysMakesGameStrategy() throws Exception {
-        IGameStrategy gameStrategy1 = gameStrategyFactory.makeGameStrategy(dummyGameState);
+        IGameStrategy gameStrategy1 = gameStrategyFactory.alwaysGetGameStrategy(dummyGameState);
         assertNotNull(gameStrategy1);
 
-        IGameStrategy gameStrategy2 = gameStrategyFactory.makeGameStrategy(null);
+        IGameStrategy gameStrategy2 = gameStrategyFactory.alwaysGetGameStrategy(null);
         assertNotNull(gameStrategy2);
     }
 

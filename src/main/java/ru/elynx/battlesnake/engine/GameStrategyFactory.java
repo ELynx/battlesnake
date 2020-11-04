@@ -19,7 +19,7 @@ public class GameStrategyFactory implements IGameStrategyFactory {
     @Autowired
     Supplier<IGameStrategy> primaryGameStrategy;
 
-    public IGameStrategy makeGameStrategy(String name) {
+    public IGameStrategy alwaysGetGameStrategy(String name) {
         try {
             return getGameStrategy(name);
         } catch (Exception e) {

@@ -3,7 +3,7 @@ package ru.elynx.battlesnake.engine;
 import java.util.Set;
 
 public interface IGameStrategyFactory {
-    IGameStrategy makeGameStrategy(String name);
+    IGameStrategy alwaysGetGameStrategy(String name);
 
     Set<String> getRegisteredStrategies();
 

@@ -13,6 +13,14 @@ public class BattlesnakeInfo {
     public BattlesnakeInfo() {
     }
 
+    public BattlesnakeInfo(String author, String color, String head, String tail, String version) {
+        this.author = author;
+        this.color = color;
+        this.head = head;
+        this.tail = tail;
+        this.version = version;
+    }
+
     public String getAuthor() {
         return author;
     }

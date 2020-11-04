@@ -36,7 +36,7 @@ public class SnakeManager {
             if (value == null) {
                 logger.debug("Creating new snake instance [" + snakeId + "] for game [" + gameId + "]");
                 System.out.println("count#snake.manager.new_game=1");
-                return new Snake(gameStrategyFactory.makeGameStrategy(gameState));
+                return new Snake(gameStrategyFactory.alwaysGetGameStrategy(gameState));
             }
 
             logger.debug("Accessing existing snake instance [" + snakeId + "]");

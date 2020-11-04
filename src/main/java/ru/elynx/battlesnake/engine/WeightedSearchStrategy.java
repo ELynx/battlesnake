@@ -25,20 +25,18 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private final static String LEFT = "left";
 
     protected final double wallWeight;
+    protected final String version;
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
-    protected boolean initialized = false;
 
-    private WeightedSearchStrategy(double wallWeight) {
+    private WeightedSearchStrategy(double wallWeight, String version) {
         this.wallWeight = wallWeight;
+        this.version = version;
     }
 
-    protected void initOnce(GameStateDto gameState) {
-        if (initialized)
-            return;
-
+    protected void init(GameStateDto gameState) {
         weightMatrix = DoubleMatrix.zeroMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
@@ -51,14 +49,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
         maxHealth = gameState.getYou().getHealth();
         lastMove = UP;
-
-        initialized = true;
-    }
-
-    @Override
-    public SnakeConfigDto processStart(GameStateDto gameState) {
-        initOnce(gameState);
-        return getSnakeConfig();
     }
 
     protected void applyGameState(GameStateDto gameState) {
@@ -158,11 +148,16 @@ public class WeightedSearchStrategy implements IGameStrategy {
     }
 
     @Override
-    public MoveDto processMove(GameStateDto gameState) {
-        initOnce(gameState);
+    public Void processStart(GameStateDto gameState) {
+        init(gameState);
+        return null;
+    }
+
+    @Override
+    public Move processMove(GameStateDto gameState) {
         String move = makeMove(gameState);
         lastMove = move;
-        return new MoveDto(move, "6% ready");
+        return new Move(move, "7% ready");
     }
 
     @Override
@@ -170,17 +165,22 @@ public class WeightedSearchStrategy implements IGameStrategy {
         return null;
     }
 
+    @Override
+    public BattlesnakeInfo getBattesnakeInfo() {
+        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "regular", version);
+    }
+
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
         @Bean("Snake 1")
         @Primary
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(-1.0);
+            return () -> new WeightedSearchStrategy(-1.0, "1");
         }
 
         @Bean("Snake 1a")
         public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchStrategy(0.0d);
+            return () -> new WeightedSearchStrategy(0.0d, "1a");
         }
     }
 }
