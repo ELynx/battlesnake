@@ -16,31 +16,18 @@ public class GameStrategyFactory implements IGameStrategyFactory {
     @Autowired
     Map<String, Supplier<IGameStrategy>> registeredGameStrategies;
 
-    @Autowired
-    Supplier<IGameStrategy> primaryGameStrategy;
+    @Override
+    public IGameStrategy getGameStrategy(String name) throws SnakeNotFoundException {
+        Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
 
-    public IGameStrategy alwaysGetGameStrategy(String name) {
-        try {
-            return getGameStrategy(name);
-        } catch (Exception e) {
-            logger.error("Exception choosing game strategy", e);
-        }
+        if (supplier == null)
+            throw new SnakeNotFoundException("Game strategy [" + name + "] is not registered");
 
-        return primaryGameStrategy.get();
+        return supplier.get();
     }
 
     @Override
     public Set<String> getRegisteredStrategies() {
         return registeredGameStrategies.keySet();
-    }
-
-    @Override
-    public IGameStrategy getGameStrategy(String name) {
-        Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
-
-        if (supplier == null)
-            throw new IllegalArgumentException("Game strategy [" + name + "] is not registered");
-
-        return supplier.get();
     }
 }

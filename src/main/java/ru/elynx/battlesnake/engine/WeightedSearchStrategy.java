@@ -155,6 +155,11 @@ public class WeightedSearchStrategy implements IGameStrategy {
     }
 
     @Override
+    public BattlesnakeInfo getBattesnakeInfo() {
+        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "regular", version);
+    }
+
+    @Override
     public Void processStart(GameStateDto gameState) {
         init(gameState);
         return null;
@@ -172,11 +177,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
     @Override
     public Void processEnd(GameStateDto gameState) {
         return null;
-    }
-
-    @Override
-    public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "regular", version);
     }
 
     @Configuration

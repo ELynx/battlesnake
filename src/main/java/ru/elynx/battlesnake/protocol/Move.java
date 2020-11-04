@@ -10,7 +10,7 @@ public class Move {
     private String move;
     // TODO constraint
     private String shout;
-    private Boolean dropRequest;
+    private Boolean dropRequest = false;
 
     public Move() {
     }
@@ -38,5 +38,13 @@ public class Move {
 
     public void setShout(String shout) {
         this.shout = shout;
+    }
+
+    public Boolean getDropRequest() {
+        return dropRequest;
+    }
+
+    public void setDropRequest(Boolean dropRequest) {
+        this.dropRequest = dropRequest;
     }
 }

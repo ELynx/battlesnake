@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.IGameStrategyFactory;
+import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
@@ -28,36 +29,30 @@ public class SnakeManager {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
-    private BattlesnakeInfo getSnakeInfo(String name) {
+    private BattlesnakeInfo getSnakeInfo(String name) throws SnakeNotFoundException {
         // TODO cheapen the call to just get meta
-        IGameStrategy tmp = gameStrategyFactory.alwaysGetGameStrategy(name);
+        IGameStrategy tmp = gameStrategyFactory.getGameStrategy(name);
         return tmp.getBattesnakeInfo();
     }
 
-    private Snake getSnake(GameStateDto gameState) {
-        final String gameId = gameState.getGame().getId();
-        final String snakeId = gameState.getYou().getId();
-        final String snakeName = gameState.getYou().getName();
-
-        return activeSnakes.compute(snakeId, (key, value) -> {
+    private Snake getSnake(String name, String uid) throws SnakeNotFoundException {
+        return activeSnakes.compute(uid, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new [" + snakeName + "] instance [" + snakeId + "] for game [" + gameId + "]");
+                logger.debug("Creating new [" + name + "] instance [" + uid + "]");
                 System.out.println("count#snake.manager.new_game=1");
-                return new Snake(gameStrategyFactory.alwaysGetGameStrategy(snakeName));
+                return new Snake(gameStrategyFactory.getGameStrategy(name));
             }
 
-            logger.debug("Accessing existing snake instance [" + snakeId + "]");
+            logger.debug("Accessing existing snake instance [" + uid + "]");
             value.accessTime = Instant.now();
             return value;
         });
     }
 
-    private Snake releaseSnake(GameStateDto gameState) {
-        final String snakeId = gameState.getYou().getId();
-
-        logger.debug("Releasing snake instance [" + snakeId + "]");
+    private Snake releaseSnake(String uid) {
+        logger.debug("Releasing snake instance [" + uid + "]");
         System.out.println("count#snake.manager.end_game=1");
-        return activeSnakes.remove(snakeId);
+        return activeSnakes.remove(uid);
     }
 
     @Scheduled(initialDelay = STALE_SNAKE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_ROUTINE_DELAY)
@@ -87,20 +82,20 @@ public class SnakeManager {
         System.out.println("count#snake.manager.stale=" + delta);
     }
 
-    public BattlesnakeInfo meta(String name) {
+    public BattlesnakeInfo root(String name) throws SnakeNotFoundException {
         return getSnakeInfo(name);
     }
 
-    public Void start(GameStateDto gameState) {
-        return getSnake(gameState).gameStrategy.processStart(gameState);
+    public Void start(String name, GameStateDto gameState) throws SnakeNotFoundException {
+        return getSnake(name, gameState.getYou().getId()).gameStrategy.processStart(gameState);
     }
 
-    public Move move(GameStateDto gameState) {
-        return getSnake(gameState).gameStrategy.processMove(gameState);
+    public Move move(String name, GameStateDto gameState) throws SnakeNotFoundException {
+        return getSnake(name, gameState.getYou().getId()).gameStrategy.processMove(gameState);
     }
 
     public Void end(GameStateDto gameState) {
-        Snake snake = releaseSnake(gameState);
+        Snake snake = releaseSnake(gameState.getYou().getId());
         if (snake != null) {
             return snake.gameStrategy.processEnd(gameState);
         }
@@ -110,13 +105,11 @@ public class SnakeManager {
 
     private static class Snake {
         final IGameStrategy gameStrategy;
-        final Instant startTime;
         Instant accessTime;
 
         Snake(IGameStrategy gameStrategy) {
             this.gameStrategy = gameStrategy;
-            this.startTime = Instant.now();
-            this.accessTime = this.startTime;
+            this.accessTime = Instant.now();
         }
     }
 }

@@ -65,23 +65,14 @@ public class GameStrategyBasicTest {
     }
 
     @Test
-    public void factoryAlwaysMakesGameStrategy() throws Exception {
-        IGameStrategy gameStrategy1 = gameStrategyFactory.alwaysGetGameStrategy(dummyGameState.getYou().getName());
-        assertNotNull(gameStrategy1);
-
-        IGameStrategy gameStrategy2 = gameStrategyFactory.alwaysGetGameStrategy(null);
-        assertNotNull(gameStrategy2);
-    }
-
-    @Test
     public void factoryHasStrategies() {
         assertTrue(gameStrategyFactory.getRegisteredStrategies().size() > 0);
     }
 
     @Test
-    public void factoryGetGameStrategyThrowsOnInvalidIndex() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy(null));
-        assertThrows(IllegalArgumentException.class, () -> gameStrategyFactory.getGameStrategy("Foo"));
+    public void factoryGetGameStrategyThrowsOnInvalidName() throws Exception {
+        assertThrows(SnakeNotFoundException.class, () -> gameStrategyFactory.getGameStrategy(null));
+        assertThrows(SnakeNotFoundException.class, () -> gameStrategyFactory.getGameStrategy("Foo"));
     }
 
     @Test
