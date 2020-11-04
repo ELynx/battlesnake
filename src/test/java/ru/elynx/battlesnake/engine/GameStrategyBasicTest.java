@@ -66,7 +66,7 @@ public class GameStrategyBasicTest {
 
     @Test
     public void factoryAlwaysMakesGameStrategy() throws Exception {
-        IGameStrategy gameStrategy1 = gameStrategyFactory.alwaysGetGameStrategy(dummyGameState);
+        IGameStrategy gameStrategy1 = gameStrategyFactory.alwaysGetGameStrategy(dummyGameState.getYou().getName());
         assertNotNull(gameStrategy1);
 
         IGameStrategy gameStrategy2 = gameStrategyFactory.alwaysGetGameStrategy(null);
@@ -101,18 +101,25 @@ public class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyGivesConfig(String name) throws Exception {
+    public void gameStrategyGivesInfo(String name) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        SnakeConfigDto snakeConfig = gameStrategy.processStart(dummyGameState);
-        assertNotNull(snakeConfig);
+        BattlesnakeInfo battlesnakeInfo = gameStrategy.getBattesnakeInfo();
+        assertNotNull(battlesnakeInfo);
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     public void gameStrategyGivesMove(String name) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        MoveDto move = gameStrategy.processMove(dummyGameState);
+        Move move = gameStrategy.processMove(dummyGameState);
         assertNotNull(move);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyDoesNotThrowOnStart(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        assertDoesNotThrow(() -> gameStrategy.processStart(dummyGameState));
     }
 
     @ParameterizedTest
@@ -132,28 +139,28 @@ public class GameStrategyBasicTest {
         for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
             dummyGameState.getYou().getBody().get(0).setX(x);
 
-            MoveDto move = gameStrategy.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("up".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
             dummyGameState.getYou().getBody().get(0).setY(y);
 
-            MoveDto move = gameStrategy.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("right".equalsIgnoreCase(move.getMove()));
         }
 
         for (int x = dummyGameState.getBoard().getWidth() - 1; x >= 0; --x) {
             dummyGameState.getYou().getBody().get(0).setX(x);
 
-            MoveDto move = gameStrategy.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("down".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
             dummyGameState.getYou().getBody().get(0).setY(y);
 
-            MoveDto move = gameStrategy.processMove(dummyGameState);
+            Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("left".equalsIgnoreCase(move.getMove()));
         }
     }

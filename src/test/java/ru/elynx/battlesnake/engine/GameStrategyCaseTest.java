@@ -61,13 +61,13 @@ public class GameStrategyCaseTest {
         turn113.getBoard().setSnakes(new LinkedList<>());
         turn113.getBoard().getSnakes().add(turn113.getYou());
 
-        MoveDto moveMaxHealth = gameStrategy.processMove(turn113);
+        Move moveMaxHealth = gameStrategy.processMove(turn113);
 
         assertFalse("up".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn113.getYou().setHealth(0);
 
-        MoveDto moveMinHealth = gameStrategy.processMove(turn113);
+        Move moveMinHealth = gameStrategy.processMove(turn113);
 
         assertFalse("up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
@@ -134,13 +134,13 @@ public class GameStrategyCaseTest {
         turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(4, 4));
         turn49.getBoard().getSnakes().get(2).setShout("enemy 2");
 
-        MoveDto moveMaxHealth = gameStrategy.processMove(turn49);
+        Move moveMaxHealth = gameStrategy.processMove(turn49);
 
         assertTrue("down".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn49.getYou().setHealth(0);
 
-        MoveDto moveMinHealth = gameStrategy.processMove(turn49);
+        Move moveMinHealth = gameStrategy.processMove(turn49);
 
         assertTrue("down".equalsIgnoreCase(moveMinHealth.getMove()));
     }

@@ -18,6 +18,16 @@ public class BattlesnakeInfoDto {
     public BattlesnakeInfoDto() {
     }
 
+    public BattlesnakeInfoDto(String author, String color, String head, String tail, String version) {
+        this.apiVersion = "1";
+
+        this.author = author;
+        this.color = color;
+        this.head = head;
+        this.tail = tail;
+        this.version = version;
+    }
+
     public BattlesnakeInfoDto(BattlesnakeInfo battlesnakeInfo) {
         this.apiVersion = "1";
 
