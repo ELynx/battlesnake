@@ -7,7 +7,7 @@ import javax.validation.constraints.Pattern;
 public class BattlesnakeInfoDto {
     @NotNull
     @NotEmpty
-    private String apiVersion;
+    private String apiversion;
     private String author;
     @Pattern(regexp = "#[[:xdigit:]]{6}")
     private String color;
@@ -19,7 +19,7 @@ public class BattlesnakeInfoDto {
     }
 
     public BattlesnakeInfoDto(String author, String color, String head, String tail, String version) {
-        this.apiVersion = "1";
+        this.apiversion = "1";
 
         this.author = author;
         this.color = color;
@@ -29,7 +29,7 @@ public class BattlesnakeInfoDto {
     }
 
     public BattlesnakeInfoDto(BattlesnakeInfo battlesnakeInfo) {
-        this.apiVersion = "1";
+        this.apiversion = "1";
 
         this.author = battlesnakeInfo.getAuthor();
         this.color = battlesnakeInfo.getColor();
@@ -38,12 +38,8 @@ public class BattlesnakeInfoDto {
         this.version = battlesnakeInfo.getVersion();
     }
 
-    public String getApiVersion() {
-        return apiVersion;
-    }
-
-    public void setApiVersion(String apiVersion) {
-        this.apiVersion = apiVersion;
+    public String getApiversion() {
+        return apiversion;
     }
 
     public String getAuthor() {

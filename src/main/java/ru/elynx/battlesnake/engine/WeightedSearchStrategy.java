@@ -31,12 +31,17 @@ public class WeightedSearchStrategy implements IGameStrategy {
     protected int maxHealth;
     protected String lastMove;
 
+    protected boolean initialized = false;
+
     private WeightedSearchStrategy(double wallWeight, String version) {
         this.wallWeight = wallWeight;
         this.version = version;
     }
 
     protected void init(GameStateDto gameState) {
+        if (initialized)
+            return;
+
         weightMatrix = DoubleMatrix.zeroMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
@@ -49,6 +54,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
         maxHealth = gameState.getYou().getHealth();
         lastMove = UP;
+
+        initialized = true;
     }
 
     protected void applyGameState(GameStateDto gameState) {
@@ -155,6 +162,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public Move processMove(GameStateDto gameState) {
+        // for test compatibility
+        init(gameState);
         String move = makeMove(gameState);
         lastMove = move;
         return new Move(move, "7% ready");
@@ -172,15 +181,18 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
+        private final static double WALL_WEIGHT_NEGATIVE = -1.0d;
+        private final static double WALL_WEIGHT_NEUTRAL = 0.0d;
+
         @Bean("Snake 1")
         @Primary
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(-1.0, "1");
+            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "1");
         }
 
         @Bean("Snake 1a")
         public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchStrategy(0.0d, "1a");
+            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEUTRAL, "1a");
         }
     }
 }

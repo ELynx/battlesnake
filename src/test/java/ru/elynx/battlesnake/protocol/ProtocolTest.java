@@ -108,8 +108,8 @@ public class ProtocolTest {
         assertEquals(6, gameState.getBoard().getFood().get(2).getY());
 
         assertEquals(1, gameState.getBoard().getHazards().size());
-        assertEquals(0, gameState.getBoard().getFood().get(0).getX());
-        assertEquals(0, gameState.getBoard().getFood().get(0).getY());
+        assertEquals(0, gameState.getBoard().getHazards().get(0).getX());
+        assertEquals(0, gameState.getBoard().getHazards().get(0).getY());
 
         assertEquals(2, gameState.getBoard().getSnakes().size());
 
@@ -139,7 +139,7 @@ public class ProtocolTest {
         assertEquals(5, gameState.getBoard().getSnakes().get(1).getBody().get(1).getX());
         assertEquals(3, gameState.getBoard().getSnakes().get(1).getBody().get(1).getY());
         assertEquals(6, gameState.getBoard().getSnakes().get(1).getBody().get(2).getX());
-        assertEquals(4, gameState.getBoard().getSnakes().get(1).getBody().get(2).getY());
+        assertEquals(3, gameState.getBoard().getSnakes().get(1).getBody().get(2).getY());
         assertEquals(6, gameState.getBoard().getSnakes().get(1).getBody().get(3).getX());
         assertEquals(2, gameState.getBoard().getSnakes().get(1).getBody().get(3).getY());
         assertEquals(222, gameState.getBoard().getSnakes().get(1).getLatency());
@@ -174,8 +174,8 @@ public class ProtocolTest {
         assertTrue(serialized.matches(".*\"apiversion\"\\s*:\\s*\"1\".*"));
         assertTrue(serialized.matches(".*\"author\"\\s*:\\s*\"AuThOr\".*"));
         assertTrue(serialized.matches(".*\"color\"\\s*:\\s*\"#dedbff\".*"));
-        assertTrue(serialized.matches(".*\"headType\"\\s*:\\s*\"begin\".*"));
-        assertTrue(serialized.matches(".*\"tailType\"\\s*:\\s*\"end\".*"));
+        assertTrue(serialized.matches(".*\"head\"\\s*:\\s*\"begin\".*"));
+        assertTrue(serialized.matches(".*\"tail\"\\s*:\\s*\"end\".*"));
         assertTrue(serialized.matches(".*\"version\"\\s*:\\s*\"bestest\".*"));
     }
 
