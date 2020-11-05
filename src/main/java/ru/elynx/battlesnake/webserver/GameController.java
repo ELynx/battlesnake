@@ -3,9 +3,12 @@ package ru.elynx.battlesnake.webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.MoveDto;
@@ -15,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @RestController
+@RequestMapping(value = "/battlesnake/api/v1")
 public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final SnakeManager snakeManager;
@@ -32,8 +36,15 @@ public class GameController {
                 "] Snake [" + gameState.getYou().getName() + ']';
     }
 
-    // TODO consumes?
-    @GetMapping(path = "/battlesnake/api/v1/snake/{name}")
+    @ExceptionHandler(SnakeNotFoundException.class)
+    public final ResponseEntity<Void> handleUserNotFoundException
+            (SnakeNotFoundException e, WebRequest webRequest)
+    {
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping(path = "/snakes/{name}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(
             @PathVariable
             @NotNull
@@ -44,7 +55,7 @@ public class GameController {
         return ResponseEntity.ok(new BattlesnakeInfoDto(snakeManager.root(name)));
     }
 
-    @PostMapping(path = "/battlesnake/api/v1/snake/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(
             @PathVariable
             @NotNull
@@ -56,7 +67,9 @@ public class GameController {
         return ResponseEntity.ok(snakeManager.start(name, gameState));
     }
 
-    @PostMapping(path = "/battlesnake/api/v1/snake/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/snakes/{name}/move",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(
             @PathVariable
             @NotNull
@@ -68,7 +81,7 @@ public class GameController {
         return ResponseEntity.ok(new MoveDto(snakeManager.move(name, gameState)));
     }
 
-    @PostMapping(path = "/battlesnake/api/v1/snake/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(
             @PathVariable
             @NotNull
