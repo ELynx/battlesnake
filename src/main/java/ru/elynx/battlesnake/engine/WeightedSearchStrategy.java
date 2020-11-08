@@ -197,12 +197,12 @@ public class WeightedSearchStrategy implements IGameStrategy {
         private final static double WALL_WEIGHT_NEGATIVE = -1.0d;
         private final static double WALL_WEIGHT_NEUTRAL = 0.0d;
 
-        @Bean("Snake 1")
+        @Bean("Snake_1")
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
             return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "1");
         }
 
-        @Bean("Snake 1a")
+        @Bean("Snake_1a")
         public Supplier<IGameStrategy> wallWeightZero() {
             return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEUTRAL, "1a");
         }

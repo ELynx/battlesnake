@@ -39,7 +39,7 @@ public class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Snake 1", "Snake 1a");
+        return Stream.of("Snake_1", "Snake_1a");
     }
 
     @BeforeEach
