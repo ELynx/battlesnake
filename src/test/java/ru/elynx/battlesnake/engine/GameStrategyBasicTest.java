@@ -47,6 +47,7 @@ public class GameStrategyBasicTest {
         dummyGameState.setTurn(0);
 
         dummyGameState.getBoard().setFood(new LinkedList<>());
+        dummyGameState.getBoard().setHazards(new LinkedList<>()); // v1
         dummyGameState.getBoard().setSnakes(new LinkedList<>());
 
         dummyGameState.setYou(new TestSnakeDto());

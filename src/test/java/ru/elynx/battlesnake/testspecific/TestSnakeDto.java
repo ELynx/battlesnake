@@ -21,7 +21,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public void setHead(CoordsDto body) {
-        throw new RuntimeException("Test class, use setBody");
+        throw new UnsupportedOperationException("Test class, use setBody");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public void setLength(Integer length) {
-        throw new RuntimeException("Test class, use setBody");
+        throw new UnsupportedOperationException("Test class, use setBody");
     }
 
     public enum ApiVersionTranslation {

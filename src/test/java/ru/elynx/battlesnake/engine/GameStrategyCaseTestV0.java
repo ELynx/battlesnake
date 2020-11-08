@@ -4,10 +4,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.protocol.BoardDto;
+import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.protocol.GameDto;
+import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.testspecific.TestMoveV0;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,6 +44,7 @@ public class GameStrategyCaseTestV0 {
 
         turn113.getBoard().setFood(new LinkedList<>());
         turn113.getBoard().getFood().add(new CoordsDto(1, 1));
+        turn113.getBoard().setHazards(Collections.emptyList());
 
         turn113.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn113.getYou().setId("qwerty");
@@ -95,7 +100,8 @@ public class GameStrategyCaseTestV0 {
         turn49.getBoard().setWidth(11);
         turn49.getBoard().setHeight(11);
 
-        turn49.getBoard().setFood(new LinkedList<>());
+        turn49.getBoard().setFood(Collections.emptyList());
+        turn49.getBoard().setHazards(Collections.emptyList());
 
         turn49.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn49.getYou().setId("qwerty");
@@ -114,7 +120,7 @@ public class GameStrategyCaseTestV0 {
         turn49.getBoard().setSnakes(new LinkedList<>());
         turn49.getBoard().getSnakes().add(turn49.getYou());
 
-        turn49.getBoard().getSnakes().add(new SnakeDto());
+        turn49.getBoard().getSnakes().add(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn49.getBoard().getSnakes().get(1).setId("enemy 1");
         turn49.getBoard().getSnakes().get(1).setName("enemy 1");
         turn49.getBoard().getSnakes().get(1).setHealth(100);
@@ -125,7 +131,7 @@ public class GameStrategyCaseTestV0 {
         turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(5, 1));
         turn49.getBoard().getSnakes().get(1).setShout("enemy 1");
 
-        turn49.getBoard().getSnakes().add(new SnakeDto());
+        turn49.getBoard().getSnakes().add(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn49.getBoard().getSnakes().get(2).setId("enemy 2");
         turn49.getBoard().getSnakes().get(2).setName("enemy 2");
         turn49.getBoard().getSnakes().get(2).setHealth(100);
