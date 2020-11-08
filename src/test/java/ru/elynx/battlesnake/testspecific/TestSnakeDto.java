@@ -4,6 +4,9 @@ import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class TestSnakeDto extends SnakeDto {
+    public TestSnakeDto() {
+    }
+
     public TestSnakeDto(ApiVersionTranslation apiVersionTranslation) {
         if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
             setLatency(250);

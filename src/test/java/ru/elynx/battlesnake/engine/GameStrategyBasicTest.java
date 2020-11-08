@@ -49,13 +49,16 @@ public class GameStrategyBasicTest {
         dummyGameState.getBoard().setFood(new LinkedList<>());
         dummyGameState.getBoard().setSnakes(new LinkedList<>());
 
-        dummyGameState.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
+        dummyGameState.setYou(new TestSnakeDto());
         dummyGameState.getYou().setId("TestYou-id");
         dummyGameState.getYou().setName("TestYou-name");
         dummyGameState.getYou().setHealth(100);
         dummyGameState.getYou().setBody(new LinkedList<>());
         dummyGameState.getYou().getBody().add(new CoordsDto(0, 0));
         dummyGameState.getYou().setShout("TestYou-shout");
+        // v1
+        dummyGameState.getYou().setLatency(250);
+        dummyGameState.getYou().setSquad("");
 
         dummyGameState.getBoard().getSnakes().add(dummyGameState.getYou());
     }

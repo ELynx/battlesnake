@@ -36,7 +36,7 @@ public class GameController {
     }
 
     @ExceptionHandler(SnakeNotFoundException.class)
-    public final ResponseEntity<Void> handleUserNotFoundException
+    public final ResponseEntity<Void> handleSnakeNotFoundException
             (SnakeNotFoundException e, WebRequest webRequest) {
         return ResponseEntity.notFound().build();
     }

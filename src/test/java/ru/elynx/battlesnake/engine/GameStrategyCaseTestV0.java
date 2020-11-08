@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 
 @SpringBootTest
-public class GameStrategyCaseTest {
+public class GameStrategyCaseTestV0 {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
