@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
 import java.util.LinkedList;
 import java.util.Set;
@@ -48,7 +49,7 @@ public class GameStrategyBasicTest {
         dummyGameState.getBoard().setFood(new LinkedList<>());
         dummyGameState.getBoard().setSnakes(new LinkedList<>());
 
-        dummyGameState.setYou(new SnakeDto());
+        dummyGameState.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         dummyGameState.getYou().setId("TestYou-id");
         dummyGameState.getYou().setName("TestYou-name");
         dummyGameState.getYou().setHealth(100);
@@ -100,14 +101,6 @@ public class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyGivesMove(String name) throws Exception {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        Move move = gameStrategy.processMove(dummyGameState);
-        assertNotNull(move);
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
     public void gameStrategyDoesNotThrowOnStart(String name) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         assertDoesNotThrow(() -> gameStrategy.processStart(dummyGameState));
@@ -115,8 +108,18 @@ public class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
+    public void gameStrategyGivesMove(String name) throws Exception {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        Void nothing = gameStrategy.processStart(dummyGameState);
+        Move move = gameStrategy.processMove(dummyGameState);
+        assertNotNull(move);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
     public void gameStrategyDoesNotThrowOnEnd(String name) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        Void nothing = gameStrategy.processStart(dummyGameState);
         assertDoesNotThrow(() -> gameStrategy.processEnd(dummyGameState));
     }
 
@@ -125,31 +128,34 @@ public class GameStrategyBasicTest {
     public void gameStrategyDoesNotGoIntoWall(String name) throws Exception {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        dummyGameState.getYou().getBody().get(0).setY(0);
+        dummyGameState.getYou().getHead().setX(0);
+        dummyGameState.getYou().getHead().setY(0);
+
+        Void nothing = gameStrategy.processStart(dummyGameState);
 
         for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
-            dummyGameState.getYou().getBody().get(0).setX(x);
+            dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("up".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
-            dummyGameState.getYou().getBody().get(0).setY(y);
+            dummyGameState.getYou().getHead().setY(y);
 
             Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("right".equalsIgnoreCase(move.getMove()));
         }
 
         for (int x = dummyGameState.getBoard().getWidth() - 1; x >= 0; --x) {
-            dummyGameState.getYou().getBody().get(0).setX(x);
+            dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("down".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
-            dummyGameState.getYou().getBody().get(0).setY(y);
+            dummyGameState.getYou().getHead().setY(y);
 
             Move move = gameStrategy.processMove(dummyGameState);
             assertFalse("left".equalsIgnoreCase(move.getMove()));

@@ -4,8 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -23,8 +24,43 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+class MySnake implements IGameStrategy {
+    @Override
+    public BattlesnakeInfo getBattesnakeInfo() {
+        return new BattlesnakeInfo(
+                "AuThOr", "#112233", "hed", "tell", "qwerty"
+        );
+    }
+
+    @Override
+    public Void processStart(GameStateDto gameState) {
+        return null;
+    }
+
+    @Override
+    public Move processMove(GameStateDto gameState) {
+        return new Move("UP", "shshshshsh");
+    }
+
+    @Override
+    public Void processEnd(GameStateDto gameState) {
+        return null;
+    }
+}
+
+@TestConfiguration
+class MySnakeSupplier {
+    @Bean("My Snake")
+    public Supplier<IGameStrategy> makeMySnake() {
+        return () -> {
+            return new MySnake();
+        };
+    }
+}
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(MySnakeSupplier.class)
 class GameControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -100,7 +136,7 @@ class GameControllerTest {
             "  }\n" +
             "}";
 
-    private String ApiEndpointBase = "/battlesnake/api/v1/snakes/Snake 1";
+    private String ApiEndpointBase = "/battlesnake/api/v1/snakes/My Snake";
 
     @Test
     public void startIsOk() throws Exception {
@@ -144,57 +180,18 @@ class GameControllerTest {
     @Test
     public void invalidNameNotFound() throws Exception {
         List<String> urls = new LinkedList<>();
-        urls.add(ApiEndpointBase + "123/start");
-        urls.add(ApiEndpointBase + "123/move");
-        //urls.add(ApiEndpointBase + "123/end"); // FIXME
+        urls.add(ApiEndpointBase + " 123/start");
+        urls.add(ApiEndpointBase + " 123/move");
+        urls.add(ApiEndpointBase + " 123/end");
+
+        String callToMySnake123 = ApiExampleGameState.replaceAll("My Snake", "My Snake 123");
 
         for (String url : urls) {
-            mockMvc.perform(post(url).content(ApiExampleGameState).contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post(url).content(callToMySnake123).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound());
         }
 
-        mockMvc.perform(get(ApiEndpointBase + "123"))
+        mockMvc.perform(get(ApiEndpointBase + " 123"))
                 .andExpect(status().isNotFound());
     }
-
-    /*private static class TestGameStrategy implements IGameStrategy {
-        public TestGameStrategy() {
-        }
-
-        @Override
-        public BattlesnakeInfo getBattesnakeInfo() {
-            return new BattlesnakeInfo(
-                    "AuthoR",
-                    "#112233",
-                    "hed",
-                    "tell",
-                    "over 9000"
-            );
-        }
-
-        @Override
-        public Void processStart(GameStateDto gameState) {
-            return null;
-        }
-
-        @Override
-        public Move processMove(GameStateDto gameState) {
-            return new Move(
-                    "UP", "tuohs"
-            );
-        }
-
-        @Override
-        public Void processEnd(GameStateDto gameState) {
-            return null;
-        }
-    }
-
-    @Configuration
-    public static class TestStrategyConfiguration {
-        @Bean("Test  321 SnAkE")
-        public Supplier<IGameStrategy> testStrategy() {
-            return () -> new TestGameStrategy();
-        }
-    }*/
 }

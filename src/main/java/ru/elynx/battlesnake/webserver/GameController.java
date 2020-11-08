@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +37,7 @@ public class GameController {
 
     @ExceptionHandler(SnakeNotFoundException.class)
     public final ResponseEntity<Void> handleUserNotFoundException
-            (SnakeNotFoundException e, WebRequest webRequest)
-    {
+            (SnakeNotFoundException e, WebRequest webRequest) {
         return ResponseEntity.notFound().build();
     }
 
@@ -64,7 +62,10 @@ public class GameController {
             @RequestBody @Valid GameStateDto gameState) {
         logger.info("Processing request game start " + terseIdentification(gameState));
         statisticsTracker.start(gameState);
-        return ResponseEntity.ok(snakeManager.start(name, gameState));
+        if (!name.equals(gameState.getYou().getName())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(snakeManager.start(gameState));
     }
 
     @PostMapping(path = "/snakes/{name}/move",
@@ -78,7 +79,10 @@ public class GameController {
             @RequestBody @Valid GameStateDto gameState) {
         logger.debug("Processing request game move " + terseIdentification(gameState));
         statisticsTracker.move(gameState);
-        return ResponseEntity.ok(new MoveDto(snakeManager.move(name, gameState)));
+        if (!name.equals(gameState.getYou().getName())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(new MoveDto(snakeManager.move(gameState)));
     }
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -90,6 +94,9 @@ public class GameController {
             @RequestBody @Valid GameStateDto gameState) {
         logger.info("Processing request game end " + terseIdentification(gameState));
         statisticsTracker.end(gameState);
+        if (!name.equals(gameState.getYou().getName())) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(snakeManager.end(gameState));
     }
 }

@@ -29,7 +29,7 @@ public class FlagMatrix {
     }
 
     public boolean getValue(int x, int y) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return outsideValue;
 
@@ -37,7 +37,7 @@ public class FlagMatrix {
     }
 
     public boolean setValue(int x, int y, boolean value) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return false;
 

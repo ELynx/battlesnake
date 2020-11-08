@@ -5,6 +5,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
 import java.util.LinkedList;
 
@@ -39,7 +40,7 @@ public class GameStrategyCaseTest {
         turn113.getBoard().setFood(new LinkedList<>());
         turn113.getBoard().getFood().add(new CoordsDto(1, 1));
 
-        turn113.setYou(new SnakeDto());
+        turn113.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn113.getYou().setId("qwerty");
         turn113.getYou().setName("qwerty");
         turn113.getYou().setHealth(100);
@@ -60,6 +61,8 @@ public class GameStrategyCaseTest {
 
         turn113.getBoard().setSnakes(new LinkedList<>());
         turn113.getBoard().getSnakes().add(turn113.getYou());
+
+        Void nothing = gameStrategy.processStart(turn113);
 
         Move moveMaxHealth = gameStrategy.processMove(turn113);
 
@@ -93,7 +96,7 @@ public class GameStrategyCaseTest {
 
         turn49.getBoard().setFood(new LinkedList<>());
 
-        turn49.setYou(new SnakeDto());
+        turn49.setYou(new TestSnakeDto(TestSnakeDto.ApiVersionTranslation.V0_TO_V1));
         turn49.getYou().setId("qwerty");
         turn49.getYou().setName("qwerty");
         turn49.getYou().setHealth(100);
@@ -133,6 +136,8 @@ public class GameStrategyCaseTest {
         turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(5, 4));
         turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(4, 4));
         turn49.getBoard().getSnakes().get(2).setShout("enemy 2");
+
+        Void nothing = gameStrategy.processStart(turn49);
 
         Move moveMaxHealth = gameStrategy.processMove(turn49);
 

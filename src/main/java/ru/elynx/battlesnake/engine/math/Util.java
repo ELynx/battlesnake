@@ -16,7 +16,7 @@ public class Util {
     }
 
     public static double scale(double from, double value, double max, double to) {
-        double normalized = clamp(0.0, value / max, 1.0);
+        final double normalized = clamp(0.0, value / max, 1.0);
         return scale(from, normalized, to);
     }
 }

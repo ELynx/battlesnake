@@ -28,7 +28,7 @@ public class DoubleMatrix {
     }
 
     public double getValue(int x, int y) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return outsideValue;
 
@@ -36,7 +36,7 @@ public class DoubleMatrix {
     }
 
     public boolean setValue(int x, int y, double value) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return false;
 
@@ -45,7 +45,7 @@ public class DoubleMatrix {
     }
 
     protected void addValue(int x, int y, double value) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return;
 

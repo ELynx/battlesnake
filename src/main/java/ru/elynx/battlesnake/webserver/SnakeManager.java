@@ -31,16 +31,16 @@ public class SnakeManager {
 
     private BattlesnakeInfo getSnakeInfo(String name) throws SnakeNotFoundException {
         // TODO cheapen the call to just get meta
-        IGameStrategy tmp = gameStrategyFactory.getGameStrategy(name);
+        final IGameStrategy tmp = gameStrategyFactory.getGameStrategy(name);
         return tmp.getBattesnakeInfo();
     }
 
-    private Snake getSnake(String name, String uid) throws SnakeNotFoundException {
+    private Snake computeSnake(String uid, String nameOnCreation) throws SnakeNotFoundException {
         return activeSnakes.compute(uid, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new [" + name + "] instance [" + uid + "]");
+                logger.debug("Creating new [" + nameOnCreation + "] instance [" + uid + "]");
                 System.out.println("count#snake.manager.new_game=1");
-                return new Snake(gameStrategyFactory.getGameStrategy(name));
+                return new Snake(gameStrategyFactory.getGameStrategy(nameOnCreation));
             }
 
             logger.debug("Accessing existing snake instance [" + uid + "]");
@@ -49,7 +49,7 @@ public class SnakeManager {
         });
     }
 
-    private Snake releaseSnake(String uid) {
+    private Snake removeSnake(String uid) {
         logger.debug("Releasing snake instance [" + uid + "]");
         System.out.println("count#snake.manager.end_game=1");
         return activeSnakes.remove(uid);
@@ -86,21 +86,21 @@ public class SnakeManager {
         return getSnakeInfo(name);
     }
 
-    public Void start(String name, GameStateDto gameState) throws SnakeNotFoundException {
-        return getSnake(name, gameState.getYou().getId()).gameStrategy.processStart(gameState);
+    public Void start(GameStateDto gameState) throws SnakeNotFoundException {
+        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy.processStart(gameState);
     }
 
-    public Move move(String name, GameStateDto gameState) throws SnakeNotFoundException {
-        return getSnake(name, gameState.getYou().getId()).gameStrategy.processMove(gameState);
+    public Move move(GameStateDto gameState) throws SnakeNotFoundException {
+        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy.processMove(gameState);
     }
 
     public Void end(GameStateDto gameState) {
-        Snake snake = releaseSnake(gameState.getYou().getId());
-        if (snake != null) {
-            return snake.gameStrategy.processEnd(gameState);
+        final Snake snake = removeSnake(gameState.getYou().getId());
+        if (snake == null) {
+            throw new SnakeNotFoundException(gameState.getYou().getName());
         }
 
-        return null;
+        return snake.gameStrategy.processEnd(gameState);
     }
 
     private static class Snake {

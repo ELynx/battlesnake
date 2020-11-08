@@ -18,10 +18,10 @@ public class GameStrategyFactory implements IGameStrategyFactory {
 
     @Override
     public IGameStrategy getGameStrategy(String name) throws SnakeNotFoundException {
-        Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
+        final Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
 
         if (supplier == null)
-            throw new SnakeNotFoundException("Game strategy [" + name + "] is not registered");
+            throw new SnakeNotFoundException(name);
 
         return supplier.get();
     }

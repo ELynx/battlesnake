@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
@@ -79,7 +78,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
             // cell with three pieces of snake around should cost less than piece of snake
             final double denominator = 4.0;
 
-            int ownSize = gameState.getYou().getBody().size();
+            final int ownSize = gameState.getYou().getLength();
 
             for (SnakeDto snake : gameState.getBoard().getSnakes()) {
                 List<CoordsDto> body = snake.getBody();
@@ -151,7 +150,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
-        return bestMove(gameState.getYou().getBody().get(0));
+        return bestMove(gameState.getYou().getHead());
     }
 
     @Override
@@ -169,7 +168,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
     public Move processMove(GameStateDto gameState) {
         // for test compatibility
         init(gameState);
-        String move = makeMove(gameState);
+        final String move = makeMove(gameState);
         lastMove = move;
         return new Move(move, "7% ready");
     }
