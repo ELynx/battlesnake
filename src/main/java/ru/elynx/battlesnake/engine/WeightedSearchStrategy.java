@@ -87,7 +87,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
                     final int x = body.get(i).getX();
                     final int y = body.get(i).getY();
 
-                    // side effect for using splash: all but last pieces get splash
                     if (i == 0 && size < ownSize) {
                         // don't explicitly rush for disconnected
                         final double headWeight = snake.getLatency() == 0 ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
