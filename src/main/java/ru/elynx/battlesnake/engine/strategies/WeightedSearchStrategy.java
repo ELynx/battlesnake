@@ -1,7 +1,8 @@
-package ru.elynx.battlesnake.engine;
+package ru.elynx.battlesnake.engine.strategies;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
@@ -169,7 +170,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "regular", version);
+        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "sharp", version);
     }
 
     @Override
