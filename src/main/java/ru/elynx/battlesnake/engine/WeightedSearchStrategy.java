@@ -29,7 +29,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
     protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
-
     protected boolean initialized = false;
 
     private WeightedSearchStrategy(double wallWeight, String version) {
@@ -37,7 +36,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         this.version = version;
     }
 
-    protected void init(GameStateDto gameState) {
+    protected void initOnce(GameStateDto gameState) {
         if (initialized)
             return;
 
@@ -160,14 +159,14 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public Void processStart(GameStateDto gameState) {
-        init(gameState);
+        initOnce(gameState);
         return null;
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
         // for test compatibility
-        init(gameState);
+        initOnce(gameState);
         final String move = makeMove(gameState);
         lastMove = move;
         return new Move(move, "7% ready");
