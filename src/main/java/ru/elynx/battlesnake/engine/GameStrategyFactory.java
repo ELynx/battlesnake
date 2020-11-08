@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.elynx.battlesnake.protocol.GameStateDto;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,32 +16,18 @@ public class GameStrategyFactory implements IGameStrategyFactory {
     @Autowired
     Map<String, Supplier<IGameStrategy>> registeredGameStrategies;
 
-    @Autowired
-    Supplier<IGameStrategy> primaryGameStrategy;
+    @Override
+    public IGameStrategy getGameStrategy(String name) throws SnakeNotFoundException {
+        final Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
 
-    public IGameStrategy makeGameStrategy(GameStateDto gameState) {
-        try {
-            final String snakeName = gameState.getYou().getName();
-            return getGameStrategy(snakeName);
-        } catch (Exception e) {
-            logger.error("Exception choosing game strategy", e);
-        }
+        if (supplier == null)
+            throw new SnakeNotFoundException(name);
 
-        return primaryGameStrategy.get();
+        return supplier.get();
     }
 
     @Override
     public Set<String> getRegisteredStrategies() {
         return registeredGameStrategies.keySet();
-    }
-
-    @Override
-    public IGameStrategy getGameStrategy(String name) {
-        Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
-
-        if (supplier == null)
-            throw new IllegalArgumentException("Game strategy [" + name + "] is not registered");
-
-        return supplier.get();
     }
 }

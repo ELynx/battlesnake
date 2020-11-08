@@ -6,29 +6,34 @@ public class DoubleMatrix {
     private final int width;
     private final int height;
     private final int length;
-    private final double[] values;
+    private final double[] setValues;
+    private final double[] splashValues;
     private final double outsideValue;
 
     protected DoubleMatrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
-        this.values = new double[this.length];
+        this.setValues = new double[this.length];
+        this.splashValues = new double[this.length];
         this.outsideValue = outsideValue;
     }
 
     public static DoubleMatrix zeroMatrix(int width, int height, double outsideValue) {
-        return new DoubleMatrix(width, height, outsideValue);
+        DoubleMatrix result = new DoubleMatrix(width, height, outsideValue);
+        result.zero();
+        return result;
     }
 
     public void zero() {
         for (int i = 0; i < length; ++i) {
-            values[i] = 0.0d;
+            setValues[i] = Double.NaN;
+            splashValues[i] = Double.NaN;
         }
     }
 
     public double getValue(int x, int y) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return outsideValue;
 
@@ -36,7 +41,7 @@ public class DoubleMatrix {
     }
 
     public boolean setValue(int x, int y, double value) {
-        int index = safeIndex(x, y);
+        final int index = safeIndex(x, y);
         if (index < 0)
             return false;
 
@@ -44,12 +49,12 @@ public class DoubleMatrix {
         return true;
     }
 
-    protected void addValue(int x, int y, double value) {
-        int index = safeIndex(x, y);
+    protected void splashValue(int x, int y, double value) {
+        final int index = safeIndex(x, y);
         if (index < 0)
             return;
 
-        unsafeAddValue(index, value);
+        unsafeSplashValue(index, value);
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
@@ -66,10 +71,10 @@ public class DoubleMatrix {
         if (setValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            addValue(x, y - 1, valueAtImpact);
-            addValue(x - 1, y, valueAtImpact);
-            addValue(x + 1, y, valueAtImpact);
-            addValue(x, y + 1, valueAtImpact);
+            splashValue(x, y - 1, valueAtImpact);
+            splashValue(x - 1, y, valueAtImpact);
+            splashValue(x + 1, y, valueAtImpact);
+            splashValue(x, y + 1, valueAtImpact);
 
             return true;
         }
@@ -86,10 +91,10 @@ public class DoubleMatrix {
         if (splash1stOrder(x, y, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            addValue(x - 1, y - 1, valueAtImpact);
-            addValue(x + 1, y - 1, valueAtImpact);
-            addValue(x - 1, y + 1, valueAtImpact);
-            addValue(x + 1, y + 1, valueAtImpact);
+            splashValue(x - 1, y - 1, valueAtImpact);
+            splashValue(x + 1, y - 1, valueAtImpact);
+            splashValue(x - 1, y + 1, valueAtImpact);
+            splashValue(x + 1, y + 1, valueAtImpact);
 
             return true;
         }
@@ -109,14 +114,26 @@ public class DoubleMatrix {
     }
 
     protected double unsafeGetValue(int index) {
-        return values[index];
+        if (Double.isNaN(setValues[index])) {
+            if (Double.isNaN(splashValues[index])) {
+                return 0.0d;
+            } else {
+                return splashValues[index];
+            }
+        } else {
+            return setValues[index];
+        }
     }
 
     protected void unsafeSetValue(int index, double value) {
-        values[index] = value;
+        setValues[index] = value;
     }
 
-    protected void unsafeAddValue(int index, double value) {
-        values[index] += value;
+    protected void unsafeSplashValue(int index, double value) {
+        if (Double.isNaN(splashValues[index])) {
+            splashValues[index] = value;
+        } else {
+            splashValues[index] += value;
+        }
     }
 }

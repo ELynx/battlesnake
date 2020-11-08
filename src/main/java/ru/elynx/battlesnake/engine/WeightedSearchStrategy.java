@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
@@ -15,8 +14,10 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private final static double MIN_FOOD_WEIGHT = 0.1d;
     private final static double MAX_FOOD_WEIGHT = 1.0d;
     private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
+    private final static double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private final static double SNAKE_BODY_WEIGHT = -1.0d;
     private final static double BLOCKED_MOVE_WEIGHT = -Double.MAX_VALUE;
+    private final static double HAZARD_WEIGHT = -Double.MAX_VALUE;
     private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
 
     private final static String UP = "up";
@@ -25,14 +26,16 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private final static String LEFT = "left";
 
     protected final double wallWeight;
+    protected final String version;
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected int maxHealth;
     protected String lastMove;
     protected boolean initialized = false;
 
-    private WeightedSearchStrategy(double wallWeight) {
+    private WeightedSearchStrategy(double wallWeight, String version) {
         this.wallWeight = wallWeight;
+        this.version = version;
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -55,12 +58,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
         initialized = true;
     }
 
-    @Override
-    public SnakeConfigDto processStart(GameStateDto gameState) {
-        initOnce(gameState);
-        return getSnakeConfig();
-    }
-
     protected void applyGameState(GameStateDto gameState) {
         weightMatrix.zero();
         blockedMatrix.reset();
@@ -70,8 +67,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
             double foodWeight = Util.scale(MIN_FOOD_WEIGHT, maxHealth - gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
 
             for (CoordsDto food : gameState.getBoard().getFood()) {
-                Integer x = food.getX();
-                Integer y = food.getY();
+                final int x = food.getX();
+                final int y = food.getY();
 
                 weightMatrix.splash2ndOrder(x, y, foodWeight);
             }
@@ -82,24 +79,37 @@ public class WeightedSearchStrategy implements IGameStrategy {
             // cell with three pieces of snake around should cost less than piece of snake
             final double denominator = 4.0;
 
-            int ownSize = gameState.getYou().getBody().size();
+            final int ownSize = gameState.getYou().getLength();
 
             for (SnakeDto snake : gameState.getBoard().getSnakes()) {
-                List<CoordsDto> body = snake.getBody();
+                final List<CoordsDto> body = snake.getBody();
                 for (int i = 0, size = body.size(); i < size; ++i) {
-                    Integer x = body.get(i).getX();
-                    Integer y = body.get(i).getY();
+                    final int x = body.get(i).getX();
+                    final int y = body.get(i).getY();
 
-                    // since we are looking for strictly less own body will get into wall category
-                    // side effect for using splash: all but last pieces get splash
                     if (i == 0 && size < ownSize) {
-                        weightMatrix.splash2ndOrder(x, y, LESSER_SNAKE_HEAD_WEIGHT);
+                        // don't explicitly rush for disconnected
+                        final double headWeight = snake.getLatency() == 0 ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
+                        weightMatrix.splash2ndOrder(x, y, headWeight);
                     } else {
+                        // since we are looking for strictly less own body will get into no-go category
                         weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
-                    }
 
-                    blockedMatrix.setValue(x, y, true);
+                        // block only losing snake pieces
+                        blockedMatrix.setValue(x, y, true);
+                    }
                 }
+            }
+        }
+
+        // apply hazards
+        {
+            for (CoordsDto hazard : gameState.getBoard().getHazards()) {
+                final int x = hazard.getX();
+                final int y = hazard.getY();
+
+                weightMatrix.setValue(x, y, HAZARD_WEIGHT);
+                blockedMatrix.setValue(x, y, true);
             }
         }
     }
@@ -128,8 +138,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
         // index ascending order
 
-        String bestDirection = UP;
-        double bestValue = getCrossWeight(x, y - 1) + getDirectionWeight(UP);
+        String bestDirection = DOWN;
+        double bestValue = getCrossWeight(x, y - 1) + getDirectionWeight(DOWN);
 
         double nextValue = getCrossWeight(x - 1, y) + getDirectionWeight(LEFT);
         if (nextValue > bestValue) {
@@ -143,9 +153,9 @@ public class WeightedSearchStrategy implements IGameStrategy {
             bestValue = nextValue;
         }
 
-        nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(DOWN);
+        nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(UP);
         if (nextValue > bestValue) {
-            bestDirection = DOWN;
+            bestDirection = UP;
             //bestValue = nextValue;
         }
 
@@ -154,15 +164,27 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
-        return bestMove(gameState.getYou().getBody().get(0));
+        return bestMove(gameState.getYou().getHead());
     }
 
     @Override
-    public MoveDto processMove(GameStateDto gameState) {
+    public BattlesnakeInfo getBattesnakeInfo() {
+        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "regular", version);
+    }
+
+    @Override
+    public Void processStart(GameStateDto gameState) {
         initOnce(gameState);
-        String move = makeMove(gameState);
+        return null;
+    }
+
+    @Override
+    public Move processMove(GameStateDto gameState) {
+        // for test compatibility
+        initOnce(gameState);
+        final String move = makeMove(gameState);
         lastMove = move;
-        return new MoveDto(move, "6% ready");
+        return new Move(move, "7% ready");
     }
 
     @Override
@@ -172,15 +194,17 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
+        private final static double WALL_WEIGHT_NEGATIVE = -1.0d;
+        private final static double WALL_WEIGHT_NEUTRAL = 0.0d;
+
         @Bean("Snake 1")
-        @Primary
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(-1.0);
+            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "1");
         }
 
         @Bean("Snake 1a")
         public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchStrategy(0.0d);
+            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEUTRAL, "1a");
         }
     }
 }

@@ -136,7 +136,7 @@ public class DoubleMatrixTest {
         matrix.splash2ndOrder(0, 0, 4.0d);
         matrix.splash2ndOrder(1, 1, -1.0d);
 
-        assertThat(3.75d, is(closeTo(matrix.getValue(0, 0), fuzz)));
+        assertThat(4.0d, is(closeTo(matrix.getValue(0, 0), fuzz)));
         assertThat(1.5d, is(closeTo(matrix.getValue(0, 1), fuzz)));
         assertThat(1.5d, is(closeTo(matrix.getValue(1, 0), fuzz)));
         assertThat(-1.0d, is(closeTo(matrix.getValue(1, 1), fuzz)));

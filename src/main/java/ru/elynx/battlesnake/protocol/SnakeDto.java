@@ -6,6 +6,7 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 public class SnakeDto {
+    @NotNull
     @NotEmpty
     private String id;
     @NotNull
@@ -14,7 +15,16 @@ public class SnakeDto {
     private Integer health;
     @NotNull
     private List<CoordsDto> body;
+    @PositiveOrZero
+    private Integer latency;
+    @NotNull
+    private CoordsDto head;
+    @PositiveOrZero
+    private Integer length;
+    // TODO constraint
     private String shout;
+    // TODO constraint
+    private String squad;
 
     public SnakeDto() {
     }
@@ -51,11 +61,43 @@ public class SnakeDto {
         this.body = body;
     }
 
+    public Integer getLatency() {
+        return latency;
+    }
+
+    public void setLatency(Integer latency) {
+        this.latency = latency;
+    }
+
+    public CoordsDto getHead() {
+        return head;
+    }
+
+    public void setHead(CoordsDto head) {
+        this.head = head;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
     public String getShout() {
         return shout;
     }
 
     public void setShout(String shout) {
         this.shout = shout;
+    }
+
+    public String getSquad() {
+        return squad;
+    }
+
+    public void setSquad(String squad) {
+        this.squad = squad;
     }
 }

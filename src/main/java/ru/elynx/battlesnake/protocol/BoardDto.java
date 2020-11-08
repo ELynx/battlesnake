@@ -14,6 +14,8 @@ public class BoardDto {
     @NotNull
     private List<CoordsDto> food;
     @NotNull
+    private List<CoordsDto> hazards;
+    @NotNull
     private List<SnakeDto> snakes;
 
     public BoardDto() {
@@ -41,6 +43,14 @@ public class BoardDto {
 
     public void setFood(List<CoordsDto> food) {
         this.food = food;
+    }
+
+    public List<CoordsDto> getHazards() {
+        return hazards;
+    }
+
+    public void setHazards(List<CoordsDto> hazards) {
+        this.hazards = hazards;
     }
 
     public List<SnakeDto> getSnakes() {
