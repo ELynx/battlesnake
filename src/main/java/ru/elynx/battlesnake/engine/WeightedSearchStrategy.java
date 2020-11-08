@@ -124,8 +124,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
         // index ascending order
 
-        String bestDirection = UP;
-        double bestValue = getCrossWeight(x, y - 1) + getDirectionWeight(UP);
+        String bestDirection = DOWN;
+        double bestValue = getCrossWeight(x, y - 1) + getDirectionWeight(DOWN);
 
         double nextValue = getCrossWeight(x - 1, y) + getDirectionWeight(LEFT);
         if (nextValue > bestValue) {
@@ -139,9 +139,9 @@ public class WeightedSearchStrategy implements IGameStrategy {
             bestValue = nextValue;
         }
 
-        nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(DOWN);
+        nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(UP);
         if (nextValue > bestValue) {
-            bestDirection = DOWN;
+            bestDirection = UP;
             //bestValue = nextValue;
         }
 
