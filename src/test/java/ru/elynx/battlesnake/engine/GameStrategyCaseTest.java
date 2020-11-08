@@ -5,6 +5,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.testspecific.TestMoveV0;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
 import java.util.LinkedList;
@@ -64,13 +65,13 @@ public class GameStrategyCaseTest {
 
         Void nothing = gameStrategy.processStart(turn113);
 
-        Move moveMaxHealth = gameStrategy.processMove(turn113);
+        TestMoveV0 moveMaxHealth = new TestMoveV0(gameStrategy.processMove(turn113));
 
         assertFalse("up".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn113.getYou().setHealth(0);
 
-        Move moveMinHealth = gameStrategy.processMove(turn113);
+        TestMoveV0 moveMinHealth = new TestMoveV0(gameStrategy.processMove(turn113));
 
         assertFalse("up".equalsIgnoreCase(moveMinHealth.getMove()));
     }
@@ -139,13 +140,13 @@ public class GameStrategyCaseTest {
 
         Void nothing = gameStrategy.processStart(turn49);
 
-        Move moveMaxHealth = gameStrategy.processMove(turn49);
+        TestMoveV0 moveMaxHealth = new TestMoveV0(gameStrategy.processMove(turn49));
 
         assertTrue("down".equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn49.getYou().setHealth(0);
 
-        Move moveMinHealth = gameStrategy.processMove(turn49);
+        TestMoveV0 moveMinHealth = new TestMoveV0(gameStrategy.processMove(turn49));
 
         assertTrue("down".equalsIgnoreCase(moveMinHealth.getMove()));
     }

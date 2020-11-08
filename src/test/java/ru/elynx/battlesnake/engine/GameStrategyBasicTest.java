@@ -137,7 +137,7 @@ public class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("up".equalsIgnoreCase(move.getMove()));
+            assertFalse("down".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
@@ -151,7 +151,7 @@ public class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("down".equalsIgnoreCase(move.getMove()));
+            assertFalse("up".equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
