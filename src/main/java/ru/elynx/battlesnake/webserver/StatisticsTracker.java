@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.webserver;
 
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.protocol.GameStateDto;
+import ru.elynx.battlesnake.protocol.SnakeDto;
 
 @Service
 class StatisticsTracker {
@@ -16,8 +17,13 @@ class StatisticsTracker {
 
     public void end(GameStateDto gameState) {
         final String snakeName = gameState.getYou().getName().replace(' ', '_').trim();
-        final boolean victory = gameState.getBoard().getSnakes().size() == 1 &&
-                gameState.getBoard().getSnakes().get(0).getId() == gameState.getYou().getId();
+        boolean victory = false;
+        for (SnakeDto someSnake : gameState.getBoard().getSnakes()) {
+            if (someSnake.getId().equals(gameState.getYou().getId())) {
+                victory = true;
+                break;
+            }
+        }
         final int turnsToEnd = gameState.getTurn();
 
         System.out.println("source=" + snakeName + " measure#" + (victory ? "win" : "lose") + "=" + turnsToEnd);
