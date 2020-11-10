@@ -170,7 +170,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#ffbf00", "smile", "sharp", version);
+        return new BattlesnakeInfo("ELynx", "#b58900", "smile", "sharp", version);
     }
 
     @Override
