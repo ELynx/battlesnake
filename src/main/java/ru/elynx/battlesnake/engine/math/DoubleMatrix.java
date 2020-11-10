@@ -19,8 +19,12 @@ public class DoubleMatrix {
         this.outsideValue = outsideValue;
     }
 
+    public static DoubleMatrix uninitializedMatrix(int width, int height, double outsideValue) {
+        return new DoubleMatrix(width, height, outsideValue);
+    }
+
     public static DoubleMatrix zeroMatrix(int width, int height, double outsideValue) {
-        DoubleMatrix result = new DoubleMatrix(width, height, outsideValue);
+        DoubleMatrix result = uninitializedMatrix(width, height, outsideValue);
         result.zero();
         return result;
     }
