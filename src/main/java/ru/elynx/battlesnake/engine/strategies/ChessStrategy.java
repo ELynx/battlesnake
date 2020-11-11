@@ -15,6 +15,10 @@ public class ChessStrategy implements IGameStrategy {
         return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "noob");
     }
 
+    protected String makeMove(GameStateDto gameStateDto) {
+        return "UP";
+    }
+
     @Override
     public Void processStart(GameStateDto gameState) {
         return null;
@@ -22,7 +26,7 @@ public class ChessStrategy implements IGameStrategy {
 
     @Override
     public Move processMove(GameStateDto gameState) {
-        return new Move("UP", "e4e2");
+        return new Move(makeMove(gameState), "e4e2");
     }
 
     @Override
