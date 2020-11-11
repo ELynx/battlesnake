@@ -12,7 +12,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class WeightedSearchStrategy implements IGameStrategy {
-    private final static String LEFT = "left";
+    private static final double MIN_FOOD_WEIGHT = 0.1d;
+    private static final double MAX_FOOD_WEIGHT = 1.0d;
+    private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
+    private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
+    private static final double SNAKE_BODY_WEIGHT = -1.0d;
+    private static final double BLOCKED_MOVE_WEIGHT = -Double.MAX_VALUE;
+    private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
+    private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
+
+    private static final String UP = "up";
+    private static final String RIGHT = "right";
+    private static final String DOWN = "down";
+    private static final String LEFT = "left";
 
     protected final double wallWeight;
     protected final String version;
@@ -31,10 +43,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         if (initialized)
             return;
 
-        weightMatrix = DoubleMatrix.uninitializedMatrix(
-                gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(),
-                wallWeight);
+        weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(), wallWeight);
 
         blockedMatrix = FlagMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
