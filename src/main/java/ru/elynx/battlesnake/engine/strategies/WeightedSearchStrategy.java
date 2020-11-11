@@ -43,12 +43,12 @@ public class WeightedSearchStrategy implements IGameStrategy {
         if (initialized)
             return;
 
-        weightMatrix = DoubleMatrix.zeroMatrix(
+        weightMatrix = DoubleMatrix.uninitializedMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
                 wallWeight);
 
-        blockedMatrix = FlagMatrix.falseMatrix(
+        blockedMatrix = FlagMatrix.uninitializedMatrix(
                 gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(),
                 true);

@@ -8,7 +8,7 @@ public class FlagMatrixTest {
         final int w = 11, h = 15;
         final boolean wl = true;
 
-        FlagMatrix matrix = FlagMatrix.falseMatrix(w, h, wl);
+        FlagMatrix matrix = FlagMatrix.resettedMatrix(w, h, wl);
 
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -22,7 +22,7 @@ public class FlagMatrixTest {
         final int w = 11, h = 15;
         final boolean wl = true;
 
-        FlagMatrix matrix = FlagMatrix.falseMatrix(w, h, wl);
+        FlagMatrix matrix = FlagMatrix.resettedMatrix(w, h, wl);
 
         for (int x = -1; x < w + 1; ++x) {
             for (int y = -1; y < h + 1; ++y) {
@@ -43,7 +43,7 @@ public class FlagMatrixTest {
         final boolean w1 = true;
         final boolean w2 = false;
 
-        FlagMatrix matrix = FlagMatrix.falseMatrix(w, h, w1);
+        FlagMatrix matrix = FlagMatrix.resettedMatrix(w, h, w1);
         matrix.reset();
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -51,7 +51,7 @@ public class FlagMatrixTest {
             }
         }
 
-        matrix = FlagMatrix.falseMatrix(w, h, w2);
+        matrix = FlagMatrix.resettedMatrix(w, h, w2);
         matrix.reset();
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {

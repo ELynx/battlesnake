@@ -15,8 +15,14 @@ public class FlagMatrix {
         this.outsideValue = outsideValue;
     }
 
-    public static FlagMatrix falseMatrix(int width, int height, boolean outsideValue) {
+    public static FlagMatrix uninitializedMatrix(int width, int height, boolean outsideValue) {
         return new FlagMatrix(width, height, outsideValue);
+    }
+
+    public static FlagMatrix resettedMatrix(int width, int height, boolean outsideValue) {
+        FlagMatrix result = uninitializedMatrix(width, height, outsideValue);
+        result.reset();
+        return result;
     }
 
     /**
