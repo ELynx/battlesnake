@@ -7,8 +7,8 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
 public class UtilTest {
-    private final static double a = -100.0d, b = -50.0d, c = 0.0d, d = 0.3d, e = 0.5d, f = 1.0d, j = 50.0d, h = 100.0d;
-    private final static double fuzz = 0.01d;
+    private static final double a = -100.0d, b = -50.0d, c = 0.0d, d = 0.3d, e = 0.5d, f = 1.0d, j = 50.0d, h = 100.0d;
+    private static final double fuzz = 0.01d;
 
     @Test
     public void clamp() throws Exception {

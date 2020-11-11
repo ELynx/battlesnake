@@ -4,8 +4,10 @@ import javax.validation.constraints.Pattern;
 
 public class BattlesnakeInfo {
     private String author;
+
     @Pattern(regexp = "#[[:xdigit:]]{6}")
     private String color;
+
     private String head;
     private String tail;
     private String version;

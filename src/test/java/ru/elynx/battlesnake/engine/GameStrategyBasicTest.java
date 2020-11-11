@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Snake_1", "Snake_1a");
+        return Stream.of("Snake_1", "Snake_1a", "ChesssMassster");
     }
 
     @BeforeEach
@@ -85,7 +86,8 @@ public class GameStrategyBasicTest {
         Stream<String> testedStrategies = provideStrategyNames();
         Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
 
-        assertIterableEquals(testedStrategies.collect(Collectors.toSet()), knownStrategies);
+        assertIterableEquals(testedStrategies.sorted().collect(Collectors.toCollection(LinkedHashSet::new)),
+                knownStrategies);
     }
 
     @ParameterizedTest

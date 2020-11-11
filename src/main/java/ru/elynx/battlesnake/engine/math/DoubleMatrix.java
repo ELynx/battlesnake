@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class DoubleMatrix {
-    private final static double DEFAULT_SPLASH = 2.0d;
+    private static final double DEFAULT_SPLASH = 2.0d;
 
     private final int width;
     private final int height;

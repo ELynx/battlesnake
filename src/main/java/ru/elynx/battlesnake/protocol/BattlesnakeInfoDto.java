@@ -9,8 +9,10 @@ public class BattlesnakeInfoDto {
     @NotEmpty
     private String apiversion;
     private String author;
+
     @Pattern(regexp = "#[[:xdigit:]]{6}")
     private String color;
+
     private String head;
     private String tail;
     private String version;

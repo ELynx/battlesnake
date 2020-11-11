@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SnakeManager {
-    private final static long STALE_SNAKE_ROUTINE_DELAY = 60000; // milliseconds
-    private final static long STALE_SNAKE_AGE = 5000; // milliseconds
+    private static final long STALE_SNAKE_ROUTINE_DELAY = 60000; // milliseconds
+    private static final long STALE_SNAKE_AGE = 5000; // milliseconds
     private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, Snake> activeSnakes = new ConcurrentHashMap<>();
@@ -77,8 +77,8 @@ public class SnakeManager {
         }
 
         final int delta = sizeBefore - sizeAfter;
-        logger.debug("Cleaning stale snakes, cleaned [" + delta +
-                "] snakes older than [" + staleSnakeTime.toString() + "]");
+        logger.debug(
+                "Cleaning stale snakes, cleaned [" + delta + "] snakes older than [" + staleSnakeTime.toString() + "]");
         System.out.println("count#snake.manager.stale=" + delta);
     }
 
@@ -87,11 +87,13 @@ public class SnakeManager {
     }
 
     public Void start(GameStateDto gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy.processStart(gameState);
+        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
+                .processStart(gameState);
     }
 
     public Move move(GameStateDto gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy.processMove(gameState);
+        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
+                .processMove(gameState);
     }
 
     public Void end(GameStateDto gameState) {

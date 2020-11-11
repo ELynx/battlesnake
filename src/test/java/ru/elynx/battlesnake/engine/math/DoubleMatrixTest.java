@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
 public class DoubleMatrixTest {
-    private final static double fuzz = 0.0001d;
+    private static final double fuzz = 0.0001d;
 
     @Test
     public void zeroMatrix() throws Exception {
