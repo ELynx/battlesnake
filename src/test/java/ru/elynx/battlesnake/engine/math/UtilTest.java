@@ -6,12 +6,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
-public class UtilTest {
+class UtilTest {
     private static final double a = -100.0d, b = -50.0d, c = 0.0d, d = 0.3d, e = 0.5d, f = 1.0d, j = 50.0d, h = 100.0d;
     private static final double fuzz = 0.01d;
 
     @Test
-    public void clamp() throws Exception {
+    void clamp() {
         assert (b == Util.clamp(a, b, c));
         assert (a == Util.clamp(a, a, c));
         assert (c == Util.clamp(a, c, c));
@@ -28,7 +28,7 @@ public class UtilTest {
     }
 
     @Test
-    public void scaleNormalized() throws Exception {
+    void scaleNormalized() {
         assertThat(Util.scale(a, c, c), is(closeTo(a, fuzz)));
         assertThat(Util.scale(a, e, c), is(closeTo(b, fuzz)));
         assertThat(Util.scale(a, f, c), is(closeTo(c, fuzz)));
@@ -41,7 +41,7 @@ public class UtilTest {
     }
 
     @Test
-    public void scaleValueOfMaximum() throws Exception {
+    void scaleValueOfMaximum() {
         assertThat(Util.scale(a, j, h, c), is(closeTo(b, fuzz)));
         assertThat(Util.scale(c, b, a, h), is(closeTo(j, fuzz)));
     }
