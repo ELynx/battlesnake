@@ -6,10 +6,6 @@ public class DoubleMatrix {
     private final int width;
     private final int height;
     private final int length;
-
-    private final int[] offset1st;
-    private final int[] offset2nd;
-
     private final double[] directValues;
     private final double[] splashValues;
     private final double outsideValue;
@@ -18,23 +14,6 @@ public class DoubleMatrix {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
-
-        this.offset1st = new int[4];
-        this.offset1st[0] = -this.width;
-        this.offset1st[1] = -1;
-        this.offset1st[2] = 1;
-        this.offset1st[3] = this.width;
-
-        this.offset2nd = new int[8];
-        this.offset2nd[0] = this.offset1st[0] - 1;
-        this.offset2nd[1] = this.offset1st[0];
-        this.offset2nd[2] = this.offset1st[0] + 1;
-        this.offset2nd[3] = this.offset1st[1];
-        this.offset2nd[4] = this.offset1st[2];
-        this.offset2nd[5] = this.offset1st[3] - 1;
-        this.offset2nd[6] = this.offset1st[3];
-        this.offset2nd[7] = this.offset1st[3] + 1;
-
         this.directValues = new double[this.length];
         this.splashValues = new double[this.length];
         this.outsideValue = outsideValue;
@@ -74,6 +53,14 @@ public class DoubleMatrix {
         return true;
     }
 
+    protected void addSplashValue(int x, int y, double value) {
+        final int index = safeIndex(x, y);
+        if (index < 0)
+            return;
+
+        unsafeAddSplashValue(index, value);
+    }
+
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
@@ -83,20 +70,14 @@ public class DoubleMatrix {
         if (valueAtImpact == 0.0d)
             return false;
 
-        final int impactIndex = safeIndex(x, y);
-
         // if impact is out of matrix ignore the setter
-        if (impactIndex >= 0) {
-            unsafeSetDirectValue(impactIndex, valueAtImpact);
-
+        if (setValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            for (int offset : offset1st) {
-                final int splashIndex = impactIndex + offset;
-                if (splashIndex >= 0 && splashIndex < length) {
-                    unsafeAddSplashValue(splashIndex, valueAtImpact);
-                }
-            }
+            addSplashValue(x, y - 1, valueAtImpact);
+            addSplashValue(x - 1, y, valueAtImpact);
+            addSplashValue(x + 1, y, valueAtImpact);
+            addSplashValue(x, y + 1, valueAtImpact);
 
             return true;
         }
@@ -109,35 +90,13 @@ public class DoubleMatrix {
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
-        // no impact - no setter
-        if (valueAtImpact == 0.0d)
-            return false;
+        if (splash1stOrder(x, y, valueAtImpact, denominator)) {
+            valueAtImpact = valueAtImpact / denominator / denominator;
 
-        final int impactIndex = safeIndex(x, y);
-
-        // if impact is out of matrix ignore the setter
-        if (impactIndex >= 0) {
-            unsafeSetDirectValue(impactIndex, valueAtImpact);
-
-            final double splash1st = valueAtImpact / denominator;
-            final double splash2nd = splash1st / denominator;
-
-            boolean flipFlop = false;
-            final int skipFlipFlop = offset2nd.length / 2 - 1;
-            for (int i = 0; i < offset2nd.length; ++i) {
-                final int splashIndex = impactIndex + offset2nd[i];
-                if (splashIndex >= 0 && splashIndex < length) {
-                    if (flipFlop) {
-                        unsafeAddSplashValue(splashIndex, splash1st);
-                    } else {
-                        unsafeAddSplashValue(splashIndex, splash2nd);
-                    }
-                }
-
-                if (i != skipFlipFlop) {
-                    flipFlop = !flipFlop;
-                }
-            }
+            addSplashValue(x - 1, y - 1, valueAtImpact);
+            addSplashValue(x + 1, y - 1, valueAtImpact);
+            addSplashValue(x - 1, y + 1, valueAtImpact);
+            addSplashValue(x + 1, y + 1, valueAtImpact);
 
             return true;
         }
