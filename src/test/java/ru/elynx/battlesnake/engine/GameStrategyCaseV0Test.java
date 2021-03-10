@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 
 @SpringBootTest
-public class GameStrategyCaseTestV0 {
+class GameStrategyCaseV0Test {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void avoidFruitSurroundedBySnake(String name) throws Exception {
+    void avoidFruitSurroundedBySnake(String name) {
         // https://play.battlesnake.com/g/01a12be5-d44a-4d23-a073-8757fcab9db2/
         // wrong decision at turn 113
 
@@ -68,7 +68,7 @@ public class GameStrategyCaseTestV0 {
         turn113.getBoard().setSnakes(new LinkedList<>());
         turn113.getBoard().getSnakes().add(turn113.getYou());
 
-        Void nothing = gameStrategy.processStart(turn113);
+        gameStrategy.processStart(turn113);
 
         TestMoveV0 moveMaxHealth = new TestMoveV0(gameStrategy.processMove(turn113));
 
@@ -83,7 +83,7 @@ public class GameStrategyCaseTestV0 {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void emptySpaceBetterThanSnake(String name) throws Exception {
+    void emptySpaceBetterThanSnake(String name) {
         // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
         // wrong decision at turn 49
 
@@ -144,7 +144,7 @@ public class GameStrategyCaseTestV0 {
         turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(4, 4));
         turn49.getBoard().getSnakes().get(2).setShout("enemy 2");
 
-        Void nothing = gameStrategy.processStart(turn49);
+        gameStrategy.processStart(turn49);
 
         TestMoveV0 moveMaxHealth = new TestMoveV0(gameStrategy.processMove(turn49));
 

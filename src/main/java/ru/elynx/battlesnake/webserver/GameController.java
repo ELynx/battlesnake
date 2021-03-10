@@ -31,7 +31,7 @@ public class GameController {
 
     private static String terseIdentification(GameStateDto gameState) {
         return "ID [" + gameState.getGame().getId() + "] Turn [" + gameState.getTurn() + "] Snake ["
-                + gameState.getYou().getName() + ']';
+                + gameState.getYou().getName() + "] / [" + gameState.getYou().getId() + ']';
     }
 
     @ExceptionHandler(SnakeNotFoundException.class)
@@ -49,7 +49,8 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
             @RequestBody @Valid GameStateDto gameState) {
-        logger.info("Processing request game start " + terseIdentification(gameState));
+        final String terseId = terseIdentification(gameState);
+        logger.info("Processing request game start {}", terseId);
         statisticsTracker.start(gameState);
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
@@ -60,7 +61,8 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
             @RequestBody @Valid GameStateDto gameState) {
-        logger.debug("Processing request game move " + terseIdentification(gameState));
+        final String terseId = terseIdentification(gameState);
+        logger.debug("Processing request game move {}", terseId);
         statisticsTracker.move(gameState);
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
@@ -71,7 +73,8 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
             @RequestBody @Valid GameStateDto gameState) {
-        logger.info("Processing request game end " + terseIdentification(gameState));
+        final String terseId = terseIdentification(gameState);
+        logger.info("Processing request game end {}", terseId);
         statisticsTracker.end(gameState);
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();

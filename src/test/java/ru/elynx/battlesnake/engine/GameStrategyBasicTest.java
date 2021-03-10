@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class GameStrategyBasicTest {
+class GameStrategyBasicTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
 
     static GameStateDto dummyGameState;
@@ -66,23 +66,23 @@ public class GameStrategyBasicTest {
     }
 
     @Test
-    public void factoryAutowired() {
+    void factoryAutowired() {
         assertNotNull(gameStrategyFactory);
     }
 
     @Test
-    public void factoryHasStrategies() {
+    void factoryHasStrategies() {
         assertTrue(gameStrategyFactory.getRegisteredStrategies().size() > 0);
     }
 
     @Test
-    public void factoryGetGameStrategyThrowsOnInvalidName() throws Exception {
+    void factoryGetGameStrategyThrowsOnInvalidName() {
         assertThrows(SnakeNotFoundException.class, () -> gameStrategyFactory.getGameStrategy(null));
         assertThrows(SnakeNotFoundException.class, () -> gameStrategyFactory.getGameStrategy("Foo"));
     }
 
     @Test
-    public void allStrategiesAreTested() throws Exception {
+    void allStrategiesAreTested() {
         Stream<String> testedStrategies = provideStrategyNames();
         Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
 
@@ -92,14 +92,14 @@ public class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void factoryGetGameStrategy(String name) {
+    void factoryGetGameStrategy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         assertNotNull(gameStrategy);
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyGivesInfo(String name) throws Exception {
+    void gameStrategyGivesInfo(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         BattlesnakeInfo battlesnakeInfo = gameStrategy.getBattesnakeInfo();
         assertNotNull(battlesnakeInfo);
@@ -107,37 +107,37 @@ public class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyDoesNotThrowOnStart(String name) throws Exception {
+    void gameStrategyDoesNotThrowOnStart(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         assertDoesNotThrow(() -> gameStrategy.processStart(dummyGameState));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyGivesMove(String name) throws Exception {
+    void gameStrategyGivesMove(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        Void nothing = gameStrategy.processStart(dummyGameState);
+        gameStrategy.processStart(dummyGameState);
         Move move = gameStrategy.processMove(dummyGameState);
         assertNotNull(move);
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyDoesNotThrowOnEnd(String name) throws Exception {
+    void gameStrategyDoesNotThrowOnEnd(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        Void nothing = gameStrategy.processStart(dummyGameState);
+        gameStrategy.processStart(dummyGameState);
         assertDoesNotThrow(() -> gameStrategy.processEnd(dummyGameState));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    public void gameStrategyDoesNotGoIntoWall(String name) throws Exception {
+    void gameStrategyDoesNotGoIntoWall(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         dummyGameState.getYou().getHead().setX(0);
         dummyGameState.getYou().getHead().setY(0);
 
-        Void nothing = gameStrategy.processStart(dummyGameState);
+        gameStrategy.processStart(dummyGameState);
 
         for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
             dummyGameState.getYou().getHead().setX(x);

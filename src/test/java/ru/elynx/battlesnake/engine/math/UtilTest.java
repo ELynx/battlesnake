@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UtilTest {
     private static final double a = -100.0d, b = -50.0d, c = 0.0d, d = 0.3d, e = 0.5d, f = 1.0d, j = 50.0d, h = 100.0d;
@@ -12,19 +13,19 @@ class UtilTest {
 
     @Test
     void clamp() {
-        assert (b == Util.clamp(a, b, c));
-        assert (a == Util.clamp(a, a, c));
-        assert (c == Util.clamp(a, c, c));
+        assertTrue(b == Util.clamp(a, b, c));
+        assertTrue(a == Util.clamp(a, a, c));
+        assertTrue(c == Util.clamp(a, c, c));
 
-        assert (d == Util.clamp(c, d, f));
-        assert (e == Util.clamp(c, e, f));
+        assertTrue(d == Util.clamp(c, d, f));
+        assertTrue(e == Util.clamp(c, e, f));
 
-        assert (j == Util.clamp(c, j, h));
-        assert (c == Util.clamp(c, c, h));
-        assert (h == Util.clamp(c, h, h));
+        assertTrue(j == Util.clamp(c, j, h));
+        assertTrue(c == Util.clamp(c, c, h));
+        assertTrue(h == Util.clamp(c, h, h));
 
-        assert (c == Util.clamp(c, a, f));
-        assert (f == Util.clamp(c, h, f));
+        assertTrue(c == Util.clamp(c, a, f));
+        assertTrue(f == Util.clamp(c, h, f));
     }
 
     @Test

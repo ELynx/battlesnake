@@ -7,13 +7,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ProtocolTest {
+class ProtocolTest {
     private ObjectMapper mapper = new ObjectMapper();
 
-    private String ApiExampleGameState = "{\n" + "  \"game\": {\n" + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n"
-            + "    \"ruleset\": {\n" + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n"
-            + "    },\n" + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n"
-            + "    \"height\": 11,\n" + "    \"width\": 11,\n" + "    \"food\": [\n" + "      {\"x\": 5, \"y\": 5}, \n"
+    private final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"
+            + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n" + "    \"ruleset\": {\n"
+            + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n" + "    },\n"
+            + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n" + "    \"height\": 11,\n"
+            + "    \"width\": 11,\n" + "    \"food\": [\n" + "      {\"x\": 5, \"y\": 5}, \n"
             + "      {\"x\": 9, \"y\": 0}, \n" + "      {\"x\": 2, \"y\": 6}\n" + "    ],\n" + "    \"hazards\": [\n"
             + "      {\"x\": 0, \"y\": 0}\n" + "    ],\n" + "    \"snakes\": [\n" + "      {\n"
             + "        \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n" + "        \"name\": \"My Snake\",\n"
@@ -36,8 +37,8 @@ public class ProtocolTest {
             + "}";
 
     @Test
-    public void deserializeApiExampleGameState() throws Exception {
-        GameStateDto gameState = mapper.readValue(ApiExampleGameState, GameStateDto.class);
+    void deserializeApiExampleGameState() throws Exception {
+        GameStateDto gameState = mapper.readValue(API_EXAMPLE_GAME_STATE, GameStateDto.class);
 
         assertNotNull(gameState);
 
@@ -121,7 +122,7 @@ public class ProtocolTest {
     }
 
     @Test
-    public void serializeBattlesnakeInfo() throws Exception {
+    void serializeBattlesnakeInfo() throws Exception {
         String serialized = mapper
                 .writeValueAsString(new BattlesnakeInfoDto("AuThOr", "#dedbff", "begin", "end", "bestest"));
 
@@ -134,7 +135,7 @@ public class ProtocolTest {
     }
 
     @Test
-    public void serializeMove() throws Exception {
+    void serializeMove() throws Exception {
         String serialized = mapper.writeValueAsString(new MoveDto("down", "shshshout"));
 
         assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"down\".*"));

@@ -50,9 +50,7 @@ class MySnake implements IGameStrategy {
 class MySnakeSupplier {
     @Bean("My Snake")
     public Supplier<IGameStrategy> makeMySnake() {
-        return () -> {
-            return new MySnake();
-        };
+        return MySnake::new;
     }
 }
 
@@ -62,10 +60,11 @@ class MySnakeSupplier {
 class GameControllerTest {
     @Autowired
     private MockMvc mockMvc;
-    private String ApiExampleGameState = "{\n" + "  \"game\": {\n" + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n"
-            + "    \"ruleset\": {\n" + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n"
-            + "    },\n" + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n"
-            + "    \"height\": 11,\n" + "    \"width\": 11,\n" + "    \"food\": [\n" + "      {\"x\": 5, \"y\": 5}, \n"
+    private final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"
+            + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n" + "    \"ruleset\": {\n"
+            + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n" + "    },\n"
+            + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n" + "    \"height\": 11,\n"
+            + "    \"width\": 11,\n" + "    \"food\": [\n" + "      {\"x\": 5, \"y\": 5}, \n"
             + "      {\"x\": 9, \"y\": 0}, \n" + "      {\"x\": 2, \"y\": 6}\n" + "    ],\n" + "    \"hazards\": [\n"
             + "      {\"x\": 0, \"y\": 0}\n" + "    ],\n" + "    \"snakes\": [\n" + "      {\n"
             + "        \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n" + "        \"name\": \"My Snake\",\n"
@@ -90,28 +89,27 @@ class GameControllerTest {
     private String ApiEndpointBase = "/battlesnake/api/v1/snakes/My Snake";
 
     @Test
-    public void startIsOk() throws Exception {
-        mockMvc.perform(
-                post(ApiEndpointBase + "/start").content(ApiExampleGameState).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+    void startIsOk() throws Exception {
+        mockMvc.perform(post(ApiEndpointBase + "/start").content(API_EXAMPLE_GAME_STATE)
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
-    public void moveHasMove() throws Exception {
+    void moveHasMove() throws Exception {
         mockMvc.perform(
-                post(ApiEndpointBase + "/move").content(ApiExampleGameState).contentType(MediaType.APPLICATION_JSON))
+                post(ApiEndpointBase + "/move").content(API_EXAMPLE_GAME_STATE).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("move")));
     }
 
     @Test
-    public void endIsOk() throws Exception {
+    void endIsOk() throws Exception {
         mockMvc.perform(
-                post(ApiEndpointBase + "/end").content(ApiExampleGameState).contentType(MediaType.APPLICATION_JSON))
+                post(ApiEndpointBase + "/end").content(API_EXAMPLE_GAME_STATE).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void invalidInputNotOk() throws Exception {
+    void invalidInputNotOk() throws Exception {
         List<String> urls = new LinkedList<>();
         urls.add(ApiEndpointBase + "/start");
         urls.add(ApiEndpointBase + "/move");
@@ -131,13 +129,13 @@ class GameControllerTest {
     }
 
     @Test
-    public void invalidNameNotFound() throws Exception {
+    void invalidNameNotFound() throws Exception {
         List<String> urls = new LinkedList<>();
         urls.add(ApiEndpointBase + " 123/start");
         urls.add(ApiEndpointBase + " 123/move");
         urls.add(ApiEndpointBase + " 123/end");
 
-        String callToMySnake123 = ApiExampleGameState.replaceAll("My Snake", "My Snake 123");
+        String callToMySnake123 = API_EXAMPLE_GAME_STATE.replaceAll("My Snake", "My Snake 123");
 
         for (String url : urls) {
             mockMvc.perform(post(url).content(callToMySnake123).contentType(MediaType.APPLICATION_JSON))

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DoubleMatrixTest {
     private static final double fuzz = 0.0001d;
@@ -35,8 +36,8 @@ class DoubleMatrixTest {
                 boolean vSet = matrix.setValue(x, y, v);
                 double v2 = matrix.getValue(x, y);
 
-                assert (vSet == (x >= 0 && x < w && y >= 0 && y < h));
-                assert ((vSet && v2 == v) || (!vSet && v2 == wl));
+                assertEquals(vSet, (x >= 0 && x < w && y >= 0 && y < h));
+                assertTrue((vSet && v2 == v) || (!vSet && v2 == wl));
             }
         }
     }
@@ -51,7 +52,7 @@ class DoubleMatrixTest {
 
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                assert (matrix.setValue(x, y, v));
+                assertTrue(matrix.setValue(x, y, v));
             }
         }
 
@@ -70,9 +71,9 @@ class DoubleMatrixTest {
 
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
 
-        assert (!matrix.splash1stOrder(-1, -1, v));
-        assert (!matrix.splash1stOrder(4, 4, v));
-        assert (matrix.splash1stOrder(1, 1, v));
+        assertFalse(matrix.splash1stOrder(-1, -1, v));
+        assertFalse(matrix.splash1stOrder(4, 4, v));
+        assertTrue(matrix.splash1stOrder(1, 1, v));
 
         assertThat(matrix.getValue(1, 1), is(equalTo(v)));
 
@@ -88,9 +89,9 @@ class DoubleMatrixTest {
 
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
 
-        assert (!matrix.splash2ndOrder(-1, -1, v));
-        assert (!matrix.splash2ndOrder(4, 4, v));
-        assert (matrix.splash2ndOrder(1, 1, v));
+        assertFalse(matrix.splash2ndOrder(-1, -1, v));
+        assertFalse(matrix.splash2ndOrder(4, 4, v));
+        assertTrue(matrix.splash2ndOrder(1, 1, v));
 
         assertThat(matrix.getValue(1, 1), is(equalTo(v)));
 
@@ -112,9 +113,9 @@ class DoubleMatrixTest {
 
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -456.0d);
 
-        assert (!matrix.splash1stOrder(-1, -1, v, d));
-        assert (!matrix.splash1stOrder(4, 4, v, d));
-        assert (matrix.splash1stOrder(1, 1, v, d));
+        assertFalse(matrix.splash1stOrder(-1, -1, v, d));
+        assertFalse(matrix.splash1stOrder(4, 4, v, d));
+        assertTrue(matrix.splash1stOrder(1, 1, v, d));
 
         assertThat(matrix.getValue(1, 1), is(equalTo(v)));
 
@@ -125,9 +126,9 @@ class DoubleMatrixTest {
 
         matrix.zero();
 
-        assert (!matrix.splash2ndOrder(-1, -1, v, d));
-        assert (!matrix.splash2ndOrder(4, 4, v, d));
-        assert (matrix.splash2ndOrder(1, 1, v, d));
+        assertFalse(matrix.splash2ndOrder(-1, -1, v, d));
+        assertFalse(matrix.splash2ndOrder(4, 4, v, d));
+        assertTrue(matrix.splash2ndOrder(1, 1, v, d));
 
         assertThat(matrix.getValue(1, 1), is(equalTo(v)));
 
@@ -146,8 +147,8 @@ class DoubleMatrixTest {
     void splashImpactOrder() {
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
 
-        assert (matrix.splash2ndOrder(0, 0, 4.0d));
-        assert (matrix.splash2ndOrder(1, 1, -1.0d));
+        assertTrue(matrix.splash2ndOrder(0, 0, 4.0d));
+        assertTrue(matrix.splash2ndOrder(1, 1, -1.0d));
 
         assertThat(matrix.getValue(0, 0), is(closeTo(4.0d, fuzz)));
         assertThat(matrix.getValue(0, 1), is(closeTo(1.5d, fuzz)));

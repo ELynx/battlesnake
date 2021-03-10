@@ -30,7 +30,6 @@ public class SnakeManager {
     }
 
     private BattlesnakeInfo getSnakeInfo(String name) throws SnakeNotFoundException {
-        // TODO cheapen the call to just get meta
         final IGameStrategy tmp = gameStrategyFactory.getGameStrategy(name);
         return tmp.getBattesnakeInfo();
     }
@@ -38,19 +37,19 @@ public class SnakeManager {
     private Snake computeSnake(String uid, String nameOnCreation) throws SnakeNotFoundException {
         return activeSnakes.compute(uid, (key, value) -> {
             if (value == null) {
-                logger.debug("Creating new [" + nameOnCreation + "] instance [" + uid + "]");
+                logger.debug("Creating new [{}] instance [{}]", nameOnCreation, uid);
                 System.out.println("count#snake.manager.new_game=1");
                 return new Snake(gameStrategyFactory.getGameStrategy(nameOnCreation));
             }
 
-            logger.debug("Accessing existing snake instance [" + uid + "]");
+            logger.debug("Accessing existing snake instance [{}]", uid);
             value.accessTime = Instant.now();
             return value;
         });
     }
 
     private Snake removeSnake(String uid) {
-        logger.debug("Releasing snake instance [" + uid + "]");
+        logger.debug("Releasing snake instance [{}]", uid);
         System.out.println("count#snake.manager.end_game=1");
         return activeSnakes.remove(uid);
     }
@@ -77,8 +76,7 @@ public class SnakeManager {
         }
 
         final int delta = sizeBefore - sizeAfter;
-        logger.debug(
-                "Cleaning stale snakes, cleaned [" + delta + "] snakes older than [" + staleSnakeTime.toString() + "]");
+        logger.debug("Cleaning stale snakes, cleaned [{}] snakes older than [{}]", delta, staleSnakeTime);
         System.out.println("count#snake.manager.stale=" + delta);
     }
 

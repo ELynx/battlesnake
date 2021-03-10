@@ -7,12 +7,15 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 @Service
 class StatisticsTracker {
     public void root() {
+        // currently not tracked
     }
 
     public void start(GameStateDto gameState) {
+        // currently not tracked
     }
 
     public void move(GameStateDto gameState) {
+        // currently not tracked
     }
 
     public void end(GameStateDto gameState) {

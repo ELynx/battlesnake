@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlagMatrixTest {
     @Test
-    public void falseMatrix() {
+    void falseMatrix() {
         final int w = 11, h = 15;
         final boolean wl = true;
 
@@ -34,8 +36,8 @@ class FlagMatrixTest {
                 boolean vSet = matrix.setValue(x, y, v);
                 boolean v2 = matrix.getValue(x, y);
 
-                assert (vSet == (x >= 0 && x < w && y >= 0 && y < h));
-                assert ((vSet && v2 == v) || (!vSet && v2 == wl)); // for ease of read
+                assertEquals(vSet, (x >= 0 && x < w && y >= 0 && y < h));
+                assertTrue((vSet && v2 == v) || (!vSet && v2 == wl)); // for ease of read
             }
         }
     }

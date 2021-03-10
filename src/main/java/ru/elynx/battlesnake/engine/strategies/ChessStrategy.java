@@ -38,7 +38,7 @@ public class ChessStrategy implements IGameStrategy {
     public static class ChessStrategyConfiguration {
         @Bean("ChesssMassster")
         public Supplier<IGameStrategy> chess() {
-            return () -> new ChessStrategy();
+            return ChessStrategy::new;
         }
     }
 }

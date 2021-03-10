@@ -1,6 +1,9 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class Util {
+    private Util() {
+    }
+
     public static double clamp(double min, double value, double max) {
         if (value < min)
             return min;
