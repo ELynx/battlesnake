@@ -33,7 +33,7 @@ public class UtilityController {
         final long snakeWins = statisticsTracker.getWins();
         final long snakeLoses = statisticsTracker.getLoses();
         String response = String.format(
-                "Status pings {}%nSnake pings {}%nSnake start calls {}%nSnake move calls {}%nSnake end calls {}%nSnake wins {}%n Snake losses {}",
+                "Status pings %s%nSnake pings %s%nSnake start calls %s%nSnake move calls %s%nSnake end calls %s%nSnake wins %s%nSnake losses %s",
                 statusPings, snakePings, snakeStarts, snakeMoves, snakeEnds, snakeWins, snakeLoses);
 
         return ResponseEntity.ok(response);
