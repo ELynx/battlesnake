@@ -7,84 +7,38 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ProtocolTest {
+class ProtocolTest {
     private ObjectMapper mapper = new ObjectMapper();
 
-    private String ApiExampleGameState = "{\n" +
-            "  \"game\": {\n" +
-            "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n" +
-            "    \"ruleset\": {\n" +
-            "      \"name\": \"standard\",\n" +
-            "      \"version\": \"v.1.2.3\"\n" +
-            "    },\n" +
-            "    \"timeout\": 500\n" +
-            "  },\n" +
-            "  \"turn\": 14,\n" +
-            "  \"board\": {\n" +
-            "    \"height\": 11,\n" +
-            "    \"width\": 11,\n" +
-            "    \"food\": [\n" +
-            "      {\"x\": 5, \"y\": 5}, \n" +
-            "      {\"x\": 9, \"y\": 0}, \n" +
-            "      {\"x\": 2, \"y\": 6}\n" +
-            "    ],\n" +
-            "    \"hazards\": [\n" +
-            "      {\"x\": 0, \"y\": 0}\n" +
-            "    ],\n" +
-            "    \"snakes\": [\n" +
-            "      {\n" +
-            "        \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n" +
-            "        \"name\": \"My Snake\",\n" +
-            "        \"health\": 54,\n" +
-            "        \"body\": [\n" +
-            "          {\"x\": 0, \"y\": 0}, \n" +
-            "          {\"x\": 1, \"y\": 0}, \n" +
-            "          {\"x\": 2, \"y\": 0}\n" +
-            "        ],\n" +
-            "        \"latency\": \"111\",\n" +
-            "        \"head\": {\"x\": 0, \"y\": 0},\n" +
-            "        \"length\": 3,\n" +
-            "        \"shout\": \"why are we shouting??\",\n" +
-            "        \"squad\": \"\"\n" +
-            "      }, \n" +
-            "      {\n" +
-            "        \"id\": \"snake-b67f4906-94ae-11ea-bb37\",\n" +
-            "        \"name\": \"Another Snake\",\n" +
-            "        \"health\": 16,\n" +
-            "        \"body\": [\n" +
-            "          {\"x\": 5, \"y\": 4}, \n" +
-            "          {\"x\": 5, \"y\": 3}, \n" +
-            "          {\"x\": 6, \"y\": 3},\n" +
-            "          {\"x\": 6, \"y\": 2}\n" +
-            "        ],\n" +
-            "        \"latency\": \"222\",\n" +
-            "        \"head\": {\"x\": 5, \"y\": 4},\n" +
-            "        \"length\": 4,\n" +
-            "        \"shout\": \"I'm not really sure...\",\n" +
-            "        \"squad\": \"THIS WAS NOT IN EXAMPLE\"\n" +
-            "      }\n" +
-            "    ]\n" +
-            "  },\n" +
-            "  \"you\": {\n" +
-            "    \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n" +
-            "    \"name\": \"My Snake\",\n" +
-            "    \"health\": 54,\n" +
-            "    \"body\": [\n" +
-            "      {\"x\": 0, \"y\": 0}, \n" +
-            "      {\"x\": 1, \"y\": 0}, \n" +
-            "      {\"x\": 2, \"y\": 0}\n" +
-            "    ],\n" +
-            "    \"latency\": \"111\",\n" +
-            "    \"head\": {\"x\": 0, \"y\": 0},\n" +
-            "    \"length\": 3,\n" +
-            "    \"shout\": \"why are we shouting??\",\n" +
-            "    \"squad\": \"\"\n" +
-            "  }\n" +
-            "}";
+    private final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"
+            + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n" + "    \"ruleset\": {\n"
+            + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n" + "    },\n"
+            + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n" + "    \"height\": 11,\n"
+            + "    \"width\": 11,\n" + "    \"food\": [\n" + "      {\"x\": 5, \"y\": 5}, \n"
+            + "      {\"x\": 9, \"y\": 0}, \n" + "      {\"x\": 2, \"y\": 6}\n" + "    ],\n" + "    \"hazards\": [\n"
+            + "      {\"x\": 0, \"y\": 0}\n" + "    ],\n" + "    \"snakes\": [\n" + "      {\n"
+            + "        \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n" + "        \"name\": \"My Snake\",\n"
+            + "        \"health\": 54,\n" + "        \"body\": [\n" + "          {\"x\": 0, \"y\": 0}, \n"
+            + "          {\"x\": 1, \"y\": 0}, \n" + "          {\"x\": 2, \"y\": 0}\n" + "        ],\n"
+            + "        \"latency\": \"111\",\n" + "        \"head\": {\"x\": 0, \"y\": 0},\n"
+            + "        \"length\": 3,\n" + "        \"shout\": \"why are we shouting??\",\n"
+            + "        \"squad\": \"\"\n" + "      }, \n" + "      {\n"
+            + "        \"id\": \"snake-b67f4906-94ae-11ea-bb37\",\n" + "        \"name\": \"Another Snake\",\n"
+            + "        \"health\": 16,\n" + "        \"body\": [\n" + "          {\"x\": 5, \"y\": 4}, \n"
+            + "          {\"x\": 5, \"y\": 3}, \n" + "          {\"x\": 6, \"y\": 3},\n"
+            + "          {\"x\": 6, \"y\": 2}\n" + "        ],\n" + "        \"latency\": \"222\",\n"
+            + "        \"head\": {\"x\": 5, \"y\": 4},\n" + "        \"length\": 4,\n"
+            + "        \"shout\": \"I'm not really sure...\",\n" + "        \"squad\": \"THIS WAS NOT IN EXAMPLE\"\n"
+            + "      }\n" + "    ]\n" + "  },\n" + "  \"you\": {\n" + "    \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n"
+            + "    \"name\": \"My Snake\",\n" + "    \"health\": 54,\n" + "    \"body\": [\n"
+            + "      {\"x\": 0, \"y\": 0}, \n" + "      {\"x\": 1, \"y\": 0}, \n" + "      {\"x\": 2, \"y\": 0}\n"
+            + "    ],\n" + "    \"latency\": \"111\",\n" + "    \"head\": {\"x\": 0, \"y\": 0},\n"
+            + "    \"length\": 3,\n" + "    \"shout\": \"why are we shouting??\",\n" + "    \"squad\": \"\"\n" + "  }\n"
+            + "}";
 
     @Test
-    public void deserializeApiExampleGameState() throws Exception {
-        GameStateDto gameState = mapper.readValue(ApiExampleGameState, GameStateDto.class);
+    void deserializeApiExampleGameState() throws Exception {
+        GameStateDto gameState = mapper.readValue(API_EXAMPLE_GAME_STATE, GameStateDto.class);
 
         assertNotNull(gameState);
 
@@ -168,8 +122,9 @@ public class ProtocolTest {
     }
 
     @Test
-    public void serializeBattlesnakeInfo() throws Exception {
-        String serialized = mapper.writeValueAsString(new BattlesnakeInfoDto("AuThOr", "#dedbff", "begin", "end", "bestest"));
+    void serializeBattlesnakeInfo() throws Exception {
+        String serialized = mapper
+                .writeValueAsString(new BattlesnakeInfoDto("AuThOr", "#dedbff", "begin", "end", "bestest"));
 
         assertTrue(serialized.matches(".*\"apiversion\"\\s*:\\s*\"1\".*"));
         assertTrue(serialized.matches(".*\"author\"\\s*:\\s*\"AuThOr\".*"));
@@ -180,7 +135,7 @@ public class ProtocolTest {
     }
 
     @Test
-    public void serializeMove() throws Exception {
+    void serializeMove() throws Exception {
         String serialized = mapper.writeValueAsString(new MoveDto("down", "shshshout"));
 
         assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"down\".*"));

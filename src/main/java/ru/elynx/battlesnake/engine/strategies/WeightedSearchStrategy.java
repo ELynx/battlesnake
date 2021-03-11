@@ -12,25 +12,25 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class WeightedSearchStrategy implements IGameStrategy {
-    private final static double MIN_FOOD_WEIGHT = 0.1d;
-    private final static double MAX_FOOD_WEIGHT = 1.0d;
-    private final static double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
-    private final static double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
-    private final static double SNAKE_BODY_WEIGHT = -1.0d;
-    private final static double BLOCKED_MOVE_WEIGHT = -Double.MAX_VALUE;
-    private final static double HAZARD_WEIGHT = -Double.MAX_VALUE;
-    private final static double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
+    private static final double MIN_FOOD_WEIGHT = 0.1d;
+    private static final double MAX_FOOD_WEIGHT = 1.0d;
+    private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
+    private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
+    private static final double SNAKE_BODY_WEIGHT = -1.0d;
+    private static final double BLOCKED_MOVE_WEIGHT = -Double.MAX_VALUE;
+    private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
+    private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
+    private static final double MAX_HEALTH = 100.0d;
 
-    private final static String UP = "up";
-    private final static String RIGHT = "right";
-    private final static String DOWN = "down";
-    private final static String LEFT = "left";
+    private static final String UP = "up";
+    private static final String RIGHT = "right";
+    private static final String DOWN = "down";
+    private static final String LEFT = "left";
 
     protected final double wallWeight;
     protected final String version;
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
-    protected int maxHealth;
     protected String lastMove;
     protected boolean initialized = false;
 
@@ -43,17 +43,12 @@ public class WeightedSearchStrategy implements IGameStrategy {
         if (initialized)
             return;
 
-        weightMatrix = DoubleMatrix.uninitializedMatrix(
-                gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(),
-                wallWeight);
+        weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
+                gameState.getBoard().getHeight(), wallWeight);
 
-        blockedMatrix = FlagMatrix.uninitializedMatrix(
-                gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(),
-                true);
+        blockedMatrix = FlagMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
+                gameState.getBoard().getHeight(), true);
 
-        maxHealth = gameState.getYou().getHealth();
         lastMove = UP;
 
         initialized = true;
@@ -63,55 +58,59 @@ public class WeightedSearchStrategy implements IGameStrategy {
         weightMatrix.zero();
         blockedMatrix.reset();
 
-        // apply hunger
-        {
-            double foodWeight = Util.scale(MIN_FOOD_WEIGHT, maxHealth - gameState.getYou().getHealth(), maxHealth, MAX_FOOD_WEIGHT);
+        applyHunger(gameState);
+        applySnake(gameState);
+        applyHazards(gameState);
+    }
 
-            for (CoordsDto food : gameState.getBoard().getFood()) {
-                final int x = food.getX();
-                final int y = food.getY();
+    protected void applyHazards(GameStateDto gameState) {
+        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
+            final int x = hazard.getX();
+            final int y = hazard.getY();
 
-                weightMatrix.splash2ndOrder(x, y, foodWeight);
-            }
+            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
+            blockedMatrix.setValue(x, y, true);
         }
+    }
 
-        // apply snake bodies for collision and hunt
-        {
-            // cell with three pieces of snake around should cost less than piece of snake
-            final double denominator = 4.0;
+    protected void applySnake(GameStateDto gameState) {
+        // cell with three pieces of snake around should cost less than piece of snake
+        final double denominator = 4.0;
 
-            final int ownSize = gameState.getYou().getLength();
+        final int ownSize = gameState.getYou().getLength();
 
-            for (SnakeDto snake : gameState.getBoard().getSnakes()) {
-                final List<CoordsDto> body = snake.getBody();
-                for (int i = 0, size = body.size(); i < size; ++i) {
-                    final int x = body.get(i).getX();
-                    final int y = body.get(i).getY();
+        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+            final List<CoordsDto> body = snake.getBody();
+            for (int i = 0, size = body.size(); i < size; ++i) {
+                final int x = body.get(i).getX();
+                final int y = body.get(i).getY();
 
-                    if (i == 0 && size < ownSize) {
-                        // don't explicitly rush for disconnected
-                        final double headWeight = snake.getLatency() == 0 ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
-                        weightMatrix.splash2ndOrder(x, y, headWeight);
-                    } else {
-                        // since we are looking for strictly less own body will get into no-go category
-                        weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+                if (i == 0 && size < ownSize) {
+                    // don't explicitly rush for disconnected
+                    final double headWeight = snake.getLatency() == 0
+                            ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
+                            : LESSER_SNAKE_HEAD_WEIGHT;
+                    weightMatrix.splash2ndOrder(x, y, headWeight);
+                } else {
+                    // since we are looking for strictly less own body will get into no-go category
+                    weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
 
-                        // block only losing snake pieces
-                        blockedMatrix.setValue(x, y, true);
-                    }
+                    // block only losing snake pieces
+                    blockedMatrix.setValue(x, y, true);
                 }
             }
         }
+    }
 
-        // apply hazards
-        {
-            for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-                final int x = hazard.getX();
-                final int y = hazard.getY();
+    protected void applyHunger(GameStateDto gameState) {
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
+                MAX_FOOD_WEIGHT);
 
-                weightMatrix.setValue(x, y, HAZARD_WEIGHT);
-                blockedMatrix.setValue(x, y, true);
-            }
+        for (CoordsDto food : gameState.getBoard().getFood()) {
+            final int x = food.getX();
+            final int y = food.getY();
+
+            weightMatrix.splash2ndOrder(x, y, foodWeight);
         }
     }
 
@@ -134,8 +133,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
     }
 
     protected String bestMove(CoordsDto head) {
-        Integer x = head.getX();
-        Integer y = head.getY();
+        final int x = head.getX();
+        final int y = head.getY();
 
         // index ascending order
 
@@ -157,7 +156,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
         nextValue = getCrossWeight(x, y + 1) + getDirectionWeight(UP);
         if (nextValue > bestValue) {
             bestDirection = UP;
-            //bestValue = nextValue;
         }
 
         return bestDirection;
@@ -185,7 +183,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         initOnce(gameState);
         final String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "7% ready");
+        return new Move(move, "8% ready");
     }
 
     @Override
@@ -195,8 +193,8 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
-        private final static double WALL_WEIGHT_NEGATIVE = -1.0d;
-        private final static double WALL_WEIGHT_NEUTRAL = 0.0d;
+        private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
+        private static final double WALL_WEIGHT_NEUTRAL = 0.0d;
 
         @Bean("Snake_1")
         public Supplier<IGameStrategy> wallWeightNegativeOne() {

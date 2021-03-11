@@ -35,7 +35,6 @@ public class TestSnakeDto extends SnakeDto {
     }
 
     public enum ApiVersionTranslation {
-        V0_TO_V1,
-        V1
+        V0_TO_V1, V1
     }
 }

@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class DoubleMatrix {
-    private final static double DEFAULT_SPLASH = 2.0d;
+    private static final double DEFAULT_SPLASH = 2.0d;
 
     private final int width;
     private final int height;
@@ -53,19 +53,18 @@ public class DoubleMatrix {
         return true;
     }
 
-    protected void setSplashValue(int x, int y, double value) {
+    protected void addSplashValue(int x, int y, double value) {
         final int index = safeIndex(x, y);
         if (index < 0)
             return;
 
-        unsafeSetSplashValue(index, value);
+        unsafeAddSplashValue(index, value);
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
-    // TODO can be optimized
     public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
         // no impact - no setter
         if (valueAtImpact == 0.0d)
@@ -75,10 +74,10 @@ public class DoubleMatrix {
         if (setValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            setSplashValue(x, y - 1, valueAtImpact);
-            setSplashValue(x - 1, y, valueAtImpact);
-            setSplashValue(x + 1, y, valueAtImpact);
-            setSplashValue(x, y + 1, valueAtImpact);
+            addSplashValue(x, y - 1, valueAtImpact);
+            addSplashValue(x - 1, y, valueAtImpact);
+            addSplashValue(x + 1, y, valueAtImpact);
+            addSplashValue(x, y + 1, valueAtImpact);
 
             return true;
         }
@@ -90,15 +89,14 @@ public class DoubleMatrix {
         return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
-    // TODO can be optimized af
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
         if (splash1stOrder(x, y, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            setSplashValue(x - 1, y - 1, valueAtImpact);
-            setSplashValue(x + 1, y - 1, valueAtImpact);
-            setSplashValue(x - 1, y + 1, valueAtImpact);
-            setSplashValue(x + 1, y + 1, valueAtImpact);
+            addSplashValue(x - 1, y - 1, valueAtImpact);
+            addSplashValue(x + 1, y - 1, valueAtImpact);
+            addSplashValue(x - 1, y + 1, valueAtImpact);
+            addSplashValue(x + 1, y + 1, valueAtImpact);
 
             return true;
         }
@@ -133,7 +131,7 @@ public class DoubleMatrix {
         directValues[index] = value;
     }
 
-    protected void unsafeSetSplashValue(int index, double value) {
+    protected void unsafeAddSplashValue(int index, double value) {
         if (Double.isNaN(splashValues[index])) {
             splashValues[index] = value;
         } else {

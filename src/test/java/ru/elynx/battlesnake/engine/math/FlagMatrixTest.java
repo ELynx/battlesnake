@@ -2,9 +2,14 @@ package ru.elynx.battlesnake.engine.math;
 
 import org.junit.jupiter.api.Test;
 
-public class FlagMatrixTest {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class FlagMatrixTest {
     @Test
-    public void falseMatrix() throws Exception {
+    void falseMatrix() {
         final int w = 11, h = 15;
         final boolean wl = true;
 
@@ -12,13 +17,13 @@ public class FlagMatrixTest {
 
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                assert (false == matrix.getValue(x, y));
+                assertThat(matrix.getValue(x, y), is(false));
             }
         }
     }
 
     @Test
-    public void getSet() throws Exception {
+    void setGet() {
         final int w = 11, h = 15;
         final boolean wl = true;
 
@@ -28,34 +33,34 @@ public class FlagMatrixTest {
             for (int y = -1; y < h + 1; ++y) {
                 final boolean v = x % 2 == y % 2;
 
-                matrix.setValue(x, y, v);
-
+                boolean vSet = matrix.setValue(x, y, v);
                 boolean v2 = matrix.getValue(x, y);
 
-                assert (v2 == v || v2 == wl); // TODO indexes
+                assertEquals(vSet, (x >= 0 && x < w && y >= 0 && y < h));
+                assertTrue((vSet && v2 == v) || (!vSet && v2 == wl)); // for ease of read
             }
         }
     }
 
     @Test
-    public void reset() throws Exception {
+    void reset() {
         final int w = 11, h = 15;
         final boolean w1 = true;
         final boolean w2 = false;
 
-        FlagMatrix matrix = FlagMatrix.resettedMatrix(w, h, w1);
+        FlagMatrix matrix = FlagMatrix.uninitializedMatrix(w, h, w1);
         matrix.reset();
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                assert (w1 != matrix.getValue(x, y));
+                assertThat(matrix.getValue(x, y), is(not(w1)));
             }
         }
 
-        matrix = FlagMatrix.resettedMatrix(w, h, w2);
+        matrix = FlagMatrix.uninitializedMatrix(w, h, w2);
         matrix.reset();
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                assert (w2 != matrix.getValue(x, y));
+                assertThat(matrix.getValue(x, y), is(not(w2)));
             }
         }
     }

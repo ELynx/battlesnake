@@ -1,7 +1,5 @@
 package ru.elynx.battlesnake.engine;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +9,6 @@ import java.util.function.Supplier;
 
 @Service
 public class GameStrategyFactory implements IGameStrategyFactory {
-    private final Logger logger = LoggerFactory.getLogger(GameStrategyFactory.class);
-
     @Autowired
     Map<String, Supplier<IGameStrategy>> registeredGameStrategies;
 
