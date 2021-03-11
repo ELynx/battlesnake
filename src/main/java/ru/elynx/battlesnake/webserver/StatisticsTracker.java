@@ -1,21 +1,31 @@
 package ru.elynx.battlesnake.webserver;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 @Service
+@Scope("singleton")
 class StatisticsTracker {
+    private long rootCalls = 0L;
+    private long startCalls = 0L;
+    private long moveCalls = 0L;
+    private long endCalls = 0L;
+    private long wins = 0L;
+    private long loses = 0L;
+    private long pings = 0L;
+
     public void root() {
-        // currently not tracked
+        ++rootCalls;
     }
 
     public void start(GameStateDto gameState) {
-        // currently not tracked
+        ++startCalls;
     }
 
     public void move(GameStateDto gameState) {
-        // currently not tracked
+        ++moveCalls;
     }
 
     public void end(GameStateDto gameState) {
@@ -30,5 +40,43 @@ class StatisticsTracker {
         final int turnsToEnd = gameState.getTurn();
 
         System.out.println("source=" + snakeName + " measure#" + (victory ? "win" : "lose") + "=" + turnsToEnd);
+
+        ++endCalls;
+        if (victory)
+            ++wins;
+        else
+            ++loses;
+    }
+
+    public void ping() {
+        ++pings;
+    }
+
+    public long getRootCalls() {
+        return rootCalls;
+    }
+
+    public long getStartCalls() {
+        return startCalls;
+    }
+
+    public long getMoveCalls() {
+        return moveCalls;
+    }
+
+    public long getEndCalls() {
+        return endCalls;
+    }
+
+    public long getWins() {
+        return wins;
+    }
+
+    public long getLoses() {
+        return loses;
+    }
+
+    public long getPings() {
+        return pings;
     }
 }

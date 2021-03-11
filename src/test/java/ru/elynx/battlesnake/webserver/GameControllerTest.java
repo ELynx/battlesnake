@@ -86,34 +86,33 @@ class GameControllerTest {
             + "    \"length\": 3,\n" + "    \"shout\": \"why are we shouting??\",\n" + "    \"squad\": \"\"\n" + "  }\n"
             + "}";
 
-    private String ApiEndpointBase = "/battlesnake/api/v1/snakes/My Snake";
+    private final static String API_ENDPOINT_BASE = "/battlesnake/api/v1/snakes/My Snake";
 
     @Test
     void startIsOk() throws Exception {
-        mockMvc.perform(post(ApiEndpointBase + "/start").content(API_EXAMPLE_GAME_STATE)
+        mockMvc.perform(post(API_ENDPOINT_BASE + "/start").content(API_EXAMPLE_GAME_STATE)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
     void moveHasMove() throws Exception {
-        mockMvc.perform(
-                post(ApiEndpointBase + "/move").content(API_EXAMPLE_GAME_STATE).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(content().string(containsString("move")));
+        mockMvc.perform(post(API_ENDPOINT_BASE + "/move").content(API_EXAMPLE_GAME_STATE)
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("move")));
     }
 
     @Test
     void endIsOk() throws Exception {
-        mockMvc.perform(
-                post(ApiEndpointBase + "/end").content(API_EXAMPLE_GAME_STATE).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        mockMvc.perform(post(API_ENDPOINT_BASE + "/end").content(API_EXAMPLE_GAME_STATE)
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
     void invalidInputNotOk() throws Exception {
         List<String> urls = new LinkedList<>();
-        urls.add(ApiEndpointBase + "/start");
-        urls.add(ApiEndpointBase + "/move");
-        urls.add(ApiEndpointBase + "/end");
+        urls.add(API_ENDPOINT_BASE + "/start");
+        urls.add(API_ENDPOINT_BASE + "/move");
+        urls.add(API_ENDPOINT_BASE + "/end");
 
         List<String> contents = new LinkedList<>();
         contents.add("No carrier");
@@ -131,9 +130,9 @@ class GameControllerTest {
     @Test
     void invalidNameNotFound() throws Exception {
         List<String> urls = new LinkedList<>();
-        urls.add(ApiEndpointBase + " 123/start");
-        urls.add(ApiEndpointBase + " 123/move");
-        urls.add(ApiEndpointBase + " 123/end");
+        urls.add(API_ENDPOINT_BASE + " 123/start");
+        urls.add(API_ENDPOINT_BASE + " 123/move");
+        urls.add(API_ENDPOINT_BASE + " 123/end");
 
         String callToMySnake123 = API_EXAMPLE_GAME_STATE.replaceAll("My Snake", "My Snake 123");
 
@@ -142,6 +141,6 @@ class GameControllerTest {
                     .andExpect(status().isNotFound());
         }
 
-        mockMvc.perform(get(ApiEndpointBase + " 123")).andExpect(status().isNotFound());
+        mockMvc.perform(get(API_ENDPOINT_BASE + " 123")).andExpect(status().isNotFound());
     }
 }
