@@ -33,7 +33,7 @@ public class UtilityController {
         final long snakeVictories = statisticsTracker.getVictories();
         final long snakeDefeats = statisticsTracker.getDefeats();
 
-        final long mb = 1024 * 1024;
+        final long mb = 1024L * 1024L;
         Runtime runtime = Runtime.getRuntime();
 
         final long freeMemory = runtime.freeMemory() / mb;
