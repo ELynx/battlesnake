@@ -1,5 +1,8 @@
 package ru.elynx.battlesnake.webserver;
 
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +14,6 @@ import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
-
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SnakeManager {

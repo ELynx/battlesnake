@@ -1,5 +1,9 @@
 package ru.elynx.battlesnake.webserver;
 
+import java.util.Random;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +17,6 @@ import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.MoveDto;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.util.Random;
 
 @RestController
 @RequestMapping(value = "/battlesnake/api/v1")

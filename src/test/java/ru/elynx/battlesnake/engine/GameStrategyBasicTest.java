@@ -1,5 +1,13 @@
 package ru.elynx.battlesnake.engine;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static ru.elynx.battlesnake.protocol.MoveDto.Moves.*;
+
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,14 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
-
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class GameStrategyBasicTest {
@@ -143,28 +143,28 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("down".equalsIgnoreCase(move.getMove()));
+            assertFalse(DOWN.equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = 0; y < dummyGameState.getBoard().getHeight(); ++y) {
             dummyGameState.getYou().getHead().setY(y);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("right".equalsIgnoreCase(move.getMove()));
+            assertFalse(RIGHT.equalsIgnoreCase(move.getMove()));
         }
 
         for (int x = dummyGameState.getBoard().getWidth() - 1; x >= 0; --x) {
             dummyGameState.getYou().getHead().setX(x);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("up".equalsIgnoreCase(move.getMove()));
+            assertFalse(UP.equalsIgnoreCase(move.getMove()));
         }
 
         for (int y = dummyGameState.getBoard().getHeight() - 1; y >= 0; --y) {
             dummyGameState.getYou().getHead().setY(y);
 
             Move move = gameStrategy.processMove(dummyGameState);
-            assertFalse("left".equalsIgnoreCase(move.getMove()));
+            assertFalse(LEFT.equalsIgnoreCase(move.getMove()));
         }
     }
 }

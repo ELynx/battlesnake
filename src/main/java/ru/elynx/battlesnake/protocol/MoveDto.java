@@ -1,11 +1,19 @@
 package ru.elynx.battlesnake.protocol;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.validation.constraints.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MoveDto {
+    public static class Moves {
+        private Moves() {
+        }
+        public static final String UP = "up";
+        public static final String RIGHT = "right";
+        public static final String DOWN = "down";
+        public static final String LEFT = "left";
+    }
+
     @Pattern(regexp = "up|down|left|right", flags = Pattern.Flag.CASE_INSENSITIVE)
     private String move;
     // TODO constraint

@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.protocol;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
