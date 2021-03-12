@@ -15,6 +15,7 @@ class StatisticsTracker {
     private long victories = 0L;
     private long defeats = 0L;
     private long pings = 0L;
+    private long timeouts = 0L;
 
     public void root() {
         ++rootCalls;
@@ -49,6 +50,10 @@ class StatisticsTracker {
         ++pings;
     }
 
+    public void timeout() {
+        ++timeouts;
+    }
+
     public long getRootCalls() {
         return rootCalls;
     }
@@ -75,5 +80,9 @@ class StatisticsTracker {
 
     public long getPings() {
         return pings;
+    }
+
+    public long getTimeouts() {
+        return timeouts;
     }
 }
