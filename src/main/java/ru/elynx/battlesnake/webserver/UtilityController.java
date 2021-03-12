@@ -40,7 +40,7 @@ public class UtilityController {
         final long totalMemory = runtime.totalMemory() / mb;
 
         String response = String.format(
-                "Status pings %s%nSnake pings %s%nSnake start calls %s%nSnake move calls %s%nSnake end calls %s%nSnake victories %s%nSnake defeats %s%n Free memory, MB %s%n Total memory, MB %s",
+                "Status pings %s%nSnake pings %s%nSnake start calls %s%nSnake move calls %s%nSnake end calls %s%nSnake victories %s%nSnake defeats %s%nFree memory, MB %s%nTotal memory, MB %s",
                 statusPings, snakePings, snakeStarts, snakeMoves, snakeEnds, snakeVictories, snakeDefeats, freeMemory,
                 totalMemory);
 
