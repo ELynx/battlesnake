@@ -12,8 +12,8 @@ class StatisticsTracker {
     private long startCalls = 0L;
     private long moveCalls = 0L;
     private long endCalls = 0L;
-    private long wins = 0L;
-    private long loses = 0L;
+    private long victories = 0L;
+    private long defeats = 0L;
     private long pings = 0L;
 
     public void root() {
@@ -29,7 +29,6 @@ class StatisticsTracker {
     }
 
     public void end(GameStateDto gameState) {
-        final String snakeName = gameState.getYou().getName().replace(' ', '_').trim();
         boolean victory = false;
         for (SnakeDto someSnake : gameState.getBoard().getSnakes()) {
             if (someSnake.getId().equals(gameState.getYou().getId())) {
@@ -37,15 +36,13 @@ class StatisticsTracker {
                 break;
             }
         }
-        final int turnsToEnd = gameState.getTurn();
-
-        System.out.println("source=" + snakeName + " measure#" + (victory ? "win" : "lose") + "=" + turnsToEnd);
 
         ++endCalls;
+
         if (victory)
-            ++wins;
+            ++victories;
         else
-            ++loses;
+            ++defeats;
     }
 
     public void ping() {
@@ -68,12 +65,12 @@ class StatisticsTracker {
         return endCalls;
     }
 
-    public long getWins() {
-        return wins;
+    public long getVictories() {
+        return victories;
     }
 
-    public long getLoses() {
-        return loses;
+    public long getDefeats() {
+        return defeats;
     }
 
     public long getPings() {
