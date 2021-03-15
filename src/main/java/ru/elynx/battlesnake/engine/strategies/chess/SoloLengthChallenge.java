@@ -102,10 +102,10 @@ class SoloLengthChallenge extends ChessStrategy {
         }
 
         int lastMoveIndex;
-        if (height % 2 == 0) {
+        if (height % 2 == 1) {
             lastMoveIndex = directions.size() - 1;
         } else {
-            lastMoveIndex = directions.size() + 1 - width;
+            lastMoveIndex = directions.size() - width;
         }
 
         directions.set(lastMoveIndex, DOWN);
