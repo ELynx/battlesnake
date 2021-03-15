@@ -47,6 +47,11 @@ public class Move {
         this.dropRequest = dropRequest;
     }
 
+    @Override
+    public String toString() {
+        return "Move{move='" + (Boolean.TRUE.equals(dropRequest) ? "drop" : move) + "'}";
+    }
+
     public static class Moves {
         private Moves() {
         }
