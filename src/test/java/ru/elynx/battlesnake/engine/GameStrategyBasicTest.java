@@ -138,6 +138,11 @@ class GameStrategyBasicTest {
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
+        if (gameStrategy.isPuzzleOnly()) {
+            System.out.println("Puzzler, skipped");
+            return;
+        }
+
         dummyGameState.getYou().getHead().setX(0);
         dummyGameState.getYou().getHead().setY(0);
 
