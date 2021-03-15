@@ -83,7 +83,7 @@ class SoloLengthChallenge extends ChessStrategy {
         String[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, UP};
         String[] map2 = {DOWN, UP, DOWN, UP, DOWN, UP, UP};
         String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, UP};
-        String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP, UP};
+        String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
 
         Stream<String> directions = Arrays.stream(map0);
         directions = Stream.concat(directions, Arrays.stream(map1));
