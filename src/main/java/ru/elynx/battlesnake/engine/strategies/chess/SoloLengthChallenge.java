@@ -8,14 +8,13 @@ import ru.elynx.battlesnake.protocol.GameStateDto;
 class SoloLengthChallenge extends ChessStrategy {
     @Override
     protected int calculateStage(GameStateDto gameStateDto) {
-        final int snakeToConquerThreshold = 2 * gameStateDto.getBoard().getWidth();
+        final int snakeToConquerThreshold = 2 * gameStateDto.getBoard().getWidth() - 1;
 
         // grow to double width
         if (gameStateDto.getYou().getLength() < snakeToConquerThreshold)
             return 0;
 
-        final int areaLeft = gameStateDto.getBoard().getWidth() * gameStateDto.getBoard().getHeight()
-                - snakeToConquerThreshold;
+        final int areaLeft = gameStateDto.getBoard().getWidth() * (gameStateDto.getBoard().getHeight() - 2);
 
         // wait for food to fill in the space
         if (gameStateDto.getBoard().getFood().size() < areaLeft)
