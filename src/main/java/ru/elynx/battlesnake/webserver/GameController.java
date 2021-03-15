@@ -63,6 +63,8 @@ public class GameController {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game start {}", terseId);
         statisticsTracker.start(gameState);
+        logger.info("Ruleset {}", gameState.getGame().getRuleset());
+        logger.info("Timeout {}", gameState.getGame().getTimeout());
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }

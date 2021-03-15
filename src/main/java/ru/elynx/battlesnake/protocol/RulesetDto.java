@@ -28,4 +28,9 @@ public class RulesetDto {
     public void setVersion(String version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "RulesetDto{name='" + name + "', version='" + version + "'}";
+    }
 }
