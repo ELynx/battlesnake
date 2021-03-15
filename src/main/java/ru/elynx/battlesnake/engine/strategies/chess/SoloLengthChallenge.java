@@ -6,17 +6,11 @@ import java.util.ArrayList;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 
 class SoloLengthChallenge extends ChessStrategy {
-    private boolean latch = false;
-
     @Override
     protected int calculateStage(GameStateDto gameStateDto) {
-        // remember board is filled with food, since eating will remove some each turn
-        if (latch)
-            return 1;
+        // grow to double width minus two cells on the right for food spawn
+        final int snakeToConquerThreshold = 2 * (gameStateDto.getBoard().getWidth() - 1);
 
-        final int snakeToConquerThreshold = 2 * gameStateDto.getBoard().getWidth();
-
-        // grow to double width
         if (gameStateDto.getYou().getLength() < snakeToConquerThreshold)
             return 0;
 
@@ -28,7 +22,6 @@ class SoloLengthChallenge extends ChessStrategy {
             return 0;
 
         // rush board
-        latch = true;
         return 1;
     }
 
@@ -54,11 +47,12 @@ class SoloLengthChallenge extends ChessStrategy {
     private StringField makeStage0(int width, int height) {
         ArrayList<String> directions = new ArrayList<>(width * height);
 
-        // first row
-        for (int x = 0; x < width - 1; ++x) {
+        // first row, cut 1 cell short to spawn food out-of-head
+        for (int x = 0; x < width - 2; ++x) {
             directions.add(RIGHT);
         }
         directions.add(UP);
+        directions.add(UP); // kick into loop
 
         // second row
         directions.add(DOWN);
@@ -87,8 +81,21 @@ class SoloLengthChallenge extends ChessStrategy {
     private StringField makeStage1(int width, int height) {
         ArrayList<String> directions = new ArrayList<>(width * height);
 
+        // first row, exit to remaining cells
+        for (int x = 0; x < width - 1; ++x) {
+            directions.add(RIGHT);
+        }
+        directions.add(UP);
+
+        // second row, exit on remaining cell
+        directions.add(DOWN);
+        for (int x = 1; x < width - 1; ++x) {
+            directions.add(LEFT);
+        }
+        directions.add(UP);
+
         for (int y = 0; y < height; ++y) {
-            if (y % 2 == 0) {
+            if (y % 2 == 1) {
                 for (int x = 0; x < width - 1; ++x) {
                     directions.add(RIGHT);
                 }
@@ -102,7 +109,7 @@ class SoloLengthChallenge extends ChessStrategy {
         }
 
         int lastMoveIndex;
-        if (height % 2 == 1) {
+        if (height % 2 == 0) {
             lastMoveIndex = directions.size() - 1;
         } else {
             lastMoveIndex = directions.size() - width;
