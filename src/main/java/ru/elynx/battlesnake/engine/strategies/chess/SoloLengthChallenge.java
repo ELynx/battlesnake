@@ -6,21 +6,29 @@ import java.util.ArrayList;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 
 class SoloLengthChallenge extends ChessStrategy {
+    private boolean latch = false;
+
     @Override
     protected int calculateStage(GameStateDto gameStateDto) {
-        final int snakeToConquerThreshold = 2 * gameStateDto.getBoard().getWidth() - 1;
+        // remember board is filled with food, since eating will remove some each turn
+        if (latch)
+            return 1;
+
+        final int snakeToConquerThreshold = 2 * gameStateDto.getBoard().getWidth();
 
         // grow to double width
         if (gameStateDto.getYou().getLength() < snakeToConquerThreshold)
             return 0;
 
-        final int areaLeft = gameStateDto.getBoard().getWidth() * (gameStateDto.getBoard().getHeight() - 2);
+        final int areaLeft = gameStateDto.getBoard().getWidth() * gameStateDto.getBoard().getHeight()
+                - snakeToConquerThreshold;
 
         // wait for food to fill in the space
         if (gameStateDto.getBoard().getFood().size() < areaLeft)
             return 0;
 
         // rush board
+        latch = true;
         return 1;
     }
 
