@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.strategies;
 
-import static ru.elynx.battlesnake.protocol.MoveDto.Moves.*;
+import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;

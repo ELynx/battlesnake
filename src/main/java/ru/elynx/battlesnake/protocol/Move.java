@@ -46,4 +46,13 @@ public class Move {
     public void setDropRequest(Boolean dropRequest) {
         this.dropRequest = dropRequest;
     }
+
+    public static class Moves {
+        private Moves() {
+        }
+        public static final String UP = "up";
+        public static final String RIGHT = "right";
+        public static final String DOWN = "down";
+        public static final String LEFT = "left";
+    }
 }

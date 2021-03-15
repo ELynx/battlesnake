@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.elynx.battlesnake.protocol.MoveDto.Moves.*;
+import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
