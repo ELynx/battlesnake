@@ -12,4 +12,8 @@ public interface IGameStrategy {
     Move processMove(GameStateDto gameState);
 
     Void processEnd(GameStateDto gameState);
+
+    default boolean isPuzzleOnly() {
+        return false;
+    }
 }

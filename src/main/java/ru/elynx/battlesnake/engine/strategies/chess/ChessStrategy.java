@@ -56,6 +56,11 @@ public class ChessStrategy implements IGameStrategy {
         return null;
     }
 
+    @Override
+    public boolean isPuzzleOnly() {
+        return true;
+    }
+
     @Configuration
     public static class ChessStrategyConfiguration {
         @Bean("ChesssMassster")

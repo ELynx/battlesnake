@@ -30,6 +30,9 @@ class GameStrategyCaseV0Test {
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
+        if (gameStrategy.isPuzzleOnly())
+            return;
+
         GameStateDto turn113 = new GameStateDto();
 
         turn113.setGame(new GameDto());
@@ -87,6 +90,9 @@ class GameStrategyCaseV0Test {
         // wrong decision at turn 49
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        if (gameStrategy.isPuzzleOnly())
+            return;
 
         GameStateDto turn49 = new GameStateDto();
 
