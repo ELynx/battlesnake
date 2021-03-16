@@ -16,6 +16,12 @@ class SoloLengthChallenge extends ChessStrategy {
         if (latch2)
             return 2;
 
+        final CoordsDto head = gameStateDto.getYou().getHead();
+        if (latch1 && head.getX() == 6 && head.getY() == 0) {
+            latch2 = true;
+            return 2;
+        }
+
         if (latch1)
             return 1;
 
@@ -26,12 +32,6 @@ class SoloLengthChallenge extends ChessStrategy {
         // wait for food to fill in the space
         if (gameStateDto.getBoard().getFood().size() < 24)
             return 0;
-
-        final CoordsDto head = gameStateDto.getYou().getHead();
-        if (head.getX() == 6 && head.getY() == 0) {
-            latch2 = true;
-            return 2;
-        }
 
         latch1 = true;
         return 1;
