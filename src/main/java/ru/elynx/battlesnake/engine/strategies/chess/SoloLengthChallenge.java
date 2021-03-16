@@ -30,7 +30,7 @@ class SoloLengthChallenge extends ChessStrategy {
             return 0;
 
         // wait for food to fill in the space
-        if (gameStateDto.getBoard().getFood().size() < 24)
+        if (gameStateDto.getBoard().getFood().size() < 25)
             return 0;
 
         latch1 = true;
