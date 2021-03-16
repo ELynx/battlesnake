@@ -10,11 +10,11 @@ class SoloLengthChallenge extends ChessStrategy {
     @Override
     protected int calculateStage(GameStateDto gameStateDto) {
         // wait for length
-        if (gameStateDto.getYou().getLength() < 24)
+        if (gameStateDto.getYou().getLength() < 23)
             return 0;
 
         // wait for food to fill in the space
-        if (gameStateDto.getBoard().getFood().size() < 25)
+        if (gameStateDto.getBoard().getFood().size() < 24)
             return 0;
 
         // rush board
@@ -81,8 +81,8 @@ class SoloLengthChallenge extends ChessStrategy {
         String[] map5 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
         String[] map4 = map6;
         String[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, UP};
-        String[] map2 = {DOWN, UP, DOWN, UP, DOWN, UP, UP};
-        String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, UP};
+        String[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
+        String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
         String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
 
         Stream<String> directions = Arrays.stream(map0);
