@@ -7,13 +7,23 @@ import java.util.stream.Stream;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 
 class SoloLengthChallenge extends ChessStrategy {
+    private boolean latch = false;
+    
     @Override
     protected int calculateStage(GameStateDto gameStateDto) {
+        if (latch)
+            return 1;
+
         // wait for length
         if (gameStateDto.getYou().getLength() < 23)
             return 0;
-        
+
+        // wait for food to fill in the space
+        if (gameStateDto.getBoard().getFood().size() < 24)
+            return 0;
+
         // rush board
+        latch = true;
         return 1;
     }
 
