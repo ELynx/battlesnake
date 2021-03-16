@@ -1,10 +1,10 @@
 package ru.elynx.battlesnake.engine.math;
 
-import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class DoubleMatrixTest {
     private static final double fuzz = 0.0001d;

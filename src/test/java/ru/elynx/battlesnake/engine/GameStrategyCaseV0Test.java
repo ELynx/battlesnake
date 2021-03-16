@@ -1,5 +1,11 @@
 package ru.elynx.battlesnake.engine;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
+
+import java.util.Collections;
+import java.util.LinkedList;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +16,6 @@ import ru.elynx.battlesnake.protocol.GameDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.testspecific.TestMoveV0;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
-
-import java.util.Collections;
-import java.util.LinkedList;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 
 @SpringBootTest
 class GameStrategyCaseV0Test {
@@ -30,6 +29,9 @@ class GameStrategyCaseV0Test {
         // wrong decision at turn 113
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        if (gameStrategy.isPuzzleOnly())
+            return;
 
         GameStateDto turn113 = new GameStateDto();
 
@@ -88,6 +90,9 @@ class GameStrategyCaseV0Test {
         // wrong decision at turn 49
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        if (gameStrategy.isPuzzleOnly())
+            return;
 
         GameStateDto turn49 = new GameStateDto();
 

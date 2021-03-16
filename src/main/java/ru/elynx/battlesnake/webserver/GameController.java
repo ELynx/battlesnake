@@ -1,8 +1,13 @@
 package ru.elynx.battlesnake.webserver;
 
+import java.util.Random;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +15,8 @@ import org.springframework.web.context.request.WebRequest;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
+import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.MoveDto;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 @RestController
 @RequestMapping(value = "/battlesnake/api/v1")
@@ -22,6 +24,10 @@ public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final SnakeManager snakeManager;
     private final StatisticsTracker statisticsTracker;
+
+    private static final HttpStatus[] BAD_HTTP_STATUSES = new HttpStatus[]{HttpStatus.PAYMENT_REQUIRED,
+            HttpStatus.NOT_ACCEPTABLE, HttpStatus.REQUEST_TIMEOUT, HttpStatus.GONE, HttpStatus.EXPECTATION_FAILED,
+            HttpStatus.I_AM_A_TEAPOT};
 
     @Autowired
     public GameController(SnakeManager snakeManager, StatisticsTracker statisticsTracker) {
@@ -39,6 +45,11 @@ public class GameController {
         return ResponseEntity.notFound().build();
     }
 
+    private static HttpStatus randomBadHttpStatus() {
+        final int position = new Random().nextInt(BAD_HTTP_STATUSES.length);
+        return BAD_HTTP_STATUSES[position];
+    }
+
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name) {
         logger.info("Processing root meta call");
@@ -52,6 +63,8 @@ public class GameController {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game start {}", terseId);
         statisticsTracker.start(gameState);
+        logger.info("Ruleset {}", gameState.getGame().getRuleset());
+        logger.info("Timeout {}", gameState.getGame().getTimeout());
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
@@ -67,7 +80,15 @@ public class GameController {
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(new MoveDto(snakeManager.move(gameState)));
+        if (gameState.getYou().getLatency() != null && gameState.getYou().getLatency() == 0) {
+            statisticsTracker.timeout();
+        }
+        Move move = snakeManager.move(gameState);
+        if (Boolean.FALSE.equals(move.getDropRequest())) {
+            return ResponseEntity.ok(new MoveDto(move));
+        }
+
+        return ResponseEntity.status(randomBadHttpStatus()).build();
     }
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)

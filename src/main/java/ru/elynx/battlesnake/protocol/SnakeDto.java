@@ -1,9 +1,9 @@
 package ru.elynx.battlesnake.protocol;
 
+import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 public class SnakeDto {
     @NotNull

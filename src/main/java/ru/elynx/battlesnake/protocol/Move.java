@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.protocol;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.validation.constraints.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -46,5 +45,19 @@ public class Move {
 
     public void setDropRequest(Boolean dropRequest) {
         this.dropRequest = dropRequest;
+    }
+
+    @Override
+    public String toString() {
+        return "Move{move='" + (Boolean.TRUE.equals(dropRequest) ? "drop" : move) + "'}";
+    }
+
+    public static class Moves {
+        private Moves() {
+        }
+        public static final String UP = "up";
+        public static final String RIGHT = "right";
+        public static final String DOWN = "down";
+        public static final String LEFT = "left";
     }
 }

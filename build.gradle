@@ -24,6 +24,8 @@ dependencies {
 
 spotless {
     java {
+        importOrder()
+        removeUnusedImports()
         eclipse()
         indentWithSpaces(4)
     }

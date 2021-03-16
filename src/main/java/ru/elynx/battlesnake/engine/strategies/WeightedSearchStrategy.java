@@ -1,5 +1,9 @@
 package ru.elynx.battlesnake.engine.strategies;
 
+import static ru.elynx.battlesnake.protocol.Move.Moves.*;
+
+import java.util.List;
+import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -7,9 +11,6 @@ import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.protocol.*;
-
-import java.util.List;
-import java.util.function.Supplier;
 
 public class WeightedSearchStrategy implements IGameStrategy {
     private static final double MIN_FOOD_WEIGHT = 0.1d;
@@ -21,11 +22,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
     private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
     private static final double MAX_HEALTH = 100.0d;
-
-    private static final String UP = "up";
-    private static final String RIGHT = "right";
-    private static final String DOWN = "down";
-    private static final String LEFT = "left";
 
     protected final double wallWeight;
     protected final String version;
