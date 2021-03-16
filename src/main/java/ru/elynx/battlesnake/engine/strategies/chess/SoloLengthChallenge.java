@@ -12,11 +12,7 @@ class SoloLengthChallenge extends ChessStrategy {
         // wait for length
         if (gameStateDto.getYou().getLength() < 23)
             return 0;
-
-        // wait for food to fill in the space
-        if (gameStateDto.getBoard().getFood().size() < 24)
-            return 0;
-
+        
         // rush board
         return 1;
     }
