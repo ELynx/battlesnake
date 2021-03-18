@@ -1,10 +1,10 @@
 plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
-    id 'org.springframework.boot' version '2.4.3'
+    id 'org.springframework.boot' version '2.4.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'com.diffplug.spotless' version '5.11.0'
-    id 'de.undercouch.download' version '3.4.3'
+    id 'de.undercouch.download' version '4.1.1'
 }
 
 group = 'ru.elynx'
@@ -24,14 +24,32 @@ dependencies {
 }
 
 task downloadNewrelic(type: Download) {
-    mkdir 'newrelic'
+    mkdir 'newrelic-staging'
     src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
-    dest file('newrelic')
+    dest file('newrelic-staging')
 }
+
 task unzipNewrelic(type: Copy) {
-    from zipTree(file('newrelic/newrelic-java.zip'))
-    into rootDir
+    from zipTree(file('newrelic-staging/newrelic-java.zip'))
+    into "$buildDir/libs"
+    eachFile { fcp ->
+        fcp.path = fcp.path.replaceFirst('newrelic', '')
+    }
+    include 'newrelic*'
+    includeEmptyDirs false
 }
+
+task cleanNewrelic(type: Delete) {
+    delete 'newrelic-staging'
+}
+
+task makeNewrelic() {
+    downloadNewrelic
+    unzipNewrelic
+}
+
+tasks.build.dependsOn makeNewrelic
+tasks.clean.dependsOn cleanNewrelic
 
 spotless {
     java {
