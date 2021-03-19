@@ -25,17 +25,22 @@ dependencies {
 
 task downloadNewrelic(type: Download) {
     mkdir 'newrelic-staging'
+
     src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
     dest file('newrelic-staging')
 }
 
 task unzipNewrelic(type: Copy) {
-    from zipTree(file('newrelic-staging/newrelic-java.zip'))
+    from (zipTree(file('newrelic-staging/newrelic-java.zip'))) {
+        include '**/newrelic*jar'
+        include '**/newrelic*yml'
+    }
     into "$buildDir/libs"
+
     eachFile { fcp ->
         fcp.path = fcp.path.replaceFirst('newrelic', '')
     }
-    include 'newrelic*'
+
     includeEmptyDirs false
 }
 
@@ -43,12 +48,8 @@ task cleanNewrelic(type: Delete) {
     delete 'newrelic-staging'
 }
 
-task makeNewrelic() {
-    downloadNewrelic
-    unzipNewrelic
-}
-
-tasks.build.dependsOn makeNewrelic
+tasks.unzipNewrelic.dependsOn downloadNewrelic
+tasks.build.dependsOn unzipNewrelic
 tasks.clean.dependsOn cleanNewrelic
 
 spotless {
