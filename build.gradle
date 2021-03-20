@@ -28,6 +28,8 @@ task downloadNewrelic(type: Download) {
 
     src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
     dest file('newrelic-staging')
+
+    overwrite false
 }
 
 task unzipNewrelic(type: Copy) {
@@ -44,11 +46,25 @@ task unzipNewrelic(type: Copy) {
     includeEmptyDirs false
 }
 
+task configureNewrelicAppName {
+    doLast {
+        String appName = System.getenv('HEROKU_APP_NAME')
+        if (appName == null || appName.isEmpty())
+            appName = rootProject.name + '-ide'
+
+        ant.replace(
+                file: "$buildDir/libs/newrelic.yml",
+                token: 'My Application',
+                value: appName
+                )
+    }
+}
 task cleanNewrelic(type: Delete) {
     delete 'newrelic-staging'
 }
 
 tasks.unzipNewrelic.dependsOn downloadNewrelic
+tasks.unzipNewrelic.finalizedBy configureNewrelicAppName
 tasks.build.dependsOn unzipNewrelic
 tasks.clean.dependsOn cleanNewrelic
 
