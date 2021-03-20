@@ -50,7 +50,7 @@ task configureNewrelicAppName {
     doLast {
         String appName = System.getenv('HEROKU_APP_NAME')
         if (appName == null || appName.isEmpty())
-            appName = rootProject.name + '-ide'
+            appName = rootProject.name
 
         ant.replace(
                 file: "$buildDir/libs/newrelic.yml",
