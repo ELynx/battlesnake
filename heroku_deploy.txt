@@ -1,0 +1,11 @@
+Gradle build customizes newrelic.yml to have application name equal to Heroku app name
+For this it is necessary to enable access to variables and pass them properly to gradle
+
+Enable access to variables for dyno - Labs feature dyno-metadata
+https://devcenter.heroku.com/articles/dyno-metadata
+Enable it for application
+
+Then Gradle demon does not receive environment because it is started as separate process
+Disable demon on Heroku build pipeline with specifying following environment variable
+GRADLE_TASK -Dorg.gradle.daemon=false build -x test
+This adds daemon disable on top of usual Gradle buildpack command

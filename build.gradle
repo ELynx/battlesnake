@@ -1,9 +1,10 @@
 plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
-    id 'org.springframework.boot' version '2.4.3'
+    id 'org.springframework.boot' version '2.4.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'com.diffplug.spotless' version '5.11.0'
+    id 'de.undercouch.download' version '4.1.1'
 }
 
 group = 'ru.elynx'
@@ -21,6 +22,53 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }
+
+task downloadNewrelic(type: Download) {
+    mkdir 'newrelic-staging'
+
+    src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
+    dest file('newrelic-staging')
+
+    overwrite false
+}
+
+task unzipNewrelic(type: Copy) {
+    from (zipTree(file('newrelic-staging/newrelic-java.zip'))) {
+        include '**/newrelic*jar'
+        include '**/newrelic*yml'
+    }
+    into "$buildDir/libs"
+
+    eachFile { fcp ->
+        fcp.path = fcp.path.replaceFirst('newrelic', '')
+    }
+
+    includeEmptyDirs false
+}
+
+task configureNewrelicAppName {
+    doLast {
+        String appName = System.getenv('HEROKU_APP_NAME')
+        if (appName == null || appName.isEmpty()) {
+            appName = rootProject.name
+        }
+
+        ant.replace(
+                file: "$buildDir/libs/newrelic.yml",
+                token: 'My Application',
+                value: appName
+                )
+    }
+}
+
+task cleanNewrelic(type: Delete) {
+    delete 'newrelic-staging'
+}
+
+tasks.unzipNewrelic.dependsOn downloadNewrelic
+tasks.unzipNewrelic.finalizedBy configureNewrelicAppName
+tasks.build.dependsOn unzipNewrelic
+tasks.clean.dependsOn cleanNewrelic
 
 spotless {
     java {
