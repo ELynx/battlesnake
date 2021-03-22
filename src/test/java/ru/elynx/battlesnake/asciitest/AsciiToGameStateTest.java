@@ -25,7 +25,7 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        GameStateDto dto = tested.setTurn(42).setHealth("Y", 99).setLatency("A", 0).build();
+        GameStateDto dto = tested.setHealth("Y", 99).setLatency("A", 0).build();
 
         assertNotNull(dto.getGame());
         assertNotNull(dto.getGame().getId());
