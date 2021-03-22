@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.asciitest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -107,5 +108,37 @@ class AsciiToGameStateTest {
         System.out.println(expectedFood);
 
         assertThat(dto.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
+    }
+
+    @Test
+    void test_health_and_latency() {
+        AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        GameStateDto dto = tested //
+                .setHealth("Y", 99) //
+                .setHealth("A", 10) //
+                .setHealth("B", 15) //
+                .setLatency("Y", 499) //
+                .setLatency("A", 99) //
+                .setLatency("C", 0) //
+                .build();
+
+        assertEquals(4, dto.getBoard().getSnakes().size());
+
+        SnakeDto y = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("Y")).findAny().orElse(null);
+        assertEquals(99, y.getHealth());
+        assertEquals(499, y.getLatency());
+
+        SnakeDto a = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("A")).findAny().orElse(null);
+        assertEquals(10, a.getHealth());
+        assertEquals(99, a.getLatency());
+
+        SnakeDto b = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("B")).findAny().orElse(null);
+        assertEquals(15, b.getHealth());
+        assertThat(b.getLatency(), Matchers.greaterThanOrEqualTo(0));
+
+        SnakeDto c = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("C")).findAny().orElse(null);
+        assertThat(c.getHealth(), Matchers.is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
+        assertEquals(0, c.getLatency());
     }
 }
