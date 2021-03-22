@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.protocol;
 
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -17,6 +18,21 @@ public class CoordsDto {
     public CoordsDto(Integer x, Integer y) {
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        CoordsDto coordsDto = (CoordsDto) o;
+        return x.equals(coordsDto.x) && y.equals(coordsDto.y);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 
     public Integer getX() {

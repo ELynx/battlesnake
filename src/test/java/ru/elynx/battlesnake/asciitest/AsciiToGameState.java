@@ -48,31 +48,31 @@ public class AsciiToGameState {
         List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
         rows.removeAll(Arrays.asList("", null));
 
-        final int h = rows.size();
-        if (h == 0) {
+        final int height = rows.size();
+        if (height == 0) {
             throw new IllegalStateException("Could not find rows");
         }
 
-        final int w = rows.get(0).length();
+        final int width = rows.get(0).length();
         rows.forEach(s -> {
-            if (s.isEmpty() || s.length() != w) {
+            if (s.isEmpty() || s.length() != width) {
                 throw new IllegalStateException("Rows have invalid size");
             }
         });
 
-        board.setHeight(h);
-        board.setWidth(w);
+        board.setHeight(height);
+        board.setWidth(width);
 
         LinkedList<CoordsDto> food = new LinkedList<>();
         LinkedList<SnakeDto> snakes = new LinkedList<>();
         SnakeDto you = null;
-        for (int ww = 0; ww < w; ++ww) {
-            for (int hh = 0; hh < h; ++hh) {
-                int x = ww;
-                int y = w - ww - 1;
+        for (int w = 0; w < width; ++w) {
+            for (int h = 0; h < height; ++h) {
+                int x = w;
+                int y = height - h - 1;
                 CoordsDto coords = new CoordsDto(x, y);
 
-                char c = rows.get(hh).charAt(ww);
+                char c = rows.get(h).charAt(w);
 
                 if (c == '0') {
                     food.add(coords);

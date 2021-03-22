@@ -1,8 +1,12 @@
 package ru.elynx.battlesnake.asciitest;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
@@ -77,5 +81,31 @@ class AsciiToGameStateTest {
 
         assertNotNull(dto.getYou());
         verifySnake.accept(dto.getYou());
+    }
+
+    @Test
+    void test_food() {
+        // a comment a day keeps a spotless away
+        AsciiToGameState tested = new AsciiToGameState("" + //
+                "_00_________Y\n" + //
+                "___________0_\n" + //
+                "0____________\n");
+
+        GameStateDto dto = tested.build();
+        assertEquals(13, dto.getBoard().getWidth());
+        assertEquals(3, dto.getBoard().getHeight());
+
+        List<CoordsDto> expectedFood = new ArrayList<>();
+        expectedFood.add(new CoordsDto(0, 0));
+        expectedFood.add(new CoordsDto(11, 1));
+        expectedFood.add(new CoordsDto(1, 2));
+        expectedFood.add(new CoordsDto(2, 2));
+
+        System.out.print("Got food: ");
+        System.out.println(dto.getBoard().getFood());
+        System.out.print("Expected: ");
+        System.out.println(expectedFood);
+
+        assertThat(dto.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
     }
 }
