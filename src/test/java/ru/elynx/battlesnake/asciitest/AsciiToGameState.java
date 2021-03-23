@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.asciitest;
 
 import java.util.*;
+import java.util.function.Function;
+import javafx.util.Pair;
 import ru.elynx.battlesnake.protocol.*;
 
 public class AsciiToGameState {
@@ -23,6 +25,72 @@ public class AsciiToGameState {
     AsciiToGameState setLatency(String name, int latency) {
         latencies.put(name, latency);
         return this;
+    }
+
+    private List<Pair<CoordsDto, Character>> getNeighbours(List<String> rows, int height, int width,
+            List<CoordsDto> soFar, CoordsDto center, char lookupChar) {
+        LinkedList<Pair<CoordsDto, Character>> result = new LinkedList<>();
+
+        Function<Pair<CoordsDto, Character>, Void> addIfChecksUp = pair -> {
+            CoordsDto coords = pair.getKey();
+
+            // avoid already found pieces
+            if (soFar.indexOf(coords) >= 0) {
+                return null;
+            }
+
+            if (coords.getX() >= 0 && coords.getX() < width && coords.getY() >= 0 && coords.getY() < height) {
+
+                int row = height - coords.getY() - 1;
+                int index = coords.getX();
+
+                char c = rows.get(row).charAt(index);
+
+                // if snake letter or direction came up
+                if (lookupChar == c || pair.getValue().equals(c)) {
+                    // make sure to pass what actually was on the ascii
+                    result.add(new Pair<>(coords, c));
+                }
+            }
+
+            return null;
+        };
+
+        int x = center.getX();
+        int y = center.getY();
+
+        int xleft = x - 1;
+        int xright = x + 1;
+        int ydown = y - 1;
+        int yup = y + 1;
+
+        // arrow pointing to center
+        addIfChecksUp.apply(new Pair<>(new CoordsDto(xleft, y), '>'));
+        addIfChecksUp.apply(new Pair<>(new CoordsDto(x, yup), 'v'));
+        addIfChecksUp.apply(new Pair<>(new CoordsDto(xright, y), '<'));
+        addIfChecksUp.apply(new Pair<>(new CoordsDto(x, ydown), '^'));
+
+        return result;
+    }
+
+    private CoordsDto getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<CoordsDto> soFar,
+            CoordsDto current, char bodyChar) {
+        List<Pair<CoordsDto, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
+
+        // priority 1 - arrows pointing
+        for (Pair<CoordsDto, Character> pair : neighbours) {
+            if ("<^>v".indexOf(pair.getValue()) >= 0) {
+                return pair.getKey();
+            }
+        }
+
+        // priority 2 - body characters
+        // there are no other trigger conditions, get 1st or null
+        if (neighbours.isEmpty()) {
+            return null;
+        }
+
+        return neighbours.get(0).getKey();
     }
 
     public GameStateDto build() {
@@ -90,10 +158,20 @@ public class AsciiToGameState {
                     snake.setShout("Test snake " + s);
                     snake.setBody(new LinkedList<>());
 
-                    // TODO draw the rest of the fucking snake
-                    snake.setLength(1);
-                    snake.getBody().add(coords);
+                    char lowercaseC = (char) (c + 'a' - 'A');
 
+                    for (CoordsDto current = snake.getHead(); current != null; current = getNextSnakeCoordsDtoOrNull(
+                            rows, height, width, snake.getBody(), current, lowercaseC)) {
+                        snake.getBody().add(current);
+
+                        // emergency stop if looped somewhere
+                        if (snake.getBody().size() > height * width) {
+                            throw new IllegalStateException(
+                                    "Loops within snake [" + c + "]: [" + snake.getBody() + ']');
+                        }
+                    }
+
+                    snake.setLength(snake.getBody().size());
                     snakes.add(snake);
 
                     if (c == 'Y') {
