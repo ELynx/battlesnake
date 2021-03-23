@@ -10,8 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestMove;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 @SpringBootTest
 class GameStrategyCaseV1Test {

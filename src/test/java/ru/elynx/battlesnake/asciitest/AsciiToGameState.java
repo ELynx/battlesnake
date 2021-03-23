@@ -4,8 +4,8 @@ import java.util.*;
 import java.util.function.Function;
 import javafx.util.Pair;
 import ru.elynx.battlesnake.protocol.*;
-import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 public class AsciiToGameState {
     // mandatory

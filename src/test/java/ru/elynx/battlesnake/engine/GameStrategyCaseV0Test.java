@@ -15,9 +15,9 @@ import ru.elynx.battlesnake.protocol.BoardDto;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.GameDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 @SpringBootTest
 class GameStrategyCaseV0Test {
