@@ -36,7 +36,30 @@ class GameStrategyCaseV1Test {
                 "____0\n" + //
                 "____A\n" + //
                 "____a\n" + //
-                "____a\n").setHealth("Y", 10);
+                "____a\n").setHealth("Y", 2);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ApiVersionTranslation.V1);
+        assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_dont_die_for_food_and_hunt(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        if (gameStrategy.isPuzzleOnly())
+            return;
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____y____\n" + //
+                "____y____\n" + //
+                "____Y____\n" + //
+                "__bB0Cc__\n" + //
+                "____A____\n" + //
+                "____a____\n" + //
+                "____a____\n").setHealth("Y", 2);
 
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ApiVersionTranslation.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
