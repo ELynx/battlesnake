@@ -74,24 +74,38 @@ public class WeightedSearchStrategy implements IGameStrategy {
         final double denominator = 4.0;
 
         final int ownSize = gameState.getYou().getLength();
+        final String ownId = gameState.getYou().getId();
 
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
             for (int i = 0, size = body.size(); i < size; ++i) {
                 final int x = body.get(i).getX();
                 final int y = body.get(i).getY();
+                final String id = snake.getId();
 
-                if (i == 0 && size < ownSize) {
-                    // don't explicitly rush for disconnected
-                    final double headWeight = snake.getLatency() == 0
-                            ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
-                            : LESSER_SNAKE_HEAD_WEIGHT;
-                    weightMatrix.splash2ndOrder(x, y, headWeight);
+                if (i == 0) {
+                    // heads
+                    if (size < ownSize) {
+                        // snakes shorter than own
+                        // don't explicitly rush for disconnected
+                        final double headWeight = snake.getLatency() == 0
+                                ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
+                                : LESSER_SNAKE_HEAD_WEIGHT;
+                        weightMatrix.splash2ndOrder(x, y, headWeight);
+                        // don't block
+                    } else if (id.equals(ownId)) {
+                        // own head, don't splash
+                        weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
+                        blockedMatrix.setValue(x, y, true);
+                    } else {
+                        // heads of snakes ge own
+                        // set to "really bad"
+                        weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, 1.0);
+                        blockedMatrix.setValue(x, y, true);
+                    }
                 } else {
-                    // since we are looking for strictly less own body will get into no-go category
+                    // splash around to avoid coiling
                     weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
-
-                    // block only losing snake pieces
                     blockedMatrix.setValue(x, y, true);
                 }
             }
