@@ -4,12 +4,12 @@ import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class TestSnakeDto extends SnakeDto {
-    private final ApiVersionTranslation apiVersionTranslation;
+    private final ToApiVersion toApiVersion;
 
-    public TestSnakeDto(ApiVersionTranslation apiVersionTranslation) {
-        this.apiVersionTranslation = apiVersionTranslation;
+    public TestSnakeDto(ToApiVersion toApiVersion) {
+        this.toApiVersion = toApiVersion;
 
-        if (this.apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (this.toApiVersion == ToApiVersion.V0) {
             setLatency(250);
             setSquad("");
         }
@@ -17,7 +17,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public CoordsDto getHead() {
-        if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (toApiVersion == ToApiVersion.V0) {
             return getBody().get(0);
         }
 
@@ -26,7 +26,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public void setHead(CoordsDto head) {
-        if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (toApiVersion == ToApiVersion.V0) {
             throw new UnsupportedOperationException("Test class V0->V1, use setBody");
         }
 
@@ -35,7 +35,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public Integer getLength() {
-        if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (toApiVersion == ToApiVersion.V0) {
             return getBody().size();
         }
 
@@ -44,7 +44,7 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public void setLength(Integer length) {
-        if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (toApiVersion == ToApiVersion.V0) {
             throw new UnsupportedOperationException("Test class V0->V1, use setBody");
         }
 

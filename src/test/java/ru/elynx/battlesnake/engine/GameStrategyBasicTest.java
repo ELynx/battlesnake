@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
-import ru.elynx.battlesnake.testspecific.ApiVersionTranslation;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
@@ -53,7 +53,7 @@ class GameStrategyBasicTest {
         dummyGameState.getBoard().setHazards(new LinkedList<>()); // v1
         dummyGameState.getBoard().setSnakes(new LinkedList<>());
 
-        dummyGameState.setYou(new TestSnakeDto(ApiVersionTranslation.V0_TO_V1)); // v0 for lazy init
+        dummyGameState.setYou(new TestSnakeDto(ToApiVersion.V0)); // v0 for lazy init
         dummyGameState.getYou().setId("TestYou-id");
         dummyGameState.getYou().setName("TestYou-name");
         dummyGameState.getYou().setHealth(100);
@@ -154,7 +154,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
             System.out.print(dummyGameState.getYou().getHead());
 
-            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ApiVersionTranslation.V1);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(DOWN.equalsIgnoreCase(move.getMove()));
@@ -164,7 +164,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setY(y);
             System.out.print(dummyGameState.getYou().getHead());
 
-            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ApiVersionTranslation.V1);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(RIGHT.equalsIgnoreCase(move.getMove()));
@@ -174,7 +174,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
             System.out.print(dummyGameState.getYou().getHead());
 
-            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ApiVersionTranslation.V1);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(UP.equalsIgnoreCase(move.getMove()));
@@ -184,7 +184,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setY(y);
             System.out.print(dummyGameState.getYou().getHead());
 
-            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ApiVersionTranslation.V1);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(LEFT.equalsIgnoreCase(move.getMove()));

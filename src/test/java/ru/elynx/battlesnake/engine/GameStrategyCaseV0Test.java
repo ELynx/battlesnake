@@ -15,7 +15,7 @@ import ru.elynx.battlesnake.protocol.BoardDto;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.GameDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.testspecific.ApiVersionTranslation;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
@@ -50,7 +50,7 @@ class GameStrategyCaseV0Test {
         turn113.getBoard().getFood().add(new CoordsDto(1, 1));
         turn113.getBoard().setHazards(Collections.emptyList());
 
-        turn113.setYou(new TestSnakeDto(ApiVersionTranslation.V0_TO_V1));
+        turn113.setYou(new TestSnakeDto(ToApiVersion.V0));
         turn113.getYou().setId("qwerty");
         turn113.getYou().setName("qwerty");
         turn113.getYou().setHealth(100);
@@ -74,13 +74,13 @@ class GameStrategyCaseV0Test {
 
         gameStrategy.processStart(turn113);
 
-        TestMove moveMaxHealth = new TestMove(gameStrategy.processMove(turn113), ApiVersionTranslation.V0_TO_V1);
+        TestMove moveMaxHealth = new TestMove(gameStrategy.processMove(turn113), ToApiVersion.V0);
 
         assertFalse(UP.equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn113.getYou().setHealth(0);
 
-        TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn113), ApiVersionTranslation.V0_TO_V1);
+        TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn113), ToApiVersion.V0);
 
         assertFalse(UP.equalsIgnoreCase(moveMinHealth.getMove()));
     }
@@ -110,7 +110,7 @@ class GameStrategyCaseV0Test {
         turn49.getBoard().setFood(Collections.emptyList());
         turn49.getBoard().setHazards(Collections.emptyList());
 
-        turn49.setYou(new TestSnakeDto(ApiVersionTranslation.V0_TO_V1));
+        turn49.setYou(new TestSnakeDto(ToApiVersion.V0));
         turn49.getYou().setId("qwerty");
         turn49.getYou().setName("qwerty");
         turn49.getYou().setHealth(100);
@@ -127,7 +127,7 @@ class GameStrategyCaseV0Test {
         turn49.getBoard().setSnakes(new LinkedList<>());
         turn49.getBoard().getSnakes().add(turn49.getYou());
 
-        turn49.getBoard().getSnakes().add(new TestSnakeDto(ApiVersionTranslation.V0_TO_V1));
+        turn49.getBoard().getSnakes().add(new TestSnakeDto(ToApiVersion.V0));
         turn49.getBoard().getSnakes().get(1).setId("enemy 1");
         turn49.getBoard().getSnakes().get(1).setName("enemy 1");
         turn49.getBoard().getSnakes().get(1).setHealth(100);
@@ -138,7 +138,7 @@ class GameStrategyCaseV0Test {
         turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(5, 1));
         turn49.getBoard().getSnakes().get(1).setShout("enemy 1");
 
-        turn49.getBoard().getSnakes().add(new TestSnakeDto(ApiVersionTranslation.V0_TO_V1));
+        turn49.getBoard().getSnakes().add(new TestSnakeDto(ToApiVersion.V0));
         turn49.getBoard().getSnakes().get(2).setId("enemy 2");
         turn49.getBoard().getSnakes().get(2).setName("enemy 2");
         turn49.getBoard().getSnakes().get(2).setHealth(100);
@@ -153,13 +153,13 @@ class GameStrategyCaseV0Test {
 
         gameStrategy.processStart(turn49);
 
-        TestMove moveMaxHealth = new TestMove(gameStrategy.processMove(turn49), ApiVersionTranslation.V0_TO_V1);
+        TestMove moveMaxHealth = new TestMove(gameStrategy.processMove(turn49), ToApiVersion.V0);
 
         assertTrue(DOWN.equalsIgnoreCase(moveMaxHealth.getMove()));
 
         turn49.getYou().setHealth(0);
 
-        TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn49), ApiVersionTranslation.V0_TO_V1);
+        TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn49), ToApiVersion.V0);
 
         assertTrue(DOWN.equalsIgnoreCase(moveMinHealth.getMove()));
     }

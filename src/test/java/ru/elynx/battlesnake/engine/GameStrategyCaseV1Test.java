@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.testspecific.ApiVersionTranslation;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 import ru.elynx.battlesnake.testspecific.TestMove;
 
 @SpringBootTest
@@ -38,7 +38,7 @@ class GameStrategyCaseV1Test {
                 "____a\n" + //
                 "____a\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ApiVersionTranslation.V1);
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
     }
 
@@ -61,7 +61,7 @@ class GameStrategyCaseV1Test {
                 "____a____\n" + //
                 "____a____\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ApiVersionTranslation.V1);
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
     }
 }

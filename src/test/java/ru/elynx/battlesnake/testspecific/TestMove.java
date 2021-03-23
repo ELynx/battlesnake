@@ -6,10 +6,10 @@ import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
 import ru.elynx.battlesnake.protocol.Move;
 
 public class TestMove extends Move {
-    private final ApiVersionTranslation apiVersionTranslation;
+    private final ToApiVersion toApiVersion;
 
-    public TestMove(Move move, ApiVersionTranslation apiVersionTranslation) {
-        this.apiVersionTranslation = apiVersionTranslation;
+    public TestMove(Move move, ToApiVersion toApiVersion) {
+        this.toApiVersion = toApiVersion;
 
         this.setMove(move.getMove());
         this.setShout(move.getShout());
@@ -18,7 +18,7 @@ public class TestMove extends Move {
 
     @Override
     public String getMove() {
-        if (this.apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+        if (this.toApiVersion == ToApiVersion.V0) {
             if (super.getMove().equalsIgnoreCase(UP)) {
                 return DOWN;
             } else if (super.getMove().equalsIgnoreCase(DOWN)) {
@@ -31,6 +31,6 @@ public class TestMove extends Move {
 
     @Override
     public String toString() {
-        return "TestMove{" + super.toString() + ' ' + apiVersionTranslation + ' ' + getMove() + '}';
+        return "TestMove{" + super.toString() + ' ' + toApiVersion + ' ' + getMove() + '}';
     }
 }
