@@ -17,7 +17,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private static final double MAX_FOOD_WEIGHT = 1.0d;
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
-    private static final double SNAKE_BODY_WEIGHT = -2.0d;
+    private static final double SNAKE_BODY_WEIGHT = -1.0d;
     private static final double BLOCKED_MOVE_WEIGHT = -Double.MAX_VALUE;
     private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
     private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
@@ -74,38 +74,24 @@ public class WeightedSearchStrategy implements IGameStrategy {
         final double denominator = 4.0;
 
         final int ownSize = gameState.getYou().getLength();
-        final String ownId = gameState.getYou().getId();
 
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
             for (int i = 0, size = body.size(); i < size; ++i) {
                 final int x = body.get(i).getX();
                 final int y = body.get(i).getY();
-                final String id = snake.getId();
 
-                if (i == 0) {
-                    // heads
-                    if (size < ownSize) {
-                        // snakes shorter than own
-                        // don't explicitly rush for disconnected
-                        final double headWeight = snake.getLatency() == 0
-                                ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
-                                : LESSER_SNAKE_HEAD_WEIGHT;
-                        weightMatrix.splash2ndOrder(x, y, headWeight);
-                        // don't block
-                    } else if (id.equals(ownId)) {
-                        // own head, don't splash
-                        weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
-                        blockedMatrix.setValue(x, y, true);
-                    } else {
-                        // heads of snakes ge own
-                        // set to "really bad"
-                        weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, 1.0);
-                        blockedMatrix.setValue(x, y, true);
-                    }
+                if (i == 0 && size < ownSize) {
+                    // don't explicitly rush for disconnected
+                    final double headWeight = snake.getLatency() == 0
+                            ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
+                            : LESSER_SNAKE_HEAD_WEIGHT;
+                    weightMatrix.splash2ndOrder(x, y, headWeight);
                 } else {
-                    // splash around to avoid coiling
+                    // since we are looking for strictly less own body will get into no-go category
                     weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+
+                    // block only losing snake pieces
                     blockedMatrix.setValue(x, y, true);
                 }
             }
