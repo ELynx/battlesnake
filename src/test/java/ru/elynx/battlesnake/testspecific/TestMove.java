@@ -1,5 +1,8 @@
 package ru.elynx.battlesnake.testspecific;
 
+import static ru.elynx.battlesnake.protocol.Move.Moves.DOWN;
+import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+
 import ru.elynx.battlesnake.protocol.Move;
 
 public class TestMove extends Move {
@@ -11,13 +14,23 @@ public class TestMove extends Move {
         this.setMove(move.getMove());
         this.setShout(move.getShout());
         this.setDropRequest(move.getDropRequest());
+    }
 
+    @Override
+    public String getMove() {
         if (this.apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
-            if (getMove().equalsIgnoreCase("up")) {
-                setMove("down");
-            } else if (getMove().equalsIgnoreCase("down")) {
-                setMove("up");
+            if (super.getMove().equalsIgnoreCase(UP)) {
+                return DOWN;
+            } else if (super.getMove().equalsIgnoreCase(DOWN)) {
+                return UP;
             }
         }
+
+        return super.getMove();
+    }
+
+    @Override
+    public String toString() {
+        return "TestMove{" + super.toString() + ' ' + apiVersionTranslation + ' ' + getMove() + '}';
     }
 }
