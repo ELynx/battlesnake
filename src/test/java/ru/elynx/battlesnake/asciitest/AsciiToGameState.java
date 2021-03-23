@@ -19,12 +19,12 @@ public class AsciiToGameState {
         this.ascii = ascii;
     }
 
-    AsciiToGameState setHealth(String name, int health) {
+    public AsciiToGameState setHealth(String name, int health) {
         healts.put(name, health);
         return this;
     }
 
-    AsciiToGameState setLatency(String name, int latency) {
+    public AsciiToGameState setLatency(String name, int latency) {
         latencies.put(name, latency);
         return this;
     }
