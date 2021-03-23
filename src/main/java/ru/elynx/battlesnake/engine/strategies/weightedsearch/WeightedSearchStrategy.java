@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies;
+package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
