@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.function.Function;
 import javafx.util.Pair;
 import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.testspecific.ApiVersionTranslation;
+import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 
 public class AsciiToGameState {
     // mandatory
@@ -148,7 +150,7 @@ public class AsciiToGameState {
 
                 if (c >= 'A' && c <= 'Z') {
                     String s = String.valueOf(c);
-                    SnakeDto snake = new SnakeDto();
+                    SnakeDto snake = new TestSnakeDto(ApiVersionTranslation.V1);
                     snake.setId(s);
                     snake.setName("Snake " + s);
                     snake.setHealth(healts.getOrDefault(s, 100));
