@@ -110,6 +110,11 @@ class AsciiToGameStateTest {
         assertThat(dto.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
     }
 
+    private static SnakeDto getSnakeOrNull(GameStateDto gameStateDto, String snakeName) {
+        return gameStateDto.getBoard().getSnakes().stream().filter(snake -> snake.getId().equals(snakeName)).findAny()
+                .orElse(null);
+    }
+
     @Test
     void test_health_and_latency() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
@@ -125,20 +130,49 @@ class AsciiToGameStateTest {
 
         assertEquals(4, dto.getBoard().getSnakes().size());
 
-        SnakeDto y = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("Y")).findAny().orElse(null);
+        SnakeDto y = getSnakeOrNull(dto, "Y");
         assertEquals(99, y.getHealth());
         assertEquals(499, y.getLatency());
 
-        SnakeDto a = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("A")).findAny().orElse(null);
+        SnakeDto a = getSnakeOrNull(dto, "A");
         assertEquals(10, a.getHealth());
         assertEquals(99, a.getLatency());
 
-        SnakeDto b = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("B")).findAny().orElse(null);
+        SnakeDto b = getSnakeOrNull(dto, "B");
         assertEquals(15, b.getHealth());
         assertThat(b.getLatency(), Matchers.greaterThanOrEqualTo(0));
 
-        SnakeDto c = dto.getBoard().getSnakes().stream().filter(x -> x.getId().equals("C")).findAny().orElse(null);
+        SnakeDto c = getSnakeOrNull(dto, "C");
         assertThat(c.getHealth(), Matchers.is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
         assertEquals(0, c.getLatency());
+    }
+
+    @Test
+    void test_snake_parsing() {
+        AsciiToGameState tested = new AsciiToGameState("" + //
+                "Yyyyyyyyyyy\n" + //
+                "aaaaaaaaaaA\n" + //
+                "Bbbbbbbbbb<\n" + //
+                "_________>^\n" + //
+                "bbbbbbbbb^_\n" + //
+                "C<<<<<<<<<<\n" + //
+                "v<<<<<<<<<^\n" + //
+                ">>>>>>>>>>^\n");
+
+        GameStateDto dto = tested.build();
+
+        assertEquals(4, dto.getBoard().getSnakes().size());
+
+        SnakeDto y = getSnakeOrNull(dto, "Y");
+        assertEquals(11, y.getLength());
+
+        SnakeDto a = getSnakeOrNull(dto, "A");
+        assertEquals(11, a.getLength());
+
+        SnakeDto b = getSnakeOrNull(dto, "B");
+        assertEquals(23, b.getLength());
+
+        SnakeDto c = getSnakeOrNull(dto, "C");
+        assertEquals(33, c.getLength());
     }
 }
