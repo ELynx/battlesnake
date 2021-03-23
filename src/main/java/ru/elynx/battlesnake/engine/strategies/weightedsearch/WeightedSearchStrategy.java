@@ -179,7 +179,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         initOnce(gameState);
         final String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "8% ready");
+        return new Move(move, "I am a reference (point)");
     }
 
     @Override
@@ -190,16 +190,10 @@ public class WeightedSearchStrategy implements IGameStrategy {
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
         private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
-        private static final double WALL_WEIGHT_NEUTRAL = 0.0d;
 
         @Bean("Snake_1")
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "1");
-        }
-
-        @Bean("Snake_1a")
-        public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEUTRAL, "1a");
+            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "archival");
         }
     }
 }
