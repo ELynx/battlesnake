@@ -13,22 +13,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
+import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.strategies.shared.SnakeMovePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
 public class WeightedSearchV2Strategy implements IGameStrategy {
+    private static final double WALL_WEIGHT = 0.0d;
+
     private static final double MIN_FOOD_WEIGHT = 0.0d;
     private static final double MAX_FOOD_WEIGHT = 1.0d;
     private static final double HUNGER_HEALTH_THRESHOLD = 100.0d;
+
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private static final double INEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
+    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = 0.85;
+
     private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
-    private static final double WALL_WEIGHT = 0.0d;
 
     protected DoubleMatrix weightMatrix;
+    protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
     protected String lastMove;
 
@@ -41,8 +47,12 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         if (initialized)
             return;
 
-        weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(), WALL_WEIGHT);
+        final int width = gameState.getBoard().getWidth();
+        final int height = gameState.getBoard().getHeight();
+
+        weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
+
+        freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
 
         snakeMovePredictor = new SnakeMovePredictor();
 
@@ -53,6 +63,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     protected void applyGameState(GameStateDto gameState) {
         weightMatrix.zero();
+        freeSpaceMatrix.empty();
 
         applyHunger(gameState);
         applySnakes(gameState);
@@ -75,12 +86,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     }
 
     protected void applySnakes(GameStateDto gameState) {
-        snakeMovePredictor.setGameState(gameState);
-
         final CoordsDto ownHead = gameState.getYou().getHead();
         final int ownSize = gameState.getYou().getLength();
         final String ownId = gameState.getYou().getId();
 
+        boolean updatePredictorOnce = true;
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
 
@@ -88,14 +98,17 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
             final String id = snake.getId();
             if (!id.equals(ownId)) {
                 double baseWeight;
+                boolean inedible;
 
                 final int size = body.size();
                 if (size < ownSize) {
                     baseWeight = snake.getLatency() == 0
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
                             : LESSER_SNAKE_HEAD_WEIGHT;
+                    inedible = false;
                 } else {
                     baseWeight = INEDIBLE_SNAKE_HEAD_WEIGHT;
+                    inedible = true;
                 }
 
                 if (baseWeight != 0.0) {
@@ -107,6 +120,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
+                        if (updatePredictorOnce) {
+                            snakeMovePredictor.setGameState(gameState);
+                            updatePredictorOnce = false;
+                        }
+
                         // spread hunt/danger weights
                         List<KeyValue<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
                         predictions.forEach(prediction -> {
@@ -115,17 +133,27 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                             final double pw = baseWeight * prediction.getValue();
 
                             weightMatrix.splash2ndOrder(px, py, pw, 4.0);
+
+                            if (inedible && prediction.getValue() >= BLOCK_INEDIBLE_HEAD_PROBABILITY) {
+                                freeSpaceMatrix.setOccupied(px, py);
+                            }
                         });
                     }
                 }
             }
 
             // always last - mark body as impassable
-            for (CoordsDto coordsDto : body) {
+            for (int i = 0, size = body.size(); i < size; ++i) {
+                CoordsDto coordsDto = body.get(i);
                 final int x = coordsDto.getX();
                 final int y = coordsDto.getY();
 
                 weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
+
+                // tail space would become free
+                if (i + 1 < size) {
+                    freeSpaceMatrix.setOccupied(x, y);
+                }
             }
         }
     }
@@ -148,13 +176,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         return result;
     }
 
-    private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank) {
+    private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
         // filter all that go outside of map
         // sort by weight of immediate action
         // if equal options remain, sort by weight of following actions
-        // drop moves that would doom the snake
-        // this _does not_ guarantee that following moves are safe, only this one
-        // this is just a cut on number of filtered elements
+        // filter moves that would restrain the snake
         return toRank.stream().filter(triplet -> !weightMatrix.isOutOfBounds(triplet.getValue1(), triplet.getValue2()))
                 .sorted(Comparator
                         .comparingDouble((Triplet<String, Integer, Integer> triplet) -> weightMatrix
@@ -162,10 +188,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                         .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> getCrossWeight(
                                 triplet.getValue1(), triplet.getValue2()))
                         .reversed())
-                .dropWhile(triplet -> false).collect(Collectors.toList());
+                .filter(triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) >= length)
+                .collect(Collectors.toList());
     }
 
-    protected String bestMove(CoordsDto head) {
+    protected String bestMove(CoordsDto head, int length) {
         final int x = head.getX();
         final int y = head.getY();
 
@@ -175,7 +202,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         ranked.add(new Triplet<>(RIGHT, x + 1, y));
         ranked.add(new Triplet<>(UP, x, y + 1));
 
-        ranked = rank(ranked);
+        ranked = rank(ranked, length);
 
         if (ranked.isEmpty())
             return lastMove;
@@ -185,7 +212,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
-        return bestMove(gameState.getYou().getHead());
+        return bestMove(gameState.getYou().getHead(), gameState.getYou().getLength());
     }
 
     @Override

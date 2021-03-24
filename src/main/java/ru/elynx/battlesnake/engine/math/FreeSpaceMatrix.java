@@ -1,29 +1,38 @@
 package ru.elynx.battlesnake.engine.math;
 
-public class EmptySpaceMatrix {
-    private static final double DEFAULT_SPLASH = 2.0d;
-
+public class FreeSpaceMatrix {
     private final int width;
     private final int height;
     private final int length;
 
-    protected EmptySpaceMatrix(int width, int height) {
+    private final int sizeValue[];
+    private final int sizeIndex[];
+
+    protected FreeSpaceMatrix(int width, int height) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
+
+        this.sizeValue = new int[this.length];
+        this.sizeIndex = new int[this.length];
     }
 
-    public static EmptySpaceMatrix uninitializedMatrix(int width, int height) {
-        return new EmptySpaceMatrix(width, height);
+    public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
+        return new FreeSpaceMatrix(width, height);
     }
 
-    public static EmptySpaceMatrix emptySpaceMatrix(int width, int height) {
-        EmptySpaceMatrix result = uninitializedMatrix(width, height);
+    public static FreeSpaceMatrix emptyFreeSpaceMatrix(int width, int height) {
+        FreeSpaceMatrix result = uninitializedMatrix(width, height);
         result.empty();
         return result;
     }
 
     public void empty() {
+        for (int i = 0; i < length; ++i) {
+            // by default all cells are empty, and their space is kept in zero node
+            sizeValue[i] = length;
+            sizeIndex[i] = 0;
+        }
     }
 
     public int getSpace(int x, int y) {
@@ -55,7 +64,7 @@ public class EmptySpaceMatrix {
     }
 
     protected int unsafeGetSpace(int index) {
-        return 0;
+        return sizeValue[index];
     }
 
     protected void unsafeSetOccupied(int index) {
