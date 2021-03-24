@@ -58,6 +58,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         applyHazards(gameState);
     }
 
+    @SuppressWarnings("deprecation")
     protected void applyHunger(GameStateDto gameState) {
         double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
                 MAX_FOOD_WEIGHT);
@@ -70,6 +71,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected void applySnakes(GameStateDto gameState) {
         // cell with three pieces of snake around should cost less than piece of snake
         final double denominator = 4.0;

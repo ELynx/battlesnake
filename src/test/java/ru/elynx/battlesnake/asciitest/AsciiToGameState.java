@@ -2,7 +2,7 @@ package ru.elynx.battlesnake.asciitest;
 
 import java.util.*;
 import java.util.function.Function;
-import javafx.util.Pair;
+import org.javatuples.KeyValue;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
@@ -29,11 +29,11 @@ public class AsciiToGameState {
         return this;
     }
 
-    private List<Pair<CoordsDto, Character>> getNeighbours(List<String> rows, int height, int width,
+    private List<KeyValue<CoordsDto, Character>> getNeighbours(List<String> rows, int height, int width,
             List<CoordsDto> soFar, CoordsDto center, char lookupChar) {
-        LinkedList<Pair<CoordsDto, Character>> result = new LinkedList<>();
+        LinkedList<KeyValue<CoordsDto, Character>> result = new LinkedList<>();
 
-        Function<Pair<CoordsDto, Character>, Void> addIfChecksUp = pair -> {
+        Function<KeyValue<CoordsDto, Character>, Void> addIfChecksUp = pair -> {
             CoordsDto coords = pair.getKey();
 
             // avoid already found pieces
@@ -51,7 +51,7 @@ public class AsciiToGameState {
                 // if snake letter or direction came up
                 if (lookupChar == c || pair.getValue().equals(c)) {
                     // make sure to pass what actually was on the ascii
-                    result.add(new Pair<>(coords, c));
+                    result.add(new KeyValue<>(coords, c));
                 }
             }
 
@@ -67,22 +67,22 @@ public class AsciiToGameState {
         int yup = y + 1;
 
         // arrow pointing to center
-        addIfChecksUp.apply(new Pair<>(new CoordsDto(xleft, y), '>'));
-        addIfChecksUp.apply(new Pair<>(new CoordsDto(x, yup), 'v'));
-        addIfChecksUp.apply(new Pair<>(new CoordsDto(xright, y), '<'));
-        addIfChecksUp.apply(new Pair<>(new CoordsDto(x, ydown), '^'));
+        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(xleft, y), '>'));
+        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(x, yup), 'v'));
+        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(xright, y), '<'));
+        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(x, ydown), '^'));
 
         return result;
     }
 
     private CoordsDto getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<CoordsDto> soFar,
             CoordsDto current, char bodyChar) {
-        List<Pair<CoordsDto, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
+        List<KeyValue<CoordsDto, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
 
         // priority 1 - arrows pointing
-        for (Pair<CoordsDto, Character> pair : neighbours) {
-            if ("<^>v".indexOf(pair.getValue()) >= 0) {
-                return pair.getKey();
+        for (KeyValue<CoordsDto, Character> keyValue : neighbours) {
+            if ("<^>v".indexOf(keyValue.getValue()) >= 0) {
+                return keyValue.getKey();
             }
         }
 

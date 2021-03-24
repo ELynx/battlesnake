@@ -7,7 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
+import org.javatuples.KeyValue;
+import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -22,7 +23,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     private static final double HUNGER_HEALTH_THRESHOLD = 100.0d;
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
-    private static final double UNEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
+    private static final double INEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
     private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
     private static final double WALL_WEIGHT = 0.0d;
@@ -94,7 +95,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
                             : LESSER_SNAKE_HEAD_WEIGHT;
                 } else {
-                    baseWeight = UNEDIBLE_SNAKE_HEAD_WEIGHT;
+                    baseWeight = INEDIBLE_SNAKE_HEAD_WEIGHT;
                 }
 
                 if (baseWeight != 0.0) {
@@ -107,7 +108,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
                         // spread hunt/danger weights
-                        List<Pair<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
+                        List<KeyValue<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
                         predictions.forEach(prediction -> {
                             final int px = prediction.getKey().getX();
                             final int py = prediction.getKey().getY();
@@ -147,38 +148,41 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         return result;
     }
 
-    private List<Pair<String, CoordsDto>> rank(List<Pair<String, CoordsDto>> toRank) {
-        return toRank.stream().filter(pair -> {
+    private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank) {
+        return toRank.stream().filter(triplet -> {
             // filter all that go outside of map
-            final CoordsDto v = pair.getValue();
-            return !weightMatrix.isOutOfBounds(v.getX(), v.getY());
-        }).sorted(Comparator.comparingDouble((Pair<String, CoordsDto> pair) -> {
-            // sort by weight of immediate action
-            CoordsDto v = pair.getValue();
-            return weightMatrix.getValue(v.getX(), v.getY());
-        }).thenComparingDouble((Pair<String, CoordsDto> pair) -> {
-            // if equal options remain, sort by weight of following actions
-            CoordsDto v = pair.getValue();
-            return getCrossWeight(v.getX(), v.getY());
-        }).reversed()).collect(Collectors.toList());
+            return !weightMatrix.isOutOfBounds(triplet.getValue1(), triplet.getValue2());
+        }).sorted(Comparator
+                .comparingDouble((Triplet<String, Integer, Integer> triplet) -> {
+                    // sort by weight of immediate action
+                    return weightMatrix.getValue(triplet.getValue1(), triplet.getValue2());
+                }).thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> {
+                    // if equal options remain, sort by weight of following actions
+                    return getCrossWeight(triplet.getValue1(), triplet.getValue2());
+                }).reversed()).dropWhile(triplet -> {
+                    // drop moves that would doom the snake
+                    // this _does not_ guarantee that following moves are safe, only this one
+                    // this is just a cut on number of filtered elements
+                    return false; // TODO
+                }).collect(Collectors.toList());
     }
 
     protected String bestMove(CoordsDto head) {
         final int x = head.getX();
         final int y = head.getY();
 
-        List<Pair<String, CoordsDto>> ranked = new LinkedList<>();
-        ranked.add(new Pair<>(DOWN, new CoordsDto(x, y - 1)));
-        ranked.add(new Pair<>(LEFT, new CoordsDto(x - 1, y)));
-        ranked.add(new Pair<>(RIGHT, new CoordsDto(x + 1, y)));
-        ranked.add(new Pair<>(UP, new CoordsDto(x, y + 1)));
+        List<Triplet<String, Integer, Integer>> ranked = new LinkedList<>();
+        ranked.add(new Triplet<>(DOWN, x, y - 1));
+        ranked.add(new Triplet<>(LEFT, x - 1, y));
+        ranked.add(new Triplet<>(RIGHT, x + 1, y));
+        ranked.add(new Triplet<>(UP, x, y + 1));
 
         ranked = rank(ranked);
 
         if (ranked.isEmpty())
             return lastMove;
 
-        return ranked.get(0).getKey();
+        return ranked.get(0).getValue0();
     }
 
     protected String makeMove(GameStateDto gameState) {
@@ -213,7 +217,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchV2StrategyConfiguration {
-
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> wallWeightZero() {
             return WeightedSearchV2Strategy::new;
