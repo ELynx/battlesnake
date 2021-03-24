@@ -22,17 +22,16 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
     private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
     private static final double MAX_HEALTH = 100.0d;
+    private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
 
-    protected final double wallWeight;
-    protected final String version;
+    private static final String VERSION = "archival";
+
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected String lastMove;
     protected boolean initialized = false;
 
-    private WeightedSearchStrategy(double wallWeight, String version) {
-        this.wallWeight = wallWeight;
-        this.version = version;
+    private WeightedSearchStrategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -40,7 +39,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
             return;
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(), wallWeight);
+                gameState.getBoard().getHeight(), WALL_WEIGHT_NEGATIVE);
 
         blockedMatrix = FlagMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(), true);
@@ -55,21 +54,23 @@ public class WeightedSearchStrategy implements IGameStrategy {
         blockedMatrix.reset();
 
         applyHunger(gameState);
-        applySnake(gameState);
+        applySnakes(gameState);
         applyHazards(gameState);
     }
 
-    protected void applyHazards(GameStateDto gameState) {
-        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            final int x = hazard.getX();
-            final int y = hazard.getY();
+    protected void applyHunger(GameStateDto gameState) {
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
+                MAX_FOOD_WEIGHT);
 
-            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
-            blockedMatrix.setValue(x, y, true);
+        for (CoordsDto food : gameState.getBoard().getFood()) {
+            final int x = food.getX();
+            final int y = food.getY();
+
+            weightMatrix.splash2ndOrder(x, y, foodWeight);
         }
     }
 
-    protected void applySnake(GameStateDto gameState) {
+    protected void applySnakes(GameStateDto gameState) {
         // cell with three pieces of snake around should cost less than piece of snake
         final double denominator = 4.0;
 
@@ -98,15 +99,13 @@ public class WeightedSearchStrategy implements IGameStrategy {
         }
     }
 
-    protected void applyHunger(GameStateDto gameState) {
-        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
-                MAX_FOOD_WEIGHT);
+    protected void applyHazards(GameStateDto gameState) {
+        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
+            final int x = hazard.getX();
+            final int y = hazard.getY();
 
-        for (CoordsDto food : gameState.getBoard().getFood()) {
-            final int x = food.getX();
-            final int y = food.getY();
-
-            weightMatrix.splash2ndOrder(x, y, foodWeight);
+            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
+            blockedMatrix.setValue(x, y, true);
         }
     }
 
@@ -164,7 +163,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#b58900", "smile", "sharp", version);
+        return new BattlesnakeInfo("ELynx", "#cecece", "smile", "sharp", VERSION);
     }
 
     @Override
@@ -189,11 +188,9 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
-        private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
-
         @Bean("Snake_1")
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "archival");
+            return () -> new WeightedSearchStrategy();
         }
     }
 }
