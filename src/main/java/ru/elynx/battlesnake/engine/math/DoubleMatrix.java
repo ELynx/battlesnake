@@ -58,16 +58,30 @@ public class DoubleMatrix {
         return true;
     }
 
-    protected void addSplashValue(int x, int y, double value) {
+    protected boolean addSplashValue(int x, int y, double value) {
         final int index = safeIndex(x, y);
         if (index < 0)
-            return;
+            return false;
 
         unsafeAddSplashValue(index, value);
+        return true;
+    }
+
+    @Deprecated
+    public boolean splash1stOrderLegacy(int x, int y, double valueAtImpact) {
+        return splash1stOrderLegacy(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    @Deprecated
+    public boolean splash1stOrderLegacy(int x, int y, double valueAtImpact, double denominator) {
+        if (setValue(x, y, valueAtImpact))
+            return splash1stOrder(x, y, valueAtImpact, denominator);
+
+        return false;
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
@@ -76,7 +90,7 @@ public class DoubleMatrix {
             return false;
 
         // if impact is out of matrix ignore the setter
-        if (setValue(x, y, valueAtImpact)) {
+        if (addSplashValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
             addSplashValue(x, y - 1, valueAtImpact);
@@ -90,8 +104,21 @@ public class DoubleMatrix {
         return false;
     }
 
+    @Deprecated
+    public boolean splash2ndOrderLegacy(int x, int y, double valueAtImpact) {
+        return splash2ndOrderLegacy(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
     public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
         return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    @Deprecated
+    public boolean splash2ndOrderLegacy(int x, int y, double valueAtImpact, double denominator) {
+        if (setValue(x, y, valueAtImpact))
+            return splash2ndOrder(x, y, valueAtImpact, denominator);
+
+        return false;
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {

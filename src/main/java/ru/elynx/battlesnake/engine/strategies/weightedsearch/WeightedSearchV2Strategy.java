@@ -2,8 +2,11 @@ package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,13 +22,14 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     private static final double HUNGER_HEALTH_THRESHOLD = 100.0d;
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
-    private static final double GREATER_SNAKE_HEAD_WEIGHT = -1.0d;
+    private static final double UNEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
     private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
     private static final double WALL_WEIGHT = 0.0d;
 
     protected DoubleMatrix weightMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
+    protected String lastMove;
 
     protected boolean initialized = false;
 
@@ -40,6 +44,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                 gameState.getBoard().getHeight(), WALL_WEIGHT);
 
         snakeMovePredictor = new SnakeMovePredictor();
+
+        lastMove = UP;
 
         initialized = true;
     }
@@ -77,56 +83,48 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
 
-            final CoordsDto head = snake.getHead();
-            final int size = body.size();
-            final String id = snake.getId();
-
             // manage head
-            {
-                final int x = head.getX();
-                final int y = head.getY();
+            final String id = snake.getId();
+            if (!id.equals(ownId)) {
+                double baseWeight;
 
-                weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
+                final int size = body.size();
+                if (size < ownSize) {
+                    baseWeight = snake.getLatency() == 0
+                            ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
+                            : LESSER_SNAKE_HEAD_WEIGHT;
+                } else {
+                    baseWeight = UNEDIBLE_SNAKE_HEAD_WEIGHT;
+                }
 
-                if (!id.equals(ownId)) {
-                    double baseWeight;
+                if (baseWeight != 0.0) {
+                    final CoordsDto head = snake.getHead();
+                    final int x = head.getX();
+                    final int y = head.getY();
 
-                    if (size < ownSize) {
-                        baseWeight = snake.getLatency() == 0
-                                ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
-                                : LESSER_SNAKE_HEAD_WEIGHT;
+                    if (head.manhattanDistance(ownHead) > 4) {
+                        // cheap and easy on faraway snakes
+                        weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
-                        baseWeight = GREATER_SNAKE_HEAD_WEIGHT;
-                    }
+                        // spread hunt/danger weights
+                        List<Pair<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
+                        predictions.forEach(prediction -> {
+                            final int px = prediction.getKey().getX();
+                            final int py = prediction.getKey().getY();
+                            final double pw = baseWeight * prediction.getValue();
 
-                    if (baseWeight != 0.0) {
-                        if (head.manhattanDistance(ownHead) > 4) {
-                            // cheap and easy on faraway snakes
-                            weightMatrix.splash1stOrder(x, y, baseWeight);
-                        } else {
-                            // rapid decline "scent" field for more distant catch-up
-                            weightMatrix.splash2ndOrder(x, y, baseWeight, 10);
-
-                            List<Pair<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
-                            predictions.forEach(prediction -> {
-                                final int px = prediction.getKey().getX();
-                                final int py = prediction.getKey().getY();
-                                final double pw = baseWeight * prediction.getValue();
-
-                                weightMatrix.setValue(px, py, pw);
-                            });
-                        }
+                            weightMatrix.splash2ndOrder(px, py, pw, 4.0);
+                        });
                     }
                 }
             }
 
-            // manage body
-            for (int i = 1; i < size; ++i) {
-                final int x = body.get(i).getX();
-                final int y = body.get(i).getY();
+            // always last - mark body as impassable
+            for (CoordsDto coordsDto : body) {
+                final int x = coordsDto.getX();
+                final int y = coordsDto.getY();
 
-                // cell with three pieces of snake around should cost less than piece of snake
-                weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, 4.0);
+                weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
             }
         }
     }
@@ -141,9 +139,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     }
 
     private double getCrossWeight(int x, int y) {
-        if (weightMatrix.isOutOfBounds(x, y))
-            return DETERRENT_WEIGHT;
-
         double result = weightMatrix.getValue(x, y - 1);
         result += weightMatrix.getValue(x - 1, y);
         result += weightMatrix.getValue(x, y);
@@ -152,33 +147,38 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         return result;
     }
 
+    private List<Pair<String, CoordsDto>> rank(List<Pair<String, CoordsDto>> toRank) {
+        return toRank.stream().filter(pair -> {
+            // filter all that go outside of map
+            final CoordsDto v = pair.getValue();
+            return !weightMatrix.isOutOfBounds(v.getX(), v.getY());
+        }).sorted(Comparator.comparingDouble((Pair<String, CoordsDto> pair) -> {
+            // sort by weight of immediate action
+            CoordsDto v = pair.getValue();
+            return weightMatrix.getValue(v.getX(), v.getY());
+        }).thenComparingDouble((Pair<String, CoordsDto> pair) -> {
+            // if equal options remain, sort by weight of following actions
+            CoordsDto v = pair.getValue();
+            return getCrossWeight(v.getX(), v.getY());
+        }).reversed()).collect(Collectors.toList());
+    }
+
     protected String bestMove(CoordsDto head) {
         final int x = head.getX();
         final int y = head.getY();
 
-        // index ascending order
+        List<Pair<String, CoordsDto>> ranked = new LinkedList<>();
+        ranked.add(new Pair<>(DOWN, new CoordsDto(x, y - 1)));
+        ranked.add(new Pair<>(LEFT, new CoordsDto(x - 1, y)));
+        ranked.add(new Pair<>(RIGHT, new CoordsDto(x + 1, y)));
+        ranked.add(new Pair<>(UP, new CoordsDto(x, y + 1)));
 
-        String bestDirection = DOWN;
-        double bestValue = getCrossWeight(x, y - 1);
+        ranked = rank(ranked);
 
-        double nextValue = getCrossWeight(x - 1, y);
-        if (nextValue > bestValue) {
-            bestDirection = LEFT;
-            bestValue = nextValue;
-        }
+        if (ranked.isEmpty())
+            return lastMove;
 
-        nextValue = getCrossWeight(x + 1, y);
-        if (nextValue > bestValue) {
-            bestDirection = RIGHT;
-            bestValue = nextValue;
-        }
-
-        nextValue = getCrossWeight(x, y + 1);
-        if (nextValue > bestValue) {
-            bestDirection = UP;
-        }
-
-        return bestDirection;
+        return ranked.get(0).getKey();
     }
 
     protected String makeMove(GameStateDto gameState) {
@@ -202,6 +202,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         // for test compatibility
         initOnce(gameState);
         final String move = makeMove(gameState);
+        lastMove = move;
         return new Move(move, "New and theoretically improved");
     }
 
@@ -215,7 +216,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchV2Strategy();
+            return WeightedSearchV2Strategy::new;
         }
     }
 }

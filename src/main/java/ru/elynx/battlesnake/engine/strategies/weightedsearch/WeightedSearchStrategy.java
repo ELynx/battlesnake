@@ -66,7 +66,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
             final int x = food.getX();
             final int y = food.getY();
 
-            weightMatrix.splash2ndOrder(x, y, foodWeight);
+            weightMatrix.splash2ndOrderLegacy(x, y, foodWeight);
         }
     }
 
@@ -87,10 +87,10 @@ public class WeightedSearchStrategy implements IGameStrategy {
                     final double headWeight = snake.getLatency() == 0
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
                             : LESSER_SNAKE_HEAD_WEIGHT;
-                    weightMatrix.splash2ndOrder(x, y, headWeight);
+                    weightMatrix.splash2ndOrderLegacy(x, y, headWeight);
                 } else {
                     // since we are looking for strictly less own body will get into no-go category
-                    weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+                    weightMatrix.splash1stOrderLegacy(x, y, SNAKE_BODY_WEIGHT, denominator);
 
                     // block only losing snake pieces
                     blockedMatrix.setValue(x, y, true);
@@ -190,7 +190,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
     public static class WeightedSearchStrategyConfiguration {
         @Bean("Snake_1")
         public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy();
+            return WeightedSearchStrategy::new;
         }
     }
 }
