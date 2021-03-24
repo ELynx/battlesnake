@@ -43,6 +43,55 @@ class GameStrategyCaseV1Test {
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
 
+    // ported from V0 to V1 for ease of understanding
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_avoid_fruit_surrounded_by_snake(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "yyyv<______\n" + //
+                "y0^<^______\n" + //
+                "yY__y______\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 2);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), not(equalToIgnoringCase(UP)));
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_avoid_fruit_in_corner(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "____yyyyyy0\n").setHealth("Y", 2);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(UP));
+    }
+
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_dont_die_for_food(String name) {
