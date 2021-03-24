@@ -191,7 +191,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
         @Bean("Snake_1")
-        public Supplier<IGameStrategy> wallWeightNegativeOne() {
+        public Supplier<IGameStrategy> archiveWeightedSearch() {
             return WeightedSearchStrategy::new;
         }
     }

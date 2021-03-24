@@ -103,7 +103,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                     final int x = head.getX();
                     final int y = head.getY();
 
-                    if (head.manhattanDistance(ownHead) > 4) {
+                    if (Util.manhattanDistance(head, ownHead) > 4) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
@@ -149,22 +149,20 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     }
 
     private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank) {
-        return toRank.stream().filter(triplet -> {
-            // filter all that go outside of map
-            return !weightMatrix.isOutOfBounds(triplet.getValue1(), triplet.getValue2());
-        }).sorted(Comparator
-                .comparingDouble((Triplet<String, Integer, Integer> triplet) -> {
-                    // sort by weight of immediate action
-                    return weightMatrix.getValue(triplet.getValue1(), triplet.getValue2());
-                }).thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> {
-                    // if equal options remain, sort by weight of following actions
-                    return getCrossWeight(triplet.getValue1(), triplet.getValue2());
-                }).reversed()).dropWhile(triplet -> {
-                    // drop moves that would doom the snake
-                    // this _does not_ guarantee that following moves are safe, only this one
-                    // this is just a cut on number of filtered elements
-                    return false; // TODO
-                }).collect(Collectors.toList());
+        // filter all that go outside of map
+        // sort by weight of immediate action
+        // if equal options remain, sort by weight of following actions
+        // drop moves that would doom the snake
+        // this _does not_ guarantee that following moves are safe, only this one
+        // this is just a cut on number of filtered elements
+        return toRank.stream().filter(triplet -> !weightMatrix.isOutOfBounds(triplet.getValue1(), triplet.getValue2()))
+                .sorted(Comparator
+                        .comparingDouble((Triplet<String, Integer, Integer> triplet) -> weightMatrix
+                                .getValue(triplet.getValue1(), triplet.getValue2()))
+                        .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> getCrossWeight(
+                                triplet.getValue1(), triplet.getValue2()))
+                        .reversed())
+                .dropWhile(triplet -> false).collect(Collectors.toList());
     }
 
     protected String bestMove(CoordsDto head) {
@@ -218,7 +216,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     @Configuration
     public static class WeightedSearchV2StrategyConfiguration {
         @Bean("Snake_1a")
-        public Supplier<IGameStrategy> wallWeightZero() {
+        public Supplier<IGameStrategy> nextGenWeightedSearch() {
             return WeightedSearchV2Strategy::new;
         }
     }

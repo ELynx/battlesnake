@@ -51,10 +51,6 @@ public class CoordsDto {
         this.y = y;
     }
 
-    public int manhattanDistance(CoordsDto other) {
-        return Math.abs(x - other.x) + Math.abs(y - other.y);
-    }
-
     @Override
     public String toString() {
         return "CoordsDto{" + x + ", " + y + '}';
