@@ -57,8 +57,8 @@ public class ChessStrategy implements IGameStrategy {
     }
 
     @Override
-    public boolean isPuzzleOnly() {
-        return true;
+    public boolean isCombatant() {
+        return false;
     }
 
     @Configuration

@@ -13,7 +13,7 @@ public interface IGameStrategy {
 
     Void processEnd(GameStateDto gameState);
 
-    default boolean isPuzzleOnly() {
-        return false;
+    default boolean isCombatant() {
+        return true;
     }
 }

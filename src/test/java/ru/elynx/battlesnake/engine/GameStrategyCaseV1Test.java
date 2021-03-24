@@ -23,9 +23,6 @@ class GameStrategyCaseV1Test {
     void test_dont_die_for_food(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        if (gameStrategy.isPuzzleOnly())
-            return;
-
         System.out.println("Testing " + name);
 
         // head to head even with snake of same length is lose
@@ -46,9 +43,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_dont_die_for_food_and_hunt(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        if (gameStrategy.isPuzzleOnly())
-            return;
 
         System.out.println("Testing " + name);
 

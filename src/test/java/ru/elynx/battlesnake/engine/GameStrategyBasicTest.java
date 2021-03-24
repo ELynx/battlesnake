@@ -42,7 +42,7 @@ class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Snake_1", "Snake_1a", "ChesssMassster");
+        return Stream.of("Snake_1", "Snake_1a");
     }
 
     @BeforeEach
@@ -89,7 +89,10 @@ class GameStrategyBasicTest {
         Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
 
         Set<String> temp1 = testedStrategies.sorted().collect(Collectors.toCollection(LinkedHashSet::new));
-        Set<String> temp2 = knownStrategies.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> temp2 = knownStrategies.stream().filter(name -> {
+            IGameStrategy strategy = gameStrategyFactory.getGameStrategy(name);
+            return strategy.isCombatant();
+        }).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
 
         assertIterableEquals(temp1, temp2);
     }
@@ -139,11 +142,6 @@ class GameStrategyBasicTest {
         System.out.println(String.format("Wall test for snake %s", name));
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        if (gameStrategy.isPuzzleOnly()) {
-            System.out.println("Puzzler, skipped");
-            return;
-        }
 
         dummyGameState.getYou().getHead().setX(0);
         dummyGameState.getYou().getHead().setY(0);
