@@ -18,6 +18,31 @@ class GameStrategyCaseV1Test {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
+    // ported from V0 to V1 for ease of understanding
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_empty_space_better_than_snake(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___A_______\n" + //
+                "___aaa_yyy_\n" + //
+                "_____BbY_y_\n" + //
+                "______b_yy_\n" + //
+                "____bbb____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(DOWN));
+    }
+
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_dont_die_for_food(String name) {

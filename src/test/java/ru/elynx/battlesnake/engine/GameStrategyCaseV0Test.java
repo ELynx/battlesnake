@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.engine;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -80,81 +79,5 @@ class GameStrategyCaseV0Test {
         TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn113), ToApiVersion.V0);
 
         assertFalse(UP.equalsIgnoreCase(moveMinHealth.getMove()));
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void emptySpaceBetterThanSnake(String name) {
-        // https://play.battlesnake.com/g/646c44cd-c6f0-4a3f-ba7e-55357d0303cb/
-        // wrong decision at turn 49
-
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        GameStateDto turn49 = new GameStateDto();
-
-        turn49.setGame(new GameDto());
-        turn49.getGame().setId("646c44cd-c6f0-4a3f-ba7e-55357d0303cb");
-
-        turn49.setTurn(49);
-
-        turn49.setBoard(new BoardDto());
-        turn49.getBoard().setWidth(11);
-        turn49.getBoard().setHeight(11);
-
-        turn49.getBoard().setFood(Collections.emptyList());
-        turn49.getBoard().setHazards(Collections.emptyList());
-
-        turn49.setYou(new TestSnakeDto(ToApiVersion.V0));
-        turn49.getYou().setId("qwerty");
-        turn49.getYou().setName("qwerty");
-        turn49.getYou().setHealth(100);
-        turn49.getYou().setBody(new LinkedList<>());
-        turn49.getYou().getBody().add(new CoordsDto(7, 2));
-        turn49.getYou().getBody().add(new CoordsDto(7, 1));
-        turn49.getYou().getBody().add(new CoordsDto(8, 1));
-        turn49.getYou().getBody().add(new CoordsDto(9, 1));
-        turn49.getYou().getBody().add(new CoordsDto(9, 2));
-        turn49.getYou().getBody().add(new CoordsDto(9, 3));
-        turn49.getYou().getBody().add(new CoordsDto(8, 3));
-        turn49.getYou().setShout("qwerty");
-
-        turn49.getBoard().setSnakes(new LinkedList<>());
-        turn49.getBoard().getSnakes().add(turn49.getYou());
-
-        turn49.getBoard().getSnakes().add(new TestSnakeDto(ToApiVersion.V0));
-        turn49.getBoard().getSnakes().get(1).setId("enemy 1");
-        turn49.getBoard().getSnakes().get(1).setName("enemy 1");
-        turn49.getBoard().getSnakes().get(1).setHealth(100);
-        turn49.getBoard().getSnakes().get(1).setBody(new LinkedList<>());
-        turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(3, 0));
-        turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(3, 1));
-        turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(4, 1));
-        turn49.getBoard().getSnakes().get(1).getBody().add(new CoordsDto(5, 1));
-        turn49.getBoard().getSnakes().get(1).setShout("enemy 1");
-
-        turn49.getBoard().getSnakes().add(new TestSnakeDto(ToApiVersion.V0));
-        turn49.getBoard().getSnakes().get(2).setId("enemy 2");
-        turn49.getBoard().getSnakes().get(2).setName("enemy 2");
-        turn49.getBoard().getSnakes().get(2).setHealth(100);
-        turn49.getBoard().getSnakes().get(2).setBody(new LinkedList<>());
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(5, 2));
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(6, 2));
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(6, 3));
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(6, 4));
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(5, 4));
-        turn49.getBoard().getSnakes().get(2).getBody().add(new CoordsDto(4, 4));
-        turn49.getBoard().getSnakes().get(2).setShout("enemy 2");
-
-        gameStrategy.processStart(turn49);
-
-        TestMove moveMaxHealth = new TestMove(gameStrategy.processMove(turn49), ToApiVersion.V0);
-
-        assertTrue(DOWN.equalsIgnoreCase(moveMaxHealth.getMove()));
-
-        turn49.getYou().setHealth(0);
-
-        TestMove moveMinHealth = new TestMove(gameStrategy.processMove(turn49), ToApiVersion.V0);
-
-        assertTrue(DOWN.equalsIgnoreCase(moveMinHealth.getMove()));
     }
 }
