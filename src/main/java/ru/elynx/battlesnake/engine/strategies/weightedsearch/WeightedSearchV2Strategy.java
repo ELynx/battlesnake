@@ -21,17 +21,15 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private static final double GREATER_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
-    private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
+    private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
+    private static final double WALL_WEIGHT = 0.0d;
 
-    protected final double wallWeight;
-    protected final String version;
     protected DoubleMatrix weightMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
+
     protected boolean initialized = false;
 
-    private WeightedSearchV2Strategy(double wallWeight, String version) {
-        this.wallWeight = wallWeight;
-        this.version = version;
+    private WeightedSearchV2Strategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -39,7 +37,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
             return;
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(), wallWeight);
+                gameState.getBoard().getHeight(), WALL_WEIGHT);
 
         snakeMovePredictor = new SnakeMovePredictor();
 
@@ -78,6 +76,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
+
             final CoordsDto head = snake.getHead();
             final int size = body.size();
             final String id = snake.getId();
@@ -91,6 +90,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
                 if (!id.equals(ownId)) {
                     double baseWeight;
+
                     if (size < ownSize) {
                         baseWeight = snake.getLatency() == 0
                                 ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
@@ -111,9 +111,9 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                             predictions.forEach(prediction -> {
                                 final int px = prediction.getKey().getX();
                                 final int py = prediction.getKey().getY();
-                                final double w = baseWeight * prediction.getValue();
+                                final double pw = baseWeight * prediction.getValue();
 
-                                weightMatrix.setValue(px, py, w);
+                                weightMatrix.setValue(px, py, pw);
                             });
                         }
                     }
@@ -136,11 +136,14 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
             final int x = hazard.getX();
             final int y = hazard.getY();
 
-            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
+            weightMatrix.setValue(x, y, DETERRENT_WEIGHT);
         }
     }
 
     private double getCrossWeight(int x, int y) {
+        if (weightMatrix.isOutOfBounds(x, y))
+            return DETERRENT_WEIGHT;
+
         double result = weightMatrix.getValue(x, y - 1);
         result += weightMatrix.getValue(x - 1, y);
         result += weightMatrix.getValue(x, y);
@@ -185,7 +188,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#b58900", "smile", "sharp", version);
+        return new BattlesnakeInfo("ELynx", "#ef9600", "smile", "sharp", "1a X");
     }
 
     @Override
@@ -209,11 +212,10 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchV2StrategyConfiguration {
-        private static final double WALL_WEIGHT_NEUTRAL = 0.0d;
 
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchV2Strategy(WALL_WEIGHT_NEUTRAL, "1a X");
+            return () -> new WeightedSearchV2Strategy();
         }
     }
 }
