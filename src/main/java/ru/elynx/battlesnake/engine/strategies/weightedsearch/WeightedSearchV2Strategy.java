@@ -35,6 +35,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     protected DoubleMatrix weightMatrix;
     protected FreeSpaceMatrix freeSpaceMatrix;
+    protected List<CoordsDto> lastFood;
     protected SnakeMovePredictor snakeMovePredictor;
     protected String lastMove;
 
@@ -51,11 +52,9 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         final int height = gameState.getBoard().getHeight();
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
-
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
-
+        lastFood = gameState.getBoard().getFood();
         snakeMovePredictor = new SnakeMovePredictor();
-
         lastMove = UP;
 
         initialized = true;
@@ -92,15 +91,16 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
         boolean updatePredictorOnce = true;
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+            final CoordsDto head = snake.getHead();
             final List<CoordsDto> body = snake.getBody();
+            final int size = snake.getLength();
+            final String id = snake.getId();
 
             // manage head
-            final String id = snake.getId();
             if (!id.equals(ownId)) {
                 double baseWeight;
                 boolean inedible;
 
-                final int size = body.size();
                 if (size < ownSize) {
                     baseWeight = snake.getLatency() == 0
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
@@ -112,7 +112,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                 }
 
                 if (baseWeight != 0.0) {
-                    final CoordsDto head = snake.getHead();
                     final int x = head.getX();
                     final int y = head.getY();
 
@@ -143,17 +142,27 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
             }
 
             // always last - mark body as impassable
-            for (int i = 0, size = body.size(); i < size; ++i) {
+            // some cases allow for passing through tail
+            int tailMoveOffset = 1;
+
+            // check if fed this turn
+            if (lastFood.indexOf(head) >= 0) {
+                // tail will grow -> cell will remain occupied
+                tailMoveOffset = 0;
+            }
+
+            // check if self, and don't do 180* turn
+            if (id.equals(ownId) && size == 2) {
+                tailMoveOffset = 0;
+            }
+
+            for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
                 CoordsDto coordsDto = body.get(i);
                 final int x = coordsDto.getX();
                 final int y = coordsDto.getY();
 
                 weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
-
-                // tail space would become free
-                if (i + 1 < size) {
-                    freeSpaceMatrix.setOccupied(x, y);
-                }
+                freeSpaceMatrix.setOccupied(x, y);
             }
         }
     }
@@ -232,6 +241,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
         initOnce(gameState);
         final String move = makeMove(gameState);
         lastMove = move;
+        // important to update post decision making to preserver previous move during
+        lastFood = gameState.getBoard().getFood();
         return new Move(move, "New and theoretically improved");
     }
 
