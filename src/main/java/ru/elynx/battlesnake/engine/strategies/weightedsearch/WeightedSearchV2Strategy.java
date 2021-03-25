@@ -186,18 +186,21 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
     }
 
     private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
-        // filter all that go outside of map
+        // filter all that go outside of map or step on occupied cell
+        // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
-        // if equal options remain, sort by weight of following actions
-        // filter moves that would restrain the snake
-        return toRank.stream().filter(triplet -> !weightMatrix.isOutOfBounds(triplet.getValue1(), triplet.getValue2()))
+        // sort by weight of following actions
+        return toRank
+                .stream().filter(
+                        triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) > 0)
                 .sorted(Comparator
-                        .comparingDouble((Triplet<String, Integer, Integer> triplet) -> weightMatrix
+                        .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
+                                freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2())))
+                        .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> weightMatrix
                                 .getValue(triplet.getValue1(), triplet.getValue2()))
                         .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> getCrossWeight(
                                 triplet.getValue1(), triplet.getValue2()))
                         .reversed())
-                .filter(triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) >= length)
                 .collect(Collectors.toList());
     }
 

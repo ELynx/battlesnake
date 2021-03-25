@@ -36,11 +36,6 @@ public class DoubleMatrix {
         }
     }
 
-    public boolean isOutOfBounds(int x, int y) {
-        final int index = safeIndex(x, y);
-        return index < 0;
-    }
-
     public double getValue(int x, int y) {
         final int index = safeIndex(x, y);
         if (index < 0)

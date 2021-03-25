@@ -5,16 +5,16 @@ public class FreeSpaceMatrix {
     private final int height;
     private final int length;
 
-    private final int sizeValue[];
-    private final int sizeIndex[];
+    private final int spaceValues[];
+    private final int spaceAddresses[];
 
     protected FreeSpaceMatrix(int width, int height) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
 
-        this.sizeValue = new int[this.length];
-        this.sizeIndex = new int[this.length];
+        this.spaceAddresses = new int[this.length];
+        this.spaceValues = new int[this.length];
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
@@ -29,9 +29,9 @@ public class FreeSpaceMatrix {
 
     public void empty() {
         for (int i = 0; i < length; ++i) {
-            // by default all cells are empty, and their space is kept in zero node
-            sizeValue[i] = length;
-            sizeIndex[i] = 0;
+            // by default all cells are empty, and their space is within themselves
+            spaceAddresses[i] = i;
+            spaceValues[i] = length;
         }
     }
 
@@ -64,9 +64,12 @@ public class FreeSpaceMatrix {
     }
 
     protected int unsafeGetSpace(int index) {
-        return sizeValue[index];
+        final int spaceAddress = spaceAddresses[index];
+        return spaceValues[spaceAddress];
     }
 
     protected void unsafeSetOccupied(int index) {
+        final int spaceAddress = spaceAddresses[index];
+        spaceValues[spaceAddress] = 0;
     }
 }
