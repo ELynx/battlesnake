@@ -70,11 +70,12 @@ class GameStrategyCaseV1Test {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner(String name) {
+    void test_avoid_fruit_in_corner_easy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         System.out.println("Testing " + name);
 
+        // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -87,6 +88,31 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "_________yY\n" + //
                 "____yyyyyy0\n").setHealth("Y", 2);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(UP));
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_avoid_fruit_in_corner_hard(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        // hard because it is necessary to predict that growth would close the exit
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "_________y0\n").setHealth("Y", 2);
 
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(UP));
@@ -151,8 +177,8 @@ class GameStrategyCaseV1Test {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
             TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
-            assertThat(move.getMove(), not(equalToIgnoringCase(notTo[j])));
-            assertThat(move.getMove(), not(equalToIgnoringCase(notTo[k])));
+            assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[j])));
+            assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[k])));
         }
     }
 
@@ -171,7 +197,7 @@ class GameStrategyCaseV1Test {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
             TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
-            assertThat(move.getMove(), equalToIgnoringCase(to[i]));
+            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
 
@@ -190,7 +216,7 @@ class GameStrategyCaseV1Test {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
             TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
-            assertThat(move.getMove(), equalToIgnoringCase(to[i]));
+            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
 
@@ -209,7 +235,7 @@ class GameStrategyCaseV1Test {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
             TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
-            assertThat(move.getMove(), equalToIgnoringCase(to[i]));
+            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
 }

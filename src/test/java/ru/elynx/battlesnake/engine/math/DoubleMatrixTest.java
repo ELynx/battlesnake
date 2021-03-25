@@ -143,6 +143,7 @@ class DoubleMatrixTest {
         assertThat(matrix.getValue(2, 2), is(closeTo(v / d / d, fuzz)));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void splashImpactOrderLegacy() {
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
