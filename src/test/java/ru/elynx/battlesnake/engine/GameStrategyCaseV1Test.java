@@ -238,4 +238,22 @@ class GameStrategyCaseV1Test {
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_dont_give_up(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        // given no food spawns, tail will clear out the passage out in 5 turns
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____Y\n" + //
+                ">>>>^\n" + //
+                "^<<<_\n" + //
+                "_____\n");
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(LEFT));
+    }
 }
