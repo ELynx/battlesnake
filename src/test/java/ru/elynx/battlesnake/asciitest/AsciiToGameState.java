@@ -11,12 +11,18 @@ public class AsciiToGameState {
     // mandatory
     private final String ascii;
     // has some defaults, thus added by "builder" pattern
+    private int startSnakeSize = 3;
     // per-snakes
     private Map<String, Integer> healts = new HashMap<>();
     private Map<String, Integer> latencies = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
+    }
+
+    public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
+        this.startSnakeSize = startSnakeSize;
+        return this;
     }
 
     public AsciiToGameState setHealth(String name, int health) {
@@ -171,6 +177,11 @@ public class AsciiToGameState {
                             throw new IllegalStateException(
                                     "Loops within snake [" + c + "]: [" + snake.getBody() + ']');
                         }
+                    }
+
+                    // fill in snake up to start size, simulate starting conditions
+                    for (int i = snake.getBody().size(); i < startSnakeSize; ++i) {
+                        snake.getBody().add(snake.getBody().get(i - 1));
                     }
 
                     snake.setLength(snake.getBody().size());

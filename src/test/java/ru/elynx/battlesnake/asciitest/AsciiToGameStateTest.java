@@ -116,6 +116,19 @@ class AsciiToGameStateTest {
     }
 
     @Test
+    void test_start_snake_size() {
+        AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        GameStateDto dto = tested.setStartSnakeSize(11).build();
+
+        assertEquals(4, dto.getBoard().getSnakes().size());
+
+        for (SnakeDto snakeDto : dto.getBoard().getSnakes()) {
+            assertEquals(11, snakeDto.getLength());
+        }
+    }
+
+    @Test
     void test_health_and_latency() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
 
