@@ -17,7 +17,7 @@ public class FreeSpaceMatrix {
         this.length = this.width * this.height;
 
         this.spaceValues = new int[this.length];
-        this.stack = new int[this.length * 2];
+        this.stack = new int[1024];
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
@@ -63,9 +63,11 @@ public class FreeSpaceMatrix {
                 ++filled;
         }
 
-        for (int i = 0; i < length; ++i) {
-            if (spaceValues[i] == FILL_VALUE)
-                spaceValues[i] = filled;
+        if (filled > 0) {
+            for (int i = 0; i < length; ++i) {
+                if (spaceValues[i] == FILL_VALUE)
+                    spaceValues[i] = filled;
+            }
         }
 
         return filled;
@@ -83,7 +85,7 @@ public class FreeSpaceMatrix {
         stack[7] = -1;
 
         int stackPos = 8;
-        while (stackPos != 0) {
+        while (stackPos > 0) {
             int x1 = stack[stackPos - 4];
             int x2 = stack[stackPos - 3];
             int y = stack[stackPos - 2];
@@ -122,6 +124,7 @@ public class FreeSpaceMatrix {
                     stack[stackPos + 1] = x1 - 1;
                     stack[stackPos + 2] = y - dy;
                     stack[stackPos + 3] = -dy;
+                    stackPos += 4;
                 }
 
                 while (x1 < x2 && !inside(x1, y)) {
