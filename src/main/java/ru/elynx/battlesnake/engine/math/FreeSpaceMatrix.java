@@ -1,19 +1,21 @@
 package ru.elynx.battlesnake.engine.math;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import org.javatuples.Pair;
+
 public class FreeSpaceMatrix {
     private final int width;
     private final int height;
     private final int length;
 
-    private final int spaceValues[];
-    private final int spaceAddresses[];
+    private final int[] spaceValues;
 
     protected FreeSpaceMatrix(int width, int height) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
 
-        this.spaceAddresses = new int[this.length];
         this.spaceValues = new int[this.length];
     }
 
@@ -29,9 +31,8 @@ public class FreeSpaceMatrix {
 
     public void empty() {
         for (int i = 0; i < length; ++i) {
-            // by default all cells are empty, and their space is within themselves
-            spaceAddresses[i] = i;
-            spaceValues[i] = length;
+            // by default all cells are uninitialized
+            spaceValues[i] = -1;
         }
     }
 
@@ -40,7 +41,42 @@ public class FreeSpaceMatrix {
         if (index < 0)
             return 0; // outside has zero free space
 
-        return unsafeGetSpace(index);
+        final int current = spaceValues[index];
+        if (current >= 0) {
+            return current;
+        }
+
+        // inside by being -1
+        Predicate<Pair<Integer, Integer>> inside = pair -> {
+            final int insideIndex = safeIndex(pair.getValue0(), pair.getValue1());
+            if (insideIndex < 0) {
+                return false;
+            }
+            return spaceValues[insideIndex] == -1;
+        };
+
+        // set to -2 as marked
+        Consumer<Pair<Integer, Integer>> set = pair -> {
+            final int setIndex = unsafeIndex(pair.getValue0(), pair.getValue1());
+            spaceValues[setIndex] = -2;
+        };
+
+        // TODO algorithm
+
+        // count all -2s
+        int tagged = 0;
+        for (int i = 0; i < length; ++i) {
+            if (spaceValues[i] == -2)
+                ++tagged;
+        }
+
+        // write found space
+        for (int i = 0; i < length; ++i) {
+            if (spaceValues[i] == -2)
+                spaceValues[i] = tagged;
+        }
+
+        return tagged;
     }
 
     public boolean setOccupied(int x, int y) {
@@ -63,13 +99,7 @@ public class FreeSpaceMatrix {
         return unsafeIndex(x, y);
     }
 
-    protected int unsafeGetSpace(int index) {
-        final int spaceAddress = spaceAddresses[index];
-        return spaceValues[spaceAddress];
-    }
-
     protected void unsafeSetOccupied(int index) {
-        final int spaceAddress = spaceAddresses[index];
-        spaceValues[spaceAddress] = 0;
+        spaceValues[index] = 0;
     }
 }
