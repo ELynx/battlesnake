@@ -86,15 +86,49 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
 
     protected void applySnakes(GameStateDto gameState) {
         final CoordsDto ownHead = gameState.getYou().getHead();
-        final int ownSize = gameState.getYou().getLength();
         final String ownId = gameState.getYou().getId();
 
+        // mark body as impassable
+        // apply early for predictor
+        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+            final CoordsDto head = snake.getHead();
+            final String id = snake.getId();
+
+            final List<CoordsDto> body = snake.getBody();
+
+            // some cases allow for passing through tail
+            int tailMoveOffset = 1;
+
+            // check if fed this turn
+            if (lastFood.indexOf(head) >= 0) {
+                // tail will grow -> cell will remain occupied
+                tailMoveOffset = 0;
+            }
+
+            // check if self, and don't do 180* turn
+            if (id.equals(ownId) && body.size() == 2) {
+                tailMoveOffset = 0;
+            }
+
+            for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
+                CoordsDto coordsDto = body.get(i);
+                final int x = coordsDto.getX();
+                final int y = coordsDto.getY();
+
+                weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
+                freeSpaceMatrix.setOccupied(x, y);
+            }
+        }
+
+        List<CoordsDto> blockedByInedible = new LinkedList<>();
+        final int ownSize = gameState.getYou().getLength();
         boolean updatePredictorOnce = true;
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final CoordsDto head = snake.getHead();
-            final List<CoordsDto> body = snake.getBody();
-            final int size = snake.getLength();
             final String id = snake.getId();
+
+            final List<CoordsDto> body = snake.getBody();
+            final int size = body.size();
 
             // manage head
             if (!id.equals(ownId)) {
@@ -102,9 +136,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                 boolean inedible;
 
                 if (size < ownSize) {
-                    baseWeight = snake.getLatency() == 0
-                            ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
-                            : LESSER_SNAKE_HEAD_WEIGHT;
+                    baseWeight = snake.isTimedOut() ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
                     inedible = false;
                 } else {
                     baseWeight = INEDIBLE_SNAKE_HEAD_WEIGHT;
@@ -121,49 +153,32 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                     } else {
                         if (updatePredictorOnce) {
                             snakeMovePredictor.setGameState(gameState);
+                            snakeMovePredictor.setFreeSpace(freeSpaceMatrix);
                             updatePredictorOnce = false;
                         }
 
                         // spread hunt/danger weights
                         List<KeyValue<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
                         predictions.forEach(prediction -> {
-                            final int px = prediction.getKey().getX();
-                            final int py = prediction.getKey().getY();
-                            final double pw = baseWeight * prediction.getValue();
+                            final CoordsDto coords = prediction.getKey();
+                            final int px = coords.getX();
+                            final int py = coords.getY();
+                            final double pv = prediction.getValue();
+                            final double pw = baseWeight * pv;
 
                             weightMatrix.splash2ndOrder(px, py, pw, 4.0);
 
-                            if (inedible && prediction.getValue() >= BLOCK_INEDIBLE_HEAD_PROBABILITY) {
-                                freeSpaceMatrix.setOccupied(px, py);
+                            if (inedible && pv >= BLOCK_INEDIBLE_HEAD_PROBABILITY) {
+                                blockedByInedible.add(coords);
                             }
                         });
                     }
                 }
             }
+        }
 
-            // always last - mark body as impassable
-            // some cases allow for passing through tail
-            int tailMoveOffset = 1;
-
-            // check if fed this turn
-            if (lastFood.indexOf(head) >= 0) {
-                // tail will grow -> cell will remain occupied
-                tailMoveOffset = 0;
-            }
-
-            // check if self, and don't do 180* turn
-            if (id.equals(ownId) && size == 2) {
-                tailMoveOffset = 0;
-            }
-
-            for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
-                CoordsDto coordsDto = body.get(i);
-                final int x = coordsDto.getX();
-                final int y = coordsDto.getY();
-
-                weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
-                freeSpaceMatrix.setOccupied(x, y);
-            }
+        for (CoordsDto coords : blockedByInedible) {
+            freeSpaceMatrix.setOccupied(coords.getX(), coords.getY());
         }
     }
 
