@@ -1,8 +1,8 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class FreeSpaceMatrix {
-    private final static int UNSET_VALUE = -1;
-    private final static int FILL_VALUE = -2;
+    private static final int UNSET_VALUE = -1;
+    private static final int FILL_VALUE = -2;
 
     private final int width;
     private final int height;
@@ -17,7 +17,7 @@ public class FreeSpaceMatrix {
         this.length = this.width * this.height;
 
         this.spaceValues = new int[this.length];
-        this.stack = new int[1024];
+        this.stack = new int[this.length * 2]; // potentially stack each xy
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
@@ -89,7 +89,7 @@ public class FreeSpaceMatrix {
         return filled;
     }
 
-    public int getSpaceImpl(int xIn, int yIn) {
+    private int getSpaceImpl(int xIn, int yIn) {
         stack[0] = xIn;
         stack[1] = yIn;
 
