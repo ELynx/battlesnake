@@ -56,6 +56,22 @@ public class FreeSpaceMatrix {
         return false;
     }
 
+    private int scan(int lx, int rx, int y, int stackPos) {
+        boolean added = false;
+        for (int x = lx; x <= rx; ++x) {
+            if (!inside(x, y)) {
+                added = false;
+            } else if (!added) {
+                stack[stackPos] = x;
+                stack[stackPos + 1] = y;
+                stackPos += 2;
+                added = true;
+            }
+        }
+
+        return stackPos;
+    }
+
     private int post() {
         int filled = 0;
         for (int i = 0; i < length; ++i) {
@@ -75,64 +91,23 @@ public class FreeSpaceMatrix {
 
     public int getSpaceImpl(int xIn, int yIn) {
         stack[0] = xIn;
-        stack[1] = xIn;
-        stack[2] = yIn;
-        stack[3] = 1;
+        stack[1] = yIn;
 
-        stack[4] = xIn;
-        stack[5] = xIn;
-        stack[6] = yIn - 1;
-        stack[7] = -1;
-
-        int stackPos = 8;
+        int stackPos = 2;
         while (stackPos > 0) {
-            int x1 = stack[stackPos - 4];
-            int x2 = stack[stackPos - 3];
-            int y = stack[stackPos - 2];
-            int dy = stack[stackPos - 1];
-            stackPos -= 4;
+            int x = stack[stackPos - 2];
+            int y = stack[stackPos - 1];
+            stackPos -= 2;
 
-            int x = x1;
-
-            if (inside(x, y)) {
-                while (insideAndSet(x - 1, y)) {
-                    x -= 1;
-                }
+            int lx = x;
+            while (insideAndSet(lx - 1, y)) {
+                lx -= 1;
             }
-
-            if (x < x1) {
-                stack[stackPos] = x;
-                stack[stackPos + 1] = x1 - 1;
-                stack[stackPos + 2] = y - dy;
-                stack[stackPos + 3] = -dy;
-                stackPos += 4;
+            while (insideAndSet(x, y)) {
+                x += 1;
             }
-
-            while (x1 < x2) {
-                while (insideAndSet(x1, y)) {
-                    x1 += 1;
-                }
-
-                stack[stackPos] = x;
-                stack[stackPos + 1] = x1 - 1;
-                stack[stackPos + 2] = y + dy;
-                stack[stackPos + 3] = dy;
-                stackPos += 4;
-
-                if (x1 - 1 > x2) {
-                    stack[stackPos] = x2 + 1;
-                    stack[stackPos + 1] = x1 - 1;
-                    stack[stackPos + 2] = y - dy;
-                    stack[stackPos + 3] = -dy;
-                    stackPos += 4;
-                }
-
-                while (x1 < x2 && !inside(x1, y)) {
-                    x1 += 1;
-                }
-
-                x = x1;
-            }
+            stackPos = scan(lx, x - 1, y + 1, stackPos);
+            stackPos = scan(lx, x - 1, y - 1, stackPos);
         }
 
         return post();
