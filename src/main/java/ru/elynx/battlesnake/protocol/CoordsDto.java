@@ -20,6 +20,10 @@ public class CoordsDto {
         this.y = y;
     }
 
+    public CoordsDto add(int dx, int dy) {
+        return new CoordsDto(x + dx, y + dy);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

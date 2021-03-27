@@ -152,7 +152,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy {
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
                         if (updatePredictorOnce) {
-                            snakeMovePredictor.setGameState(gameState);
                             snakeMovePredictor.setFreeSpace(freeSpaceMatrix);
                             updatePredictorOnce = false;
                         }
