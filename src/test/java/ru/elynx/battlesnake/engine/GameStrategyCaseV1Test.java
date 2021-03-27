@@ -119,6 +119,8 @@ class GameStrategyCaseV1Test {
         assertThat(move.getMove(), equalToIgnoringCase(UP));
     }
 
+    // health is left at max to avoid starvation rage
+    // more of way to prevent greedy grab from under the train
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_dont_die_for_food(String name) {
@@ -134,7 +136,7 @@ class GameStrategyCaseV1Test {
                 "____0\n" + //
                 "____A\n" + //
                 "____a\n" + //
-                "____a\n").setHealth("Y", 2);
+                "____a\n");
 
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
