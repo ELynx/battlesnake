@@ -19,6 +19,7 @@ class GameStrategyCaseV1Test {
     IGameStrategyFactory gameStrategyFactory;
 
     // ported from V0 to V1 for ease of understanding
+    // Y snake extended downwards to prevent "move-out-opening"
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_empty_space_better_than_snake(String name) {
@@ -31,7 +32,7 @@ class GameStrategyCaseV1Test {
                 "___aaa_yyy_\n" + //
                 "_____BbY_y_\n" + //
                 "______b_yy_\n" + //
-                "____bbb____\n" + //
+                "____bbb_y__\n" + //
                 "___________\n" + //
                 "___________\n" + //
                 "___________\n" + //
