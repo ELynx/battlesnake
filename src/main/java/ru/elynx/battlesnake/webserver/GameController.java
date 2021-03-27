@@ -80,7 +80,7 @@ public class GameController {
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
-        if (gameState.getYou().getLatency() != null && gameState.getYou().getLatency() == 0) {
+        if (gameState.getYou().isTimedOut()) {
             statisticsTracker.timeout();
         }
         Move move = snakeManager.move(gameState);

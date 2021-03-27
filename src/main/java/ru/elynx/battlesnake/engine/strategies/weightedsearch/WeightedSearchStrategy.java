@@ -86,7 +86,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
                 if (i == 0 && size < ownSize) {
                     // don't explicitly rush for disconnected
-                    final double headWeight = snake.getLatency() == 0
+                    final double headWeight = snake.isTimedOut()
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
                             : LESSER_SNAKE_HEAD_WEIGHT;
                     weightMatrix.splash2ndOrderLegacy(x, y, headWeight);
