@@ -31,11 +31,8 @@ public class SnakeMovePredictor {
     }
 
     public List<KeyValue<CoordsDto, Double>> predict(SnakeDto snake) {
-        // there are cases, notably start, when body pieces can overlap
-        final long shadow = snake.getBody().stream().distinct().count();
-
         // graceful error handling
-        if (shadow == 0) {
+        if (snake.getLength() == 0) {
             return Collections.emptyList();
         }
 
@@ -45,7 +42,20 @@ public class SnakeMovePredictor {
         final int x1 = snake.getHead().getX();
         final int y1 = snake.getHead().getY();
 
-        if (shadow == 1) {
+        // there are cases, notably start, when body pieces can overlap
+        int x0;
+        int y0;
+
+        if (snake.getLength() == 1) {
+            x0 = x1;
+            y0 = y1;
+        } else {
+            // head last turn
+            x0 = snake.getBody().get(1).getX();
+            y0 = snake.getBody().get(1).getY();
+        }
+
+        if (x1 == x0 && y1 == y0) {
             // equal possibility to go anywhere
             addIfWalkable(x1 - 1, y1);
             addIfWalkable(x1, y1 + 1);
@@ -54,10 +64,6 @@ public class SnakeMovePredictor {
 
             return flatProbabilityMaker.make();
         }
-
-        // head last turn
-        final int x0 = snake.getBody().get(1).getX();
-        final int y0 = snake.getBody().get(1).getY();
 
         // delta of this move
         final int dx = x1 - x0;
