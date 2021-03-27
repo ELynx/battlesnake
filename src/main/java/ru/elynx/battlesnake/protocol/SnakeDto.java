@@ -65,6 +65,13 @@ public class SnakeDto {
         return latency;
     }
 
+    public boolean isTimedOut() {
+        if (latency == null)
+            return false;
+
+        return latency.equals(0);
+    }
+
     public void setLatency(Integer latency) {
         this.latency = latency;
     }

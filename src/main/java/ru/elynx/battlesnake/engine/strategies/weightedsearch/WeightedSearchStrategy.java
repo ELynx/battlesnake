@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies;
+package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -22,17 +22,16 @@ public class WeightedSearchStrategy implements IGameStrategy {
     private static final double HAZARD_WEIGHT = -Double.MAX_VALUE;
     private static final double REPEAT_LAST_MOVE_WEIGHT = 0.01d;
     private static final double MAX_HEALTH = 100.0d;
+    private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
 
-    protected final double wallWeight;
-    protected final String version;
+    private static final String VERSION = "archival";
+
     protected DoubleMatrix weightMatrix;
     protected FlagMatrix blockedMatrix;
     protected String lastMove;
     protected boolean initialized = false;
 
-    private WeightedSearchStrategy(double wallWeight, String version) {
-        this.wallWeight = wallWeight;
-        this.version = version;
+    private WeightedSearchStrategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -40,7 +39,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
             return;
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
-                gameState.getBoard().getHeight(), wallWeight);
+                gameState.getBoard().getHeight(), WALL_WEIGHT_NEGATIVE);
 
         blockedMatrix = FlagMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(), true);
@@ -55,21 +54,25 @@ public class WeightedSearchStrategy implements IGameStrategy {
         blockedMatrix.reset();
 
         applyHunger(gameState);
-        applySnake(gameState);
+        applySnakes(gameState);
         applyHazards(gameState);
     }
 
-    protected void applyHazards(GameStateDto gameState) {
-        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            final int x = hazard.getX();
-            final int y = hazard.getY();
+    @SuppressWarnings("deprecation")
+    protected void applyHunger(GameStateDto gameState) {
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
+                MAX_FOOD_WEIGHT);
 
-            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
-            blockedMatrix.setValue(x, y, true);
+        for (CoordsDto food : gameState.getBoard().getFood()) {
+            final int x = food.getX();
+            final int y = food.getY();
+
+            weightMatrix.splash2ndOrderLegacy(x, y, foodWeight);
         }
     }
 
-    protected void applySnake(GameStateDto gameState) {
+    @SuppressWarnings("deprecation")
+    protected void applySnakes(GameStateDto gameState) {
         // cell with three pieces of snake around should cost less than piece of snake
         final double denominator = 4.0;
 
@@ -83,13 +86,13 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
                 if (i == 0 && size < ownSize) {
                     // don't explicitly rush for disconnected
-                    final double headWeight = snake.getLatency() == 0
+                    final double headWeight = snake.isTimedOut()
                             ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT
                             : LESSER_SNAKE_HEAD_WEIGHT;
-                    weightMatrix.splash2ndOrder(x, y, headWeight);
+                    weightMatrix.splash2ndOrderLegacy(x, y, headWeight);
                 } else {
                     // since we are looking for strictly less own body will get into no-go category
-                    weightMatrix.splash1stOrder(x, y, SNAKE_BODY_WEIGHT, denominator);
+                    weightMatrix.splash1stOrderLegacy(x, y, SNAKE_BODY_WEIGHT, denominator);
 
                     // block only losing snake pieces
                     blockedMatrix.setValue(x, y, true);
@@ -98,15 +101,13 @@ public class WeightedSearchStrategy implements IGameStrategy {
         }
     }
 
-    protected void applyHunger(GameStateDto gameState) {
-        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, MAX_HEALTH - gameState.getYou().getHealth(), MAX_HEALTH,
-                MAX_FOOD_WEIGHT);
+    protected void applyHazards(GameStateDto gameState) {
+        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
+            final int x = hazard.getX();
+            final int y = hazard.getY();
 
-        for (CoordsDto food : gameState.getBoard().getFood()) {
-            final int x = food.getX();
-            final int y = food.getY();
-
-            weightMatrix.splash2ndOrder(x, y, foodWeight);
+            weightMatrix.setValue(x, y, HAZARD_WEIGHT);
+            blockedMatrix.setValue(x, y, true);
         }
     }
 
@@ -164,7 +165,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#b58900", "smile", "sharp", version);
+        return new BattlesnakeInfo("ELynx", "#cecece", "smile", "sharp", VERSION);
     }
 
     @Override
@@ -179,7 +180,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         initOnce(gameState);
         final String move = makeMove(gameState);
         lastMove = move;
-        return new Move(move, "8% ready");
+        return new Move(move, "I am a reference (point)");
     }
 
     @Override
@@ -189,17 +190,9 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
-        private static final double WALL_WEIGHT_NEGATIVE = -1.0d;
-        private static final double WALL_WEIGHT_NEUTRAL = 0.0d;
-
         @Bean("Snake_1")
-        public Supplier<IGameStrategy> wallWeightNegativeOne() {
-            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEGATIVE, "1");
-        }
-
-        @Bean("Snake_1a")
-        public Supplier<IGameStrategy> wallWeightZero() {
-            return () -> new WeightedSearchStrategy(WALL_WEIGHT_NEUTRAL, "1a");
+        public Supplier<IGameStrategy> archiveWeightedSearch() {
+            return WeightedSearchStrategy::new;
         }
     }
 }

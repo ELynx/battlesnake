@@ -16,7 +16,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
+import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 @SpringBootTest
 class GameStrategyBasicTest {
@@ -40,7 +42,7 @@ class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Snake_1", "Snake_1a", "ChesssMassster");
+        return Stream.of("Snake_1", "Snake_1a");
     }
 
     @BeforeEach
@@ -51,7 +53,7 @@ class GameStrategyBasicTest {
         dummyGameState.getBoard().setHazards(new LinkedList<>()); // v1
         dummyGameState.getBoard().setSnakes(new LinkedList<>());
 
-        dummyGameState.setYou(new TestSnakeDto());
+        dummyGameState.setYou(new TestSnakeDto(ToApiVersion.V0)); // v0 for lazy init
         dummyGameState.getYou().setId("TestYou-id");
         dummyGameState.getYou().setName("TestYou-name");
         dummyGameState.getYou().setHealth(100);
@@ -87,7 +89,10 @@ class GameStrategyBasicTest {
         Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
 
         Set<String> temp1 = testedStrategies.sorted().collect(Collectors.toCollection(LinkedHashSet::new));
-        Set<String> temp2 = knownStrategies.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> temp2 = knownStrategies.stream().filter(name -> {
+            IGameStrategy strategy = gameStrategyFactory.getGameStrategy(name);
+            return strategy.isCombatant();
+        }).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
 
         assertIterableEquals(temp1, temp2);
     }
@@ -138,11 +143,6 @@ class GameStrategyBasicTest {
 
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        if (gameStrategy.isPuzzleOnly()) {
-            System.out.println("Puzzler, skipped");
-            return;
-        }
-
         dummyGameState.getYou().getHead().setX(0);
         dummyGameState.getYou().getHead().setY(0);
 
@@ -152,7 +152,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
             System.out.print(dummyGameState.getYou().getHead());
 
-            Move move = gameStrategy.processMove(dummyGameState);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(DOWN.equalsIgnoreCase(move.getMove()));
@@ -162,7 +162,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setY(y);
             System.out.print(dummyGameState.getYou().getHead());
 
-            Move move = gameStrategy.processMove(dummyGameState);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(RIGHT.equalsIgnoreCase(move.getMove()));
@@ -172,7 +172,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setX(x);
             System.out.print(dummyGameState.getYou().getHead());
 
-            Move move = gameStrategy.processMove(dummyGameState);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(UP.equalsIgnoreCase(move.getMove()));
@@ -182,7 +182,7 @@ class GameStrategyBasicTest {
             dummyGameState.getYou().getHead().setY(y);
             System.out.print(dummyGameState.getYou().getHead());
 
-            Move move = gameStrategy.processMove(dummyGameState);
+            TestMove move = new TestMove(gameStrategy.processMove(dummyGameState), ToApiVersion.V1);
             System.out.println(" -> " + move);
 
             assertFalse(LEFT.equalsIgnoreCase(move.getMove()));

@@ -143,6 +143,20 @@ class DoubleMatrixTest {
         assertThat(matrix.getValue(2, 2), is(closeTo(v / d / d, fuzz)));
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    void splashImpactOrderLegacy() {
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
+
+        assertTrue(matrix.splash2ndOrderLegacy(0, 0, 4.0d));
+        assertTrue(matrix.splash2ndOrderLegacy(1, 1, -1.0d));
+
+        assertThat(matrix.getValue(0, 0), is(closeTo(4.0d, fuzz)));
+        assertThat(matrix.getValue(0, 1), is(closeTo(1.5d, fuzz)));
+        assertThat(matrix.getValue(1, 0), is(closeTo(1.5d, fuzz)));
+        assertThat(matrix.getValue(1, 1), is(closeTo(-1.0d, fuzz)));
+    }
+
     @Test
     void splashImpactOrder() {
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
@@ -150,9 +164,9 @@ class DoubleMatrixTest {
         assertTrue(matrix.splash2ndOrder(0, 0, 4.0d));
         assertTrue(matrix.splash2ndOrder(1, 1, -1.0d));
 
-        assertThat(matrix.getValue(0, 0), is(closeTo(4.0d, fuzz)));
+        assertThat(matrix.getValue(0, 0), is(closeTo(3.75d, fuzz)));
         assertThat(matrix.getValue(0, 1), is(closeTo(1.5d, fuzz)));
         assertThat(matrix.getValue(1, 0), is(closeTo(1.5d, fuzz)));
-        assertThat(matrix.getValue(1, 1), is(closeTo(-1.0d, fuzz)));
+        assertThat(matrix.getValue(1, 1), is(closeTo(0.0d, fuzz)));
     }
 }

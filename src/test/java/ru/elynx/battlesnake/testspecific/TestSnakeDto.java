@@ -4,11 +4,12 @@ import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class TestSnakeDto extends SnakeDto {
-    public TestSnakeDto() {
-    }
+    private final ToApiVersion toApiVersion;
 
-    public TestSnakeDto(ApiVersionTranslation apiVersionTranslation) {
-        if (apiVersionTranslation == ApiVersionTranslation.V0_TO_V1) {
+    public TestSnakeDto(ToApiVersion toApiVersion) {
+        this.toApiVersion = toApiVersion;
+
+        if (this.toApiVersion == ToApiVersion.V0) {
             setLatency(250);
             setSquad("");
         }
@@ -16,25 +17,37 @@ public class TestSnakeDto extends SnakeDto {
 
     @Override
     public CoordsDto getHead() {
-        return getBody().get(0);
+        if (toApiVersion == ToApiVersion.V0) {
+            return getBody().get(0);
+        }
+
+        return super.getHead();
     }
 
     @Override
-    public void setHead(CoordsDto body) {
-        throw new UnsupportedOperationException("Test class, use setBody");
+    public void setHead(CoordsDto head) {
+        if (toApiVersion == ToApiVersion.V0) {
+            throw new UnsupportedOperationException("Test class V0->V1, use setBody");
+        }
+
+        super.setHead(head);
     }
 
     @Override
     public Integer getLength() {
-        return getBody().size();
+        if (toApiVersion == ToApiVersion.V0) {
+            return getBody().size();
+        }
+
+        return super.getLength();
     }
 
     @Override
     public void setLength(Integer length) {
-        throw new UnsupportedOperationException("Test class, use setBody");
-    }
+        if (toApiVersion == ToApiVersion.V0) {
+            throw new UnsupportedOperationException("Test class V0->V1, use setBody");
+        }
 
-    public enum ApiVersionTranslation {
-        V0_TO_V1, V1
+        super.setLength(length);
     }
 }
