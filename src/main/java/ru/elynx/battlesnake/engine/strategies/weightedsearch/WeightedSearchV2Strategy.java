@@ -15,10 +15,11 @@ import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
+import ru.elynx.battlesnake.engine.strategies.shared.IMetaEnabledGameStrategy;
 import ru.elynx.battlesnake.engine.strategies.shared.SnakeMovePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
-public class WeightedSearchV2Strategy implements IGameStrategy {
+public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGameStrategy {
     private static final double WALL_WEIGHT = 0.0d;
 
     private static final double MIN_FOOD_WEIGHT = 0.0d;
