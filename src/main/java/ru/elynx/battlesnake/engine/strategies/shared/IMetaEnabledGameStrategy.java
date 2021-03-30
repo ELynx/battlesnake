@@ -1,8 +1,9 @@
 package ru.elynx.battlesnake.engine.strategies.shared;
 
+import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.protocol.Move;
 
-public interface IMetaEnabledGameStrategy {
+public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
      * calls to processMove after this call are meta
      */
@@ -19,7 +20,9 @@ public interface IMetaEnabledGameStrategy {
     void exitMetaspace();
 
     /**
-     * @param move Move that was decided by meta
+     * @param move
+     *            decided by meta
      */
-    default void processMetaMove(Move move) {}
+    default void processMetaMove(Move move) {
+    }
 }

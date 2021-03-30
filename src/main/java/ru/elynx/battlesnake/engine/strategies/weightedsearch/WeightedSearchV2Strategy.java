@@ -300,13 +300,17 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     @Override
     public void processMetaMove(Move move) {
-
+        lastMove = move.getMove();
     }
 
     @Configuration
     public static class WeightedSearchV2StrategyConfiguration {
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> nextGenWeightedSearch() {
+            return WeightedSearchV2Strategy::new;
+        }
+
+        public static Supplier<WeightedSearchV2Strategy> nextGenWeightedSearchTyped() {
             return WeightedSearchV2Strategy::new;
         }
     }
