@@ -34,11 +34,18 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
 
+    // reset each processMove independent of meta
     protected DoubleMatrix weightMatrix;
     protected FreeSpaceMatrix freeSpaceMatrix;
-    protected List<CoordsDto> lastFood;
     protected SnakeMovePredictor snakeMovePredictor;
+
+    // affected by meta processing
+    protected List<CoordsDto> lastFood;
     protected String lastMove;
+
+    // stash for meta
+    protected List<CoordsDto> meta_lastFood;
+    protected String meta_lastMove;
 
     protected boolean initialized = false;
 
@@ -54,8 +61,9 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
-        lastFood = gameState.getBoard().getFood();
         snakeMovePredictor = new SnakeMovePredictor();
+
+        lastFood = gameState.getBoard().getFood();
         lastMove = UP;
 
         initialized = true;
@@ -267,6 +275,32 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     @Override
     public Void processEnd(GameStateDto gameState) {
         return null;
+    }
+
+    @Override
+    public void enterMetaspace() {
+        meta_lastFood = lastFood;
+        meta_lastMove = lastMove;
+    }
+
+    @Override
+    public void resetMetaspace() {
+        lastFood = meta_lastFood;
+        lastMove = meta_lastMove;
+    }
+
+    @Override
+    public void exitMetaspace() {
+        lastFood = meta_lastFood;
+        lastMove = meta_lastMove;
+
+        meta_lastFood = null;
+        meta_lastMove = null;
+    }
+
+    @Override
+    public void processMetaMove(Move move) {
+
     }
 
     @Configuration
