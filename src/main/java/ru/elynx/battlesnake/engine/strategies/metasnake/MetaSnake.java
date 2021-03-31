@@ -39,7 +39,7 @@ public class MetaSnake implements IGameStrategy {
         engine.resetMetaspace();
         engine.exitMetaspace();
 
-        engine.processMetaMove(move);
+        engine.processDecision(move);
 
         return move;
     }

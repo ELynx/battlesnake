@@ -2,12 +2,14 @@ package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.javatuples.KeyValue;
+import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -283,6 +285,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Override
+    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameStateDto) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void enterMetaspace() {
         lastFoodStash = lastFood;
         lastMoveStash = lastMove;
@@ -304,7 +311,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Override
-    public void processMetaMove(Move move) {
+    public void processDecision(Move move) {
         lastMove = move.getMove();
     }
 
