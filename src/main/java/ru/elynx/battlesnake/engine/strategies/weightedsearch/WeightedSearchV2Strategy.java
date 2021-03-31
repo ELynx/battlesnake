@@ -44,8 +44,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     protected String lastMove;
 
     // stash for meta
-    protected List<CoordsDto> meta_lastFood;
-    protected String meta_lastMove;
+    protected List<CoordsDto> lastFoodStash;
+    protected String lastMoveStash;
 
     protected boolean initialized = false;
 
@@ -279,23 +279,23 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     @Override
     public void enterMetaspace() {
-        meta_lastFood = lastFood;
-        meta_lastMove = lastMove;
+        lastFoodStash = lastFood;
+        lastMoveStash = lastMove;
     }
 
     @Override
     public void resetMetaspace() {
-        lastFood = meta_lastFood;
-        lastMove = meta_lastMove;
+        lastFood = lastFoodStash;
+        lastMove = lastMoveStash;
     }
 
     @Override
     public void exitMetaspace() {
-        lastFood = meta_lastFood;
-        lastMove = meta_lastMove;
+        lastFood = lastFoodStash;
+        // lastMove assigned in processMetaMove
 
-        meta_lastFood = null;
-        meta_lastMove = null;
+        lastFoodStash = null;
+        lastMoveStash = null;
     }
 
     @Override
@@ -306,11 +306,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     @Configuration
     public static class WeightedSearchV2StrategyConfiguration {
         @Bean("Snake_1a")
-        public Supplier<IGameStrategy> nextGenWeightedSearch() {
+        public Supplier<IGameStrategy> weightedSearch() {
             return WeightedSearchV2Strategy::new;
         }
 
-        public static Supplier<WeightedSearchV2Strategy> nextGenWeightedSearchTyped() {
+        public static Supplier<WeightedSearchV2Strategy> weightedSearchMeta() {
             return WeightedSearchV2Strategy::new;
         }
     }
