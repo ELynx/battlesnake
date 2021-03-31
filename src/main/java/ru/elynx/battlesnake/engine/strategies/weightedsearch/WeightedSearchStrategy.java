@@ -31,13 +31,10 @@ public class WeightedSearchStrategy implements IGameStrategy {
     protected String lastMove;
     protected boolean initialized = false;
 
-    private WeightedSearchStrategy() {
+    protected WeightedSearchStrategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
-        if (initialized)
-            return;
-
         weightMatrix = DoubleMatrix.uninitializedMatrix(gameState.getBoard().getWidth(),
                 gameState.getBoard().getHeight(), WALL_WEIGHT_NEGATIVE);
 
@@ -45,8 +42,6 @@ public class WeightedSearchStrategy implements IGameStrategy {
                 gameState.getBoard().getHeight(), true);
 
         lastMove = UP;
-
-        initialized = true;
     }
 
     protected void applyGameState(GameStateDto gameState) {
@@ -111,7 +106,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         }
     }
 
-    private double getCrossWeight(int x, int y) {
+    protected double getCrossWeight(int x, int y) {
         if (blockedMatrix.getValue(x, y))
             return BLOCKED_MOVE_WEIGHT;
 
@@ -123,7 +118,7 @@ public class WeightedSearchStrategy implements IGameStrategy {
         return result;
     }
 
-    private double getDirectionWeight(String direction) {
+    protected double getDirectionWeight(String direction) {
         if (direction.equals(lastMove))
             return REPEAT_LAST_MOVE_WEIGHT;
         return 0.0d;
@@ -160,7 +155,10 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
-        return bestMove(gameState.getYou().getHead());
+
+        lastMove = bestMove(gameState.getYou().getHead());
+
+        return lastMove;
     }
 
     @Override
@@ -170,16 +168,23 @@ public class WeightedSearchStrategy implements IGameStrategy {
 
     @Override
     public Void processStart(GameStateDto gameState) {
-        initOnce(gameState);
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
         return null;
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
         // for test compatibility
-        initOnce(gameState);
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
         final String move = makeMove(gameState);
-        lastMove = move;
         return new Move(move, "I am a reference (point)");
     }
 

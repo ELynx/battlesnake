@@ -49,13 +49,10 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     protected boolean initialized = false;
 
-    private WeightedSearchV2Strategy() {
+    protected WeightedSearchV2Strategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
-        if (initialized)
-            return;
-
         final int width = gameState.getBoard().getWidth();
         final int height = gameState.getBoard().getHeight();
 
@@ -65,8 +62,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
         lastFood = gameState.getBoard().getFood();
         lastMove = UP;
-
-        initialized = true;
     }
 
     protected void applyGameState(GameStateDto gameState) {
@@ -199,7 +194,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         }
     }
 
-    private double getCrossWeight(int x, int y) {
+    protected double getCrossWeight(int x, int y) {
         double result = weightMatrix.getValue(x, y - 1);
         result += weightMatrix.getValue(x - 1, y);
         result += weightMatrix.getValue(x, y);
@@ -208,7 +203,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         return result;
     }
 
-    private List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
+    protected List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
@@ -247,7 +242,12 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     protected String makeMove(GameStateDto gameState) {
         applyGameState(gameState);
-        return bestMove(gameState.getYou().getHead(), gameState.getYou().getLength());
+
+        // important to update after decision making
+        lastMove = bestMove(gameState.getYou().getHead(), gameState.getYou().getLength());
+        lastFood = gameState.getBoard().getFood();
+
+        return lastMove;
     }
 
     @Override
@@ -257,18 +257,23 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     @Override
     public Void processStart(GameStateDto gameState) {
-        initOnce(gameState);
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
         return null;
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
         // for test compatibility
-        initOnce(gameState);
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
         final String move = makeMove(gameState);
-        lastMove = move;
-        // important to update post decision making to preserver previous move during
-        lastFood = gameState.getBoard().getFood();
         return new Move(move, "New and theoretically improved");
     }
 

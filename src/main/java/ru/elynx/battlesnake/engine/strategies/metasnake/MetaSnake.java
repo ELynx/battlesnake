@@ -52,10 +52,10 @@ public class MetaSnake implements IGameStrategy {
     @Configuration
     public static class MetaSnakeConfiguration {
         @Bean("Meta_Snake_1a")
-        public Supplier<IGameStrategy> nextGenWeightedSearch() {
+        public Supplier<IGameStrategy> metaWeightedSearch() {
             return () -> {
                 Supplier<WeightedSearchV2Strategy> engineSupplier = WeightedSearchV2Strategy.WeightedSearchV2StrategyConfiguration
-                        .nextGenWeightedSearchTyped();
+                        .weightedSearchMeta();
                 return new MetaSnake(engineSupplier.get());
             };
         }
