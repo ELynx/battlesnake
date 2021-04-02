@@ -4,7 +4,6 @@ import java.util.List;
 import org.javatuples.Quartet;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.Move;
 
 public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
@@ -16,24 +15,12 @@ public interface IMetaEnabledGameStrategy extends IGameStrategy {
     List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameStateDto);
 
     /**
-     * calls to processMove after this call are meta
+     * remember what was the move actually
      */
-    void enterMetaspace();
+    void unwindMetaspace(GameStateDto gameStateDto);
 
     /**
      * reset inner state to receive new meta branch
      */
     void resetMetaspace();
-
-    /**
-     * meta is over, turn decision was made
-     */
-    void exitMetaspace();
-
-    /**
-     * @param move
-     *            decided by meta
-     */
-    default void processDecision(Move move) {
-    }
 }

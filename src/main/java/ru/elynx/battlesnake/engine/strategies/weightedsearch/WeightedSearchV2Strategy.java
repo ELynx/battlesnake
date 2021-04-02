@@ -41,13 +41,13 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
 
+    protected String lastMove;
+
     // affected by meta processing
     protected List<CoordsDto> lastFood;
-    protected String lastMove;
 
     // stash for meta
     protected List<CoordsDto> lastFoodStash;
-    protected String lastMoveStash;
 
     protected boolean initialized = false;
 
@@ -205,45 +205,52 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         return result;
     }
 
-    protected List<Triplet<String, Integer, Integer>> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
+    protected List<Quartet<String, Integer, Integer, Double>> rank(
+            List<Quartet<String, Integer, Integer, Double>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
+        // get weight of immediate action, and store for later use in meta and sort
         // sort by provided freedom of movement, capped at length + 1 for more options
-        // sort by weight of immediate action
+        // sort by weight of immediate action (stored)
         // sort by weight of following actions
-        return toRank
-                .stream().filter(
-                        triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) > 0)
+        return toRank.stream().filter(quartet -> freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2()) > 0)
+                .map(quartet -> quartet.setAt3(weightMatrix.getValue(quartet.getValue1(), quartet.getValue2())))
                 .sorted(Comparator
-                        .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
-                                freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2())))
-                        .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> weightMatrix
-                                .getValue(triplet.getValue1(), triplet.getValue2()))
-                        .thenComparingDouble((Triplet<String, Integer, Integer> triplet) -> getCrossWeight(
-                                triplet.getValue1(), triplet.getValue2()))
+                        .comparingInt((Quartet<String, Integer, Integer, Double> quartet) -> Math.min(length + 1,
+                                freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2())))
+                        .thenComparingDouble(Quartet::getValue3)
+                        .thenComparingDouble(quartet -> getCrossWeight(quartet.getValue1(), quartet.getValue2()))
                         .reversed())
                 .collect(Collectors.toList());
     }
 
-    protected String bestMove(CoordsDto head, int length) {
+    @Override
+    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameState) {
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
+        applyGameState(gameState);
+
+        final CoordsDto head = gameState.getYou().getHead();
+        final int length = gameState.getYou().getLength();
+
         final int x = head.getX();
         final int y = head.getY();
 
-        List<Triplet<String, Integer, Integer>> ranked = new LinkedList<>();
-        ranked.add(new Triplet<>(DOWN, x, y - 1));
-        ranked.add(new Triplet<>(LEFT, x - 1, y));
-        ranked.add(new Triplet<>(RIGHT, x + 1, y));
-        ranked.add(new Triplet<>(UP, x, y + 1));
+        List<Quartet<String, Integer, Integer, Double>> ranked = new LinkedList<>();
+        ranked.add(new Quartet<>(DOWN, x, y - 1, 0.0));
+        ranked.add(new Quartet<>(LEFT, x - 1, y, 0.0));
+        ranked.add(new Quartet<>(RIGHT, x + 1, y, 0.0));
+        ranked.add(new Quartet<>(UP, x, y + 1, 0.0));
 
-        ranked = rank(ranked, length);
-
-        if (ranked.isEmpty())
-            return lastMove;
-
-        return ranked.get(0).getValue0();
+        return rank(ranked, length);
     }
 
+
+
     protected String makeMove(GameStateDto gameState) {
-        applyGameState(gameState);
+
 
         // important to update after decision making
         lastMove = bestMove(gameState.getYou().getHead(), gameState.getYou().getLength());
@@ -282,11 +289,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     @Override
     public Void processEnd(GameStateDto gameState) {
         return null;
-    }
-
-    @Override
-    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameStateDto) {
-        return Collections.emptyList();
     }
 
     @Override
