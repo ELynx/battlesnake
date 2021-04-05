@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.javatuples.KeyValue;
 import org.javatuples.Quartet;
-import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -41,9 +39,10 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
 
+    // affected by normal processing
     protected String lastMove;
 
-    // affected by meta processing
+    // affected by normal and meta processing
     protected List<CoordsDto> lastFood;
 
     // stash for meta
@@ -64,15 +63,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
         lastFood = gameState.getBoard().getFood();
         lastMove = UP;
-    }
-
-    protected void applyGameState(GameStateDto gameState) {
-        weightMatrix.zero();
-        freeSpaceMatrix.empty();
-
-        applyHunger(gameState);
-        applySnakes(gameState);
-        applyHazards(gameState);
     }
 
     protected void applyHunger(GameStateDto gameState) {
@@ -196,6 +186,21 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         }
     }
 
+    protected void applyGameState(GameStateDto gameState) {
+        // for test compatibility
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
+        weightMatrix.zero();
+        freeSpaceMatrix.empty();
+
+        applyHunger(gameState);
+        applySnakes(gameState);
+        applyHazards(gameState);
+    }
+
     protected double getCrossWeight(int x, int y) {
         double result = weightMatrix.getValue(x, y - 1);
         result += weightMatrix.getValue(x - 1, y);
@@ -223,15 +228,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameState) {
-        if (!initialized) {
-            initOnce(gameState);
-            initialized = true;
-        }
-
-        applyGameState(gameState);
-
+    public List<Quartet<String, Integer, Integer, Double>> bestMove(GameStateDto gameState) {
         final CoordsDto head = gameState.getYou().getHead();
         final int length = gameState.getYou().getLength();
 
@@ -245,18 +242,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         ranked.add(new Quartet<>(UP, x, y + 1, 0.0));
 
         return rank(ranked, length);
-    }
-
-
-
-    protected String makeMove(GameStateDto gameState) {
-
-
-        // important to update after decision making
-        lastMove = bestMove(gameState.getYou().getHead(), gameState.getYou().getLength());
-        lastFood = gameState.getBoard().getFood();
-
-        return lastMove;
     }
 
     @Override
@@ -275,46 +260,40 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Override
+    public void resetMetaspace() {
+        lastFood = lastFoodStash;
+    }
+
+    @Override
+    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameState) {
+        applyGameState(gameState);
+
+        List<Quartet<String, Integer, Integer, Double>> moves = bestMove(gameState);
+
+        lastFood = gameState.getBoard().getFood();
+
+        return moves;
+    }
+
+    @Override
+    public void exitToRealspace(GameStateDto gameStateDto) {
+        lastFoodStash = gameStateDto.getBoard().getFood();
+    }
+
+    @Override
     public Move processMove(GameStateDto gameState) {
-        // for test compatibility
-        if (!initialized) {
-            initOnce(gameState);
-            initialized = true;
+        List<Quartet<String, Integer, Integer, Double>> moves = processMoveMeta(gameState);
+
+        if (!moves.isEmpty()) {
+            lastMove = moves.get(0).getValue0();
         }
 
-        final String move = makeMove(gameState);
-        return new Move(move, "New and theoretically improved");
+        return new Move(lastMove, "New and theoretically improved");
     }
 
     @Override
     public Void processEnd(GameStateDto gameState) {
         return null;
-    }
-
-    @Override
-    public void enterMetaspace() {
-        lastFoodStash = lastFood;
-        lastMoveStash = lastMove;
-    }
-
-    @Override
-    public void resetMetaspace() {
-        lastFood = lastFoodStash;
-        lastMove = lastMoveStash;
-    }
-
-    @Override
-    public void exitMetaspace() {
-        lastFood = lastFoodStash;
-        // lastMove assigned in processMetaMove
-
-        lastFoodStash = null;
-        lastMoveStash = null;
-    }
-
-    @Override
-    public void processDecision(Move move) {
-        lastMove = move.getMove();
     }
 
     @Configuration

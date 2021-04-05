@@ -1,6 +1,10 @@
 package ru.elynx.battlesnake.engine.strategies.metasnake;
 
+import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+
+import java.util.List;
 import java.util.function.Supplier;
+import org.javatuples.Quartet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -13,7 +17,9 @@ import ru.elynx.battlesnake.protocol.Move;
 public class MetaSnake implements IGameStrategy {
     protected final IMetaEnabledGameStrategy engine;
 
-    private MetaSnake(IMetaEnabledGameStrategy engine) {
+    protected String lastMove = UP;
+
+    protected MetaSnake(IMetaEnabledGameStrategy engine) {
         this.engine = engine;
     }
 
@@ -28,20 +34,23 @@ public class MetaSnake implements IGameStrategy {
 
     @Override
     public Void processStart(GameStateDto gameState) {
-        return engine.processStart(gameState);
+        engine.processStart(gameState);
+        engine.exitToRealspace(gameState);
+
+        return null;
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
-        Move move = engine.processMove(gameState);
-
-        engine.enterMetaspace();
         engine.resetMetaspace();
-        engine.exitMetaspace();
+        List<Quartet<String, Integer, Integer, Double>> moves = engine.processMoveMeta(gameState);
+        engine.exitToRealspace(gameState);
 
-        engine.processDecision(move);
+        if (!moves.isEmpty()) {
+            lastMove = moves.get(0).getValue0();
+        }
 
-        return move;
+        return new Move(lastMove);
     }
 
     @Override
@@ -51,7 +60,7 @@ public class MetaSnake implements IGameStrategy {
 
     @Configuration
     public static class MetaSnakeConfiguration {
-        @Bean("Meta_Snake_1a")
+        @Bean("The-serpent-saves-us-from-thought")
         public Supplier<IGameStrategy> metaWeightedSearch() {
             return () -> {
                 Supplier<WeightedSearchV2Strategy> engineSupplier = WeightedSearchV2Strategy.WeightedSearchV2StrategyConfiguration

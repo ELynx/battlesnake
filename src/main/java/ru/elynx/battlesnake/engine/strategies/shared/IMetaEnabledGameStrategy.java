@@ -7,6 +7,11 @@ import ru.elynx.battlesnake.protocol.GameStateDto;
 
 public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
+     * reset inner state to receive new meta branch
+     */
+    void resetMetaspace();
+
+    /**
      * Provide not only first choice move, but detailed explanation
      *
      * @param gameStateDto
@@ -17,10 +22,5 @@ public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
      * remember what was the move actually
      */
-    void unwindMetaspace(GameStateDto gameStateDto);
-
-    /**
-     * reset inner state to receive new meta branch
-     */
-    void resetMetaspace();
+    void exitToRealspace(GameStateDto gameStateDto);
 }
