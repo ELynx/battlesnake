@@ -7,9 +7,9 @@ import ru.elynx.battlesnake.protocol.GameStateDto;
 
 public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
-     * reset inner state to receive new meta branch
+     * set state at move previous to current, if jumped across timelines
      */
-    void resetMetaspace();
+    void setLastMove(GameStateDto gameStateDto);
 
     /**
      * Provide not only first choice move, but detailed explanation
@@ -18,9 +18,4 @@ public interface IMetaEnabledGameStrategy extends IGameStrategy {
      * @return List of Move, X, Y, Weight
      */
     List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameStateDto);
-
-    /**
-     * remember what was the move actually
-     */
-    void exitToRealspace(GameStateDto gameStateDto);
 }

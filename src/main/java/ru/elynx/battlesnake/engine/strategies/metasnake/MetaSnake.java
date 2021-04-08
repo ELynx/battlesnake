@@ -35,16 +35,15 @@ public class MetaSnake implements IGameStrategy {
     @Override
     public Void processStart(GameStateDto gameState) {
         engine.processStart(gameState);
-        engine.exitToRealspace(gameState);
+        engine.setLastMove(gameState);
 
         return null;
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
-        engine.resetMetaspace();
         List<Quartet<String, Integer, Integer, Double>> moves = engine.processMoveMeta(gameState);
-        engine.exitToRealspace(gameState);
+        engine.setLastMove(gameState);
 
         if (!moves.isEmpty()) {
             lastMove = moves.get(0).getValue0();

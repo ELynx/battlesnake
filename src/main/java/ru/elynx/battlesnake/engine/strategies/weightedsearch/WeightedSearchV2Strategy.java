@@ -45,9 +45,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     // affected by normal and meta processing
     protected List<CoordsDto> lastFood;
 
-    // stash for meta
-    protected List<CoordsDto> lastFoodStash;
-
     protected boolean initialized = false;
 
     protected WeightedSearchV2Strategy() {
@@ -260,8 +257,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Override
-    public void resetMetaspace() {
-        lastFood = lastFoodStash;
+    public void setLastMove(GameStateDto gameStateDto) {
+        lastFood = gameStateDto.getBoard().getFood();
     }
 
     @Override
@@ -273,11 +270,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         lastFood = gameState.getBoard().getFood();
 
         return moves;
-    }
-
-    @Override
-    public void exitToRealspace(GameStateDto gameStateDto) {
-        lastFoodStash = gameStateDto.getBoard().getFood();
     }
 
     @Override
