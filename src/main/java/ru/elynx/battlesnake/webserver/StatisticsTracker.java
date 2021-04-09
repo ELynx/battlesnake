@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.webserver;
 
+import com.newrelic.api.agent.NewRelic;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.protocol.GameStateDto;
@@ -44,6 +45,8 @@ class StatisticsTracker {
             ++victories;
         else
             ++defeats;
+
+        NewRelic.addCustomParameter("victory", victory);
     }
 
     public void ping() {

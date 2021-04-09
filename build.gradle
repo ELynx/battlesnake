@@ -19,6 +19,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.javatuples:javatuples:1.2'
+
+    implementation files("$buildDir/libs/newrelic-api.jar")
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -70,6 +73,7 @@ tasks.unzipNewrelic.dependsOn downloadNewrelic
 tasks.unzipNewrelic.finalizedBy configureNewrelicAppName
 tasks.build.dependsOn unzipNewrelic
 tasks.clean.dependsOn cleanNewrelic
+tasks.compileJava.dependsOn unzipNewrelic
 
 spotless {
     java {
