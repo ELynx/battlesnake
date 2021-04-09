@@ -2,8 +2,7 @@ package ru.elynx.battlesnake.engine.game.predictor;
 
 import java.util.Collections;
 import java.util.List;
-import org.javatuples.KeyValue;
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import org.javatuples.Triplet;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
@@ -27,7 +26,7 @@ public class SnakeMovePredictor {
         flatProbabilityMaker.add(x, y);
     }
 
-    public List<KeyValue<CoordsDto, Double>> predict(SnakeDto snake) {
+    public List<Triplet<Integer, Integer, Double>> predict(SnakeDto snake) {
         // graceful error handling
         if (snake.getLength() == 0) {
             return Collections.emptyList();

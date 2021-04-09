@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.javatuples.KeyValue;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
@@ -114,7 +114,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
             }
         }
 
-        List<CoordsDto> blockedByInedible = new LinkedList<>();
+        List<Triplet<Integer, Integer, Double>> blockedByInedible = new LinkedList<>();
         final int ownSize = gameState.getYou().getLength();
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final CoordsDto head = snake.getHead();
@@ -145,18 +145,17 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
                         // spread hunt/danger weights
-                        List<KeyValue<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
+                        List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake);
                         predictions.forEach(prediction -> {
-                            final CoordsDto coords = prediction.getKey();
-                            final int px = coords.getX();
-                            final int py = coords.getY();
-                            final double pv = prediction.getValue();
+                            final int px = prediction.getValue0();
+                            final int py = prediction.getValue1();
+                            final double pv = prediction.getValue2();
                             final double pw = baseWeight * pv;
 
                             weightMatrix.splash2ndOrder(px, py, pw, 4.0);
 
                             if (inedible && pv >= BLOCK_INEDIBLE_HEAD_PROBABILITY) {
-                                blockedByInedible.add(coords);
+                                blockedByInedible.add(prediction);
                             }
                         });
                     }
@@ -164,8 +163,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
             }
         }
 
-        for (CoordsDto coords : blockedByInedible) {
-            freeSpaceMatrix.setOccupied(coords.getX(), coords.getY());
+        for (Triplet<Integer, Integer, Double> triplet : blockedByInedible) {
+            freeSpaceMatrix.setOccupied(triplet.getValue0(), triplet.getValue1());
         }
     }
 
