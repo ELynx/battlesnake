@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.game;
+package ru.elynx.battlesnake.engine.game.simulator;
 
 import java.util.List;
 import java.util.function.BiFunction;

@@ -1,32 +1,29 @@
-package ru.elynx.battlesnake.engine.strategies.shared;
+package ru.elynx.battlesnake.engine.game.predictor;
 
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.KeyValue;
-import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
-    protected FreeSpaceMatrix freeSpace;
+    protected IPredictorInformant informant;
 
     protected FlatProbabilityMaker flatProbabilityMaker;
 
-    public SnakeMovePredictor() {
+    public SnakeMovePredictor(IPredictorInformant informant) {
+        this.informant = informant;
+
         this.flatProbabilityMaker = new FlatProbabilityMaker();
     }
 
-    public void setFreeSpace(FreeSpaceMatrix freeSpace) {
-        this.freeSpace = freeSpace;
-    }
-
-    private void addIfWalkable(int x, int y) {
-        if (freeSpace.getSpace(x, y) > 0) {
+    protected void addIfWalkable(int x, int y) {
+        if (informant.isWalkable(x, y)) {
             add(x, y);
         }
     }
 
-    private void add(int x, int y) {
+    protected void add(int x, int y) {
         flatProbabilityMaker.add(x, y);
     }
 

@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.shared;
+package ru.elynx.battlesnake.engine.game.predictor;
 
 import java.util.ArrayList;
 import java.util.Collections;

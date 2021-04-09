@@ -12,14 +12,15 @@ import org.javatuples.Quartet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.game.predictor.IPredictorInformant;
+import ru.elynx.battlesnake.engine.game.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.strategies.shared.IMetaEnabledGameStrategy;
-import ru.elynx.battlesnake.engine.strategies.shared.SnakeMovePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
-public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGameStrategy {
+public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
     private static final double MIN_FOOD_WEIGHT = 0.0d;
@@ -56,7 +57,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
-        snakeMovePredictor = new SnakeMovePredictor();
+        snakeMovePredictor = new SnakeMovePredictor(this);
 
         lastFood = gameState.getBoard().getFood();
         lastMove = UP;
@@ -115,7 +116,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
         List<CoordsDto> blockedByInedible = new LinkedList<>();
         final int ownSize = gameState.getYou().getLength();
-        boolean updatePredictorOnce = true;
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final CoordsDto head = snake.getHead();
             final String id = snake.getId();
@@ -144,11 +144,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
-                        if (updatePredictorOnce) {
-                            snakeMovePredictor.setFreeSpace(freeSpaceMatrix);
-                            updatePredictorOnce = false;
-                        }
-
                         // spread hunt/danger weights
                         List<KeyValue<CoordsDto, Double>> predictions = snakeMovePredictor.predict(snake);
                         predictions.forEach(prediction -> {
@@ -286,6 +281,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     @Override
     public Void processEnd(GameStateDto gameState) {
         return null;
+    }
+
+    @Override
+    public boolean isWalkable(int x, int y) {
+        return freeSpaceMatrix.getSpace(x, y) > 0;
     }
 
     @Configuration
