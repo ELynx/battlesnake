@@ -201,6 +201,53 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         return result;
     }
 
+    protected double getOpportunitiesWeight(String direction, int x, int y) {
+        int x0, x1, y0, y1;
+        switch (direction) {
+            case DOWN :
+                x0 = x - 2;
+                x1 = x + 2;
+                y0 = y - 3;
+                y1 = y;
+                break;
+            case LEFT :
+                x0 = x - 3;
+                x1 = x;
+                y0 = y - 2;
+                y1 = y + 2;
+                break;
+            case RIGHT :
+                x0 = x;
+                x1 = x + 3;
+                y0 = y - 2;
+                y1 = y + 2;
+                break;
+            case UP :
+                x0 = x - 2;
+                x1 = x + 2;
+                y0 = y;
+                y1 = y + 3;
+                break;
+            default :
+                return DETERRENT_WEIGHT; // don't throw in the middle of the move
+        }
+
+        double opportunities = 0.0;
+        // in array access friendly order
+        for (int yi = y0; yi <= y1; ++yi) {
+            for (int xi = x0; xi <= x1; ++xi) {
+                double weight = weightMatrix.getValue(xi, yi);
+                // decrease penalties, they will be handled on approach
+                if (weight < 0.0) {
+                    weight = weight / 10.0;
+                }
+                opportunities += weight;
+            }
+        }
+
+        return opportunities;
+    }
+
     protected List<Quartet<String, Integer, Integer, Double>> rank(
             List<Quartet<String, Integer, Integer, Double>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
@@ -208,6 +255,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action (stored)
         // sort by weight of following actions
+        // sort by weight of opportunities
         return toRank.stream().filter(quartet -> freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2()) > 0)
                 .map(quartet -> quartet.setAt3(weightMatrix.getValue(quartet.getValue1(), quartet.getValue2())))
                 .sorted(Comparator
@@ -215,6 +263,8 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
                                 freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2())))
                         .thenComparingDouble(Quartet::getValue3)
                         .thenComparingDouble(quartet -> getCrossWeight(quartet.getValue1(), quartet.getValue2()))
+                        .thenComparingDouble(quartet -> getOpportunitiesWeight(quartet.getValue0(), quartet.getValue1(),
+                                quartet.getValue2()))
                         .reversed())
                 .collect(Collectors.toList());
     }
