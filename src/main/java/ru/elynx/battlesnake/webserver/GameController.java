@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
+import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
@@ -61,7 +62,7 @@ public class GameController {
 
     @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game start {}", terseId);
         logger.info("Ruleset {}", gameState.getGame().getRuleset());
@@ -76,7 +77,7 @@ public class GameController {
 
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.debug("Processing request game move {}", terseId);
         statisticsTracker.move(gameState);
@@ -97,7 +98,7 @@ public class GameController {
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game end {}", terseId);
         statisticsTracker.end(gameState);
