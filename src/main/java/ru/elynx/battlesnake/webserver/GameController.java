@@ -1,6 +1,5 @@
 package ru.elynx.battlesnake.webserver;
 
-import com.newrelic.api.agent.NewRelic;
 import java.util.Random;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -44,6 +43,7 @@ public class GameController {
 
     @ExceptionHandler(SnakeNotFoundException.class)
     public final ResponseEntity<Void> handleSnakeNotFoundException(SnakeNotFoundException e, WebRequest webRequest) {
+        logger.error("Exception handler for SnakeNotFound", e);
         return ResponseEntity.notFound().build();
     }
 
@@ -55,8 +55,8 @@ public class GameController {
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name) {
         logger.info("Processing root meta call");
-        statisticsTracker.root();
-        NewRelic.addCustomParameter("snake-name", name);
+        statisticsTracker.root(name);
+
         return ResponseEntity.ok(new BattlesnakeInfoDto(snakeManager.root(name)));
     }
 
@@ -68,10 +68,11 @@ public class GameController {
         logger.info("Ruleset {}", gameState.getGame().getRuleset());
         logger.info("Timeout {}", gameState.getGame().getTimeout());
         statisticsTracker.start(gameState);
-        NewRelic.addCustomParameter("snake-name", name);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok(snakeManager.start(gameState));
     }
 
@@ -81,13 +82,11 @@ public class GameController {
         final String terseId = terseIdentification(gameState);
         logger.debug("Processing request game move {}", terseId);
         statisticsTracker.move(gameState);
-        NewRelic.addCustomParameter("snake-name", name);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
-        if (gameState.getYou().isTimedOut()) {
-            statisticsTracker.timeout();
-        }
+
         Move move = snakeManager.move(gameState);
         if (Boolean.FALSE.equals(move.getDropRequest())) {
             return ResponseEntity.ok(new MoveDto(move));
@@ -102,10 +101,11 @@ public class GameController {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game end {}", terseId);
         statisticsTracker.end(gameState);
-        NewRelic.addCustomParameter("snake-name", name);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok(snakeManager.end(gameState));
     }
 }

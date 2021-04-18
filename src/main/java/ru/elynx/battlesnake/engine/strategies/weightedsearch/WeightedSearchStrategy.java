@@ -21,7 +21,7 @@ import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.strategies.shared.IMetaEnabledGameStrategy;
 import ru.elynx.battlesnake.protocol.*;
 
-public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGameStrategy, IPredictorInformant {
+public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
     private static final double MIN_FOOD_WEIGHT = 0.0d;
@@ -42,7 +42,10 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     protected boolean initialized = false;
 
-    protected WeightedSearchV2Strategy() {
+    protected final boolean isMeta;
+
+    protected WeightedSearchStrategy(boolean isMeta) {
+        this.isMeta = isMeta;
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -231,25 +234,33 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         return opportunities;
     }
 
+    protected Comparator<Quartet<String, Integer, Integer, Double>> makeComparator(int length) {
+        if (isMeta) {
+            // sort by weight of immediate action (stored)
+            return Comparator.comparingDouble(Quartet::getValue3);
+        } else {
+            // sort by provided freedom of movement, capped at length + 1 for more options
+            // sort by weight of immediate action (stored)
+            // sort by weight of following actions
+            // sort by weight of opportunities
+            return Comparator
+                    .comparingInt((Quartet<String, Integer, Integer, Double> quartet) -> Math.min(length + 1,
+                            freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2())))
+                    .thenComparingDouble(Quartet::getValue3)
+                    .thenComparingDouble(quartet -> getCrossWeight(quartet.getValue1(), quartet.getValue2()))
+                    .thenComparingDouble(quartet -> getOpportunitiesWeight(quartet.getValue0(), quartet.getValue1(),
+                            quartet.getValue2()));
+        }
+    }
+
     protected List<Quartet<String, Integer, Integer, Double>> rank(
             List<Quartet<String, Integer, Integer, Double>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
         // get weight of immediate action, and store for later use in meta and sort
-        // sort by provided freedom of movement, capped at length + 1 for more options
-        // sort by weight of immediate action (stored)
-        // sort by weight of following actions
-        // sort by weight of opportunities
+        // sort by reversed comparator, since bigger weight means better solution
         return toRank.stream().filter(quartet -> freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2()) > 0)
                 .map(quartet -> quartet.setAt3(weightMatrix.getValue(quartet.getValue1(), quartet.getValue2())))
-                .sorted(Comparator
-                        .comparingInt((Quartet<String, Integer, Integer, Double> quartet) -> Math.min(length + 1,
-                                freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2())))
-                        .thenComparingDouble(Quartet::getValue3)
-                        .thenComparingDouble(quartet -> getCrossWeight(quartet.getValue1(), quartet.getValue2()))
-                        .thenComparingDouble(quartet -> getOpportunitiesWeight(quartet.getValue0(), quartet.getValue1(),
-                                quartet.getValue2()))
-                        .reversed())
-                .collect(Collectors.toList());
+                .sorted(makeComparator(length).reversed()).collect(Collectors.toList());
     }
 
     public List<Quartet<String, Integer, Integer, Double>> bestMove(GameStateDto gameState) {
@@ -317,14 +328,14 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Configuration
-    public static class WeightedSearchV2StrategyConfiguration {
+    public static class WeightedSearchStrategyConfiguration {
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> weightedSearch() {
-            return WeightedSearchV2Strategy::new;
+            return () -> new WeightedSearchStrategy(false);
         }
 
-        public static Supplier<WeightedSearchV2Strategy> weightedSearchMeta() {
-            return WeightedSearchV2Strategy::new;
+        public static Supplier<WeightedSearchStrategy> weightedSearchMeta() {
+            return () -> new WeightedSearchStrategy(true);
         }
     }
 }

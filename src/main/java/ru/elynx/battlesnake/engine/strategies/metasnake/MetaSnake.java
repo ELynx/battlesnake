@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.strategies.shared.IMetaEnabledGameStrategy;
-import ru.elynx.battlesnake.engine.strategies.weightedsearch.WeightedSearchV2Strategy;
+import ru.elynx.battlesnake.engine.strategies.weightedsearch.WeightedSearchStrategy;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
@@ -57,7 +57,7 @@ public class MetaSnake implements IGameStrategy {
         @Bean("The-serpent-saves-us-from-thought")
         public Supplier<IGameStrategy> metaWeightedSearch() {
             return () -> {
-                Supplier<WeightedSearchV2Strategy> engineSupplier = WeightedSearchV2Strategy.WeightedSearchV2StrategyConfiguration
+                Supplier<WeightedSearchStrategy> engineSupplier = WeightedSearchStrategy.WeightedSearchStrategyConfiguration
                         .weightedSearchMeta();
                 return new MetaSnake(engineSupplier.get());
             };
