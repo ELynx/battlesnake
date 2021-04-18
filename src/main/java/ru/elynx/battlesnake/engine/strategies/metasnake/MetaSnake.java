@@ -1,7 +1,5 @@
 package ru.elynx.battlesnake.engine.strategies.metasnake;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
-
 import java.util.List;
 import java.util.function.Supplier;
 import org.javatuples.Quartet;
@@ -17,8 +15,6 @@ import ru.elynx.battlesnake.protocol.Move;
 public class MetaSnake implements IGameStrategy {
     protected final IMetaEnabledGameStrategy engine;
 
-    protected String lastMove = UP;
-
     protected MetaSnake(IMetaEnabledGameStrategy engine) {
         this.engine = engine;
     }
@@ -27,6 +23,7 @@ public class MetaSnake implements IGameStrategy {
     public BattlesnakeInfo getBattesnakeInfo() {
         BattlesnakeInfo battlesnakeInfo = engine.getBattesnakeInfo();
         battlesnakeInfo.setHead("shades");
+        battlesnakeInfo.setTail("rbc-necktie");
         battlesnakeInfo.setVersion("meta [" + battlesnakeInfo.getVersion() + ']');
 
         return battlesnakeInfo;
@@ -35,7 +32,6 @@ public class MetaSnake implements IGameStrategy {
     @Override
     public Void processStart(GameStateDto gameState) {
         engine.processStart(gameState);
-        engine.setLastMove(gameState);
 
         return null;
     }
@@ -43,13 +39,12 @@ public class MetaSnake implements IGameStrategy {
     @Override
     public Move processMove(GameStateDto gameState) {
         List<Quartet<String, Integer, Integer, Double>> moves = engine.processMoveMeta(gameState);
-        engine.setLastMove(gameState);
 
-        if (!moves.isEmpty()) {
-            lastMove = moves.get(0).getValue0();
+        if (moves.isEmpty()) {
+            return new Move(); // would repeat last move
         }
 
-        return new Move(lastMove);
+        return new Move(moves.get(0).getValue0());
     }
 
     @Override

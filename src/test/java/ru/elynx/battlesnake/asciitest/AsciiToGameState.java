@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
+import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
@@ -115,7 +116,7 @@ public class AsciiToGameState {
         game.setRuleset(ruleset);
         game.setTimeout(500);
 
-        GameStateDto gameState = new GameStateDto();
+        GameStateDto gameState = new GameStatePredictor();
         gameState.setGame(game);
         gameState.setTurn(42);
 
@@ -159,7 +160,7 @@ public class AsciiToGameState {
                     SnakeDto snake = new TestSnakeDto(ToApiVersion.V1);
                     snake.setId(s);
                     snake.setName("Snake " + s);
-                    snake.setHealth(healts.getOrDefault(s, 100));
+                    snake.setHealth(healts.getOrDefault(s, 99));
                     snake.setLatency(latencies.getOrDefault(s, 100));
                     snake.setHead(coords);
                     snake.setSquad("Test squad " + s);

@@ -1,5 +1,7 @@
 package ru.elynx.battlesnake.webserver;
 
+import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,8 +86,14 @@ public class SnakeManager {
     }
 
     public Move move(GameStateDto gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
-                .processMove(gameState);
+        final Snake snake = computeSnake(gameState.getYou().getId(), gameState.getYou().getName());
+        final Move move = snake.gameStrategy.processMove(gameState);
+
+        if (Boolean.TRUE.equals(move.getRepeatLast())) {
+            return new Move(snake.lastMove, move.getShout());
+        }
+
+        return move;
     }
 
     public Void end(GameStateDto gameState) {
@@ -100,10 +108,12 @@ public class SnakeManager {
     private static class Snake {
         final IGameStrategy gameStrategy;
         Instant accessTime;
+        String lastMove;
 
         Snake(IGameStrategy gameStrategy) {
             this.gameStrategy = gameStrategy;
             this.accessTime = Instant.now();
+            this.lastMove = UP;
         }
     }
 }

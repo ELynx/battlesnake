@@ -7,11 +7,6 @@ import ru.elynx.battlesnake.protocol.GameStateDto;
 
 public interface IMetaEnabledGameStrategy extends IGameStrategy {
     /**
-     * set state at move previous to current, if jumped across timelines
-     */
-    void setLastMove(GameStateDto gameStateDto);
-
-    /**
      * Provide not only first choice move, but detailed explanation
      *
      * @param gameStateDto

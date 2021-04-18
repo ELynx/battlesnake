@@ -12,6 +12,7 @@ import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.game.predictor.impl.IPredictorInformant;
 import ru.elynx.battlesnake.engine.game.predictor.impl.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
@@ -35,16 +36,9 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
 
-    // reset each processMove independent of meta
     protected DoubleMatrix weightMatrix;
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
-
-    // affected by normal processing
-    protected String lastMove;
-
-    // affected by normal and meta processing
-    protected List<CoordsDto> lastFood;
 
     protected boolean initialized = false;
 
@@ -58,13 +52,10 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
         weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
         snakeMovePredictor = new SnakeMovePredictor(this);
-
-        lastFood = gameState.getBoard().getFood();
-        lastMove = UP;
     }
 
     protected void applyHunger(GameStateDto gameState) {
-        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
+        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
                 HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
         if (foodWeight <= 0.0)
@@ -79,33 +70,27 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     protected void applySnakes(GameStateDto gameState) {
-        final CoordsDto ownHead = gameState.getYou().getHead();
-        final String ownId = gameState.getYou().getId();
+        final GameStatePredictor gameStatePredictor = (GameStatePredictor) gameState;
+
+        final CoordsDto ownHead = gameStatePredictor.getYou().getHead();
+        final String ownId = gameStatePredictor.getYou().getId();
 
         // mark body as impassable
         // apply early for predictor
-        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
-            final CoordsDto head = snake.getHead();
-            final String id = snake.getId();
-
+        for (SnakeDto snake : gameStatePredictor.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
 
             // some cases allow for passing through tail
             int tailMoveOffset = 1;
 
             // check if fed this turn
-            if (lastFood.indexOf(head) >= 0) {
+            if (gameStatePredictor.isGrowing(snake)) {
                 // tail will grow -> cell will remain occupied
                 tailMoveOffset = 0;
             }
 
-            // check if self, and don't do 180* turn
-            if (id.equals(ownId) && body.size() == 2) {
-                tailMoveOffset = 0;
-            }
-
             for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
-                CoordsDto coordsDto = body.get(i);
+                final CoordsDto coordsDto = body.get(i);
                 final int x = coordsDto.getX();
                 final int y = coordsDto.getY();
 
@@ -114,7 +99,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
             }
         }
 
-        List<Triplet<Integer, Integer, Double>> blockedByInedible = new LinkedList<>();
+        final List<Triplet<Integer, Integer, Double>> blockedByInedible = new LinkedList<>();
         final int ownSize = gameState.getYou().getLength();
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final CoordsDto head = snake.getHead();
@@ -178,12 +163,6 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     protected void applyGameState(GameStateDto gameState) {
-        // for test compatibility
-        if (!initialized) {
-            initOnce(gameState);
-            initialized = true;
-        }
-
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
@@ -202,7 +181,11 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     protected double getOpportunitiesWeight(String direction, int x, int y) {
-        int x0, x1, y0, y1;
+        int x0;
+        int x1;
+        int y0;
+        int y1;
+
         switch (direction) {
             case DOWN :
                 x0 = x - 2;
@@ -287,7 +270,7 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#ef9600", "smile", "sharp", "1a X");
+        return new BattlesnakeInfo("ELynx", "#ef9600", "smile", "sharp", "1a");
     }
 
     @Override
@@ -301,30 +284,26 @@ public class WeightedSearchV2Strategy implements IGameStrategy, IMetaEnabledGame
     }
 
     @Override
-    public void setLastMove(GameStateDto gameStateDto) {
-        lastFood = gameStateDto.getBoard().getFood();
-    }
-
-    @Override
     public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameState) {
+        // for test compatibility
+        if (!initialized) {
+            initOnce(gameState);
+            initialized = true;
+        }
+
         applyGameState(gameState);
-
-        List<Quartet<String, Integer, Integer, Double>> moves = bestMove(gameState);
-
-        lastFood = gameState.getBoard().getFood();
-
-        return moves;
+        return bestMove(gameState);
     }
 
     @Override
     public Move processMove(GameStateDto gameState) {
         List<Quartet<String, Integer, Integer, Double>> moves = processMoveMeta(gameState);
 
-        if (!moves.isEmpty()) {
-            lastMove = moves.get(0).getValue0();
+        if (moves.isEmpty()) {
+            return new Move(); // would repeat last turn
         }
 
-        return new Move(lastMove, "New and theoretically improved");
+        return new Move(moves.get(0).getValue0());
     }
 
     @Override

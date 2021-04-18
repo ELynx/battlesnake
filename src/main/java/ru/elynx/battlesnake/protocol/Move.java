@@ -1,17 +1,16 @@
 package ru.elynx.battlesnake.protocol;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.constraints.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Move {
-    @Pattern(regexp = "up|down|left|right", flags = Pattern.Flag.CASE_INSENSITIVE)
     private String move;
-    // TODO constraint
     private String shout;
     private Boolean dropRequest = false;
+    private Boolean repeatLast = false;
 
     public Move() {
+        repeatLast = true;
     }
 
     public Move(String move) {
@@ -47,9 +46,19 @@ public class Move {
         this.dropRequest = dropRequest;
     }
 
+    public Boolean getRepeatLast() {
+        return repeatLast;
+    }
+
+    public void setRepeatLast(Boolean repeatLast) {
+        this.repeatLast = repeatLast;
+    }
+
     @Override
     public String toString() {
-        return "Move{move='" + (Boolean.TRUE.equals(dropRequest) ? "drop" : move) + "'}";
+        return "Move{move='"
+                + (Boolean.TRUE.equals(dropRequest) ? "drop" : Boolean.TRUE.equals(repeatLast) ? "repeat" : move)
+                + "'}";
     }
 
     public static class Moves {
