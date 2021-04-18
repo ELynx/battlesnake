@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.game.predictor;
+package ru.elynx.battlesnake.engine.game.predictor.impl;
 
 import java.util.Collections;
 import java.util.List;
