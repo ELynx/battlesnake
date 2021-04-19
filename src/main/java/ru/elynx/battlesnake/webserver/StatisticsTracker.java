@@ -9,20 +9,20 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 @Service
 @Scope("singleton")
 class StatisticsTracker {
-    protected final static String SnakeNameParameter = "snakeName";
+    protected static final String SNAKE_NAME_PARAMETER = "snakeName";
 
     private long pings = 0L;
 
     public void root(String name) {
-        NewRelic.addCustomParameter(SnakeNameParameter, name);
+        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, name);
     }
 
     public void start(GameStateDto gameState) {
-        NewRelic.addCustomParameter(SnakeNameParameter, gameState.getYou().getName());
+        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
     }
 
     public void move(GameStateDto gameState) {
-        NewRelic.addCustomParameter(SnakeNameParameter, gameState.getYou().getName());
+        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
         NewRelic.addCustomParameter("timeoutReported", gameState.getYou().isTimedOut());
     }
 
@@ -35,7 +35,7 @@ class StatisticsTracker {
             }
         }
 
-        NewRelic.addCustomParameter(SnakeNameParameter, gameState.getYou().getName());
+        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
         NewRelic.addCustomParameter("victory", victory);
     }
 

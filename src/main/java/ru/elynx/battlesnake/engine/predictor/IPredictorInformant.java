@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.game.predictor.impl;
+package ru.elynx.battlesnake.engine.predictor;
 
 public interface IPredictorInformant {
     boolean isWalkable(int x, int y);

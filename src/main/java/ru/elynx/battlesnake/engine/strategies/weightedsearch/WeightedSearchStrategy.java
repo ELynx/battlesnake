@@ -2,26 +2,21 @@ package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
-import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.engine.game.predictor.impl.IPredictorInformant;
-import ru.elynx.battlesnake.engine.game.predictor.impl.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
-import ru.elynx.battlesnake.engine.strategies.shared.IMetaEnabledGameStrategy;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
+import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
-public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameStrategy, IPredictorInformant {
+public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
     private static final double MIN_FOOD_WEIGHT = 0.0d;
@@ -32,9 +27,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private static final double INEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
-    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = 0.85;
+    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = 0.85d;
 
-    private static final double DETERRENT_WEIGHT = -Double.MAX_VALUE;
+    private static final double DETERRENT_WEIGHT = -100.0d;
 
     protected DoubleMatrix weightMatrix;
     protected FreeSpaceMatrix freeSpaceMatrix;
@@ -42,10 +37,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
 
     protected boolean initialized = false;
 
-    protected final boolean isMeta;
-
-    protected WeightedSearchStrategy(boolean isMeta) {
-        this.isMeta = isMeta;
+    protected WeightedSearchStrategy() {
     }
 
     protected void initOnce(GameStateDto gameState) {
@@ -57,7 +49,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
         snakeMovePredictor = new SnakeMovePredictor(this);
     }
 
-    protected void applyHunger(GameStateDto gameState) {
+    protected void applyHunger(GameStatePredictor gameState) {
         final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
                 HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
@@ -72,22 +64,20 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
         }
     }
 
-    protected void applySnakes(GameStateDto gameState) {
-        final GameStatePredictor gameStatePredictor = (GameStatePredictor) gameState;
-
-        final CoordsDto ownHead = gameStatePredictor.getYou().getHead();
-        final String ownId = gameStatePredictor.getYou().getId();
+    protected void applySnakes(GameStatePredictor gameState) {
+        final CoordsDto ownHead = gameState.getYou().getHead();
+        final String ownId = gameState.getYou().getId();
 
         // mark body as impassable
         // apply early for predictor
-        for (SnakeDto snake : gameStatePredictor.getBoard().getSnakes()) {
+        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
             final List<CoordsDto> body = snake.getBody();
 
-            // some cases allow for passing through tail
+            // by default tail will go away
             int tailMoveOffset = 1;
 
             // check if fed this turn
-            if (gameStatePredictor.isGrowing(snake)) {
+            if (gameState.isGrowing(snake)) {
                 // tail will grow -> cell will remain occupied
                 tailMoveOffset = 0;
             }
@@ -156,16 +146,25 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
         }
     }
 
-    protected void applyHazards(GameStateDto gameState) {
+    protected void applyHazards(GameStatePredictor gameState) {
         for (CoordsDto hazard : gameState.getBoard().getHazards()) {
             final int x = hazard.getX();
             final int y = hazard.getY();
 
             weightMatrix.setValue(x, y, DETERRENT_WEIGHT);
         }
+
+        for (Triplet<Integer, Integer, Double> prediction : gameState.getPredictedHazards()) {
+            final int x = prediction.getValue0();
+            final int y = prediction.getValue1();
+            final double pv = prediction.getValue2();
+            final double pw = DETERRENT_WEIGHT * pv;
+
+            weightMatrix.setValue(x, y, pw);
+        }
     }
 
-    protected void applyGameState(GameStateDto gameState) {
+    protected void applyGameState(GameStatePredictor gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
@@ -234,47 +233,39 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
         return opportunities;
     }
 
-    protected Comparator<Quartet<String, Integer, Integer, Double>> makeComparator(int length) {
-        if (isMeta) {
-            // sort by weight of immediate action (stored)
-            return Comparator.comparingDouble(Quartet::getValue3);
-        } else {
-            // sort by provided freedom of movement, capped at length + 1 for more options
-            // sort by weight of immediate action (stored)
-            // sort by weight of following actions
-            // sort by weight of opportunities
-            return Comparator
-                    .comparingInt((Quartet<String, Integer, Integer, Double> quartet) -> Math.min(length + 1,
-                            freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2())))
-                    .thenComparingDouble(Quartet::getValue3)
-                    .thenComparingDouble(quartet -> getCrossWeight(quartet.getValue1(), quartet.getValue2()))
-                    .thenComparingDouble(quartet -> getOpportunitiesWeight(quartet.getValue0(), quartet.getValue1(),
-                            quartet.getValue2()));
-        }
-    }
-
-    protected List<Quartet<String, Integer, Integer, Double>> rank(
-            List<Quartet<String, Integer, Integer, Double>> toRank, int length) {
+    protected Optional<String> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
-        // get weight of immediate action, and store for later use in meta and sort
+        // sort by provided freedom of movement, capped at length + 1 for more options
+        // sort by weight of immediate action
+        // sort by weight of following actions
+        // sort by weight of opportunities
         // sort by reversed comparator, since bigger weight means better solution
-        return toRank.stream().filter(quartet -> freeSpaceMatrix.getSpace(quartet.getValue1(), quartet.getValue2()) > 0)
-                .map(quartet -> quartet.setAt3(weightMatrix.getValue(quartet.getValue1(), quartet.getValue2())))
-                .sorted(makeComparator(length).reversed()).collect(Collectors.toList());
+        return toRank
+                .stream().filter(
+                        triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) > 0)
+                .sorted(Comparator
+                        .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
+                                freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2())))
+                        .thenComparingDouble(triplet -> weightMatrix.getValue(triplet.getValue1(), triplet.getValue2()))
+                        .thenComparingDouble(triplet -> getCrossWeight(triplet.getValue1(), triplet.getValue2()))
+                        .thenComparingDouble(triplet -> getOpportunitiesWeight(triplet.getValue0(), triplet.getValue1(),
+                                triplet.getValue2()))
+                        .reversed())
+                .map(Triplet::getValue0).findFirst();
     }
 
-    public List<Quartet<String, Integer, Integer, Double>> bestMove(GameStateDto gameState) {
+    public Optional<String> bestMove(GameStateDto gameState) {
         final CoordsDto head = gameState.getYou().getHead();
         final int length = gameState.getYou().getLength();
 
         final int x = head.getX();
         final int y = head.getY();
 
-        List<Quartet<String, Integer, Integer, Double>> ranked = new LinkedList<>();
-        ranked.add(new Quartet<>(DOWN, x, y - 1, 0.0));
-        ranked.add(new Quartet<>(LEFT, x - 1, y, 0.0));
-        ranked.add(new Quartet<>(RIGHT, x + 1, y, 0.0));
-        ranked.add(new Quartet<>(UP, x, y + 1, 0.0));
+        List<Triplet<String, Integer, Integer>> ranked = new LinkedList<>();
+        ranked.add(new Triplet<>(DOWN, x, y - 1));
+        ranked.add(new Triplet<>(LEFT, x - 1, y));
+        ranked.add(new Triplet<>(RIGHT, x + 1, y));
+        ranked.add(new Triplet<>(UP, x, y + 1));
 
         return rank(ranked, length);
     }
@@ -295,26 +286,21 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
     }
 
     @Override
-    public List<Quartet<String, Integer, Integer, Double>> processMoveMeta(GameStateDto gameState) {
+    public Move processMove(GameStateDto gameState) {
         // for test compatibility
         if (!initialized) {
             initOnce(gameState);
             initialized = true;
         }
 
-        applyGameState(gameState);
-        return bestMove(gameState);
-    }
+        applyGameState((GameStatePredictor) gameState);
+        Optional<String> move = bestMove(gameState);
 
-    @Override
-    public Move processMove(GameStateDto gameState) {
-        List<Quartet<String, Integer, Integer, Double>> moves = processMoveMeta(gameState);
-
-        if (moves.isEmpty()) {
+        if (move.isEmpty()) {
             return new Move(); // would repeat last turn
         }
 
-        return new Move(moves.get(0).getValue0());
+        return new Move(move.get());
     }
 
     @Override
@@ -331,11 +317,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IMetaEnabledGameSt
     public static class WeightedSearchStrategyConfiguration {
         @Bean("Snake_1a")
         public Supplier<IGameStrategy> weightedSearch() {
-            return () -> new WeightedSearchStrategy(false);
-        }
-
-        public static Supplier<WeightedSearchStrategy> weightedSearchMeta() {
-            return () -> new WeightedSearchStrategy(true);
+            return WeightedSearchStrategy::new;
         }
     }
 }

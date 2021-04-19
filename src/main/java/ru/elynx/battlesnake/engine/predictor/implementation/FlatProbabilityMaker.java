@@ -1,29 +1,29 @@
-package ru.elynx.battlesnake.engine.game.predictor.impl;
+package ru.elynx.battlesnake.engine.predictor.implementation;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
 
-class FlatProbabilityMaker {
-    protected int[] stack;
-    protected int stackPos;
+public class FlatProbabilityMaker {
+    private int[] stack;
+    private int stackPos;
 
-    FlatProbabilityMaker() {
+    public FlatProbabilityMaker() {
         stack = new int[8];
     }
 
-    void reset() {
+    public void reset() {
         stackPos = 0;
     }
 
-    void add(int x, int y) {
+    public void add(int x, int y) {
         stack[stackPos] = x;
         stack[stackPos + 1] = y;
         stackPos += 2;
     }
 
-    List<Triplet<Integer, Integer, Double>> make() {
+    public List<Triplet<Integer, Integer, Double>> make() {
         if (stackPos == 0)
             return Collections.emptyList();
 

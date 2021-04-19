@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
-import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;

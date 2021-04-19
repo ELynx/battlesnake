@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.elynx.battlesnake.engine.game.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;

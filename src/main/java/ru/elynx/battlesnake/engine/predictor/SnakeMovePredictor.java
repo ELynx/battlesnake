@@ -1,8 +1,9 @@
-package ru.elynx.battlesnake.engine.game.predictor.impl;
+package ru.elynx.battlesnake.engine.predictor;
 
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
+import ru.elynx.battlesnake.engine.predictor.implementation.FlatProbabilityMaker;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
