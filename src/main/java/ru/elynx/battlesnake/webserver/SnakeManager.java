@@ -21,6 +21,7 @@ import ru.elynx.battlesnake.protocol.Move;
 public class SnakeManager {
     private static final long STALE_SNAKE_ROUTINE_DELAY = 60000; // milliseconds
     private static final long STALE_SNAKE_AGE = 5000; // milliseconds
+
     private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, Snake> activeSnakes = new ConcurrentHashMap<>();

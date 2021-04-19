@@ -41,15 +41,15 @@ public class GameController {
                 + gameState.getYou().getName() + "] / [" + gameState.getYou().getId() + ']';
     }
 
+    private static HttpStatus randomBadHttpStatus() {
+        final int position = new Random().nextInt(BAD_HTTP_STATUSES.length);
+        return BAD_HTTP_STATUSES[position];
+    }
+
     @ExceptionHandler(SnakeNotFoundException.class)
     public final ResponseEntity<Void> handleSnakeNotFoundException(SnakeNotFoundException e, WebRequest webRequest) {
         logger.error("Exception handler for SnakeNotFound", e);
         return ResponseEntity.notFound().build();
-    }
-
-    private static HttpStatus randomBadHttpStatus() {
-        final int position = new Random().nextInt(BAD_HTTP_STATUSES.length);
-        return BAD_HTTP_STATUSES[position];
     }
 
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,8 +65,6 @@ public class GameController {
             @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game start {}", terseId);
-        logger.info("Ruleset {}", gameState.getGame().getRuleset());
-        logger.info("Timeout {}", gameState.getGame().getTimeout());
         statisticsTracker.start(gameState);
 
         if (!name.equals(gameState.getYou().getName())) {
