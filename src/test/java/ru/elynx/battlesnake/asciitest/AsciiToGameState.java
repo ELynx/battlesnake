@@ -13,6 +13,7 @@ public class AsciiToGameState {
     private final String ascii;
     // has some defaults, thus added by "builder" pattern
     private int startSnakeSize = 3;
+    private String hazards = null;
     // per-snakes
     private Map<String, Integer> healts = new HashMap<>();
     private Map<String, Integer> latencies = new HashMap<>();
@@ -22,16 +23,33 @@ public class AsciiToGameState {
     }
 
     public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
+        if (startSnakeSize <= 0)
+            throw new IllegalArgumentException("Snake size must be greater than 0");
+
         this.startSnakeSize = startSnakeSize;
         return this;
     }
 
+    public AsciiToGameState setHazards(String hazards) {
+        if (ascii.length() != hazards.length())
+            throw new IllegalArgumentException("Hazards must be size of main ascii field");
+
+        this.hazards = hazards;
+        return this;
+    }
+
     public AsciiToGameState setHealth(String name, int health) {
+        if (health < 0)
+            throw new IllegalArgumentException("Health must be greater or equal to 0");
+
         healts.put(name, health);
         return this;
     }
 
     public AsciiToGameState setLatency(String name, int latency) {
+        if (latency < 0)
+            throw new IllegalArgumentException("Latency must be greater or equal to 0");
+
         latencies.put(name, latency);
         return this;
     }
@@ -200,7 +218,32 @@ public class AsciiToGameState {
         }
 
         board.setFood(food);
-        board.setHazards(Collections.emptyList());
+
+        if (hazards == null) {
+            board.setHazards(Collections.emptyList());
+        } else {
+            List<CoordsDto> toAdd = new LinkedList<>();
+
+            List<String> rows2 = Arrays.asList(hazards.split("\\r?\\n"));
+            rows2.removeAll(Arrays.asList("", null));
+
+            for (int w = 0; w < width; ++w) {
+                for (int h = 0; h < height; ++h) {
+                    int x = w;
+                    int y = height - h - 1;
+                    CoordsDto coords = new CoordsDto(x, y);
+
+                    char c = rows2.get(h).charAt(w);
+
+                    if (c == 'H') {
+                        toAdd.add(coords);
+                    }
+                }
+            }
+
+            board.setHazards(toAdd);
+        }
+
         board.setSnakes(snakes);
 
         gameState.setBoard(board);

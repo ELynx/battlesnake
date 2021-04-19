@@ -46,7 +46,7 @@ public class Move {
         this.dropRequest = dropRequest;
     }
 
-    public Boolean getRepeatLast() {
+    public Boolean repeatLast() {
         return repeatLast;
     }
 
