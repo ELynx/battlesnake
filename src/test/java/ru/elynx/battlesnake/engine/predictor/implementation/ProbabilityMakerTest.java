@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Comparator;
 import java.util.List;
 import org.javatuples.Triplet;
 import org.junit.jupiter.api.Test;
@@ -74,5 +75,44 @@ class ProbabilityMakerTest {
         assertThat(list.get(1).getValue2(), is(closeTo(0.25d, fuzz)));
         assertThat(list.get(2).getValue2(), is(closeTo(0.25d, fuzz)));
         assertThat(list.get(3).getValue2(), is(closeTo(0.25d, fuzz)));
+    }
+
+    @Test
+    void test_make_scored() {
+        ProbabilityMaker tested = new ProbabilityMaker();
+        List<Triplet<Integer, Integer, Double>> list;
+
+        tested.add(0, 0, -1);
+        tested.add(0, 0, 0);
+        list = tested.make();
+        assertTrue(list.isEmpty(), "Non-positive score must be skipped");
+
+        tested.add(0, 0, 3);
+        list = tested.make();
+        assertEquals(1, list.size());
+        assertThat(list.get(0).getValue2(), is(closeTo(1.0d, fuzz)));
+
+        tested.add(1, 1, 3);
+        list = tested.make();
+        assertEquals(2, list.size());
+        assertThat(list.get(0).getValue2(), is(closeTo(0.5d, fuzz)));
+        assertThat(list.get(1).getValue2(), is(closeTo(0.5d, fuzz)));
+
+        tested.add(2, 2, 6);
+        list = tested.make();
+        assertEquals(3, list.size());
+        list.sort(Comparator.comparingDouble(Triplet::getValue2));
+        assertThat(list.get(0).getValue2(), is(closeTo(1.0d / 4.0d, fuzz)));
+        assertThat(list.get(1).getValue2(), is(closeTo(1.0d / 4.0d, fuzz)));
+        assertThat(list.get(2).getValue2(), is(closeTo(1.0d / 2.0d, fuzz)));
+
+        tested.add(3, 3, 6);
+        list = tested.make();
+        assertEquals(4, list.size());
+        list.sort(Comparator.comparingDouble(Triplet::getValue2));
+        assertThat(list.get(0).getValue2(), is(closeTo(1.0d / 6.0d, fuzz)));
+        assertThat(list.get(1).getValue2(), is(closeTo(1.0d / 6.0d, fuzz)));
+        assertThat(list.get(2).getValue2(), is(closeTo(1.0d / 3.0d, fuzz)));
+        assertThat(list.get(3).getValue2(), is(closeTo(1.0d / 3.0d, fuzz)));
     }
 }
