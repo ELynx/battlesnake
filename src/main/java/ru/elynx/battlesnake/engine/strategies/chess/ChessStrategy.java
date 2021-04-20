@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
 public class ChessStrategy implements IGameStrategy {
@@ -42,17 +43,17 @@ public class ChessStrategy implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(GameStateDto gameState) {
+    public Void processStart(GameStatePredictor gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(GameStateDto gameState) {
+    public Move processMove(GameStatePredictor gameState) {
         return new Move(makeMove(gameState), "e4e2");
     }
 
     @Override
-    public Void processEnd(GameStateDto gameState) {
+    public Void processEnd(GameStatePredictor gameState) {
         return null;
     }
 

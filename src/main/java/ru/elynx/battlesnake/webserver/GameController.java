@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
@@ -40,49 +41,50 @@ public class GameController {
                 + gameState.getYou().getName() + "] / [" + gameState.getYou().getId() + ']';
     }
 
-    @ExceptionHandler(SnakeNotFoundException.class)
-    public final ResponseEntity<Void> handleSnakeNotFoundException(SnakeNotFoundException e, WebRequest webRequest) {
-        return ResponseEntity.notFound().build();
-    }
-
     private static HttpStatus randomBadHttpStatus() {
         final int position = new Random().nextInt(BAD_HTTP_STATUSES.length);
         return BAD_HTTP_STATUSES[position];
     }
 
+    @ExceptionHandler(SnakeNotFoundException.class)
+    public final ResponseEntity<Void> handleSnakeNotFoundException(SnakeNotFoundException e, WebRequest webRequest) {
+        logger.error("Exception handler for SnakeNotFound", e);
+        return ResponseEntity.notFound().build();
+    }
+
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name) {
         logger.info("Processing root meta call");
-        statisticsTracker.root();
+        statisticsTracker.root(name);
+
         return ResponseEntity.ok(new BattlesnakeInfoDto(snakeManager.root(name)));
     }
 
     @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game start {}", terseId);
         statisticsTracker.start(gameState);
-        logger.info("Ruleset {}", gameState.getGame().getRuleset());
-        logger.info("Timeout {}", gameState.getGame().getTimeout());
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok(snakeManager.start(gameState));
     }
 
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.debug("Processing request game move {}", terseId);
         statisticsTracker.move(gameState);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
-        if (gameState.getYou().isTimedOut()) {
-            statisticsTracker.timeout();
-        }
+
         Move move = snakeManager.move(gameState);
         if (Boolean.FALSE.equals(move.getDropRequest())) {
             return ResponseEntity.ok(new MoveDto(move));
@@ -93,13 +95,15 @@ public class GameController {
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
-            @RequestBody @Valid GameStateDto gameState) {
+            @RequestBody @Valid GameStatePredictor gameState) {
         final String terseId = terseIdentification(gameState);
         logger.info("Processing request game end {}", terseId);
         statisticsTracker.end(gameState);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok(snakeManager.end(gameState));
     }
 }

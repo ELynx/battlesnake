@@ -26,12 +26,6 @@ public class UtilityController {
         statisticsTracker.ping();
 
         final long statusPings = statisticsTracker.getPings();
-        final long snakePings = statisticsTracker.getRootCalls();
-        final long snakeStarts = statisticsTracker.getStartCalls();
-        final long snakeMoves = statisticsTracker.getMoveCalls();
-        final long snakeEnds = statisticsTracker.getEndCalls();
-        final long snakeVictories = statisticsTracker.getVictories();
-        final long snakeDefeats = statisticsTracker.getDefeats();
 
         final long mb = 1024L * 1024L;
         Runtime runtime = Runtime.getRuntime();
@@ -39,10 +33,8 @@ public class UtilityController {
         final long freeMemory = runtime.freeMemory() / mb;
         final long totalMemory = runtime.totalMemory() / mb;
 
-        String response = String.format(
-                "Status pings %s%nSnake pings %s%nSnake start calls %s%nSnake move calls %s%nSnake end calls %s%nSnake victories %s%nSnake defeats %s%nFree memory, MB %s%nTotal memory, MB %s",
-                statusPings, snakePings, snakeStarts, snakeMoves, snakeEnds, snakeVictories, snakeDefeats, freeMemory,
-                totalMemory);
+        String response = String.format("Status pings %s%nFree memory, MB %s%nTotal memory, MB %s", statusPings,
+                freeMemory, totalMemory);
 
         return ResponseEntity.ok(response);
     }

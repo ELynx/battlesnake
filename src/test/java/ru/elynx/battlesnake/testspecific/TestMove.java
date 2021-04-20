@@ -1,31 +1,25 @@
 package ru.elynx.battlesnake.testspecific;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.DOWN;
-import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
-
 import ru.elynx.battlesnake.protocol.Move;
 
 public class TestMove extends Move {
     private final ToApiVersion toApiVersion;
 
     public TestMove(Move move, ToApiVersion toApiVersion) {
+        if (toApiVersion == ToApiVersion.V0) {
+            throw new IllegalArgumentException("V0 APIs are not supported by TestMove");
+        }
+
         this.toApiVersion = toApiVersion;
 
-        this.setMove(move.getMove());
-        this.setShout(move.getShout());
-        this.setDropRequest(move.getDropRequest());
+        super.setMove(move.getMove());
+        super.setShout(move.getShout());
+        super.setDropRequest(move.getDropRequest());
+        super.setRepeatLast(move.repeatLast());
     }
 
     @Override
     public String getMove() {
-        if (this.toApiVersion == ToApiVersion.V0) {
-            if (super.getMove().equalsIgnoreCase(UP)) {
-                return DOWN;
-            } else if (super.getMove().equalsIgnoreCase(DOWN)) {
-                return UP;
-            }
-        }
-
         return super.getMove();
     }
 

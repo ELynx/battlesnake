@@ -30,7 +30,20 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        GameStateDto dto = tested.setHealth("Y", 99).setLatency("A", 0).build();
+        GameStateDto dto = tested.setTurn(123).setRulesetName("standard").setStartSnakeSize(4).setHealth("Y", 99)
+                .setLatency("A", 0).setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "HHHHHHHHHHH\n")
+                .build();
 
         assertNotNull(dto.getGame());
         assertNotNull(dto.getGame().getId());
@@ -110,6 +123,24 @@ class AsciiToGameStateTest {
         assertThat(dto.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
     }
 
+    @Test
+    void test_turn() {
+        AsciiToGameState tested = new AsciiToGameState("Y");
+
+        GameStateDto dto = tested.setTurn(234).build();
+
+        assertEquals(234, dto.getTurn());
+    }
+
+    @Test
+    void test_ruleset_name() {
+        AsciiToGameState tested = new AsciiToGameState("Y");
+
+        GameStateDto dto = tested.setRulesetName("qwerty").build();
+
+        assertEquals("qwerty", dto.getGame().getRuleset().getName());
+    }
+
     private static SnakeDto getSnakeOrNull(GameStateDto gameStateDto, String snakeName) {
         return gameStateDto.getBoard().getSnakes().stream().filter(snake -> snake.getId().equals(snakeName)).findAny()
                 .orElse(null);
@@ -126,6 +157,34 @@ class AsciiToGameStateTest {
         for (SnakeDto snakeDto : dto.getBoard().getSnakes()) {
             assertEquals(11, snakeDto.getLength());
         }
+    }
+
+    @Test
+    void test_hazard() {
+        AsciiToGameState tested = new AsciiToGameState("" + //
+                "Y__________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        GameStateDto dto = tested.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n").build();
+
+        assertEquals(55, dto.getBoard().getHazards().size());
+
+        dto = tested.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "H_________H\n" + //
+                "H_________H\n" + //
+                "H_________H\n" + //
+                "HHHHHHHHHHH\n").build();
+
+        assertEquals(28, dto.getBoard().getHazards().size());
     }
 
     @Test

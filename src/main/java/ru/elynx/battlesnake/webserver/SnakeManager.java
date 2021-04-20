@@ -1,5 +1,7 @@
 package ru.elynx.battlesnake.webserver;
 
+import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,17 +13,18 @@ import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.IGameStrategyFactory;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
 
 @Service
 public class SnakeManager {
     private static final long STALE_SNAKE_ROUTINE_DELAY = 60000; // milliseconds
     private static final long STALE_SNAKE_AGE = 5000; // milliseconds
+
     private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
-    private final Map<String, Snake> activeSnakes = new ConcurrentHashMap<>();
+    private final Map<String, SnakeState> activeSnakes = new ConcurrentHashMap<>();
 
     @Autowired
     public SnakeManager(IGameStrategyFactory gameStrategyFactory) {
@@ -33,11 +36,11 @@ public class SnakeManager {
         return tmp.getBattesnakeInfo();
     }
 
-    private Snake computeSnake(String uid, String nameOnCreation) throws SnakeNotFoundException {
+    private SnakeState computeSnake(String uid, String nameOnCreation) throws SnakeNotFoundException {
         return activeSnakes.compute(uid, (key, value) -> {
             if (value == null) {
                 logger.debug("Creating new [{}] instance [{}]", nameOnCreation, uid);
-                return new Snake(gameStrategyFactory.getGameStrategy(nameOnCreation));
+                return new SnakeState(gameStrategyFactory.getGameStrategy(nameOnCreation));
             }
 
             logger.debug("Accessing existing snake instance [{}]", uid);
@@ -46,7 +49,7 @@ public class SnakeManager {
         });
     }
 
-    private Snake removeSnake(String uid) {
+    private SnakeState removeSnake(String uid) {
         logger.debug("Releasing snake instance [{}]", uid);
         return activeSnakes.remove(uid);
     }
@@ -78,32 +81,59 @@ public class SnakeManager {
         return getSnakeInfo(name);
     }
 
-    public Void start(GameStateDto gameState) throws SnakeNotFoundException {
+    public Void start(GameStatePredictor gameState) throws SnakeNotFoundException {
         return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
                 .processStart(gameState);
     }
 
-    public Move move(GameStateDto gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
-                .processMove(gameState);
+    public Move move(GameStatePredictor gameState) throws SnakeNotFoundException {
+        final SnakeState snakeState = computeSnake(gameState.getYou().getId(), gameState.getYou().getName());
+
+        // track hazards
+        if (!snakeState.hazardSeen && !gameState.getBoard().getHazards().isEmpty()) {
+            snakeState.hazardStep = gameState.getTurn();
+            snakeState.hazardSeen = true;
+        }
+
+        // provide hazards info
+        gameState.setHazardStep(snakeState.hazardStep);
+
+        final Move move = snakeState.gameStrategy.processMove(gameState);
+
+        // provide last move on request
+        if (Boolean.TRUE.equals(move.repeatLast())) {
+            return new Move(snakeState.lastMove, move.getShout());
+        }
+
+        // track last move
+        snakeState.lastMove = move.getMove();
+
+        return move;
     }
 
-    public Void end(GameStateDto gameState) {
-        final Snake snake = removeSnake(gameState.getYou().getId());
-        if (snake == null) {
+    public Void end(GameStatePredictor gameState) {
+        final SnakeState snakeState = removeSnake(gameState.getYou().getId());
+        if (snakeState == null) {
             throw new SnakeNotFoundException(gameState.getYou().getName());
         }
 
-        return snake.gameStrategy.processEnd(gameState);
+        return snakeState.gameStrategy.processEnd(gameState);
     }
 
-    private static class Snake {
+    private static class SnakeState {
         final IGameStrategy gameStrategy;
         Instant accessTime;
+        String lastMove;
+        int hazardStep;
+        boolean hazardSeen;
 
-        Snake(IGameStrategy gameStrategy) {
+        SnakeState(IGameStrategy gameStrategy) {
             this.gameStrategy = gameStrategy;
             this.accessTime = Instant.now();
+            this.lastMove = UP;
+            this.hazardStep = 25; // by default
+            this.hazardSeen = false;
+
         }
     }
 }

@@ -15,6 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
@@ -24,14 +25,14 @@ import ru.elynx.battlesnake.testspecific.ToApiVersion;
 class GameStrategyBasicTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
 
-    static GameStateDto dummyGameState;
+    static GameStatePredictor dummyGameState;
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
     @BeforeAll
     static void fillDummies() {
-        dummyGameState = new GameStateDto();
+        dummyGameState = new GameStatePredictor();
 
         dummyGameState.setGame(new GameDto());
         dummyGameState.getGame().setId(GameStrategyBasicTest.class.getSimpleName());
@@ -42,7 +43,7 @@ class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Snake_1", "Snake_1a");
+        return Stream.of("Snake_1a");
     }
 
     @BeforeEach
@@ -56,7 +57,7 @@ class GameStrategyBasicTest {
         dummyGameState.setYou(new TestSnakeDto(ToApiVersion.V0)); // v0 for lazy init
         dummyGameState.getYou().setId("TestYou-id");
         dummyGameState.getYou().setName("TestYou-name");
-        dummyGameState.getYou().setHealth(100);
+        dummyGameState.getYou().setHealth(99);
         dummyGameState.getYou().setBody(new LinkedList<>());
         dummyGameState.getYou().getBody().add(new CoordsDto(0, 0));
         dummyGameState.getYou().setShout("TestYou-shout");

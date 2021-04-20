@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
@@ -11,26 +12,59 @@ public class AsciiToGameState {
     // mandatory
     private final String ascii;
     // has some defaults, thus added by "builder" pattern
+    private int turn = 42;
+    private String rulesetName = "standard";
     private int startSnakeSize = 3;
+    private String hazards = null;
     // per-snakes
-    private Map<String, Integer> healts = new HashMap<>();
+    private Map<String, Integer> healths = new HashMap<>();
     private Map<String, Integer> latencies = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
     }
 
+    public AsciiToGameState setTurn(int turn) {
+        if (turn < 0)
+            throw new IllegalArgumentException("Turn must be greater or equal to 0");
+
+        this.turn = turn;
+        return this;
+    }
+
+    public AsciiToGameState setRulesetName(String rulesetName) {
+        this.rulesetName = rulesetName;
+        return this;
+    }
+
     public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
+        if (startSnakeSize <= 0)
+            throw new IllegalArgumentException("Snake size must be greater than 0");
+
         this.startSnakeSize = startSnakeSize;
         return this;
     }
 
+    public AsciiToGameState setHazards(String hazards) {
+        if (ascii.length() != hazards.length())
+            throw new IllegalArgumentException("Hazards must be size of main ascii field");
+
+        this.hazards = hazards;
+        return this;
+    }
+
     public AsciiToGameState setHealth(String name, int health) {
-        healts.put(name, health);
+        if (health < 0)
+            throw new IllegalArgumentException("Health must be greater or equal to 0");
+
+        healths.put(name, health);
         return this;
     }
 
     public AsciiToGameState setLatency(String name, int latency) {
+        if (latency < 0)
+            throw new IllegalArgumentException("Latency must be greater or equal to 0");
+
         latencies.put(name, latency);
         return this;
     }
@@ -101,13 +135,13 @@ public class AsciiToGameState {
         return neighbours.get(0).getKey();
     }
 
-    public GameStateDto build() {
+    public GameStatePredictor build() {
         if (ascii.indexOf('V') >= 0) {
             throw new IllegalStateException("V is not allowed in ascii");
         }
 
         RulesetDto ruleset = new RulesetDto();
-        ruleset.setName("standard");
+        ruleset.setName(rulesetName);
         ruleset.setVersion("1.0.0");
 
         GameDto game = new GameDto();
@@ -115,9 +149,9 @@ public class AsciiToGameState {
         game.setRuleset(ruleset);
         game.setTimeout(500);
 
-        GameStateDto gameState = new GameStateDto();
+        GameStatePredictor gameState = new GameStatePredictor();
         gameState.setGame(game);
-        gameState.setTurn(42);
+        gameState.setTurn(turn);
 
         BoardDto board = new BoardDto();
 
@@ -159,7 +193,7 @@ public class AsciiToGameState {
                     SnakeDto snake = new TestSnakeDto(ToApiVersion.V1);
                     snake.setId(s);
                     snake.setName("Snake " + s);
-                    snake.setHealth(healts.getOrDefault(s, 100));
+                    snake.setHealth(healths.getOrDefault(s, 99));
                     snake.setLatency(latencies.getOrDefault(s, 100));
                     snake.setHead(coords);
                     snake.setSquad("Test squad " + s);
@@ -199,7 +233,32 @@ public class AsciiToGameState {
         }
 
         board.setFood(food);
-        board.setHazards(Collections.emptyList());
+
+        if (hazards == null) {
+            board.setHazards(Collections.emptyList());
+        } else {
+            List<CoordsDto> toAdd = new LinkedList<>();
+
+            List<String> rows2 = Arrays.asList(hazards.split("\\r?\\n"));
+            rows2.removeAll(Arrays.asList("", null));
+
+            for (int w = 0; w < width; ++w) {
+                for (int h = 0; h < height; ++h) {
+                    int x = w;
+                    int y = height - h - 1;
+                    CoordsDto coords = new CoordsDto(x, y);
+
+                    char c = rows2.get(h).charAt(w);
+
+                    if (c == 'H') {
+                        toAdd.add(coords);
+                    }
+                }
+            }
+
+            board.setHazards(toAdd);
+        }
+
         board.setSnakes(snakes);
 
         gameState.setBoard(board);
