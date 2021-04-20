@@ -9,19 +9,19 @@ import java.util.List;
 import org.javatuples.Triplet;
 import org.junit.jupiter.api.Test;
 
-class FlatProbabilityMakerTest {
+class ProbabilityMakerTest {
     private static final double fuzz = 0.0001d;
 
     @Test
     void test_ctor() {
-        FlatProbabilityMaker tested = new FlatProbabilityMaker();
+        ProbabilityMaker tested = new ProbabilityMaker();
 
         assertEquals(0, tested.make().size(), "Newly created is empty");
     }
 
     @Test
     void test_add_and_reset() {
-        FlatProbabilityMaker tested = new FlatProbabilityMaker();
+        ProbabilityMaker tested = new ProbabilityMaker();
 
         tested.add(0, 0);
 
@@ -34,7 +34,7 @@ class FlatProbabilityMakerTest {
 
     @Test
     void test_add_excess() {
-        FlatProbabilityMaker tested = new FlatProbabilityMaker();
+        ProbabilityMaker tested = new ProbabilityMaker();
 
         tested.add(0, 0);
         tested.add(1, 1);
@@ -46,7 +46,7 @@ class FlatProbabilityMakerTest {
 
     @Test
     void test_make() {
-        FlatProbabilityMaker tested = new FlatProbabilityMaker();
+        ProbabilityMaker tested = new ProbabilityMaker();
         List<Triplet<Integer, Integer, Double>> list;
 
         tested.add(0, 0);

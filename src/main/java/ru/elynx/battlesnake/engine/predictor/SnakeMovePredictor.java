@@ -3,18 +3,18 @@ package ru.elynx.battlesnake.engine.predictor;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
-import ru.elynx.battlesnake.engine.predictor.implementation.FlatProbabilityMaker;
+import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
     protected IPredictorInformant informant;
 
-    protected FlatProbabilityMaker flatProbabilityMaker;
+    protected ProbabilityMaker probabilityMaker;
 
     public SnakeMovePredictor(IPredictorInformant informant) {
         this.informant = informant;
 
-        this.flatProbabilityMaker = new FlatProbabilityMaker();
+        this.probabilityMaker = new ProbabilityMaker();
     }
 
     protected void addIfWalkable(int x, int y) {
@@ -24,7 +24,7 @@ public class SnakeMovePredictor {
     }
 
     protected void add(int x, int y) {
-        flatProbabilityMaker.add(x, y);
+        probabilityMaker.add(x, y);
     }
 
     public List<Triplet<Integer, Integer, Double>> predict(SnakeDto snake) {
@@ -33,7 +33,7 @@ public class SnakeMovePredictor {
             return Collections.emptyList();
         }
 
-        flatProbabilityMaker.reset();
+        probabilityMaker.reset();
 
         // head this turn
         final int x1 = snake.getHead().getX();
@@ -59,7 +59,7 @@ public class SnakeMovePredictor {
             addIfWalkable(x1 + 1, y1);
             addIfWalkable(x1, y1 + 1);
 
-            return flatProbabilityMaker.make();
+            return probabilityMaker.make();
         }
 
         // delta of this move
@@ -73,7 +73,7 @@ public class SnakeMovePredictor {
         if (snake.isTimedOut()) {
             // timed out snakes do not care for walk-ability
             add(xf, yf);
-            return flatProbabilityMaker.make();
+            return probabilityMaker.make();
         }
 
         // magic of matrix multiplication
@@ -92,6 +92,6 @@ public class SnakeMovePredictor {
         addIfWalkable(xl, yl);
         addIfWalkable(xr, yr);
 
-        return flatProbabilityMaker.make();
+        return probabilityMaker.make();
     }
 }
