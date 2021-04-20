@@ -87,7 +87,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 final int x = coordsDto.getX();
                 final int y = coordsDto.getY();
 
-                weightMatrix.setValue(x, y, SNAKE_BODY_WEIGHT);
+                weightMatrix.addValue(x, y, SNAKE_BODY_WEIGHT);
                 freeSpaceMatrix.setOccupied(x, y);
             }
         }
@@ -151,7 +151,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             final int x = hazard.getX();
             final int y = hazard.getY();
 
-            weightMatrix.setValue(x, y, DETERRENT_WEIGHT);
+            weightMatrix.addValue(x, y, DETERRENT_WEIGHT);
         }
 
         for (Triplet<Integer, Integer, Double> prediction : gameState.getPredictedHazards()) {
@@ -160,7 +160,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             final double pv = prediction.getValue2();
             final double pw = DETERRENT_WEIGHT * pv;
 
-            weightMatrix.setValue(x, y, pw);
+            weightMatrix.addValue(x, y, pw);
         }
     }
 

@@ -6,16 +6,14 @@ public class DoubleMatrix {
     private final int width;
     private final int height;
     private final int length;
-    private final double[] directValues;
-    private final double[] splashValues;
+    private final double[] values;
     private final double outsideValue;
 
     protected DoubleMatrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
-        this.directValues = new double[this.length];
-        this.splashValues = new double[this.length];
+        this.values = new double[this.length];
         this.outsideValue = outsideValue;
     }
 
@@ -31,8 +29,7 @@ public class DoubleMatrix {
 
     public void zero() {
         for (int i = 0; i < length; ++i) {
-            directValues[i] = Double.NaN;
-            splashValues[i] = Double.NaN;
+            values[i] = 0.0d;
         }
     }
 
@@ -44,39 +41,17 @@ public class DoubleMatrix {
         return unsafeGetValue(index);
     }
 
-    public boolean setValue(int x, int y, double value) {
+    public boolean addValue(int x, int y, double value) {
         final int index = safeIndex(x, y);
         if (index < 0)
             return false;
 
-        unsafeSetDirectValue(index, value);
+        unsafeAddValue(index, value);
         return true;
-    }
-
-    protected boolean addSplashValue(int x, int y, double value) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
-            return false;
-
-        unsafeAddSplashValue(index, value);
-        return true;
-    }
-
-    @Deprecated
-    public boolean splash1stOrderLegacy(int x, int y, double valueAtImpact) {
-        return splash1stOrderLegacy(x, y, valueAtImpact, DEFAULT_SPLASH);
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
-    }
-
-    @Deprecated
-    public boolean splash1stOrderLegacy(int x, int y, double valueAtImpact, double denominator) {
-        if (setValue(x, y, valueAtImpact))
-            return splash1stOrder(x, y, valueAtImpact, denominator);
-
-        return false;
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
@@ -85,13 +60,13 @@ public class DoubleMatrix {
             return false;
 
         // if impact is out of matrix ignore the setter
-        if (addSplashValue(x, y, valueAtImpact)) {
+        if (addValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            addSplashValue(x, y - 1, valueAtImpact);
-            addSplashValue(x - 1, y, valueAtImpact);
-            addSplashValue(x + 1, y, valueAtImpact);
-            addSplashValue(x, y + 1, valueAtImpact);
+            addValue(x, y - 1, valueAtImpact);
+            addValue(x - 1, y, valueAtImpact);
+            addValue(x + 1, y, valueAtImpact);
+            addValue(x, y + 1, valueAtImpact);
 
             return true;
         }
@@ -99,31 +74,18 @@ public class DoubleMatrix {
         return false;
     }
 
-    @Deprecated
-    public boolean splash2ndOrderLegacy(int x, int y, double valueAtImpact) {
-        return splash2ndOrderLegacy(x, y, valueAtImpact, DEFAULT_SPLASH);
-    }
-
     public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
         return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
-    }
-
-    @Deprecated
-    public boolean splash2ndOrderLegacy(int x, int y, double valueAtImpact, double denominator) {
-        if (setValue(x, y, valueAtImpact))
-            return splash2ndOrder(x, y, valueAtImpact, denominator);
-
-        return false;
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
         if (splash1stOrder(x, y, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            addSplashValue(x - 1, y - 1, valueAtImpact);
-            addSplashValue(x + 1, y - 1, valueAtImpact);
-            addSplashValue(x - 1, y + 1, valueAtImpact);
-            addSplashValue(x + 1, y + 1, valueAtImpact);
+            addValue(x - 1, y - 1, valueAtImpact);
+            addValue(x + 1, y - 1, valueAtImpact);
+            addValue(x - 1, y + 1, valueAtImpact);
+            addValue(x + 1, y + 1, valueAtImpact);
 
             return true;
         }
@@ -143,26 +105,10 @@ public class DoubleMatrix {
     }
 
     protected double unsafeGetValue(int index) {
-        if (Double.isNaN(directValues[index])) {
-            if (Double.isNaN(splashValues[index])) {
-                return 0.0d;
-            } else {
-                return splashValues[index];
-            }
-        } else {
-            return directValues[index];
-        }
+        return values[index];
     }
 
-    protected void unsafeSetDirectValue(int index, double value) {
-        directValues[index] = value;
-    }
-
-    protected void unsafeAddSplashValue(int index, double value) {
-        if (Double.isNaN(splashValues[index])) {
-            splashValues[index] = value;
-        } else {
-            splashValues[index] += value;
-        }
+    protected void unsafeAddValue(int index, double value) {
+        values[index] += value;
     }
 }
