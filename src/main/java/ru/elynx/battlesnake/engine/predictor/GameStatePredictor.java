@@ -1,8 +1,9 @@
 package ru.elynx.battlesnake.engine.predictor;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.protocol.CoordsDto;
@@ -75,7 +76,7 @@ public class GameStatePredictor extends GameStateDto {
 
                 for (int x = 0; x < width; ++x) {
                     if (yMin == -1 && yMax == -1) {
-                        int y = 0;
+                        int y;
                         for (y = 0; y < height; ++y)
                             if (freeSpaceMatrix.getSpace(x, y) > 0) {
                                 yMin = y;
@@ -100,22 +101,30 @@ public class GameStatePredictor extends GameStateDto {
                     }
                 }
 
-                List<Triplet<Integer, Integer, Double>> result = new LinkedList<>();
+                Map<Pair<Integer, Integer>, Double> probabilities = new HashMap<>();
+                final double singleProbability = 0.25d;
 
-                // TODO output only unique locations
+                BiFunction<Integer, Integer, Void> markAsProbable = (Integer x, Integer y) -> {
+                    probabilities.compute(new Pair<>(x, y), (key, value) -> {
+                        if (value == null)
+                            return singleProbability;
+                        return value + singleProbability;
+                    });
+                    return null;
+                };
 
-                // corners are intentionally twice more dangerous
-                double probability = 0.25d;
                 for (int x = xMin; x <= xMax; ++x) {
-                    result.add(new Triplet<>(x, yMin, probability));
-                    result.add(new Triplet<>(x, yMax, probability));
+                    markAsProbable.apply(x, yMin);
+                    markAsProbable.apply(x, yMax);
                 }
                 for (int y = yMin; y <= yMax; ++y) {
-                    result.add(new Triplet<>(xMin, y, probability));
-                    result.add(new Triplet<>(xMax, y, probability));
+                    markAsProbable.apply(xMin, y);
+                    markAsProbable.apply(xMax, y);
                 }
 
-                return result;
+                return probabilities.entrySet().stream()
+                        .map(in -> new Triplet<>(in.getKey().getValue0(), in.getKey().getValue1(), in.getValue()))
+                        .collect(Collectors.toList());
             }
         }
 

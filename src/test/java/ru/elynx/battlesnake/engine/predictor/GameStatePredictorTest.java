@@ -58,13 +58,11 @@ class GameStatePredictorTest {
         tested.setHazardStep(25);
 
         assertEquals(24, tested.getBoard().getHazards().size());
-        assertEquals(4, tested.getPredictedHazards().size());
+        assertEquals(1, tested.getPredictedHazards().size());
 
-        for (int i = 0; i < 4; ++i) {
-            assertEquals(2, tested.getPredictedHazards().get(i).getValue0());
-            assertEquals(2, tested.getPredictedHazards().get(i).getValue1());
-            assertThat(tested.getPredictedHazards().get(i).getValue2(), is(closeTo(0.25d, fuzz)));
-        }
+        assertEquals(2, tested.getPredictedHazards().get(0).getValue0());
+        assertEquals(2, tested.getPredictedHazards().get(0).getValue1());
+        assertThat(tested.getPredictedHazards().get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
         tested = (GameStatePredictor) generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
@@ -96,18 +94,21 @@ class GameStatePredictorTest {
         tested.setHazardStep(25);
 
         assertEquals(24, tested.getBoard().getHazards().size());
-        assertEquals(4, tested.getPredictedHazards().size());
+        assertEquals(1, tested.getPredictedHazards().size());
+        assertEquals(2, tested.getPredictedHazards().get(0).getValue0());
+        assertEquals(2, tested.getPredictedHazards().get(0).getValue1());
+        assertThat(tested.getPredictedHazards().get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
         tested = (GameStatePredictor) generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").build();
         tested.setHazardStep(25);
 
         assertEquals(5, tested.getBoard().getHazards().size());
-        assertEquals(18, tested.getPredictedHazards().size());
+        assertEquals(14, tested.getPredictedHazards().size());
 
         tested = (GameStatePredictor) generator.setHazards("HHHHH\nH___H\nH___H\nH___H\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(16, tested.getBoard().getHazards().size());
-        assertEquals(12, tested.getPredictedHazards().size());
+        assertEquals(8, tested.getPredictedHazards().size());
     }
 }
