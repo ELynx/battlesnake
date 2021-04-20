@@ -259,4 +259,49 @@ class GameStrategyCaseV1Test {
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(LEFT));
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_eat_in_hazard(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_____0_____\n" + //
+                "___A_____0_\n" + //
+                "__v^______0\n" + //
+                "_v<^_______\n" + //
+                "_>>^_bB____\n" + //
+                "__bbv^_>v0_\n" + //
+                "_bb_>^_^v0Y\n" + //
+                "_b_____^v_y\n" + //
+                "_______^v_y\n" + //
+                "_____0__y_y\n" + //
+                "__0_____yyy\n");
+
+        generator.setRulesetName("royale");
+        generator.setTurn(122);
+        generator.setHealth("A", 64);
+        generator.setHealth("B", 52);
+        generator.setHealth("Y", 69);
+        generator.setLatency("A", 38);
+        generator.setLatency("B", 16);
+        generator.setLatency("Y", 77);
+        generator.setHazards("" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n" + //
+                "HH_______HH\n");
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(LEFT));
+    }
 }
