@@ -12,8 +12,11 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 public class GameStatePredictor extends GameStateDto {
     private static final int INITIAL_LENGTH = 3;
     private static final int MAX_HEALTH = 100;
+    private static final String ROYALE_RULESET_NAME = "royale";
 
     protected int hazardStep = 0;
+
+    private List<Triplet<Integer, Integer, Double>> predictedHazardsCache = null;
 
     public void setHazardStep(int hazardStep) {
         this.hazardStep = hazardStep;
@@ -37,19 +40,29 @@ public class GameStatePredictor extends GameStateDto {
     }
 
     public List<Triplet<Integer, Integer, Double>> getPredictedHazards() {
-        if (hazardStep != 0 && "royale".equalsIgnoreCase(getGame().getRuleset().getName())) {
+        if (predictedHazardsCache == null) {
+            predictedHazardsCache = getPredictedHazardsImpl();
+        }
+
+        return predictedHazardsCache;
+    }
+
+    private List<Triplet<Integer, Integer, Double>> getPredictedHazardsImpl() {
+        if (hazardStep != 0 && ROYALE_RULESET_NAME.equalsIgnoreCase(getGame().getRuleset().getName())) {
+            final int width = getBoard().getWidth();
+            final int height = getBoard().getHeight();
+
             // if everything is hazard, there is no more prediction
-            if (getBoard().getHazards().size() >= getBoard().getWidth() * getBoard().getHeight()) {
+            if (getBoard().getHazards().size() >= width * height) {
                 return Collections.emptyList();
             }
 
-            // Go has deterministic random, and only two lower bytes are used
+            // Go has very deterministic pseudorandom, and only two lower bits are used
             // seed is re-used through game, and business logic is based on repeatability
             // in theory, it is quite possible to determine hazards accurately
 
             if (getTurn() % hazardStep == hazardStep - 1) {
-                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyFreeSpaceMatrix(getBoard().getWidth(),
-                        getBoard().getHeight());
+                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyFreeSpaceMatrix(width, height);
 
                 for (CoordsDto hazard : getBoard().getHazards()) {
                     freeSpaceMatrix.setOccupied(hazard.getX(), hazard.getY());
@@ -60,14 +73,16 @@ public class GameStatePredictor extends GameStateDto {
                 int yMin = -1;
                 int yMax = -1;
 
-                for (int x = 0; x < getBoard().getWidth(); ++x) {
+                for (int x = 0; x < width; ++x) {
                     if (yMin == -1 && yMax == -1) {
                         int y = 0;
-                        for (y = 0; y < getBoard().getHeight() && yMin == -1; ++y)
-                            if (freeSpaceMatrix.getSpace(x, y) > 0)
+                        for (y = 0; y < height; ++y)
+                            if (freeSpaceMatrix.getSpace(x, y) > 0) {
                                 yMin = y;
+                                break;
+                            }
 
-                        for (; y < getBoard().getHeight(); ++y)
+                        for (; y < height; ++y)
                             if (freeSpaceMatrix.getSpace(x, y) > 0)
                                 yMax = y;
                             else
@@ -86,6 +101,8 @@ public class GameStatePredictor extends GameStateDto {
                 }
 
                 List<Triplet<Integer, Integer, Double>> result = new LinkedList<>();
+
+                // TODO output only unique locations
 
                 // corners are intentionally twice more dangerous
                 double probability = 0.25d;

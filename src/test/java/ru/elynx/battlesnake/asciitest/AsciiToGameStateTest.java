@@ -30,18 +30,20 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        GameStateDto dto = tested.setStartSnakeSize(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
-                "HHHHHHHHHHH\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "H_________H\n" + //
-                "HHHHHHHHHHH\n").build();
+        GameStateDto dto = tested.setTurn(123).setRulesetName("standard").setStartSnakeSize(4).setHealth("Y", 99)
+                .setLatency("A", 0).setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "HHHHHHHHHHH\n")
+                .build();
 
         assertNotNull(dto.getGame());
         assertNotNull(dto.getGame().getId());
@@ -119,6 +121,24 @@ class AsciiToGameStateTest {
         System.out.println(expectedFood);
 
         assertThat(dto.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
+    }
+
+    @Test
+    void test_turn() {
+        AsciiToGameState tested = new AsciiToGameState("Y");
+
+        GameStateDto dto = tested.setTurn(234).build();
+
+        assertEquals(234, dto.getTurn());
+    }
+
+    @Test
+    void test_ruleset_name() {
+        AsciiToGameState tested = new AsciiToGameState("Y");
+
+        GameStateDto dto = tested.setRulesetName("qwerty").build();
+
+        assertEquals("qwerty", dto.getGame().getRuleset().getName());
     }
 
     private static SnakeDto getSnakeOrNull(GameStateDto gameStateDto, String snakeName) {

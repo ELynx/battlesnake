@@ -11,6 +11,7 @@ public class FlatProbabilityMaker {
 
     public FlatProbabilityMaker() {
         stack = new int[8];
+        stackPos = 0;
     }
 
     public void reset() {

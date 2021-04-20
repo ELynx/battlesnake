@@ -12,14 +12,29 @@ public class AsciiToGameState {
     // mandatory
     private final String ascii;
     // has some defaults, thus added by "builder" pattern
+    private int turn = 42;
+    private String rulesetName = "standard";
     private int startSnakeSize = 3;
     private String hazards = null;
     // per-snakes
-    private Map<String, Integer> healts = new HashMap<>();
+    private Map<String, Integer> healths = new HashMap<>();
     private Map<String, Integer> latencies = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
+    }
+
+    public AsciiToGameState setTurn(int turn) {
+        if (turn < 0)
+            throw new IllegalArgumentException("Turn must be greater or equal to 0");
+
+        this.turn = turn;
+        return this;
+    }
+
+    public AsciiToGameState setRulesetName(String rulesetName) {
+        this.rulesetName = rulesetName;
+        return this;
     }
 
     public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
@@ -42,7 +57,7 @@ public class AsciiToGameState {
         if (health < 0)
             throw new IllegalArgumentException("Health must be greater or equal to 0");
 
-        healts.put(name, health);
+        healths.put(name, health);
         return this;
     }
 
@@ -126,7 +141,7 @@ public class AsciiToGameState {
         }
 
         RulesetDto ruleset = new RulesetDto();
-        ruleset.setName("standard");
+        ruleset.setName(rulesetName);
         ruleset.setVersion("1.0.0");
 
         GameDto game = new GameDto();
@@ -136,7 +151,7 @@ public class AsciiToGameState {
 
         GameStateDto gameState = new GameStatePredictor();
         gameState.setGame(game);
-        gameState.setTurn(42);
+        gameState.setTurn(turn);
 
         BoardDto board = new BoardDto();
 
@@ -178,7 +193,7 @@ public class AsciiToGameState {
                     SnakeDto snake = new TestSnakeDto(ToApiVersion.V1);
                     snake.setId(s);
                     snake.setName("Snake " + s);
-                    snake.setHealth(healts.getOrDefault(s, 99));
+                    snake.setHealth(healths.getOrDefault(s, 99));
                     snake.setLatency(latencies.getOrDefault(s, 100));
                     snake.setHead(coords);
                     snake.setSquad("Test squad " + s);
