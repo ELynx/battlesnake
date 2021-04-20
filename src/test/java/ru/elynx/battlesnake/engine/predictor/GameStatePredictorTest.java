@@ -16,15 +16,15 @@ class GameStatePredictorTest {
         AsciiToGameState generator = new AsciiToGameState("__Y__");
         GameStatePredictor tested;
 
-        tested = (GameStatePredictor) generator.build();
+        tested = generator.build();
         assertFalse(tested.isGrowing(tested.getYou()), "Not growing under normal conditions");
 
         for (int turn = 0; turn < 3; ++turn) {
-            tested = (GameStatePredictor) generator.setTurn(turn).build();
+            tested = generator.setTurn(turn).build();
             assertTrue(tested.isGrowing(tested.getYou()), "Grows on turn [" + turn + ']');
         }
 
-        tested = (GameStatePredictor) generator.setTurn(123).setHealth("Y", 100).build();
+        tested = generator.setTurn(123).setHealth("Y", 100).build();
 
         assertTrue(tested.isGrowing(tested.getYou()), "Grows on food");
     }
@@ -35,15 +35,15 @@ class GameStatePredictorTest {
         GameStatePredictor tested;
 
         // default state, no hazard step set
-        tested = (GameStatePredictor) generator.build();
+        tested = generator.build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards by default");
 
         // set mode, not set step
-        tested = (GameStatePredictor) generator.setRulesetName("royale").build();
+        tested = generator.setRulesetName("royale").build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
 
         // set step, not set mode
-        tested = (GameStatePredictor) generator.setRulesetName("standard").build();
+        tested = generator.setRulesetName("standard").build();
         tested.setHazardStep(25);
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
     }
@@ -54,7 +54,7 @@ class GameStatePredictorTest {
                 .setTurn(24);
         GameStatePredictor tested;
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
+        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(24, tested.getBoard().getHazards().size());
@@ -64,7 +64,7 @@ class GameStatePredictorTest {
         assertEquals(2, tested.getPredictedHazards().get(0).getValue1());
         assertThat(tested.getPredictedHazards().get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").build();
+        tested = generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(25, tested.getBoard().getHazards().size());
@@ -77,7 +77,7 @@ class GameStatePredictorTest {
                 .setTurn(23);
         GameStatePredictor tested;
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
+        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(24, tested.getBoard().getHazards().size());
@@ -90,7 +90,7 @@ class GameStatePredictorTest {
                 .setTurn(24);
         GameStatePredictor tested;
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
+        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(24, tested.getBoard().getHazards().size());
@@ -99,13 +99,13 @@ class GameStatePredictorTest {
         assertEquals(2, tested.getPredictedHazards().get(0).getValue1());
         assertThat(tested.getPredictedHazards().get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").build();
+        tested = generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").build();
         tested.setHazardStep(25);
 
         assertEquals(5, tested.getBoard().getHazards().size());
         assertEquals(14, tested.getPredictedHazards().size());
 
-        tested = (GameStatePredictor) generator.setHazards("HHHHH\nH___H\nH___H\nH___H\nHHHHH").build();
+        tested = generator.setHazards("HHHHH\nH___H\nH___H\nH___H\nHHHHH").build();
         tested.setHazardStep(25);
 
         assertEquals(16, tested.getBoard().getHazards().size());

@@ -25,7 +25,7 @@ import ru.elynx.battlesnake.testspecific.ToApiVersion;
 class GameStrategyBasicTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
 
-    static GameStateDto dummyGameState;
+    static GameStatePredictor dummyGameState;
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;

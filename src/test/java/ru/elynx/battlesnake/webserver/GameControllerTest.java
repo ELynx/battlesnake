@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
 
 class MySnake implements IGameStrategy {
@@ -30,17 +30,17 @@ class MySnake implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(GameStateDto gameState) {
+    public Void processStart(GameStatePredictor gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(GameStateDto gameState) {
+    public Move processMove(GameStatePredictor gameState) {
         return new Move("UP", "shshshshsh");
     }
 
     @Override
-    public Void processEnd(GameStateDto gameState) {
+    public Void processEnd(GameStatePredictor gameState) {
         return null;
     }
 }

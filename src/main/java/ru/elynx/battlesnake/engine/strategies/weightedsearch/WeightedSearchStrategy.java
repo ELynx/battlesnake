@@ -40,7 +40,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected WeightedSearchStrategy() {
     }
 
-    protected void initOnce(GameStateDto gameState) {
+    protected void initOnce(GameStatePredictor gameState) {
         final int width = gameState.getBoard().getWidth();
         final int height = gameState.getBoard().getHeight();
 
@@ -254,7 +254,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 .map(Triplet::getValue0).findFirst();
     }
 
-    public Optional<String> bestMove(GameStateDto gameState) {
+    public Optional<String> bestMove(GameStatePredictor gameState) {
         final CoordsDto head = gameState.getYou().getHead();
         final int length = gameState.getYou().getLength();
 
@@ -276,7 +276,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processStart(GameStateDto gameState) {
+    public Void processStart(GameStatePredictor gameState) {
         if (!initialized) {
             initOnce(gameState);
             initialized = true;
@@ -286,14 +286,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Move processMove(GameStateDto gameState) {
+    public Move processMove(GameStatePredictor gameState) {
         // for test compatibility
         if (!initialized) {
             initOnce(gameState);
             initialized = true;
         }
 
-        applyGameState((GameStatePredictor) gameState);
+        applyGameState(gameState);
         Optional<String> move = bestMove(gameState);
 
         if (move.isEmpty()) {
@@ -304,7 +304,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processEnd(GameStateDto gameState) {
+    public Void processEnd(GameStatePredictor gameState) {
         return null;
     }
 

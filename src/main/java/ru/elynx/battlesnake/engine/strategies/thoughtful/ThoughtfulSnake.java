@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.Move;
 
 public class ThoughtfulSnake implements IGameStrategy {
@@ -18,17 +18,17 @@ public class ThoughtfulSnake implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(GameStateDto gameState) {
+    public Void processStart(GameStatePredictor gameState) {
         throw new java.lang.UnsupportedOperationException("TODO");
     }
 
     @Override
-    public Move processMove(GameStateDto gameState) {
+    public Move processMove(GameStatePredictor gameState) {
         throw new java.lang.UnsupportedOperationException("TODO");
     }
 
     @Override
-    public Void processEnd(GameStateDto gameState) {
+    public Void processEnd(GameStatePredictor gameState) {
         throw new java.lang.UnsupportedOperationException("TODO");
     }
 

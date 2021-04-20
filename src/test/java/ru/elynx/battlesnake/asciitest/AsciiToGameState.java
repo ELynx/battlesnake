@@ -135,7 +135,7 @@ public class AsciiToGameState {
         return neighbours.get(0).getKey();
     }
 
-    public GameStateDto build() {
+    public GameStatePredictor build() {
         if (ascii.indexOf('V') >= 0) {
             throw new IllegalStateException("V is not allowed in ascii");
         }
@@ -149,7 +149,7 @@ public class AsciiToGameState {
         game.setRuleset(ruleset);
         game.setTimeout(500);
 
-        GameStateDto gameState = new GameStatePredictor();
+        GameStatePredictor gameState = new GameStatePredictor();
         gameState.setGame(game);
         gameState.setTurn(turn);
 
