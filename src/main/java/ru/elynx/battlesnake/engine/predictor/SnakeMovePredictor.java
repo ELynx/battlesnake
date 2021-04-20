@@ -3,7 +3,9 @@ package ru.elynx.battlesnake.engine.predictor;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
+import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
+import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
@@ -17,9 +19,37 @@ public class SnakeMovePredictor {
         this.probabilityMaker = new ProbabilityMaker();
     }
 
-    protected void addIfWalkable(int x, int y) {
+    protected int score(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
+        int score = 10; // start with 10 points
+
+        for (CoordsDto food : gameState.getBoard().getFood()) {
+            if (food.getX() == x && food.getY() == y) {
+                score += 3;
+                break;
+            }
+        }
+
+        for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
+            if (Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
+                if (snake.getLength() <= otherSnake.getLength())
+                    score -= 5;
+                else
+                    score += 5;
+            }
+        }
+
+        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
+            if (hazard.getX() == x && hazard.getY() == y) {
+                score -= 10;
+            }
+        }
+
+        return score;
+    }
+
+    protected void addIfWalkable(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
         if (informant.isWalkable(x, y)) {
-            add(x, y);
+            probabilityMaker.add(x, y, score(x, y, snake, gameState));
         }
     }
 
@@ -27,7 +57,7 @@ public class SnakeMovePredictor {
         probabilityMaker.add(x, y);
     }
 
-    public List<Triplet<Integer, Integer, Double>> predict(SnakeDto snake) {
+    public List<Triplet<Integer, Integer, Double>> predict(SnakeDto snake, GameStatePredictor gameState) {
         // graceful error handling
         if (snake.getLength() == 0) {
             return Collections.emptyList();
@@ -54,10 +84,10 @@ public class SnakeMovePredictor {
 
         if (x1 == x0 && y1 == y0) {
             // equal possibility to go anywhere
-            addIfWalkable(x1 - 1, y1);
-            addIfWalkable(x1, y1 + 1);
-            addIfWalkable(x1 + 1, y1);
-            addIfWalkable(x1, y1 + 1);
+            addIfWalkable(x1 - 1, y1, snake, gameState);
+            addIfWalkable(x1, y1 + 1, snake, gameState);
+            addIfWalkable(x1 + 1, y1, snake, gameState);
+            addIfWalkable(x1, y1 + 1, snake, gameState);
 
             return probabilityMaker.make();
         }
@@ -86,11 +116,9 @@ public class SnakeMovePredictor {
         final int xr = x1 + dy;
         final int yr = y1 - dx;
 
-        // TODO more predictions
-
-        addIfWalkable(xf, yf);
-        addIfWalkable(xl, yl);
-        addIfWalkable(xr, yr);
+        addIfWalkable(xf, yf, snake, gameState);
+        addIfWalkable(xl, yl, snake, gameState);
+        addIfWalkable(xr, yr, snake, gameState);
 
         return probabilityMaker.make();
     }

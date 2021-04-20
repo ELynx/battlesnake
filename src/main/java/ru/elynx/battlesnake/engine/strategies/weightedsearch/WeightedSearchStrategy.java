@@ -123,7 +123,8 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                         weightMatrix.splash1stOrder(x, y, baseWeight);
                     } else {
                         // spread hunt/danger weights
-                        List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake);
+                        List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake,
+                                gameState);
                         predictions.forEach(prediction -> {
                             final int px = prediction.getValue0();
                             final int py = prediction.getValue1();

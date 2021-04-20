@@ -25,7 +25,11 @@ public class Util {
         return scale(from, normalized, to);
     }
 
+    public static int manhattanDistance(CoordsDto lhs, int x, int y) {
+        return Math.abs(lhs.getX() - x) + Math.abs(lhs.getY() - y);
+    }
+
     public static int manhattanDistance(CoordsDto lhs, CoordsDto rhs) {
-        return Math.abs(lhs.getX() - rhs.getX()) + Math.abs(lhs.getY() - rhs.getY());
+        return manhattanDistance(lhs, rhs.getX(), rhs.getY());
     }
 }
