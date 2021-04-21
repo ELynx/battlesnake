@@ -47,9 +47,15 @@ public class SnakeMovePredictor {
         return score;
     }
 
-    protected void addIfWalkable(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
+    protected void addIfWalkableScored(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
         if (informant.isWalkable(x, y)) {
             probabilityMaker.add(x, y, score(x, y, snake, gameState));
+        }
+    }
+
+    protected void addIfWalkable(int x, int y) {
+        if (informant.isWalkable(x, y)) {
+            probabilityMaker.add(x, y);
         }
     }
 
@@ -84,10 +90,10 @@ public class SnakeMovePredictor {
 
         if (x1 == x0 && y1 == y0) {
             // equal possibility to go anywhere
-            addIfWalkable(x1 - 1, y1, snake, gameState);
-            addIfWalkable(x1, y1 + 1, snake, gameState);
-            addIfWalkable(x1 + 1, y1, snake, gameState);
-            addIfWalkable(x1, y1 + 1, snake, gameState);
+            addIfWalkableScored(x1 - 1, y1, snake, gameState);
+            addIfWalkableScored(x1, y1 + 1, snake, gameState);
+            addIfWalkableScored(x1 + 1, y1, snake, gameState);
+            addIfWalkableScored(x1, y1 + 1, snake, gameState);
 
             return probabilityMaker.make();
         }
@@ -116,9 +122,17 @@ public class SnakeMovePredictor {
         final int xr = x1 + dy;
         final int yr = y1 - dx;
 
-        addIfWalkable(xf, yf, snake, gameState);
-        addIfWalkable(xl, yl, snake, gameState);
-        addIfWalkable(xr, yr, snake, gameState);
+        addIfWalkableScored(xf, yf, snake, gameState);
+        addIfWalkableScored(xl, yl, snake, gameState);
+        addIfWalkableScored(xr, yr, snake, gameState);
+
+        // if all choices are negatively bad
+        if (probabilityMaker.isEmpty()) {
+            // fill in undifferentiated
+            addIfWalkable(xf, yf);
+            addIfWalkable(xl, yl);
+            addIfWalkable(xr, yr);
+        }
 
         return probabilityMaker.make();
     }

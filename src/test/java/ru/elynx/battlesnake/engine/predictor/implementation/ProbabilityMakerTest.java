@@ -17,6 +17,7 @@ class ProbabilityMakerTest {
     void test_ctor() {
         ProbabilityMaker tested = new ProbabilityMaker();
 
+        assertTrue(tested.isEmpty(), "Newly created is empty");
         assertEquals(0, tested.make().size(), "Newly created is empty");
     }
 
@@ -30,6 +31,7 @@ class ProbabilityMakerTest {
 
         tested.reset();
 
+        assertTrue(tested.isEmpty(), "Reset makes empty");
         assertEquals(0, tested.make().size(), "Reset makes empty");
     }
 
@@ -51,17 +53,20 @@ class ProbabilityMakerTest {
         List<Triplet<Integer, Integer, Double>> list;
 
         tested.add(0, 0);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(1, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
         tested.add(1, 1);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(2, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(0.5d, fuzz)));
         assertThat(list.get(1).getValue2(), is(closeTo(0.5d, fuzz)));
 
         tested.add(2, 2);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(3, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(1.0d / 3.0d, fuzz)));
@@ -69,6 +74,7 @@ class ProbabilityMakerTest {
         assertThat(list.get(2).getValue2(), is(closeTo(1.0d / 3.0d, fuzz)));
 
         tested.add(3, 3);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(4, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(0.25d, fuzz)));
@@ -84,21 +90,25 @@ class ProbabilityMakerTest {
 
         tested.add(0, 0, -1);
         tested.add(0, 0, 0);
+        assertTrue(tested.isEmpty());
         list = tested.make();
         assertTrue(list.isEmpty(), "Non-positive score must be skipped");
 
         tested.add(0, 0, 3);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(1, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(1.0d, fuzz)));
 
         tested.add(1, 1, 3);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(2, list.size());
         assertThat(list.get(0).getValue2(), is(closeTo(0.5d, fuzz)));
         assertThat(list.get(1).getValue2(), is(closeTo(0.5d, fuzz)));
 
         tested.add(2, 2, 6);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(3, list.size());
         list.sort(Comparator.comparingDouble(Triplet::getValue2));
@@ -107,6 +117,7 @@ class ProbabilityMakerTest {
         assertThat(list.get(2).getValue2(), is(closeTo(1.0d / 2.0d, fuzz)));
 
         tested.add(3, 3, 6);
+        assertFalse(tested.isEmpty());
         list = tested.make();
         assertEquals(4, list.size());
         list.sort(Comparator.comparingDouble(Triplet::getValue2));

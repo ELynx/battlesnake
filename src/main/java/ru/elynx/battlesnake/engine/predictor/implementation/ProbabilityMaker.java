@@ -28,6 +28,10 @@ public class ProbabilityMaker {
         totalScore = 0;
     }
 
+    public boolean isEmpty() {
+        return stackPos == 0;
+    }
+
     public void add(int x, int y) {
         add(x, y, 1);
     }
