@@ -19,7 +19,7 @@ import ru.elynx.battlesnake.protocol.*;
 public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
-    private static final double MIN_FOOD_WEIGHT = 0.0d;
+    private static final double MIN_FOOD_WEIGHT = 0.1d;
     private static final double MAX_FOOD_WEIGHT = 1.0d;
     private static final double HUNGER_HEALTH_THRESHOLD = 100.0d;
 
