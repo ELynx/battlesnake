@@ -304,4 +304,36 @@ class GameStrategyCaseV1Test {
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(LEFT));
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_sees_the_inevitable(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________c_\n" + //
+                "_________c_\n" + //
+                "_________vC\n" + //
+                "_________>^\n" + //
+                "____a_aaaaA\n" + //
+                "0___aaayyY_\n" + //
+                "____yyyy___\n" + //
+                "____y______\n" + //
+                "___yy______\n");
+
+        generator.setTurn(106);
+        generator.setHealth("A", 99);
+        generator.setHealth("C", 86);
+        generator.setHealth("Y", 95);
+        generator.setLatency("A", 81);
+        generator.setLatency("C", 58);
+        generator.setLatency("Y", 66);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(RIGHT));
+    }
 }
