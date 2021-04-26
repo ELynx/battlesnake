@@ -273,7 +273,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#ef9600", "smile", "sharp", "1a");
+        return new BattlesnakeInfo("ELynx", "#50c878", "smile", "sharp", "1a");
     }
 
     @Override
@@ -316,7 +316,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
-        @Bean("Snake_1a")
+        @Bean("ඇහැටුල්ලා")
         public Supplier<IGameStrategy> weightedSearch() {
             return WeightedSearchStrategy::new;
         }
