@@ -27,7 +27,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private static final double INEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
-    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = 0.85d;
+    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = Math.nextDown(0.75d);
 
     private static final double DETERRENT_WEIGHT = -100.0d;
 
