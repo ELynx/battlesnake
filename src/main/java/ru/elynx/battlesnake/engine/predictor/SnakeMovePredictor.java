@@ -30,11 +30,13 @@ public class SnakeMovePredictor {
         }
 
         for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            if (Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
-                if (snake.getLength() <= otherSnake.getLength())
-                    score -= 5;
-                else
-                    score += 5;
+            if (!snake.getId().equals(otherSnake.getId())) {
+                if (Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
+                    if (snake.getLength() <= otherSnake.getLength())
+                        score -= 5;
+                    else
+                        score += 5;
+                }
             }
         }
 
