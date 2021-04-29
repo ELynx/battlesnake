@@ -381,4 +381,36 @@ class GameStrategyCaseV1Test {
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(RIGHT));
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_sees_escape_route(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_v<<_____0_\n" + //
+                "v<_^______v\n" + //
+                ">>A^____B<v\n" + //
+                "___^____>^v\n" + //
+                "yyY^____^<<\n" + //
+                "y_>^_______\n" + //
+                "yyyyy______\n");
+
+        generator.setTurn(106);
+        generator.setHealth("A", 97);
+        generator.setHealth("B", 93);
+        generator.setHealth("Y", 78);
+        generator.setLatency("A", 91);
+        generator.setLatency("B", 59);
+        generator.setLatency("Y", 86);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(DOWN));
+    }
 }
