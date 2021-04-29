@@ -20,23 +20,25 @@ public class SnakeMovePredictor {
     }
 
     protected int score(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
-        int score = 10; // start with 10 points
+        int score = 1; // start with least positive score
 
         for (CoordsDto food : gameState.getBoard().getFood()) {
             if (food.getX() == x && food.getY() == y) {
-                score += 3;
+                score += 3; // sum of initial value and food is not enough to jump in front of a train
                 break;
             }
         }
 
+        final int ownLength = snake.getLength();
         for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            if (!snake.getId().equals(otherSnake.getId())) {
-                if (Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
-                    if (snake.getLength() <= otherSnake.getLength())
-                        score -= 5;
-                    else
-                        score += 5;
-                }
+            if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
+                final int otherLength = otherSnake.getLength();
+                if (ownLength < otherLength)
+                    score -= 5; // not jump in front of train
+                else if (ownLength == otherLength)
+                    score += 0; // dicey, no score affect for now
+                else // own < other
+                    score += 5; // hunt
             }
         }
 
