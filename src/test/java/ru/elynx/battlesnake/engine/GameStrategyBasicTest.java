@@ -50,6 +50,10 @@ class GameStrategyBasicTest {
     void resetDummies() {
         dummyGameState.setTurn(0);
 
+        dummyGameState.setGame(new GameDto());
+        dummyGameState.getGame().setRuleset(new RulesetDto());
+        dummyGameState.getGame().getRuleset().setName("standard");
+
         dummyGameState.getBoard().setFood(new LinkedList<>());
         dummyGameState.getBoard().setHazards(new LinkedList<>()); // v1
         dummyGameState.getBoard().setSnakes(new LinkedList<>());

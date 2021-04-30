@@ -6,6 +6,8 @@ import javax.validation.constraints.NotNull;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RulesetDto {
+    public static final String ROYALE_RULESET_NAME = "royale";
+
     @NotNull
     @NotEmpty
     private String name;
@@ -27,6 +29,10 @@ public class RulesetDto {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public boolean isRoyale() {
+        return ROYALE_RULESET_NAME.equalsIgnoreCase(getName());
     }
 
     @Override

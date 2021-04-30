@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
+import static ru.elynx.battlesnake.protocol.RulesetDto.ROYALE_RULESET_NAME;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -280,7 +281,7 @@ class GameStrategyCaseV1Test {
                 "_____0__y_y\n" + //
                 "__0_____yyy\n");
 
-        generator.setRulesetName("royale");
+        generator.setRulesetName(ROYALE_RULESET_NAME);
         generator.setTurn(122);
         generator.setHealth("A", 64);
         generator.setHealth("B", 52);
@@ -357,7 +358,7 @@ class GameStrategyCaseV1Test {
                 "_>>>>xX____\n" + //
                 "0______0___\n");
 
-        generator.setRulesetName("royale");
+        generator.setRulesetName(ROYALE_RULESET_NAME);
         generator.setTurn(55);
         generator.setHealth("Y", 90);
         generator.setHealth("W", 99);
@@ -442,6 +443,49 @@ class GameStrategyCaseV1Test {
         generator.setLatency("A", 91);
         generator.setLatency("B", 59);
         generator.setLatency("Y", 86);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(DOWN));
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_hazard_better_than_lose(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_____0_____\n" + //
+                "__0____y___\n" + //
+                "yyyy__yy___\n" + //
+                "yv<yyyy____\n" + //
+                "yv^<_______\n" + //
+                "yA_^<______\n" + //
+                "Y__>^______\n" + //
+                "___a_______\n" + //
+                "___aa____a_\n" + //
+                "0___aaaa_a_\n" + //
+                "_______aaa_\n");
+
+        generator.setRulesetName(ROYALE_RULESET_NAME);
+        generator.setTurn(174);
+        generator.setHealth("A", 89);
+        generator.setHealth("Y", 97);
+        generator.setLatency("A", 31);
+        generator.setLatency("Y", 84);
+        generator.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "________HHH\n" + //
+                "HHHHHHHHHHH\n");
 
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));

@@ -13,7 +13,6 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 public class GameStatePredictor extends GameStateDto {
     private static final int INITIAL_LENGTH = 3;
     private static final int MAX_HEALTH = 100;
-    private static final String ROYALE_RULESET_NAME = "royale";
 
     protected int hazardStep = 0;
 
@@ -49,7 +48,7 @@ public class GameStatePredictor extends GameStateDto {
     }
 
     private List<Triplet<Integer, Integer, Double>> getPredictedHazardsImpl() {
-        if (hazardStep != 0 && ROYALE_RULESET_NAME.equalsIgnoreCase(getGame().getRuleset().getName())) {
+        if (hazardStep != 0 && getGame().getRuleset().isRoyale()) {
             final int width = getBoard().getWidth();
             final int height = getBoard().getHeight();
 

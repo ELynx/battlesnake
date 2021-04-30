@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.elynx.battlesnake.protocol.RulesetDto.ROYALE_RULESET_NAME;
 
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
@@ -39,7 +40,7 @@ class GameStatePredictorTest {
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards by default");
 
         // set mode, not set step
-        tested = generator.setRulesetName("royale").build();
+        tested = generator.setRulesetName(ROYALE_RULESET_NAME).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
 
         // set step, not set mode
@@ -50,8 +51,8 @@ class GameStatePredictorTest {
 
     @Test
     void test_predict_hazard_already_full() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setRulesetName("royale")
-                .setTurn(24);
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
+                .setRulesetName(ROYALE_RULESET_NAME).setTurn(24);
         GameStatePredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
@@ -73,8 +74,8 @@ class GameStatePredictorTest {
 
     @Test
     void test_predict_hazard_not_that_turn() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setRulesetName("royale")
-                .setTurn(23);
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
+                .setRulesetName(ROYALE_RULESET_NAME).setTurn(23);
         GameStatePredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
@@ -86,8 +87,8 @@ class GameStatePredictorTest {
 
     @Test
     void test_predict_hazard() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setRulesetName("royale")
-                .setTurn(24);
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
+                .setRulesetName(ROYALE_RULESET_NAME).setTurn(24);
         GameStatePredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();

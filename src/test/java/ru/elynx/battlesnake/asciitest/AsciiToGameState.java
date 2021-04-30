@@ -16,6 +16,7 @@ public class AsciiToGameState {
     private String rulesetName = "standard";
     private int startSnakeSize = 3;
     private String hazards = null;
+    private int hazardStep = 25;
     // per-snakes
     private Map<String, Integer> healths = new HashMap<>();
     private Map<String, Integer> latencies = new HashMap<>();
@@ -50,6 +51,14 @@ public class AsciiToGameState {
             throw new IllegalArgumentException("Hazards must be size of main ascii field");
 
         this.hazards = hazards;
+        return this;
+    }
+
+    public AsciiToGameState setHazardStep(int hazardStep) {
+        if (hazardStep < 0)
+            throw new IllegalArgumentException("Hazard step is greater or equal to zero");
+
+        this.hazardStep = hazardStep;
         return this;
     }
 
@@ -152,6 +161,7 @@ public class AsciiToGameState {
         GameStatePredictor gameState = new GameStatePredictor();
         gameState.setGame(game);
         gameState.setTurn(turn);
+        gameState.setHazardStep(hazardStep);
 
         BoardDto board = new BoardDto();
 
