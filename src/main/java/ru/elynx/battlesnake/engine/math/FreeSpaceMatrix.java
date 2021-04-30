@@ -166,6 +166,6 @@ public class FreeSpaceMatrix {
     }
 
     protected void unsafeSetOccupied(int index) {
-
+        spaceValues[index] = 0;
     }
 }
