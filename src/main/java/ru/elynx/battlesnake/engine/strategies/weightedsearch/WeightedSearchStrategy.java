@@ -316,7 +316,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Configuration
     public static class WeightedSearchStrategyConfiguration {
-        @Bean("ඇහැටුල්ලා")
+        @Bean("Ahaetulla")
         public Supplier<IGameStrategy> weightedSearch() {
             return WeightedSearchStrategy::new;
         }
