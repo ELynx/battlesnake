@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Move {
     private String move;
     private String shout;
-    private Boolean dropRequest = false;
     private Boolean repeatLast = false;
 
     public Move() {
@@ -38,14 +37,6 @@ public class Move {
         this.shout = shout;
     }
 
-    public Boolean getDropRequest() {
-        return dropRequest;
-    }
-
-    public void setDropRequest(Boolean dropRequest) {
-        this.dropRequest = dropRequest;
-    }
-
     public Boolean repeatLast() {
         return repeatLast;
     }
@@ -56,9 +47,7 @@ public class Move {
 
     @Override
     public String toString() {
-        return "Move{move='"
-                + (Boolean.TRUE.equals(dropRequest) ? "drop" : Boolean.TRUE.equals(repeatLast) ? "repeat" : move)
-                + "'}";
+        return "Move{move='" + (Boolean.TRUE.equals(repeatLast) ? "repeat" : move) + "'}";
     }
 
     public static class Moves {

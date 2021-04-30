@@ -14,7 +14,6 @@ public class TestMove extends Move {
 
         super.setMove(move.getMove());
         super.setShout(move.getShout());
-        super.setDropRequest(move.getDropRequest());
         super.setRepeatLast(move.repeatLast());
     }
 

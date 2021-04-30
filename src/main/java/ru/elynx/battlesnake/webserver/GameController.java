@@ -1,13 +1,11 @@
 package ru.elynx.battlesnake.webserver;
 
-import java.util.Random;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +14,6 @@ import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.Move;
 import ru.elynx.battlesnake.protocol.MoveDto;
 
 @RestController
@@ -25,10 +22,6 @@ public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final SnakeManager snakeManager;
     private final StatisticsTracker statisticsTracker;
-
-    private static final HttpStatus[] BAD_HTTP_STATUSES = new HttpStatus[]{HttpStatus.PAYMENT_REQUIRED,
-            HttpStatus.NOT_ACCEPTABLE, HttpStatus.REQUEST_TIMEOUT, HttpStatus.GONE, HttpStatus.EXPECTATION_FAILED,
-            HttpStatus.I_AM_A_TEAPOT};
 
     @Autowired
     public GameController(SnakeManager snakeManager, StatisticsTracker statisticsTracker) {
@@ -39,11 +32,6 @@ public class GameController {
     private static String terseIdentification(GameStateDto gameState) {
         return "ID [" + gameState.getGame().getId() + "] Turn [" + gameState.getTurn() + "] Snake ["
                 + gameState.getYou().getName() + "] / [" + gameState.getYou().getId() + ']';
-    }
-
-    private static HttpStatus randomBadHttpStatus() {
-        final int position = new Random().nextInt(BAD_HTTP_STATUSES.length);
-        return BAD_HTTP_STATUSES[position];
     }
 
     @ExceptionHandler(SnakeNotFoundException.class)
@@ -85,12 +73,7 @@ public class GameController {
             return ResponseEntity.badRequest().build();
         }
 
-        Move move = snakeManager.move(gameState);
-        if (Boolean.FALSE.equals(move.getDropRequest())) {
-            return ResponseEntity.ok(new MoveDto(move));
-        }
-
-        return ResponseEntity.status(randomBadHttpStatus()).build();
+        return ResponseEntity.ok(new MoveDto(snakeManager.move(gameState)));
     }
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
