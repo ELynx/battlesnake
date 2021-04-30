@@ -126,6 +126,25 @@ public class FreeSpaceMatrix {
         return getSpaceImpl(x, y);
     }
 
+    /**
+     * Test if cell is free, without actual space calculation. Use in cases of
+     * preliminary getters, and true/false testing.
+     *
+     * @param x
+     *            coord
+     * @param y
+     *            coord
+     * @return True if cell was not set as occupied.
+     */
+    public boolean isFree(int x, int y) {
+        final int index = safeIndex(x, y);
+        if (index < 0)
+            return false;
+
+        final int current = spaceValues[index];
+        return current != 0;
+    }
+
     public boolean setOccupied(int x, int y) {
         final int index = safeIndex(x, y);
         if (index < 0)
@@ -147,6 +166,6 @@ public class FreeSpaceMatrix {
     }
 
     protected void unsafeSetOccupied(int index) {
-        spaceValues[index] = 0;
+
     }
 }

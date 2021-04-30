@@ -92,5 +92,14 @@ class FreeSpaceMatrixTest {
         assertEquals(count5, tested.getSpace(1, 1));
         assertEquals(count6, tested.getSpace(6, 0));
         assertEquals(count7, tested.getSpace(39, 0));
+
+        for (int x = -1; x <= 40; ++x) {
+            for (int y = -1; y <= 10; ++y) {
+                final boolean isFree = tested.isFree(x, y);
+                final boolean hasFreeSpace = tested.getSpace(x, y) > 0;
+
+                assertEquals(hasFreeSpace, isFree, "Same report for two getters");
+            }
+        }
     }
 }

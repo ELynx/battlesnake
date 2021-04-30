@@ -78,13 +78,13 @@ public class GameStatePredictor extends GameStateDto {
                     if (yMin == -1 && yMax == -1) {
                         int y;
                         for (y = 0; y < height; ++y)
-                            if (freeSpaceMatrix.getSpace(x, y) > 0) {
+                            if (freeSpaceMatrix.isFree(x, y)) {
                                 yMin = y;
                                 break;
                             }
 
                         for (; y < height; ++y)
-                            if (freeSpaceMatrix.getSpace(x, y) > 0)
+                            if (freeSpaceMatrix.isFree(x, y))
                                 yMax = y;
                             else
                                 break;
@@ -94,7 +94,7 @@ public class GameStatePredictor extends GameStateDto {
                         if (xMin == -1)
                             xMin = x;
 
-                        if (freeSpaceMatrix.getSpace(x, yMin) > 0)
+                        if (freeSpaceMatrix.isFree(x, yMin))
                             xMax = x;
                         else
                             break;

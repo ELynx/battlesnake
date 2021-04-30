@@ -243,7 +243,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         // sort by reversed comparator, since bigger weight means better solution
         return toRank
                 .stream().filter(
-                        triplet -> freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2()) > 0)
+                        triplet -> freeSpaceMatrix.isFree(triplet.getValue1(), triplet.getValue2()))
                 .sorted(Comparator
                         .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
                                 freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2())))
@@ -311,7 +311,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Override
     public boolean isWalkable(int x, int y) {
-        return freeSpaceMatrix.getSpace(x, y) > 0;
+        return freeSpaceMatrix.isFree(x, y);
     }
 
     @Configuration
