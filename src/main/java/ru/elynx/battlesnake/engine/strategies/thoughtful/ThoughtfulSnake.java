@@ -34,7 +34,7 @@ public class ThoughtfulSnake implements IGameStrategy {
 
     @Override
     public boolean isCombatant() {
-        return false;
+        return true;
     }
 
     @Configuration
