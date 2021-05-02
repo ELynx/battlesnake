@@ -82,8 +82,7 @@ public class SnakeManager {
     }
 
     public Void start(GameStatePredictor gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
-                .processStart(gameState);
+        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).processStart(gameState);
     }
 
     public Move move(GameStatePredictor gameState) throws SnakeNotFoundException {
@@ -98,7 +97,7 @@ public class SnakeManager {
         // provide hazards info
         gameState.setHazardStep(snakeState.hazardStep);
 
-        final Move move = snakeState.gameStrategy.processMove(gameState);
+        final Move move = snakeState.processMove(gameState);
 
         // provide last move on request
         if (Boolean.TRUE.equals(move.repeatLast())) {
@@ -117,7 +116,7 @@ public class SnakeManager {
             throw new SnakeNotFoundException(gameState.getYou().getName());
         }
 
-        return snakeState.gameStrategy.processEnd(gameState);
+        return snakeState.processEnd(gameState);
     }
 
     private static class SnakeState {
@@ -126,6 +125,7 @@ public class SnakeManager {
         String lastMove;
         int hazardStep;
         boolean hazardSeen;
+        boolean initialized;
 
         SnakeState(IGameStrategy gameStrategy) {
             this.gameStrategy = gameStrategy;
@@ -133,7 +133,33 @@ public class SnakeManager {
             this.lastMove = UP;
             this.hazardStep = 25; // by default
             this.hazardSeen = false;
+            this.initialized = false;
+        }
 
+        public Void processStart(GameStatePredictor gameState) {
+            if (!initialized) {
+                gameStrategy.init(gameState);
+                initialized = true;
+            }
+
+            return gameStrategy.processStart(gameState);
+        }
+
+        public Move processMove(GameStatePredictor gameState) {
+            if (!initialized) {
+                gameStrategy.init(gameState);
+                initialized = true;
+            }
+
+            return gameStrategy.processMove(gameState);
+        }
+
+        public Void processEnd(GameStatePredictor gameState) {
+            if (!initialized) {
+                return null;
+            }
+
+            return gameStrategy.processEnd(gameState);
         }
     }
 }

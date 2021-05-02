@@ -7,6 +7,9 @@ import ru.elynx.battlesnake.protocol.Move;
 public interface IGameStrategy {
     BattlesnakeInfo getBattesnakeInfo();
 
+    default void init(GameStatePredictor gameState) {
+    }
+
     Void processStart(GameStatePredictor gameState);
 
     Move processMove(GameStatePredictor gameState);

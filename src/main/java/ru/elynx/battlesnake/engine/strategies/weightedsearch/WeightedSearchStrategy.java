@@ -14,6 +14,7 @@ import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
+import ru.elynx.battlesnake.engine.strategies.CommonPatterns;
 import ru.elynx.battlesnake.protocol.*;
 
 public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
@@ -35,18 +36,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor snakeMovePredictor;
 
-    protected boolean initialized = false;
-
     protected WeightedSearchStrategy() {
-    }
-
-    protected void initOnce(GameStatePredictor gameState) {
-        final int width = gameState.getBoard().getWidth();
-        final int height = gameState.getBoard().getHeight();
-
-        weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
-        freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
-        snakeMovePredictor = new SnakeMovePredictor(this);
     }
 
     protected void applyHunger(GameStatePredictor gameState) {
@@ -67,27 +57,13 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected void applySnakes(GameStatePredictor gameState) {
         // mark body as impassable
         // apply early for predictor
-        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
-            final List<CoordsDto> body = snake.getBody();
+        CommonPatterns.forSnakeBody(gameState, coordsDto -> {
+            final int x = coordsDto.getX();
+            final int y = coordsDto.getY();
 
-            // by default tail will go away
-            int tailMoveOffset = 1;
-
-            // check if fed this turn
-            if (gameState.isGrowing(snake)) {
-                // tail will grow -> cell will remain occupied
-                tailMoveOffset = 0;
-            }
-
-            for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
-                final CoordsDto coordsDto = body.get(i);
-                final int x = coordsDto.getX();
-                final int y = coordsDto.getY();
-
-                weightMatrix.addValue(x, y, SNAKE_BODY_WEIGHT);
-                freeSpaceMatrix.setOccupied(x, y);
-            }
-        }
+            weightMatrix.addValue(x, y, SNAKE_BODY_WEIGHT);
+            freeSpaceMatrix.setOccupied(x, y);
+        });
 
         final List<Triplet<Integer, Integer, Double>> blockedByNotWalkable = new LinkedList<>();
 
@@ -295,23 +271,22 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processStart(GameStatePredictor gameState) {
-        if (!initialized) {
-            initOnce(gameState);
-            initialized = true;
-        }
+    public void init(GameStatePredictor gameState) {
+        final int width = gameState.getBoard().getWidth();
+        final int height = gameState.getBoard().getHeight();
 
+        weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
+        freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
+        snakeMovePredictor = new SnakeMovePredictor(this);
+    }
+
+    @Override
+    public Void processStart(GameStatePredictor gameState) {
         return null;
     }
 
     @Override
     public Move processMove(GameStatePredictor gameState) {
-        // for test compatibility
-        if (!initialized) {
-            initOnce(gameState);
-            initialized = true;
-        }
-
         applyGameState(gameState);
         Optional<String> move = bestMove(gameState);
 

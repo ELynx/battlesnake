@@ -119,8 +119,16 @@ class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
+    void gameStrategyDoesNotThrowOnInit(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        assertDoesNotThrow(() -> gameStrategy.init(dummyGameState));
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
     void gameStrategyDoesNotThrowOnStart(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        gameStrategy.init(dummyGameState);
         assertDoesNotThrow(() -> gameStrategy.processStart(dummyGameState));
     }
 
@@ -128,7 +136,7 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void gameStrategyGivesMove(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.processStart(dummyGameState);
+        gameStrategy.init(dummyGameState);
         Move move = gameStrategy.processMove(dummyGameState);
         assertNotNull(move);
     }
@@ -137,7 +145,7 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void gameStrategyDoesNotThrowOnEnd(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.processStart(dummyGameState);
+        gameStrategy.init(dummyGameState);
         assertDoesNotThrow(() -> gameStrategy.processEnd(dummyGameState));
     }
 
@@ -151,7 +159,7 @@ class GameStrategyBasicTest {
         dummyGameState.getYou().getHead().setX(0);
         dummyGameState.getYou().getHead().setY(0);
 
-        gameStrategy.processStart(dummyGameState);
+        gameStrategy.init(dummyGameState);
 
         for (int x = 0; x < dummyGameState.getBoard().getWidth(); ++x) {
             dummyGameState.getYou().getHead().setX(x);

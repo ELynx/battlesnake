@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
+import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
@@ -41,7 +42,9 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "___________\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
 
@@ -66,7 +69,9 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "___________\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(UP)));
     }
 
@@ -91,7 +96,9 @@ class GameStrategyCaseV1Test {
                 "_________yY\n" + //
                 "____yyyyyy0\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(UP));
     }
 
@@ -116,7 +123,9 @@ class GameStrategyCaseV1Test {
                 "_________yY\n" + //
                 "_________y0\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(UP));
     }
 
@@ -139,7 +148,9 @@ class GameStrategyCaseV1Test {
                 "____a\n" + //
                 "____a\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
     }
 
@@ -159,7 +170,9 @@ class GameStrategyCaseV1Test {
                 "____a____\n" + //
                 "____a____\n").setHealth("Y", 2);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
     }
 
@@ -180,7 +193,9 @@ class GameStrategyCaseV1Test {
 
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+            GameStatePredictor gameState = generator.build();
+            gameStrategy.init(gameState);
+            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[j])));
             assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[k])));
         }
@@ -200,7 +215,9 @@ class GameStrategyCaseV1Test {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+            GameStatePredictor gameState = generator.build();
+            gameStrategy.init(gameState);
+            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
@@ -219,7 +236,9 @@ class GameStrategyCaseV1Test {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+            GameStatePredictor gameState = generator.build();
+            gameStrategy.init(gameState);
+            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
@@ -238,7 +257,9 @@ class GameStrategyCaseV1Test {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+            GameStatePredictor gameState = generator.build();
+            gameStrategy.init(gameState);
+            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
         }
     }
@@ -257,7 +278,9 @@ class GameStrategyCaseV1Test {
                 "^<<<_\n" + //
                 "_____\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(LEFT));
     }
 
@@ -302,7 +325,9 @@ class GameStrategyCaseV1Test {
                 "HH_______HH\n" + //
                 "HH_______HH\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(LEFT));
     }
 
@@ -334,7 +359,9 @@ class GameStrategyCaseV1Test {
         generator.setLatency("C", 58);
         generator.setLatency("Y", 66);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(RIGHT));
     }
 
@@ -379,7 +406,9 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "HHHHHHHHHHH\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(RIGHT));
     }
 
@@ -411,7 +440,9 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 59);
         generator.setLatency("Y", 86);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
 
@@ -444,7 +475,9 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 59);
         generator.setLatency("Y", 86);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
 
@@ -487,7 +520,9 @@ class GameStrategyCaseV1Test {
                 "________HHH\n" + //
                 "HHHHHHHHHHH\n");
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
 
@@ -519,7 +554,9 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 85);
         generator.setLatency("Y", 87);
 
-        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        GameStatePredictor gameState = generator.build();
+        gameStrategy.init(gameState);
+        TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(UP));
     }
 }
