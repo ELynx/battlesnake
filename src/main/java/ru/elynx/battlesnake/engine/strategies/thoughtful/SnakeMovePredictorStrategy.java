@@ -19,16 +19,16 @@ import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.Move;
 
-public class ThoughtfulSnake implements IGameStrategy, IPredictorInformant {
+public class SnakeMovePredictorStrategy implements IGameStrategy, IPredictorInformant {
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor predictor;
 
-    protected ThoughtfulSnake() {
+    protected SnakeMovePredictorStrategy() {
     }
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#05bfbf", "shades", "rbc-necktie", "1");
+        return new BattlesnakeInfo("ELynx", "#314152", "pixel-round", "pixel-round", "not very smart");
     }
 
     @Override
@@ -94,10 +94,10 @@ public class ThoughtfulSnake implements IGameStrategy, IPredictorInformant {
     }
 
     @Configuration
-    public static class ThoughtfulSnakeConfiguration {
-        @Bean("The-serpent-saves-us-from-thought")
+    public static class SnakeMovePredictorStrategyConfiguration {
+        @Bean("Pixel")
         public Supplier<IGameStrategy> thoughtful() {
-            return ThoughtfulSnake::new;
+            return SnakeMovePredictorStrategy::new;
         }
     }
 }
