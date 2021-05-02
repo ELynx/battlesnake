@@ -27,7 +27,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
     private static final double INEDIBLE_SNAKE_HEAD_WEIGHT = -1.0d;
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
-    private static final double BLOCK_INEDIBLE_HEAD_PROBABILITY = Math.nextDown(0.75d);
+    private static final double BLOCK_NOT_WALKABLE_HEAD_PROBABILITY = Math.nextDown(0.75d);
 
     private static final double DETERRENT_WEIGHT = -100.0d;
 
@@ -65,9 +65,6 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     protected void applySnakes(GameStatePredictor gameState) {
-        final CoordsDto ownHead = gameState.getYou().getHead();
-        final String ownId = gameState.getYou().getId();
-
         // mark body as impassable
         // apply early for predictor
         for (SnakeDto snake : gameState.getBoard().getSnakes()) {
@@ -92,26 +89,29 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             }
         }
 
-        final List<Triplet<Integer, Integer, Double>> blockedByInedible = new LinkedList<>();
-        final int ownSize = gameState.getYou().getLength();
-        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
-            final CoordsDto head = snake.getHead();
-            final String id = snake.getId();
+        final List<Triplet<Integer, Integer, Double>> blockedByNotWalkable = new LinkedList<>();
 
-            final List<CoordsDto> body = snake.getBody();
-            final int size = body.size();
+        final String ownId = gameState.getYou().getId();
+        final CoordsDto ownHead = gameState.getYou().getHead();
+        final int ownSize = gameState.getYou().getLength();
+
+        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+            final String id = snake.getId();
 
             // manage head
             if (!id.equals(ownId)) {
+                final CoordsDto head = snake.getHead();
+                final int size = snake.getLength();
+
                 double baseWeight;
-                boolean inedible;
+                boolean edible;
 
                 if (size < ownSize) {
                     baseWeight = snake.isTimedOut() ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
-                    inedible = false;
+                    edible = true;
                 } else {
                     baseWeight = INEDIBLE_SNAKE_HEAD_WEIGHT;
-                    inedible = true;
+                    edible = false;
                 }
 
                 if (baseWeight != 0.0) {
@@ -125,6 +125,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                         // spread hunt/danger weights
                         List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake,
                                 gameState);
+
                         predictions.forEach(prediction -> {
                             final int px = prediction.getValue0();
                             final int py = prediction.getValue1();
@@ -133,8 +134,19 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
                             weightMatrix.splash2ndOrder(px, py, pw, 4.0);
 
-                            if (inedible && pv >= BLOCK_INEDIBLE_HEAD_PROBABILITY) {
-                                blockedByInedible.add(prediction);
+                            if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
+                                // edible means preliminary walkable
+                                boolean walkable = edible;
+
+                                // if walkable by edibility, see if reachable in single move
+                                if (walkable) {
+                                    // keep walkable only if next move can eat
+                                    walkable = Util.manhattanDistance(ownHead, px, py) == 1;
+                                }
+
+                                if (!walkable) {
+                                    blockedByNotWalkable.add(prediction);
+                                }
                             }
                         });
                     }
@@ -142,8 +154,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             }
         }
 
-        for (Triplet<Integer, Integer, Double> triplet : blockedByInedible) {
-            freeSpaceMatrix.setOccupied(triplet.getValue0(), triplet.getValue1());
+        for (Triplet<Integer, Integer, Double> triplet : blockedByNotWalkable) {
+            final int bx = triplet.getValue0();
+            final int by = triplet.getValue1();
+            final double bv = triplet.getValue2();
+            final double bw = SNAKE_BODY_WEIGHT * bv;
+
+            weightMatrix.addValue(bx, by, bw);
+            freeSpaceMatrix.setOccupied(bx, by);
         }
     }
 
