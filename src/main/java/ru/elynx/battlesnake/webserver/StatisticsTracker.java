@@ -24,19 +24,27 @@ class StatisticsTracker {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, name);
     }
 
-    public void start(GameStateDto gameState) {
+    private void always(GameStateDto gameState) {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
+
         NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getGame().getRuleset().getName());
         NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getGame().getRuleset().getVersion());
         NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getGame().getTimeout());
     }
 
+    public void start(GameStateDto gameState) {
+        always(gameState);
+    }
+
     public void move(GameStateDto gameState) {
-        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
+        always(gameState);
+
         NewRelic.addCustomParameter(TIMEOUT_REPORTED_PARAMETER, gameState.getYou().isTimedOut());
     }
 
     public void end(GameStateDto gameState) {
+        always(gameState);
+
         boolean victory = false;
         for (SnakeDto someSnake : gameState.getBoard().getSnakes()) {
             if (someSnake.getId().equals(gameState.getYou().getId())) {
@@ -45,7 +53,6 @@ class StatisticsTracker {
             }
         }
 
-        NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
         NewRelic.addCustomParameter(VICTORY_PARAMETER, victory);
         NewRelic.addCustomParameter(TURNS_TO_END_PARAMETER, gameState.getTurn());
     }
