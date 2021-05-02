@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,6 +57,7 @@ class MySnakeSupplier {
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(MySnakeSupplier.class)
+@Tag("API")
 class GameControllerTest {
     @Autowired
     private MockMvc mockMvc;

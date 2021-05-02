@@ -2,14 +2,15 @@ package ru.elynx.battlesnake.engine.math;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
+@Tag("Internals")
 class FreeSpaceMatrixTest {
-
     @Test
     void test_creation() {
         for (int w = 1; w < 50; ++w) {

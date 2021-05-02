@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Comparator;
 import java.util.List;
 import org.javatuples.Triplet;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("Internals")
 class ProbabilityMakerTest {
     private static final double fuzz = 0.0001d;
 

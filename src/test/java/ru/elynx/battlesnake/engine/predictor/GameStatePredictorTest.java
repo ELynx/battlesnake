@@ -6,9 +6,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.elynx.battlesnake.protocol.RulesetDto.ROYALE_RULESET_NAME;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 
+@Tag("Internals")
 class GameStatePredictorTest {
     private static final double fuzz = 0.0001d;
 

@@ -6,6 +6,7 @@ import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 import static ru.elynx.battlesnake.protocol.RulesetDto.ROYALE_RULESET_NAME;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 @SpringBootTest
+@Tag("StrategyCase")
 class GameStrategyCaseV1Test {
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
@@ -174,94 +176,6 @@ class GameStrategyCaseV1Test {
         gameStrategy.init(gameState);
         TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
         assertThat(move.getMove(), not(equalToIgnoringCase(DOWN)));
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_circling_novice(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
-
-        String[] circles = {"Y_\n__", "_Y\n__", "__\nY_", "__\n_Y"};
-        String[] notTo = {LEFT, UP, UP, RIGHT, DOWN, LEFT, RIGHT, DOWN};
-        assertThat(notTo.length, is(circles.length * 2));
-
-        for (int i = 0; i < circles.length; ++i) {
-            int j = i * 2;
-            int k = j + 1;
-
-            AsciiToGameState generator = new AsciiToGameState(circles[i]);
-
-            GameStatePredictor gameState = generator.build();
-            gameStrategy.init(gameState);
-            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
-            assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[j])));
-            assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[k])));
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_circling_easy(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
-
-        String[] circles = {"Yy\n__", "_Y\n_y", "__\nyY", "y_\nY_", "Y_\ny_", "yY\n__", "_y\n_Y", "__\nYy"};
-        String[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};
-        assertThat(to.length, is(circles.length));
-
-        for (int i = 0; i < circles.length; ++i) {
-            AsciiToGameState generator = new AsciiToGameState(circles[i]);
-
-            GameStatePredictor gameState = generator.build();
-            gameStrategy.init(gameState);
-            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
-            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_circling_medium(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
-
-        String[] circles = {"Yy\n_y", "_Y\nyy", "y_\nyY", "yy\nY_", "Y_\nyy", "yY\ny_", "yy\n_Y", "_y\nYy"};
-        String[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};
-        assertThat(to.length, is(circles.length));
-
-        for (int i = 0; i < circles.length; ++i) {
-            AsciiToGameState generator = new AsciiToGameState(circles[i]);
-
-            GameStatePredictor gameState = generator.build();
-            gameStrategy.init(gameState);
-            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
-            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_circling_hard(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
-
-        String[] circles = {"Y<\n>^", "vY\n>^", "v<\n>Y", "v<\nY^", "Yv\n^<", ">Y\n^<", ">v\n^Y", ">v\nY<"};
-        String[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};
-        assertThat(to.length, is(circles.length));
-
-        for (int i = 0; i < circles.length; ++i) {
-            AsciiToGameState generator = new AsciiToGameState(circles[i]);
-
-            GameStatePredictor gameState = generator.build();
-            gameStrategy.init(gameState);
-            TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
-            assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
-        }
     }
 
     @ParameterizedTest
