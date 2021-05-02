@@ -31,7 +31,8 @@ public class SnakeMovePredictor {
 
         final int ownLength = snake.getLength();
         for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) <= 1) {
+            // manhattan distance 0 of prediction is collision
+            if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) == 1) {
                 final int otherLength = otherSnake.getLength();
                 if (ownLength < otherLength)
                     score -= 5; // not jump in front of train
