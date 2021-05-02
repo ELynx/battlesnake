@@ -490,4 +490,36 @@ class GameStrategyCaseV1Test {
         TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
         assertThat(move.getMove(), equalToIgnoringCase(DOWN));
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_does_not_corner_self(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        System.out.println("Testing " + name);
+
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "________00_\n" + //
+                "________aa_\n" + //
+                "____0_B__a_\n" + //
+                "______b__a_\n" + //
+                "_____bb__a_\n" + //
+                "____bb___a_\n" + //
+                "_________a_\n" + //
+                "yyyy_____a_\n" + //
+                "y__yy____a_\n" + //
+                "____yy___A_\n" + //
+                "_____yyyY__\n");
+
+        generator.setTurn(74);
+        generator.setHealth("A", 90);
+        generator.setHealth("B", 63);
+        generator.setHealth("Y", 95);
+        generator.setLatency("A", 22);
+        generator.setLatency("B", 85);
+        generator.setLatency("Y", 87);
+
+        TestMove move = new TestMove(gameStrategy.processMove(generator.build()), ToApiVersion.V1);
+        assertThat(move.getMove(), equalToIgnoringCase(UP));
+    }
 }
