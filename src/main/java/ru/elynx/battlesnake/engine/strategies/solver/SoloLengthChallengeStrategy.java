@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.chess;
+package ru.elynx.battlesnake.engine.strategies.solver;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.GameStateDto;
 
-class SoloLengthChallenge extends ChessStrategy {
+class SoloLengthChallengeStrategy extends SolverStrategy {
     private boolean latch1 = false;
     private boolean latch2 = false;
 

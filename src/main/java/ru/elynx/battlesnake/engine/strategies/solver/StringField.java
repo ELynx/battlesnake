@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.chess;
+package ru.elynx.battlesnake.engine.strategies.solver;
 
 public class StringField {
     private final int width;

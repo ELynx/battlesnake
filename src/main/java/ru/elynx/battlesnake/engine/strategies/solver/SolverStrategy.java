@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.chess;
+package ru.elynx.battlesnake.engine.strategies.solver;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -9,7 +9,7 @@ import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.*;
 
-public class ChessStrategy implements IGameStrategy {
+public class SolverStrategy implements IGameStrategy {
     private StringField whereToGo;
     private int stage = Integer.MIN_VALUE;
 
@@ -63,10 +63,10 @@ public class ChessStrategy implements IGameStrategy {
     }
 
     @Configuration
-    public static class ChessStrategyConfiguration {
+    public static class SolverStrategyConfiguration {
         @Bean("ChesssMassster")
         public Supplier<IGameStrategy> chess() {
-            return SoloLengthChallenge::new;
+            return SoloLengthChallengeStrategy::new;
         }
     }
 }

@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.thoughtful;
+package ru.elynx.battlesnake.engine.strategies.alphabeta;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -14,16 +14,16 @@ import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
-import ru.elynx.battlesnake.engine.strategies.CommonPatterns;
+import ru.elynx.battlesnake.engine.strategies.Common;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.Move;
 
-public class SnakeMovePredictorStrategy implements IGameStrategy, IPredictorInformant {
+public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor predictor;
 
-    protected SnakeMovePredictorStrategy() {
+    protected OmegaStrategy() {
     }
 
     @Override
@@ -46,8 +46,7 @@ public class SnakeMovePredictorStrategy implements IGameStrategy, IPredictorInfo
     @Override
     public Move processMove(GameStatePredictor gameState) {
         freeSpaceMatrix.empty();
-        CommonPatterns.forSnakeBody(gameState,
-                coordsDto -> freeSpaceMatrix.setOccupied(coordsDto.getX(), coordsDto.getY()));
+        Common.forSnakeBody(gameState, coordsDto -> freeSpaceMatrix.setOccupied(coordsDto.getX(), coordsDto.getY()));
 
         List<Triplet<Integer, Integer, Double>> predictions = predictor.predict(gameState.getYou(), gameState);
 
@@ -94,10 +93,10 @@ public class SnakeMovePredictorStrategy implements IGameStrategy, IPredictorInfo
     }
 
     @Configuration
-    public static class SnakeMovePredictorStrategyConfiguration {
+    public static class OmegaStrategyConfiguration {
         @Bean("Pixel")
         public Supplier<IGameStrategy> thoughtful() {
-            return SnakeMovePredictorStrategy::new;
+            return OmegaStrategy::new;
         }
     }
 }

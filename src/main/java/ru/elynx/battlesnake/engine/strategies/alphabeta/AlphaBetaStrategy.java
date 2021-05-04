@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.thoughtful;
+package ru.elynx.battlesnake.engine.strategies.alphabeta;
 
 import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 
@@ -14,21 +14,21 @@ import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
-import ru.elynx.battlesnake.engine.strategies.CommonPatterns;
+import ru.elynx.battlesnake.engine.strategies.Common;
 import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.Move;
 
-public class ThoughtfulStrategy implements IGameStrategy, IPredictorInformant {
+public class AlphaBetaStrategy implements IGameStrategy, IPredictorInformant {
     protected FreeSpaceMatrix freeSpaceMatrix;
     protected SnakeMovePredictor predictor;
 
-    protected ThoughtfulStrategy() {
+    protected AlphaBetaStrategy() {
     }
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#05bfbf", "shades", "rbc-necktie", "1");
+        return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "1");
     }
 
     @Override
@@ -46,8 +46,7 @@ public class ThoughtfulStrategy implements IGameStrategy, IPredictorInformant {
     @Override
     public Move processMove(GameStatePredictor gameState) {
         freeSpaceMatrix.empty();
-        CommonPatterns.forSnakeBody(gameState,
-                coordsDto -> freeSpaceMatrix.setOccupied(coordsDto.getX(), coordsDto.getY()));
+        Common.forSnakeBody(gameState, coordsDto -> freeSpaceMatrix.setOccupied(coordsDto.getX(), coordsDto.getY()));
 
         List<Triplet<Integer, Integer, Double>> predictions = predictor.predict(gameState.getYou(), gameState);
 
@@ -94,10 +93,10 @@ public class ThoughtfulStrategy implements IGameStrategy, IPredictorInformant {
     }
 
     @Configuration
-    public static class ThoughtfulStrategyConfiguration {
-        @Bean("The-serpent-saves-us-from-thought")
+    public static class AlphaBetaStrategyConfiguration {
+        @Bean("Voxel")
         public Supplier<IGameStrategy> thoughtful() {
-            return ThoughtfulStrategy::new;
+            return AlphaBetaStrategy::new;
         }
     }
 }

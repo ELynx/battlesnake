@@ -14,7 +14,7 @@ import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
-import ru.elynx.battlesnake.engine.strategies.CommonPatterns;
+import ru.elynx.battlesnake.engine.strategies.Common;
 import ru.elynx.battlesnake.protocol.*;
 
 public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
@@ -57,7 +57,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected void applySnakes(GameStatePredictor gameState) {
         // mark body as impassable
         // apply early for predictor
-        CommonPatterns.forSnakeBody(gameState, coordsDto -> {
+        Common.forSnakeBody(gameState, coordsDto -> {
             final int x = coordsDto.getX();
             final int y = coordsDto.getY();
 

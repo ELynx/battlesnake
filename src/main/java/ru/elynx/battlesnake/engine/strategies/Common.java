@@ -6,8 +6,8 @@ import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
-public class CommonPatterns {
-    private CommonPatterns() {
+public class Common {
+    private Common() {
     }
 
     public static void forSnakeBody(GameStatePredictor gameState, Consumer<CoordsDto> what) {

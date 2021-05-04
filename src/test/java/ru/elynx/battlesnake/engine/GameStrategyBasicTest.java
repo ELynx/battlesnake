@@ -48,7 +48,7 @@ class GameStrategyBasicTest {
     }
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Ahaetulla", "The-serpent-saves-us-from-thought", "Pixel");
+        return Stream.of("Ahaetulla", "Pixel", "Voxel");
     }
 
     @BeforeEach
