@@ -6,6 +6,7 @@ public class DoubleMatrix {
     private final int width;
     private final int height;
     private final int length;
+
     private final double[] values;
     private final double outsideValue;
 
@@ -13,6 +14,7 @@ public class DoubleMatrix {
         this.width = width;
         this.height = height;
         this.length = this.width * this.height;
+
         this.values = new double[this.length];
         this.outsideValue = outsideValue;
     }

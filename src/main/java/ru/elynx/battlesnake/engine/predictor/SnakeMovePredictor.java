@@ -10,12 +10,10 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
     protected IPredictorInformant informant;
-
     protected ProbabilityMaker probabilityMaker;
 
     public SnakeMovePredictor(IPredictorInformant informant) {
         this.informant = informant;
-
         this.probabilityMaker = new ProbabilityMaker();
     }
 
