@@ -5,7 +5,6 @@ import static ru.elynx.battlesnake.protocol.Move.Moves.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,8 +54,7 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
             return new Move();
         }
 
-        predictions.sort(Comparator
-                .comparingDouble((ToDoubleFunction<Triplet<Integer, Integer, Double>>) Triplet::getValue2).reversed());
+        predictions.sort(Comparator.<Triplet<Integer, Integer, Double>>comparingDouble(Triplet::getValue2).reversed());
 
         Triplet<Integer, Integer, Double> bestPrediction = predictions.get(0);
         int px = bestPrediction.getValue0();
