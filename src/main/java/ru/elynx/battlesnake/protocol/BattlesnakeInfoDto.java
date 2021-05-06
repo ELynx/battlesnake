@@ -10,7 +10,7 @@ public class BattlesnakeInfoDto {
     private String apiversion;
     private String author;
 
-    @Pattern(regexp = "#[[:xdigit:]]{6}")
+    @Pattern(regexp = "#[\\p{XDigit}]{6}")
     private String color;
 
     private String head;
