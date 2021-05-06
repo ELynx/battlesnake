@@ -8,28 +8,28 @@ import org.javatuples.Triplet;
 public class ProbabilityMaker {
     private static final int MAX_ITEMS = 4;
 
-    private static final int _X = 0;
-    private static final int _Y = 1;
-    private static final int _S = 2;
-    private static final int STACK_PER_ITEM = _S + 1;
+    private static final int X_STACK_POSITION = 0;
+    private static final int Y_STACK_POSITION = 1;
+    private static final int SCORE_STACK_POSITION = 2;
+    private static final int STACK_SIZE_PER_ITEM = SCORE_STACK_POSITION + 1;
 
     private int[] stack;
-    private int stackPos;
+    private int stackPosition;
     private int totalScore = 0;
 
     public ProbabilityMaker() {
-        stack = new int[MAX_ITEMS * STACK_PER_ITEM];
-        stackPos = 0;
+        stack = new int[MAX_ITEMS * STACK_SIZE_PER_ITEM];
+        stackPosition = 0;
         totalScore = 0;
     }
 
     public void reset() {
-        stackPos = 0;
+        stackPosition = 0;
         totalScore = 0;
     }
 
     public boolean isEmpty() {
-        return stackPos == 0;
+        return stackPosition == 0;
     }
 
     public void add(int x, int y) {
@@ -38,22 +38,22 @@ public class ProbabilityMaker {
 
     public void add(int x, int y, int score) {
         if (score > 0) {
-            stack[stackPos + _X] = x;
-            stack[stackPos + _Y] = y;
-            stack[stackPos + _S] = score;
-            stackPos += STACK_PER_ITEM;
+            stack[stackPosition + X_STACK_POSITION] = x;
+            stack[stackPosition + Y_STACK_POSITION] = y;
+            stack[stackPosition + SCORE_STACK_POSITION] = score;
+            stackPosition += STACK_SIZE_PER_ITEM;
             totalScore += score;
         }
     }
 
     public List<Triplet<Integer, Integer, Double>> make() {
-        if (stackPos == 0)
+        if (stackPosition == 0)
             return Collections.emptyList();
 
-        List<Triplet<Integer, Integer, Double>> result = new ArrayList<>(stackPos / STACK_PER_ITEM);
+        List<Triplet<Integer, Integer, Double>> result = new ArrayList<>(stackPosition / STACK_SIZE_PER_ITEM);
 
-        for (int i = 0; i < stackPos; i += STACK_PER_ITEM) {
-            result.add(new Triplet<>(stack[i + _X], stack[i + _Y], stack[i + _S] / (double) totalScore));
+        for (int i = 0; i < stackPosition; i += STACK_SIZE_PER_ITEM) {
+            result.add(new Triplet<>(stack[i + X_STACK_POSITION], stack[i + Y_STACK_POSITION], stack[i + SCORE_STACK_POSITION] / (double) totalScore));
         }
 
         return result;
