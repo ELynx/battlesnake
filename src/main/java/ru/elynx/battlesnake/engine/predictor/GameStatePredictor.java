@@ -62,7 +62,7 @@ public class GameStatePredictor extends GameStateDto {
             // in theory, it is quite possible to determine hazards accurately
 
             if (getTurn() % hazardStep == hazardStep - 1) {
-                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyFreeSpaceMatrix(width, height);
+                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyMatrix(width, height);
 
                 for (CoordsDto hazard : getBoard().getHazards()) {
                     freeSpaceMatrix.setOccupied(hazard.getX(), hazard.getY());

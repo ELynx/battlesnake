@@ -1,129 +1,68 @@
 package ru.elynx.battlesnake.engine.math;
 
 public class FreeSpaceMatrix {
+    private static final int OCCUPIED_VALUE = 0;
     private static final int UNSET_VALUE = -1;
     private static final int FILL_VALUE = -2;
 
     private final int width;
     private final int height;
-    private final int length;
+    private final int valuesLength;
 
     private final int[] spaceValues;
-    private final int[] stack;
+    private final int[] floodFillStack;
 
-    protected FreeSpaceMatrix(int width, int height) {
+    private FreeSpaceMatrix(int width, int height) {
         this.width = width;
         this.height = height;
-        this.length = this.width * this.height;
+        this.valuesLength = this.width * this.height;
 
-        this.spaceValues = new int[this.length];
-        this.stack = new int[this.length * 2]; // potentially stack each xy
+        this.spaceValues = new int[this.valuesLength];
+        this.floodFillStack = new int[this.valuesLength * 2]; // potentially stack each xy
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
         return new FreeSpaceMatrix(width, height);
     }
 
-    public static FreeSpaceMatrix emptyFreeSpaceMatrix(int width, int height) {
+    public static FreeSpaceMatrix emptyMatrix(int width, int height) {
         FreeSpaceMatrix result = uninitializedMatrix(width, height);
         result.empty();
         return result;
     }
 
     public void empty() {
-        for (int i = 0; i < length; ++i) {
+        for (int i = 0; i < valuesLength; ++i) {
             spaceValues[i] = UNSET_VALUE;
         }
     }
 
-    private boolean inside(int x, int y) {
-        final int insideIndex = safeIndex(x, y);
-        if (insideIndex < 0) {
+    public boolean setOccupied(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
+        return setOccupiedByBoundIndex(boundIndex);
+    }
+
+    private int calculateBoundIndex(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            return -1;
+
+        return calculateIndex(x, y);
+    }
+
+    private int calculateIndex(int x, int y) {
+        return x + width * y;
+    }
+
+    private boolean setOccupiedByBoundIndex(int boundIndex) {
+        if (boundIndex < 0)
             return false;
-        }
-        return spaceValues[insideIndex] == UNSET_VALUE;
+
+        setValueByIndex(boundIndex, OCCUPIED_VALUE);
+        return true;
     }
 
-    private boolean insideAndSet(int x, int y) {
-        final int insideIndex = safeIndex(x, y);
-        if (insideIndex < 0) {
-            return false;
-        }
-        if (spaceValues[insideIndex] == UNSET_VALUE) {
-            spaceValues[insideIndex] = FILL_VALUE;
-            return true;
-        }
-        return false;
-    }
-
-    private int scan(int lx, int rx, int y, int stackPos) {
-        boolean added = false;
-        for (int x = lx; x <= rx; ++x) {
-            if (!inside(x, y)) {
-                added = false;
-            } else if (!added) {
-                stack[stackPos] = x;
-                stack[stackPos + 1] = y;
-                stackPos += 2;
-                added = true;
-            }
-        }
-
-        return stackPos;
-    }
-
-    private int post() {
-        int filled = 0;
-        for (int i = 0; i < length; ++i) {
-            if (spaceValues[i] == FILL_VALUE)
-                ++filled;
-        }
-
-        if (filled > 0) {
-            for (int i = 0; i < length; ++i) {
-                if (spaceValues[i] == FILL_VALUE)
-                    spaceValues[i] = filled;
-            }
-        }
-
-        return filled;
-    }
-
-    private int getSpaceImpl(int xIn, int yIn) {
-        stack[0] = xIn;
-        stack[1] = yIn;
-
-        int stackPos = 2;
-        while (stackPos > 0) {
-            int x = stack[stackPos - 2];
-            int y = stack[stackPos - 1];
-            stackPos -= 2;
-
-            int lx = x;
-            while (insideAndSet(lx - 1, y)) {
-                lx -= 1;
-            }
-            while (insideAndSet(x, y)) {
-                x += 1;
-            }
-            stackPos = scan(lx, x - 1, y + 1, stackPos);
-            stackPos = scan(lx, x - 1, y - 1, stackPos);
-        }
-
-        return post();
-    }
-
-    public int getSpace(int x, int y) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
-            return 0; // outside has zero free space
-
-        final int current = spaceValues[index];
-        if (current >= 0) {
-            return current;
-        }
-
-        return getSpaceImpl(x, y);
+    private void setValueByIndex(int index, int value) {
+        spaceValues[index] = value;
     }
 
     /**
@@ -137,35 +76,110 @@ public class FreeSpaceMatrix {
      * @return True if cell was not set as occupied.
      */
     public boolean isFree(int x, int y) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
-            return false;
-
-        final int current = spaceValues[index];
-        return current != 0;
+        int value = getValueByXY(x, y);
+        // it does not matter if cell has free space calculated or not to be free
+        return value != OCCUPIED_VALUE;
     }
 
-    public boolean setOccupied(int x, int y) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
-            return false;
-
-        unsafeSetOccupied(index);
-        return true;
+    private int getValueByXY(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
+        return getValueByBoundIndex(boundIndex);
     }
 
-    protected int unsafeIndex(int x, int y) {
-        return x + width * y;
+    private int getValueByBoundIndex(int boundIndex) {
+        if (boundIndex < 0)
+            return OCCUPIED_VALUE;
+
+        return getValueByIndex(boundIndex);
     }
 
-    protected int safeIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return -1;
-
-        return unsafeIndex(x, y);
+    private int getValueByIndex(int index) {
+        return spaceValues[index];
     }
 
-    protected void unsafeSetOccupied(int index) {
-        spaceValues[index] = 0;
+    public int getFreeSpace(int x, int y) {
+        // if cell is set as occupied, return it
+        // if flood fill already calculated free space, return it
+        int value = getValueByXY(x, y);
+        if (value > UNSET_VALUE)
+            return value;
+
+        return getFreeSpaceByFloodFill(x, y);
+    }
+
+    private int getFreeSpaceByFloodFill(int startX, int startY) {
+        floodFillStack[0] = startX;
+        floodFillStack[1] = startY;
+        int stackPosition = 2;
+
+        while (stackPosition > 0) {
+            int checkedX = floodFillStack[stackPosition - 2];
+            int checkedY = floodFillStack[stackPosition - 1];
+            stackPosition -= 2;
+
+            int leftX = checkedX;
+            while (fillIfUnset(leftX - 1, checkedY)) {
+                leftX -= 1;
+            }
+
+            int rightX = checkedX;
+            while (fillIfUnset(rightX, checkedY)) {
+                rightX += 1;
+            }
+
+            stackPosition = scanAndQueue(leftX, rightX - 1, checkedY + 1, stackPosition);
+            stackPosition = scanAndQueue(leftX, rightX - 1, checkedY - 1, stackPosition);
+        }
+
+        return countAndPropagateFill();
+    }
+
+    private boolean fillIfUnset(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
+
+        if (getValueByBoundIndex(boundIndex) == UNSET_VALUE) {
+            // index is tested to be bound by operation above
+            setValueByIndex(boundIndex, FILL_VALUE);
+            return true;
+        }
+        return false;
+    }
+
+    private int scanAndQueue(int leftX, int rightX, int y, int stackPos) {
+        boolean queued = false;
+        for (int x = leftX; x <= rightX; ++x) {
+            if (isSet(x, y)) {
+                queued = false;
+            } else if (!queued) {
+                floodFillStack[stackPos] = x;
+                floodFillStack[stackPos + 1] = y;
+                stackPos += 2;
+                queued = true;
+            }
+        }
+
+        return stackPos;
+    }
+
+    private boolean isSet(int x, int y) {
+        int value = getValueByXY(x, y);
+        return value != UNSET_VALUE;
+    }
+
+    private int countAndPropagateFill() {
+        int filledCount = 0;
+        for (int index = 0; index < valuesLength; ++index) {
+            if (getValueByIndex(index) == FILL_VALUE)
+                ++filledCount;
+        }
+
+        if (filledCount > 0) {
+            for (int index = 0; index < valuesLength; ++index) {
+                if (getValueByIndex(index) == FILL_VALUE)
+                    setValueByIndex(index, filledCount);
+            }
+        }
+
+        return filledCount;
     }
 }

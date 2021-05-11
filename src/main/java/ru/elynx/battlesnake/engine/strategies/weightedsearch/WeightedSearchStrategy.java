@@ -240,7 +240,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                         triplet -> freeSpaceMatrix.isFree(triplet.getValue1(), triplet.getValue2()))
                 .sorted(Comparator
                         .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
-                                freeSpaceMatrix.getSpace(triplet.getValue1(), triplet.getValue2())))
+                                freeSpaceMatrix.getFreeSpace(triplet.getValue1(), triplet.getValue2())))
                         .thenComparingDouble(triplet -> weightMatrix.getValue(triplet.getValue1(), triplet.getValue2()))
                         .thenComparingDouble(triplet -> getCrossWeight(triplet.getValue1(), triplet.getValue2()))
                         .thenComparingDouble(triplet -> getOpportunitiesWeight(triplet.getValue0(), triplet.getValue1(),
