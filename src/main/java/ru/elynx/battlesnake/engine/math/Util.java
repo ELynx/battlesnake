@@ -6,6 +6,11 @@ public class Util {
     private Util() {
     }
 
+    public static double scale(double from, double value, double max, double to) {
+        double clamped = clamp(0.0, value / max, 1.0);
+        return scale(from, clamped, to);
+    }
+
     public static double clamp(double min, double value, double max) {
         if (value < min)
             return min;
@@ -16,20 +21,19 @@ public class Util {
         return value;
     }
 
-    public static double scale(double from, double normalized, double to) {
-        return from + (to - from) * normalized;
-    }
-
-    public static double scale(double from, double value, double max, double to) {
-        final double normalized = clamp(0.0, value / max, 1.0);
-        return scale(from, normalized, to);
-    }
-
-    public static int manhattanDistance(CoordsDto lhs, int x, int y) {
-        return Math.abs(lhs.getX() - x) + Math.abs(lhs.getY() - y);
+    public static double scale(double from, double proportion, double to) {
+        return from + (to - from) * proportion;
     }
 
     public static int manhattanDistance(CoordsDto lhs, CoordsDto rhs) {
         return manhattanDistance(lhs, rhs.getX(), rhs.getY());
+    }
+
+    public static int manhattanDistance(CoordsDto lhs, int x, int y) {
+        return manhattanDistance(lhs.getX(), lhs.getY(), x, y);
+    }
+
+    private static int manhattanDistance(int lhsX, int lhsY, int rhsX, int rhsY) {
+        return Math.abs(lhsX - rhsX) + Math.abs(lhsY - rhsY);
     }
 }
