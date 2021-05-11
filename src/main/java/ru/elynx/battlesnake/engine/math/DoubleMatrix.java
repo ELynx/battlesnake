@@ -5,17 +5,17 @@ public class DoubleMatrix {
 
     private final int width;
     private final int height;
-    private final int length;
+    private final int valuesLength;
 
     private final double[] values;
     private final double outsideValue;
 
-    protected DoubleMatrix(int width, int height, double outsideValue) {
+    private DoubleMatrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
-        this.length = this.width * this.height;
+        this.valuesLength = this.width * this.height;
 
-        this.values = new double[this.length];
+        this.values = new double[this.valuesLength];
         this.outsideValue = outsideValue;
     }
 
@@ -30,26 +30,53 @@ public class DoubleMatrix {
     }
 
     public void zero() {
-        for (int i = 0; i < length; ++i) {
+        for (int i = 0; i < valuesLength; ++i) {
             values[i] = 0.0d;
         }
     }
 
     public double getValue(int x, int y) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
+        int boundIndex = calculateBoundIndex(x, y);
+        return getValueByBoundIndex(boundIndex);
+    }
+
+    private int calculateBoundIndex(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            return -1;
+
+        return calculateIndex(x, y);
+    }
+
+    private int calculateIndex(int x, int y) {
+        return x + width * y;
+    }
+
+    private double getValueByBoundIndex(int boundIndex) {
+        if (boundIndex < 0)
             return outsideValue;
 
-        return unsafeGetValue(index);
+        return getValueByIndex(boundIndex);
+    }
+
+    private double getValueByIndex(int index) {
+        return values[index];
     }
 
     public boolean addValue(int x, int y, double value) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
+        int boundIndex = calculateBoundIndex(x, y);
+        return addValueByBoundIndex(boundIndex, value);
+    }
+
+    private boolean addValueByBoundIndex(int boundIndex, double value) {
+        if (boundIndex < 0)
             return false;
 
-        unsafeAddValue(index, value);
+        addValueByIndex(boundIndex, value);
         return true;
+    }
+
+    private void addValueByIndex(int index, double value) {
+        values[index] += value;
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
@@ -93,24 +120,5 @@ public class DoubleMatrix {
         }
 
         return false;
-    }
-
-    protected int unsafeIndex(int x, int y) {
-        return x + width * y;
-    }
-
-    protected int safeIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return -1;
-
-        return unsafeIndex(x, y);
-    }
-
-    protected double unsafeGetValue(int index) {
-        return values[index];
-    }
-
-    protected void unsafeAddValue(int index, double value) {
-        values[index] += value;
     }
 }

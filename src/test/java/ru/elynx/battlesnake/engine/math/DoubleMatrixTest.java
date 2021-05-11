@@ -13,13 +13,13 @@ class DoubleMatrixTest {
 
     @Test
     void test_make_zero_matrix() {
-        final int w = 11, h = 15;
-        final double wl = -2.0d;
+        int width = 11, height = 15;
+        double outsideValue = -2.0d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(w, h, wl);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
 
-        for (int x = 0; x < w; ++x) {
-            for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
             }
         }
@@ -27,41 +27,41 @@ class DoubleMatrixTest {
 
     @Test
     void test_add_get() {
-        final int w = 11, h = 15;
-        final double wl = -2.0d;
-        final double v = 123.4d;
+        int width = 11, height = 15;
+        double outsideValue = -2.0d;
+        double insideValue = 123.4d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(w, h, wl);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
 
-        for (int x = -1; x < w + 1; ++x) {
-            for (int y = -1; y < h + 1; ++y) {
-                boolean vSet = matrix.addValue(x, y, v);
-                double v2 = matrix.getValue(x, y);
+        for (int x = -1; x < width + 1; ++x) {
+            for (int y = -1; y < height + 1; ++y) {
+                boolean isValueSet = matrix.addValue(x, y, insideValue);
+                double testedValue = matrix.getValue(x, y);
 
-                assertEquals(vSet, (x >= 0 && x < w && y >= 0 && y < h));
-                assertTrue((vSet && v2 == v) || (!vSet && v2 == wl));
+                assertEquals(isValueSet, (x >= 0 && x < width && y >= 0 && y < height));
+                assertTrue((isValueSet && testedValue == insideValue) || (!isValueSet && testedValue == outsideValue));
             }
         }
     }
 
     @Test
     void test_zero() {
-        final int w = 11, h = 15;
-        final double wl = -2.0d;
-        final double v = 123.4d;
+        int width = 11, height = 15;
+        double outsideValue = -2.0d;
+        double insideValue = 123.4d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(w, h, wl);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
 
-        for (int x = 0; x < w; ++x) {
-            for (int y = 0; y < h; ++y) {
-                assertTrue(matrix.addValue(x, y, v));
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                assertTrue(matrix.addValue(x, y, insideValue));
             }
         }
 
         matrix.zero();
 
-        for (int x = 0; x < w; ++x) {
-            for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
             }
         }
@@ -69,49 +69,64 @@ class DoubleMatrixTest {
 
     @Test
     void test_splash_1st_order() {
-        final double v = 1.0d;
+        int width = 4;
+        int height = 4;
+        double outsideValue = -123.0d;
+        double valueAtImpact = 1.0d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
 
-        assertFalse(matrix.splash1stOrder(-1, -1, v));
-        assertFalse(matrix.splash1stOrder(4, 4, v));
-        assertTrue(matrix.splash1stOrder(1, 1, v));
+        assertFalse(matrix.splash1stOrder(-1, -1, valueAtImpact));
+        assertFalse(matrix.splash1stOrder(width, height, valueAtImpact));
 
-        assertThat(matrix.getValue(1, 1), is(equalTo(v)));
+        int impactX = 1;
+        int impactY = 1;
 
-        assertThat(matrix.getValue(1, 0), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(0, 1), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(2, 1), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(1, 2), is(closeTo(v / 2.0d, fuzz)));
+        assertTrue(matrix.splash1stOrder(impactX, impactY, valueAtImpact));
+
+        assertThat(matrix.getValue(impactX, impactY), is(equalTo(valueAtImpact)));
+
+        assertThat(matrix.getValue(impactX, impactY - 1), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX - 1, impactY), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX + 1, impactY), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX, impactY + 1), is(closeTo(valueAtImpact / 2.0d, fuzz)));
     }
 
     @Test
     void test_splash_2nd_order() {
-        final double v = 1.0d;
+        int width = 4;
+        int height = 4;
+        double outsideValue = -123.0d;
+        double valueAtImpact = 1.0d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -123.0d);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
 
-        assertFalse(matrix.splash2ndOrder(-1, -1, v));
-        assertFalse(matrix.splash2ndOrder(4, 4, v));
-        assertTrue(matrix.splash2ndOrder(1, 1, v));
+        assertFalse(matrix.splash2ndOrder(-1, -1, valueAtImpact));
+        assertFalse(matrix.splash2ndOrder(width, height, valueAtImpact));
 
-        assertThat(matrix.getValue(1, 1), is(equalTo(v)));
+        int impactX = 1;
+        int impactY = 1;
 
-        assertThat(matrix.getValue(1, 0), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(0, 1), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(2, 1), is(closeTo(v / 2.0d, fuzz)));
-        assertThat(matrix.getValue(1, 2), is(closeTo(v / 2.0d, fuzz)));
+        assertTrue(matrix.splash2ndOrder(impactX, impactY, valueAtImpact));
 
-        assertThat(matrix.getValue(0, 0), is(closeTo(v / 4.0d, fuzz)));
-        assertThat(matrix.getValue(0, 2), is(closeTo(v / 4.0d, fuzz)));
-        assertThat(matrix.getValue(2, 0), is(closeTo(v / 4.0d, fuzz)));
-        assertThat(matrix.getValue(2, 2), is(closeTo(v / 4.0d, fuzz)));
+        assertThat(matrix.getValue(impactX, impactY), is(equalTo(valueAtImpact)));
+
+        assertThat(matrix.getValue(impactX, impactY - 1), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX - 1, impactY), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX + 1, impactY), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+        assertThat(matrix.getValue(impactX, impactY + 1), is(closeTo(valueAtImpact / 2.0d, fuzz)));
+
+        assertThat(matrix.getValue(impactX - 1, impactY - 1), is(closeTo(valueAtImpact / 4.0d, fuzz)));
+        assertThat(matrix.getValue(impactX - 1, impactY + 1), is(closeTo(valueAtImpact / 4.0d, fuzz)));
+        assertThat(matrix.getValue(impactX + 1, impactY - 1), is(closeTo(valueAtImpact / 4.0d, fuzz)));
+        assertThat(matrix.getValue(impactX + 1, impactY + 1), is(closeTo(valueAtImpact / 4.0d, fuzz)));
     }
 
     @Test
     void test_splash_custom_denominator() {
-        final double v = 1.0d;
-        final double d = 4.0d;
+        // TODO base on constants, not hardcode
+        double v = 1.0d;
+        double d = 4.0d;
 
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(4, 4, -456.0d);
 
@@ -146,7 +161,8 @@ class DoubleMatrixTest {
     }
 
     @Test
-    void test_splash_impact_order() {
+    void test_additive() {
+        // TODO base on constants, not hardcode
         DoubleMatrix matrix = DoubleMatrix.zeroMatrix(2, 2, -1.0d);
 
         assertTrue(matrix.splash2ndOrder(0, 0, 4.0d));
