@@ -53,7 +53,8 @@ public class ProbabilityMaker {
         List<Triplet<Integer, Integer, Double>> result = new ArrayList<>(stackPosition / STACK_SIZE_PER_ITEM);
 
         for (int i = 0; i < stackPosition; i += STACK_SIZE_PER_ITEM) {
-            result.add(new Triplet<>(stack[i + X_STACK_POSITION], stack[i + Y_STACK_POSITION], stack[i + SCORE_STACK_POSITION] / (double) totalScore));
+            result.add(new Triplet<>(stack[i + X_STACK_POSITION], stack[i + Y_STACK_POSITION],
+                    stack[i + SCORE_STACK_POSITION] / (double) totalScore));
         }
 
         return result;
