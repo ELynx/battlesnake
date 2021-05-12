@@ -1,5 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
+import java.util.Arrays;
+
 public class FreeSpaceMatrix {
     private static final int OCCUPIED_VALUE = 0;
     private static final int UNSET_VALUE = -1;
@@ -7,7 +9,6 @@ public class FreeSpaceMatrix {
 
     private final int width;
     private final int height;
-    private final int valuesLength;
 
     private final int[] spaceValues;
     private final int[] floodFillStack;
@@ -15,10 +16,9 @@ public class FreeSpaceMatrix {
     private FreeSpaceMatrix(int width, int height) {
         this.width = width;
         this.height = height;
-        this.valuesLength = this.width * this.height;
 
-        this.spaceValues = new int[this.valuesLength];
-        this.floodFillStack = new int[this.valuesLength * 2]; // potentially stack each xy
+        this.spaceValues = new int[this.width * this.height];
+        this.floodFillStack = new int[this.spaceValues.length * 2]; // potentially stack each xy
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
@@ -32,9 +32,7 @@ public class FreeSpaceMatrix {
     }
 
     public void empty() {
-        for (int i = 0; i < valuesLength; ++i) {
-            spaceValues[i] = UNSET_VALUE;
-        }
+        Arrays.fill(spaceValues, UNSET_VALUE);
     }
 
     public boolean setOccupied(int x, int y) {
@@ -168,13 +166,13 @@ public class FreeSpaceMatrix {
 
     private int countAndPropagateFill() {
         int filledCount = 0;
-        for (int index = 0; index < valuesLength; ++index) {
+        for (int index = 0; index < spaceValues.length; ++index) {
             if (getValueByIndex(index) == FILL_VALUE)
                 ++filledCount;
         }
 
         if (filledCount > 0) {
-            for (int index = 0; index < valuesLength; ++index) {
+            for (int index = 0; index < spaceValues.length; ++index) {
                 if (getValueByIndex(index) == FILL_VALUE)
                     setValueByIndex(index, filledCount);
             }

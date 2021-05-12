@@ -1,11 +1,12 @@
 package ru.elynx.battlesnake.engine.math;
 
+import java.util.Arrays;
+
 public class DoubleMatrix {
     private static final double DEFAULT_SPLASH = 2.0d;
 
     private final int width;
     private final int height;
-    private final int valuesLength;
 
     private final double[] values;
     private final double outsideValue;
@@ -13,9 +14,8 @@ public class DoubleMatrix {
     private DoubleMatrix(int width, int height, double outsideValue) {
         this.width = width;
         this.height = height;
-        this.valuesLength = this.width * this.height;
 
-        this.values = new double[this.valuesLength];
+        this.values = new double[this.width * this.height];
         this.outsideValue = outsideValue;
     }
 
@@ -30,9 +30,7 @@ public class DoubleMatrix {
     }
 
     public void zero() {
-        for (int i = 0; i < valuesLength; ++i) {
-            values[i] = 0.0d;
-        }
+        Arrays.fill(values, 0.0d);
     }
 
     public double getValue(int x, int y) {
