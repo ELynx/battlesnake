@@ -13,9 +13,9 @@ public class ProbabilityMaker {
     private static final int SCORE_STACK_POSITION = 2;
     private static final int STACK_SIZE_PER_ITEM = SCORE_STACK_POSITION + 1;
 
-    private int[] stack;
+    private final int[] stack;
     private int stackPosition;
-    private int totalScore = 0;
+    private int totalScore;
 
     public ProbabilityMaker() {
         stack = new int[MAX_ITEMS * STACK_SIZE_PER_ITEM];

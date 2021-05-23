@@ -129,7 +129,7 @@ public class FreeSpaceMatrix {
             stackPosition = scanAndQueue(leftX, rightX - 1, checkedY - 1, stackPosition);
         }
 
-        return countAndPropagateFill();
+        return countAndFill();
     }
 
     private boolean fillIfUnset(int x, int y) {
@@ -164,20 +164,20 @@ public class FreeSpaceMatrix {
         return value != UNSET_VALUE;
     }
 
-    private int countAndPropagateFill() {
-        int filledCount = 0;
+    private int countAndFill() {
+        int count = 0;
         for (int index = 0; index < spaceValues.length; ++index) {
             if (getValueByIndex(index) == FILL_VALUE)
-                ++filledCount;
+                ++count;
         }
 
-        if (filledCount > 0) {
+        if (count > 0) {
             for (int index = 0; index < spaceValues.length; ++index) {
                 if (getValueByIndex(index) == FILL_VALUE)
-                    setValueByIndex(index, filledCount);
+                    setValueByIndex(index, count);
             }
         }
 
-        return filledCount;
+        return count;
     }
 }

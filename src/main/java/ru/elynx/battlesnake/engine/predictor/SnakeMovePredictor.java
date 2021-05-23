@@ -3,9 +3,8 @@ package ru.elynx.battlesnake.engine.predictor;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
-import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
@@ -17,52 +16,20 @@ public class SnakeMovePredictor {
         this.probabilityMaker = new ProbabilityMaker();
     }
 
-    protected int score(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
-        int score = 1; // start with least positive score
-
-        for (CoordsDto food : gameState.getBoard().getFood()) {
-            if (food.getX() == x && food.getY() == y) {
-                score += 3; // sum of initial value and food is not enough to jump in front of a train
-                break;
-            }
-        }
-
-        final int ownLength = snake.getLength();
-        for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            // manhattan distance 0 of prediction is collision
-            if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) == 1) {
-                final int otherLength = otherSnake.getLength();
-                if (ownLength < otherLength)
-                    score -= 5; // not jump in front of train
-                else if (ownLength == otherLength)
-                    score += 0; // dicey, no score affect for now
-                else // own < other
-                    score += 5; // hunt
-            }
-        }
-
-        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            if (hazard.getX() == x && hazard.getY() == y) {
-                score -= 10;
-            }
-        }
-
-        return score;
-    }
-
-    protected void addIfWalkableScored(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
+    protected void addScoredMoveIfWalkable(int x, int y, ScoreMaker scoreMaker) {
         if (informant.isWalkable(x, y)) {
-            probabilityMaker.add(x, y, score(x, y, snake, gameState));
+            int score = scoreMaker.scoreMove(x, y);
+            probabilityMaker.add(x, y, score);
         }
     }
 
-    protected void addIfWalkable(int x, int y) {
+    protected void addMoveIfWalkable(int x, int y) {
         if (informant.isWalkable(x, y)) {
             probabilityMaker.add(x, y);
         }
     }
 
-    protected void add(int x, int y) {
+    protected void addMove(int x, int y) {
         probabilityMaker.add(x, y);
     }
 
@@ -91,12 +58,14 @@ public class SnakeMovePredictor {
             y0 = snake.getBody().get(1).getY();
         }
 
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
+
         if (x1 == x0 && y1 == y0) {
             // equal possibility to go anywhere
-            addIfWalkableScored(x1 - 1, y1, snake, gameState);
-            addIfWalkableScored(x1, y1 + 1, snake, gameState);
-            addIfWalkableScored(x1 + 1, y1, snake, gameState);
-            addIfWalkableScored(x1, y1 + 1, snake, gameState);
+            addScoredMoveIfWalkable(x1 - 1, y1, scoreMaker);
+            addScoredMoveIfWalkable(x1, y1 + 1, scoreMaker);
+            addScoredMoveIfWalkable(x1 + 1, y1, scoreMaker);
+            addScoredMoveIfWalkable(x1, y1 + 1, scoreMaker);
 
             return probabilityMaker.make();
         }
@@ -111,7 +80,7 @@ public class SnakeMovePredictor {
 
         if (snake.isTimedOut()) {
             // timed out snakes do not care for walk-ability
-            add(xf, yf);
+            addMove(xf, yf);
             return probabilityMaker.make();
         }
 
@@ -125,16 +94,16 @@ public class SnakeMovePredictor {
         final int xr = x1 + dy;
         final int yr = y1 - dx;
 
-        addIfWalkableScored(xf, yf, snake, gameState);
-        addIfWalkableScored(xl, yl, snake, gameState);
-        addIfWalkableScored(xr, yr, snake, gameState);
+        addScoredMoveIfWalkable(xf, yf, scoreMaker);
+        addScoredMoveIfWalkable(xl, yl, scoreMaker);
+        addScoredMoveIfWalkable(xr, yr, scoreMaker);
 
         // if all choices are negatively bad
         if (probabilityMaker.isEmpty()) {
             // fill in undifferentiated
-            addIfWalkable(xf, yf);
-            addIfWalkable(xl, yl);
-            addIfWalkable(xr, yr);
+            addMoveIfWalkable(xf, yf);
+            addMoveIfWalkable(xl, yl);
+            addMoveIfWalkable(xr, yr);
         }
 
         return probabilityMaker.make();
