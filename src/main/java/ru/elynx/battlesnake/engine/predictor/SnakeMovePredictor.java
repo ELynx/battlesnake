@@ -9,14 +9,16 @@ import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
     protected IPredictorInformant informant;
+    protected ScoreMaker scoreMaker;
     protected ProbabilityMaker probabilityMaker;
 
     public SnakeMovePredictor(IPredictorInformant informant) {
         this.informant = informant;
+        this.scoreMaker = new ScoreMaker();
         this.probabilityMaker = new ProbabilityMaker();
     }
 
-    protected void addScoredMoveIfWalkable(int x, int y, ScoreMaker scoreMaker) {
+    protected void addScoredMoveIfWalkable(int x, int y) {
         if (informant.isWalkable(x, y)) {
             int score = scoreMaker.scoreMove(x, y);
             probabilityMaker.add(x, y, score);
@@ -39,6 +41,7 @@ public class SnakeMovePredictor {
             return Collections.emptyList();
         }
 
+        scoreMaker.reset(snake, gameState);
         probabilityMaker.reset();
 
         // head this turn
@@ -58,15 +61,14 @@ public class SnakeMovePredictor {
             y0 = snake.getBody().get(1).getY();
         }
 
-        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
-
         if (x1 == x0 && y1 == y0) {
             // equal possibility to go anywhere
-            addScoredMoveIfWalkable(x1 - 1, y1, scoreMaker);
-            addScoredMoveIfWalkable(x1, y1 + 1, scoreMaker);
-            addScoredMoveIfWalkable(x1 + 1, y1, scoreMaker);
-            addScoredMoveIfWalkable(x1, y1 + 1, scoreMaker);
+            addScoredMoveIfWalkable(x1 - 1, y1);
+            addScoredMoveIfWalkable(x1, y1 + 1);
+            addScoredMoveIfWalkable(x1 + 1, y1);
+            addScoredMoveIfWalkable(x1, y1 + 1);
 
+            scoreMaker.freeReferences();
             return probabilityMaker.make();
         }
 
@@ -81,6 +83,8 @@ public class SnakeMovePredictor {
         if (snake.isTimedOut()) {
             // timed out snakes do not care for walk-ability
             addMove(xf, yf);
+
+            scoreMaker.freeReferences();
             return probabilityMaker.make();
         }
 
@@ -94,9 +98,9 @@ public class SnakeMovePredictor {
         final int xr = x1 + dy;
         final int yr = y1 - dx;
 
-        addScoredMoveIfWalkable(xf, yf, scoreMaker);
-        addScoredMoveIfWalkable(xl, yl, scoreMaker);
-        addScoredMoveIfWalkable(xr, yr, scoreMaker);
+        addScoredMoveIfWalkable(xf, yf);
+        addScoredMoveIfWalkable(xl, yl);
+        addScoredMoveIfWalkable(xr, yr);
 
         // if all choices are negatively bad
         if (probabilityMaker.isEmpty()) {
@@ -106,6 +110,7 @@ public class SnakeMovePredictor {
             addMoveIfWalkable(xr, yr);
         }
 
+        scoreMaker.freeReferences();
         return probabilityMaker.make();
     }
 }

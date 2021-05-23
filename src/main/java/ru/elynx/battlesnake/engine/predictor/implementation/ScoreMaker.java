@@ -6,31 +6,64 @@ import ru.elynx.battlesnake.protocol.CoordsDto;
 import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class ScoreMaker {
-    public static final int LEAST_SCORE = 1; // start with least positive score
-    public static final int FOOD_SCORE = 3; // sum of least score value and food is less than score of being eaten
-    public static final int HUNT_SCORE = 5; // positive for hunting lesser snakes, negative for avoiding greater ones
-    public static final int HAZARD_SCORE = -10; // avoid hazard above other goals
+    private enum Mode {
+        MOVE_MODE, HEAD_MODE
+    }
 
-    private final SnakeDto snake;
-    private final GameStatePredictor gameState;
+    // delivering h2h win is best
+    // eating food is good
+    // staying alive is OK
+    // h2h draw depends on other snake's risk, is as bad as eating food is good
+    // going into hazard negates base + food, but better than h2h lose
+    // h2h lose negates base + food
+    private static final int HEAD_TO_HEAD_WIN_SCORE = 5;
+    private static final int FOOD_SCORE = 3;
+    private static final int BASE_SCORE = 1;
+    private static final int HEAD_TO_HEAD_DRAW_SCORE = -3;
+    private static final int HAZARD_SCORE = -4;
+    private static final int HEAD_TO_HEAD_LOSE_SCORE = -5;
+
+    private SnakeDto snake;
+    private GameStatePredictor gameState;
 
     private int x;
     private int y;
+    private Mode mode;
 
-    public ScoreMaker(SnakeDto snake, GameStatePredictor gameState) {
+    public ScoreMaker() {
+        // all fields are initialized per call
+    }
+
+    public void reset(SnakeDto snake, GameStatePredictor gameState) {
         this.snake = snake;
         this.gameState = gameState;
+    }
+
+    // TODO automatic reference clean-up
+    public void freeReferences() {
+        this.snake = null;
+        this.gameState = null;
     }
 
     public int scoreMove(int x, int y) {
         this.x = x;
         this.y = y;
+        this.mode = Mode.MOVE_MODE;
 
-        return scoreMoveImpl();
+        return scoreImpl();
     }
 
-    private int scoreMoveImpl() {
-        int score = LEAST_SCORE;
+    public int scoreHead() {
+        CoordsDto coordsDto = snake.getHead();
+        this.x = coordsDto.getX();
+        this.y = coordsDto.getY();
+        this.mode = Mode.HEAD_MODE;
+
+        return scoreImpl();
+    }
+
+    private int scoreImpl() {
+        int score = BASE_SCORE;
 
         score += getFoodScore();
         score += getHuntScore();
@@ -50,33 +83,49 @@ public class ScoreMaker {
     }
 
     private int getHuntScore() {
-        int huntScore = 0;
-        for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            huntScore += getHuntScorePerSnakeIfNextMove(otherSnake);
-        }
+        int score = 0;
 
-        return huntScore;
-    }
-
-    private int getHuntScorePerSnakeIfNextMove(SnakeDto otherSnake) {
-        // manhattan distance 0 of prediction is collision
-        if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) == 1) {
-            return getHuntScorePerSnake(otherSnake);
-        }
-
-        return 0;
-    }
-
-    private int getHuntScorePerSnake(SnakeDto otherSnake) {
         int ownLength = snake.getLength();
-        int otherLength = otherSnake.getLength();
+        for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
+            if (isNotSelf(otherSnake) && isScoreTarget(otherSnake)) {
+                int otherLength = otherSnake.getLength();
 
-        if (ownLength < otherLength)
-            return -HUNT_SCORE;
-        else if (ownLength > otherLength)
-            return HUNT_SCORE;
+                if (ownLength < otherLength)
+                    return HEAD_TO_HEAD_LOSE_SCORE;
 
-        return 0;
+                if (ownLength > otherLength) {
+                    score += HEAD_TO_HEAD_WIN_SCORE;
+                } else {
+                    score += HEAD_TO_HEAD_DRAW_SCORE;
+                }
+            }
+        }
+
+        return score;
+    }
+
+    private boolean isNotSelf(SnakeDto otherSnake) {
+        return !otherSnake.getId().equals(snake.getId());
+    }
+
+    private boolean isScoreTarget(SnakeDto otherSnake) {
+        switch (mode) {
+            case MOVE_MODE :
+                return isNextMove(otherSnake);
+            case HEAD_MODE :
+                return isCollision(otherSnake);
+            default :
+                return false;
+        }
+    }
+
+    private boolean isNextMove(SnakeDto otherSnake) {
+        return Util.manhattanDistance(otherSnake.getHead(), x, y) == 1;
+    }
+
+    private boolean isCollision(SnakeDto otherSnake) {
+        CoordsDto coordsDto = otherSnake.getHead();
+        return coordsDto.getX().equals(x) && coordsDto.getY().equals(y);
     }
 
     private int getHazardScore() {
