@@ -68,9 +68,9 @@ public class FreeSpaceMatrix {
      * preliminary getters, and true/false testing.
      *
      * @param x
-     *            coord
+     *            coordinate
      * @param y
-     *            coord
+     *            coordinate
      * @return True if cell was not set as occupied.
      */
     public boolean isFree(int x, int y) {

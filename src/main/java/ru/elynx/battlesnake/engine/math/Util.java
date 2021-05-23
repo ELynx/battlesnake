@@ -12,13 +12,7 @@ public class Util {
     }
 
     public static double clamp(double min, double value, double max) {
-        if (value < min)
-            return min;
-
-        if (value > max)
-            return max;
-
-        return value;
+        return Math.max(min, Math.min(value, max));
     }
 
     public static double scale(double from, double proportion, double to) {
