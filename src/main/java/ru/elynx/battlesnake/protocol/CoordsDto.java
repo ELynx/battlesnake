@@ -20,6 +20,22 @@ public class CoordsDto {
         this.y = y;
     }
 
+    // TODO unit test
+    CoordsDto plus(String move) {
+        switch (move) {
+            case Move.Moves.UP :
+                return new CoordsDto(getX(), getY() + 1);
+            case Move.Moves.RIGHT :
+                return new CoordsDto(getX() + 1, getY());
+            case Move.Moves.DOWN :
+                return new CoordsDto(getX(), getY() - 1);
+            case Move.Moves.LEFT :
+                return new CoordsDto(getX() - 1, getY());
+            default :
+                throw new IllegalArgumentException("Move [" + move + "] is not a supported direction");
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

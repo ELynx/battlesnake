@@ -50,6 +50,7 @@ public class Move {
         return "Move{move='" + (Boolean.TRUE.equals(repeatLast) ? "repeat" : move) + "'}";
     }
 
+    // TODO enum
     public static class Moves {
         private Moves() {
         }
