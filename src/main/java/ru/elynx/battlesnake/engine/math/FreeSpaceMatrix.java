@@ -2,22 +2,18 @@ package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
 
-public class FreeSpaceMatrix {
+public class FreeSpaceMatrix extends Matrix {
     private static final int OCCUPIED_VALUE = 0;
     private static final int UNSET_VALUE = -1;
     private static final int FILL_VALUE = -2;
-
-    private final int width;
-    private final int height;
 
     private final int[] spaceValues;
     private final int[] floodFillStack;
 
     private FreeSpaceMatrix(int width, int height) {
-        this.width = width;
-        this.height = height;
+        super(width, height);
 
-        this.spaceValues = new int[this.width * this.height];
+        this.spaceValues = new int[width * height];
         this.floodFillStack = new int[this.spaceValues.length * 2]; // potentially stack each xy
     }
 
@@ -38,17 +34,6 @@ public class FreeSpaceMatrix {
     public boolean setOccupied(int x, int y) {
         int boundIndex = calculateBoundIndex(x, y);
         return setOccupiedByBoundIndex(boundIndex);
-    }
-
-    private int calculateBoundIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return -1;
-
-        return calculateIndex(x, y);
-    }
-
-    private int calculateIndex(int x, int y) {
-        return x + width * y;
     }
 
     private boolean setOccupiedByBoundIndex(int boundIndex) {

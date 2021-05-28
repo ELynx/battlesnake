@@ -2,20 +2,16 @@ package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
 
-public class DoubleMatrix {
+public class DoubleMatrix extends Matrix {
     private static final double DEFAULT_SPLASH = 2.0d;
-
-    private final int width;
-    private final int height;
 
     private final double[] values;
     private final double outsideValue;
 
     private DoubleMatrix(int width, int height, double outsideValue) {
-        this.width = width;
-        this.height = height;
+        super(width, height);
 
-        this.values = new double[this.width * this.height];
+        this.values = new double[width * height];
         this.outsideValue = outsideValue;
     }
 
@@ -36,17 +32,6 @@ public class DoubleMatrix {
     public double getValue(int x, int y) {
         int boundIndex = calculateBoundIndex(x, y);
         return getValueByBoundIndex(boundIndex);
-    }
-
-    private int calculateBoundIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return -1;
-
-        return calculateIndex(x, y);
-    }
-
-    private int calculateIndex(int x, int y) {
-        return x + width * y;
     }
 
     private double getValueByBoundIndex(int boundIndex) {
@@ -86,7 +71,7 @@ public class DoubleMatrix {
         if (valueAtImpact == 0.0d)
             return false;
 
-        // if impact is out of matrix ignore the setter
+        // apply splash only if impact is applied
         if (addValue(x, y, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
@@ -106,6 +91,7 @@ public class DoubleMatrix {
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
+        // apply splash 2nd order only if splash 1st order is applied
         if (splash1stOrder(x, y, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
