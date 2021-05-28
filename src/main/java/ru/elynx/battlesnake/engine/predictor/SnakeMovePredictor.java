@@ -127,7 +127,7 @@ public class SnakeMovePredictor {
     }
 
     private void addMove(int x, int y, int score) {
-        probabilityMaker.add(x, y, score);
+        probabilityMaker.addPositionWithScore(x, y, score);
     }
 
     private void addMoveIfWalkable(int x, int y) {
@@ -137,11 +137,11 @@ public class SnakeMovePredictor {
     }
 
     private void addMove(int x, int y) {
-        probabilityMaker.add(x, y);
+        probabilityMaker.addPosition(x, y);
     }
 
     private List<Triplet<Integer, Integer, Double>> makeProbabilities() {
         scoreMaker.freeReferences();
-        return probabilityMaker.make();
+        return probabilityMaker.makeProbabilities();
     }
 }
