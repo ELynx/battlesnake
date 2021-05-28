@@ -7,6 +7,10 @@ public class FreeSpaceMatrix extends Matrix {
     private static final int UNSET_VALUE = -1;
     private static final int FILL_VALUE = -2;
 
+    private static final int X_STACK_POSITION = 0;
+    private static final int Y_STACK_POSITION = 1;
+    private static final int STACK_SIZE_PER_ITEM = Y_STACK_POSITION + 1;
+
     private final int[] spaceValues;
     private final int[] floodFillStack;
 
@@ -91,14 +95,14 @@ public class FreeSpaceMatrix extends Matrix {
     }
 
     private int getFreeSpaceByFloodFill(int startX, int startY) {
-        floodFillStack[0] = startX;
-        floodFillStack[1] = startY;
-        int stackPosition = 2;
+        floodFillStack[X_STACK_POSITION] = startX;
+        floodFillStack[Y_STACK_POSITION] = startY;
+        int stackPosition = STACK_SIZE_PER_ITEM;
 
         while (stackPosition > 0) {
-            int checkedX = floodFillStack[stackPosition - 2];
-            int checkedY = floodFillStack[stackPosition - 1];
-            stackPosition -= 2;
+            int checkedX = floodFillStack[stackPosition + X_STACK_POSITION - STACK_SIZE_PER_ITEM];
+            int checkedY = floodFillStack[stackPosition + Y_STACK_POSITION - STACK_SIZE_PER_ITEM];
+            stackPosition -= STACK_SIZE_PER_ITEM;
 
             int leftX = checkedX;
             while (fillIfUnset(leftX - 1, checkedY)) {
@@ -134,9 +138,9 @@ public class FreeSpaceMatrix extends Matrix {
             if (isSet(x, y)) {
                 queued = false;
             } else if (!queued) {
-                floodFillStack[stackPos] = x;
-                floodFillStack[stackPos + 1] = y;
-                stackPos += 2;
+                floodFillStack[stackPos + X_STACK_POSITION] = x;
+                floodFillStack[stackPos + Y_STACK_POSITION] = y;
+                stackPos += STACK_SIZE_PER_ITEM;
                 queued = true;
             }
         }
