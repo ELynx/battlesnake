@@ -21,15 +21,15 @@ public class CoordsDto {
     }
 
     // TODO unit test
-    CoordsDto plus(String move) {
+    public CoordsDto plus(Move.MovesEnum move) {
         switch (move) {
-            case Move.Moves.UP :
+            case UP :
                 return new CoordsDto(getX(), getY() + 1);
-            case Move.Moves.RIGHT :
+            case RIGHT :
                 return new CoordsDto(getX() + 1, getY());
-            case Move.Moves.DOWN :
+            case DOWN :
                 return new CoordsDto(getX(), getY() - 1);
-            case Move.Moves.LEFT :
+            case LEFT :
                 return new CoordsDto(getX() - 1, getY());
             default :
                 throw new IllegalArgumentException("Move [" + move + "] is not a supported direction");

@@ -1,5 +1,7 @@
 package ru.elynx.battlesnake.engine.predictor;
 
+import static ru.elynx.battlesnake.protocol.Move.MovesEnum.*;
+
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
@@ -38,9 +40,11 @@ public class SnakeMovePredictor {
         int y0 = firstBodySegment.getY();
 
         // there are cases, notably start, when body pieces can overlap
-        if (x1 == x0 && y1 == y0) {
-            return getFourWayProbability(x1, y1);
+        if (head.equals(firstBodySegment)) {
+            return getFourWayProbability(head);
         }
+
+        // TODO clear up algo
 
         // delta of this move
         final int dx = x1 - x0;
@@ -50,9 +54,11 @@ public class SnakeMovePredictor {
         final int xf = x1 + dx;
         final int yf = y1 + dy;
 
+        CoordsDto forward = new CoordsDto(xf, yf);
+
         if (snake.isTimedOut()) {
             // timed out snakes do not care for walk-ability
-            addMove(xf, yf);
+            addMove(forward);
             return makeProbabilities();
         }
 
@@ -66,32 +72,30 @@ public class SnakeMovePredictor {
         final int xr = x1 + dy;
         final int yr = y1 - dx;
 
-        // TODO generator for this
-        return getProbabilityOfXYArray(new int[]{xf, yf, xl, yl, xr, yr});
+        CoordsDto left = new CoordsDto(xl, yl);
+        CoordsDto right = new CoordsDto(xr, yr);
+
+        return getProbabilityOfCoords(List.of(forward, left, right));
     }
 
-    private List<Triplet<Integer, Integer, Double>> getFourWayProbability(int x, int y) {
+    private List<Triplet<Integer, Integer, Double>> getFourWayProbability(CoordsDto from) {
         // possibility to go anywhere
-        return getProbabilityOfXYArray(getFourDirections(x, y));
+        return getProbabilityOfCoords(getFourDirections(from));
     }
 
-    // TODO better type
-    private int[] getFourDirections(int x, int y) {
-        return new int[]{x - 1, y, x, y + 1, x + 1, y, x, y + 1};
+    private Iterable<CoordsDto> getFourDirections(CoordsDto from) {
+        return List.of(from.plus(UP), from.plus(RIGHT), from.plus(DOWN), from.plus(LEFT));
     }
 
-    private List<Triplet<Integer, Integer, Double>> getProbabilityOfXYArray(int[] items) {
-        for (int i = 0; i < items.length; i = i + 2) {
-            int x = items[i];
-            int y = items[i + 1];
-            addScoredMoveIfWalkable(x, y);
+    // TODO naming
+    private List<Triplet<Integer, Integer, Double>> getProbabilityOfCoords(Iterable<CoordsDto> renameCoords) {
+        for (CoordsDto coords : renameCoords) {
+            addScoredMoveIfWalkable(coords);
         }
 
         if (noMovesAdded()) {
-            for (int i = 0; i < items.length; i = i + 2) {
-                int x = items[i];
-                int y = items[i + 1];
-                addMoveIfWalkable(x, y);
+            for (CoordsDto coords : renameCoords) {
+                addMoveIfWalkable(coords);
             }
         }
 
@@ -115,29 +119,29 @@ public class SnakeMovePredictor {
         return probabilityMaker.isEmpty();
     }
 
-    private void addScoredMoveIfWalkable(int x, int y) {
-        if (informant.isWalkable(x, y)) {
-            addScoredMove(x, y);
+    private void addScoredMoveIfWalkable(CoordsDto coords) {
+        if (informant.isWalkable(coords)) {
+            addScoredMove(coords);
         }
     }
 
-    private void addScoredMove(int x, int y) {
-        int score = scoreMaker.scoreMove(x, y);
-        addMove(x, y, score);
+    private void addScoredMove(CoordsDto coords) {
+        int score = scoreMaker.scoreMove(coords);
+        addMove(coords, score);
     }
 
-    private void addMove(int x, int y, int score) {
-        probabilityMaker.addPositionWithScore(x, y, score);
+    private void addMove(CoordsDto coords, int score) {
+        probabilityMaker.addPositionWithScore(coords, score);
     }
 
-    private void addMoveIfWalkable(int x, int y) {
-        if (informant.isWalkable(x, y)) {
-            addMove(x, y);
+    private void addMoveIfWalkable(CoordsDto coords) {
+        if (informant.isWalkable(coords)) {
+            addMove(coords);
         }
     }
 
-    private void addMove(int x, int y) {
-        probabilityMaker.addPosition(x, y);
+    private void addMove(CoordsDto coords) {
+        probabilityMaker.addPosition(coords);
     }
 
     private List<Triplet<Integer, Integer, Double>> makeProbabilities() {

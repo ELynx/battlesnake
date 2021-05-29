@@ -26,8 +26,7 @@ public class ScoreMaker {
     private SnakeDto snake;
     private GameStatePredictor gameState;
 
-    private int x;
-    private int y;
+    CoordsDto coords;
     private Mode mode;
 
     public ScoreMaker() {
@@ -45,18 +44,15 @@ public class ScoreMaker {
         this.gameState = null;
     }
 
-    public int scoreMove(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public int scoreMove(CoordsDto coords) {
+        this.coords = coords;
         this.mode = Mode.MOVE_MODE;
 
         return scoreImpl();
     }
 
     public int scoreHead() {
-        CoordsDto coordsDto = snake.getHead();
-        this.x = coordsDto.getX();
-        this.y = coordsDto.getY();
+        this.coords = snake.getHead();
         this.mode = Mode.HEAD_MODE;
 
         return scoreImpl();
@@ -74,7 +70,7 @@ public class ScoreMaker {
 
     private int getFoodScore() {
         for (CoordsDto food : gameState.getBoard().getFood()) {
-            if (food.getX() == x && food.getY() == y) {
+            if (food.equals(coords)) {
                 return FOOD_SCORE;
             }
         }
@@ -120,17 +116,16 @@ public class ScoreMaker {
     }
 
     private boolean isNextMove(SnakeDto otherSnake) {
-        return Util.manhattanDistance(otherSnake.getHead(), x, y) == 1;
+        return Util.manhattanDistance(otherSnake.getHead(), coords) == 1;
     }
 
     private boolean isCollision(SnakeDto otherSnake) {
-        CoordsDto coordsDto = otherSnake.getHead();
-        return coordsDto.getX().equals(x) && coordsDto.getY().equals(y);
+        return otherSnake.getHead().equals(coords);
     }
 
     private int getHazardScore() {
         for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            if (hazard.getX() == x && hazard.getY() == y) {
+            if (hazard.equals(coords)) {
                 return HAZARD_SCORE;
             }
         }

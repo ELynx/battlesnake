@@ -59,4 +59,8 @@ public class Move {
         public static final String DOWN = "down";
         public static final String LEFT = "left";
     }
+
+    public enum MovesEnum {
+        UP, RIGHT, DOWN, LEFT
+    }
 }
