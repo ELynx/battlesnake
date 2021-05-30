@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
+import ru.elynx.battlesnake.protocol.CoordsDto;
 
 public class FreeSpaceMatrix extends Matrix {
     private static final int OCCUPIED_VALUE = 0;
@@ -35,6 +36,11 @@ public class FreeSpaceMatrix extends Matrix {
         Arrays.fill(spaceValues, UNSET_VALUE);
     }
 
+    // TODO leave only one
+    public boolean setOccupied(CoordsDto coords) {
+        return setOccupied(coords.getX(), coords.getY());
+    }
+
     public boolean setOccupied(int x, int y) {
         int boundIndex = calculateBoundIndex(x, y);
         return setOccupiedByBoundIndex(boundIndex);
@@ -50,6 +56,11 @@ public class FreeSpaceMatrix extends Matrix {
 
     private void setValueByIndex(int index, int value) {
         spaceValues[index] = value;
+    }
+
+    // TODO leave only one
+    public boolean isFree(CoordsDto coords) {
+        return isFree(coords.getX(), coords.getY());
     }
 
     /**
@@ -82,6 +93,11 @@ public class FreeSpaceMatrix extends Matrix {
 
     private int getValueByIndex(int index) {
         return spaceValues[index];
+    }
+
+    // TODO leave only one
+    public int geFreeSpace(CoordsDto coords) {
+        return getFreeSpace(coords.getX(), coords.getY());
     }
 
     public int getFreeSpace(int x, int y) {

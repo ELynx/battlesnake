@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
+import ru.elynx.battlesnake.protocol.CoordsDto;
 
 public class DoubleMatrix extends Matrix {
     private static final double DEFAULT_SPLASH = 2.0d;
@@ -29,6 +30,11 @@ public class DoubleMatrix extends Matrix {
         Arrays.fill(values, 0.0d);
     }
 
+    // TODO leave only one
+    public double getValue(CoordsDto coords) {
+        return getValue(coords.getX(), coords.getY());
+    }
+
     public double getValue(int x, int y) {
         int boundIndex = calculateBoundIndex(x, y);
         return getValueByBoundIndex(boundIndex);
@@ -43,6 +49,11 @@ public class DoubleMatrix extends Matrix {
 
     private double getValueByIndex(int index) {
         return values[index];
+    }
+
+    // TODO leave only one
+    public boolean addValue(CoordsDto coords, double value) {
+        return addValue(coords.getX(), coords.getY(), value);
     }
 
     public boolean addValue(int x, int y, double value) {
@@ -62,8 +73,18 @@ public class DoubleMatrix extends Matrix {
         values[index] += value;
     }
 
+    // TODO leave only one
+    public boolean splash1stOrder(CoordsDto coords, double valueAtImpact) {
+        return splash1stOrder(coords.getX(), coords.getY(), valueAtImpact);
+    }
+
     public boolean splash1stOrder(int x, int y, double valueAtImpact) {
         return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    // TODO leave only one
+    public boolean splash1stOrder(CoordsDto coords, double valueAtImpact, double denominator) {
+        return splash1stOrder(coords.getX(), coords.getY(), valueAtImpact, denominator);
     }
 
     public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
@@ -86,8 +107,18 @@ public class DoubleMatrix extends Matrix {
         return false;
     }
 
+    // TODO leave only one
+    public boolean splash2ndOrder(CoordsDto coords, double valueAtImpact) {
+        return splash2ndOrder(coords.getX(), coords.getY(), valueAtImpact);
+    }
+
     public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
         return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    // TODO leave only one
+    public boolean splash2ndOrder(CoordsDto coords, double valueAtImpact, double denominator) {
+        return splash2ndOrder(coords.getX(), coords.getY(), valueAtImpact, denominator);
     }
 
     public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
