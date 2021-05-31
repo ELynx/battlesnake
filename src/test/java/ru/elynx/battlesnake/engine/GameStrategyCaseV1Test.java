@@ -2,9 +2,9 @@ package ru.elynx.battlesnake.engine;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static ru.elynx.battlesnake.api.RulesetDto.ROYALE_RULESET_NAME;
 import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
-import static ru.elynx.battlesnake.protocol.Move.Moves.*;
-import static ru.elynx.battlesnake.protocol.RulesetDto.ROYALE_RULESET_NAME;
+import static ru.elynx.battlesnake.entity.Move.Moves.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;

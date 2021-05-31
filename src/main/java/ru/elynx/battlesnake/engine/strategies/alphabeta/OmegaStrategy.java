@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.strategies.alphabeta;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.Move.Moves.*;
 
 import java.util.Comparator;
 import java.util.List;
@@ -8,15 +8,15 @@ import java.util.function.Supplier;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.elynx.battlesnake.api.CoordsDto;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.strategies.Common;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.Move;
 
 public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     protected FreeSpaceMatrix freeSpaceMatrix;

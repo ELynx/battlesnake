@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.testspecific;
 
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 
 public class TestSnakeDto extends SnakeDto {
     private final ToApiVersion toApiVersion;

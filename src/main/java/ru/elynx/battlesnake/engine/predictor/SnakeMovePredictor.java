@@ -1,14 +1,14 @@
 package ru.elynx.battlesnake.engine.predictor;
 
-import static ru.elynx.battlesnake.protocol.Move.MovesEnum.*;
+import static ru.elynx.battlesnake.entity.Move.MovesEnum.*;
 
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class SnakeMovePredictor {
     private final IPredictorInformant informant;

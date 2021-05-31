@@ -1,13 +1,15 @@
 package ru.elynx.battlesnake.engine.strategies.solver;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.Move.Moves.*;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.*;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.Move;
 
 public class SolverStrategy implements IGameStrategy {
     private StringField whereToGo;

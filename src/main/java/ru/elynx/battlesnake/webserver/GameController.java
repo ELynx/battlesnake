@@ -10,11 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import ru.elynx.battlesnake.api.BattlesnakeInfoDto;
+import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.MoveDto;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfoDto;
-import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.MoveDto;
 
 @RestController
 @RequestMapping(value = "/battlesnake/api/v1")

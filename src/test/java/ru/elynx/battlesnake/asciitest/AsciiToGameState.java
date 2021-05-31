@@ -3,8 +3,8 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
+import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
 

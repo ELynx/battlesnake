@@ -5,10 +5,10 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class GameStatePredictor extends GameStateDto {
     private static final int INITIAL_LENGTH = 3;

@@ -10,9 +10,9 @@ import java.util.function.Consumer;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 
 @Tag("TestComponent")
 class AsciiToGameStateTest {

@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.math;
 
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.api.CoordsDto;
 
 public class Util {
     private Util() {

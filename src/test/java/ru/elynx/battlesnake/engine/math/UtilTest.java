@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.api.CoordsDto;
 
 @Tag("Internals")
 class UtilTest {

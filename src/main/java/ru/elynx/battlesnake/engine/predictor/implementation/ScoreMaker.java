@@ -1,9 +1,9 @@
 package ru.elynx.battlesnake.engine.predictor.implementation;
 
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class ScoreMaker {
     private enum Mode {

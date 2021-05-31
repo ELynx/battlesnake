@@ -2,9 +2,9 @@ package ru.elynx.battlesnake.engine.strategies;
 
 import java.util.List;
 import java.util.function.Consumer;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
 
 public class Common {
     private Common() {

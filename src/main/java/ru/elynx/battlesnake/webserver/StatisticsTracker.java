@@ -3,8 +3,8 @@ package ru.elynx.battlesnake.webserver;
 import com.newrelic.api.agent.NewRelic;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
+import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 
 @Service
 @Scope("singleton")

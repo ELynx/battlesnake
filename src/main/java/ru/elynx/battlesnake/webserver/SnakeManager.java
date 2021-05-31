@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.webserver;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+import static ru.elynx.battlesnake.entity.Move.Moves.UP;
 
 import java.time.Instant;
 import java.util.Map;
@@ -14,8 +14,8 @@ import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.IGameStrategyFactory;
 import ru.elynx.battlesnake.engine.SnakeNotFoundException;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.Move;
 
 @Service
 public class SnakeManager {

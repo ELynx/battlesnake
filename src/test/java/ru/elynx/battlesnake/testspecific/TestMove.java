@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.testspecific;
 
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.entity.Move;
 
 public class TestMove extends Move {
     private final ToApiVersion toApiVersion;

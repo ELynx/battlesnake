@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.predictor;
 
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.api.CoordsDto;
 
 public interface IPredictorInformant {
     // TODO leave only this

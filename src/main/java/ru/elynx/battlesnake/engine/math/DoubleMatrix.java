@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.api.CoordsDto;
 
 public class DoubleMatrix extends Matrix {
     private static final double DEFAULT_SPLASH = 2.0d;

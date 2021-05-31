@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.protocol;
+package ru.elynx.battlesnake.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 

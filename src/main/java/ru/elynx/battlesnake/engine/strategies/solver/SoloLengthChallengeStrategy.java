@@ -1,11 +1,11 @@
 package ru.elynx.battlesnake.engine.strategies.solver;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.Move.Moves.*;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.GameStateDto;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.GameStateDto;
 
 class SoloLengthChallengeStrategy extends SolverStrategy {
     private boolean latch1 = false;

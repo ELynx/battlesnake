@@ -21,8 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.Move;
 
 class MySnake implements IGameStrategy {
     @Override

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.GameStateDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
 
 @Tag("Internals")
 class FreeSpaceMatrixTest {

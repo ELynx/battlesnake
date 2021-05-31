@@ -10,7 +10,7 @@ import java.util.List;
 import org.javatuples.Triplet;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.protocol.CoordsDto;
+import ru.elynx.battlesnake.api.CoordsDto;
 
 @Tag("Internals")
 class ProbabilityMakerTest {

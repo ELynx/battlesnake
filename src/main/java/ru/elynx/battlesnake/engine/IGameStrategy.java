@@ -1,8 +1,8 @@
 package ru.elynx.battlesnake.engine;
 
 import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.Move;
 
 public interface IGameStrategy {
     BattlesnakeInfo getBattesnakeInfo();
