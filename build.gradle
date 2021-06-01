@@ -23,9 +23,14 @@ dependencies {
 
     implementation files("$buildDir/libs/newrelic-api.jar")
 
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 }
 
 task downloadNewrelic(type: Download) {

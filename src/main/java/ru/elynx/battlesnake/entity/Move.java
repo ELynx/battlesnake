@@ -6,6 +6,6 @@ import lombok.Value;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Value
 public class Move {
-    MoveCommand command;
-    String shout = null;
+    MoveCommand moveCommand;
+    String shout;
 }
