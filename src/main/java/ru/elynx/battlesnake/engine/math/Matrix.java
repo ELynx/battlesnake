@@ -1,22 +1,24 @@
 package ru.elynx.battlesnake.engine.math;
 
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
+
 public class Matrix {
-    private final int width;
-    private final int height;
+    private final Dimensions dimensions;
 
-    protected Matrix(int width, int height) {
-        this.width = width;
-        this.height = height;
+    protected Matrix(Dimensions dimensions) {
+        this.dimensions = dimensions;
     }
 
-    protected int calculateBoundIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
+    protected int calculateBoundIndex(Coordinates coordinates) {
+        if (!coordinates.within(dimensions)) {
             return -1;
+        }
 
-        return calculateIndex(x, y);
+        return calculateIndex(coordinates);
     }
 
-    private int calculateIndex(int x, int y) {
-        return x + width * y;
+    private int calculateIndex(Coordinates coordinates) {
+        return coordinates.getX() + dimensions.getWidth() * coordinates.getY();
     }
 }

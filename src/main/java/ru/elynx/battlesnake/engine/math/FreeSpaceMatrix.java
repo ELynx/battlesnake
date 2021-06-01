@@ -1,7 +1,8 @@
 package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
-import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
 
 public class FreeSpaceMatrix extends Matrix {
     private static final int OCCUPIED_VALUE = 0;
@@ -15,19 +16,19 @@ public class FreeSpaceMatrix extends Matrix {
     private final int[] spaceValues;
     private final int[] floodFillStack;
 
-    private FreeSpaceMatrix(int width, int height) {
-        super(width, height);
+    private FreeSpaceMatrix(Dimensions dimensions) {
+        super(dimensions);
 
-        this.spaceValues = new int[width * height];
+        this.spaceValues = new int[dimensions.area()];
         this.floodFillStack = new int[this.spaceValues.length * 2]; // potentially stack each xy
     }
 
-    public static FreeSpaceMatrix uninitializedMatrix(int width, int height) {
-        return new FreeSpaceMatrix(width, height);
+    public static FreeSpaceMatrix uninitializedMatrix(Dimensions dimensions) {
+        return new FreeSpaceMatrix(dimensions);
     }
 
-    public static FreeSpaceMatrix emptyMatrix(int width, int height) {
-        FreeSpaceMatrix result = uninitializedMatrix(width, height);
+    public static FreeSpaceMatrix emptyMatrix(Dimensions dimensions) {
+        FreeSpaceMatrix result = uninitializedMatrix(dimensions);
         result.empty();
         return result;
     }
@@ -36,13 +37,8 @@ public class FreeSpaceMatrix extends Matrix {
         Arrays.fill(spaceValues, UNSET_VALUE);
     }
 
-    // TODO leave only one
-    public boolean setOccupied(CoordsDto coords) {
-        return setOccupied(coords.getX(), coords.getY());
-    }
-
-    public boolean setOccupied(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
+    public boolean setOccupied(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
         return setOccupiedByBoundIndex(boundIndex);
     }
 
@@ -58,29 +54,22 @@ public class FreeSpaceMatrix extends Matrix {
         spaceValues[index] = value;
     }
 
-    // TODO leave only one
-    public boolean isFree(CoordsDto coords) {
-        return isFree(coords.getX(), coords.getY());
-    }
-
     /**
      * Test if cell is free, without actual space calculation. Use in cases of
      * preliminary getters, and true/false testing.
      *
-     * @param x
-     *            coordinate
-     * @param y
-     *            coordinate
+     * @param coordinates
+     *            coordinates to test
      * @return True if cell was not set as occupied.
      */
-    public boolean isFree(int x, int y) {
-        int value = getValueByXY(x, y);
+    public boolean isFree(Coordinates coordinates) {
+        int value = getValueByXY(coordinates);
         // it does not matter if cell has free space calculated or not to be free
         return value != OCCUPIED_VALUE;
     }
 
-    private int getValueByXY(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
+    private int getValueByXY(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
         return getValueByBoundIndex(boundIndex);
     }
 
@@ -95,19 +84,15 @@ public class FreeSpaceMatrix extends Matrix {
         return spaceValues[index];
     }
 
-    // TODO leave only one
-    public int geFreeSpace(CoordsDto coords) {
-        return getFreeSpace(coords.getX(), coords.getY());
-    }
-
-    public int getFreeSpace(int x, int y) {
+    public int getFreeSpace(Coordinates coordinates) {
         // if cell is set as occupied, return it
         // if flood fill already calculated free space, return it
-        int value = getValueByXY(x, y);
+        int value = getValueByXY(coordinates);
         if (value > UNSET_VALUE)
             return value;
 
-        return getFreeSpaceByFloodFill(x, y);
+        // TODO consistent typing
+        return getFreeSpaceByFloodFill(coordinates.getX(), coordinates.getY());
     }
 
     private int getFreeSpaceByFloodFill(int startX, int startY) {
@@ -138,7 +123,8 @@ public class FreeSpaceMatrix extends Matrix {
     }
 
     private boolean fillIfUnset(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
+        // TODO here
+        int boundIndex = calculateBoundIndex(new Coordinates(x, y));
 
         if (getValueByBoundIndex(boundIndex) == UNSET_VALUE) {
             // index is tested to be bound by operation above
@@ -165,7 +151,8 @@ public class FreeSpaceMatrix extends Matrix {
     }
 
     private boolean isSet(int x, int y) {
-        int value = getValueByXY(x, y);
+        // TODO here
+        int value = getValueByXY(new Coordinates(x, y));
         return value != UNSET_VALUE;
     }
 

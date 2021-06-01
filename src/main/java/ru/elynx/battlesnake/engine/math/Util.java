@@ -1,7 +1,5 @@
 package ru.elynx.battlesnake.engine.math;
 
-import ru.elynx.battlesnake.api.CoordsDto;
-
 public class Util {
     private Util() {
     }
@@ -17,17 +15,5 @@ public class Util {
 
     public static double scale(double from, double proportion, double to) {
         return from + (to - from) * proportion;
-    }
-
-    public static int manhattanDistance(CoordsDto lhs, CoordsDto rhs) {
-        return manhattanDistance(lhs, rhs.getX(), rhs.getY());
-    }
-
-    public static int manhattanDistance(CoordsDto lhs, int x, int y) {
-        return manhattanDistance(lhs.getX(), lhs.getY(), x, y);
-    }
-
-    private static int manhattanDistance(int lhsX, int lhsY, int rhsX, int rhsY) {
-        return Math.abs(lhsX - rhsX) + Math.abs(lhsY - rhsY);
     }
 }
