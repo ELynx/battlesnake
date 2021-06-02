@@ -5,6 +5,7 @@ import java.util.function.Function;
 import org.javatuples.KeyValue;
 import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.entity.*;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
@@ -18,8 +19,8 @@ public class AsciiToGameState {
     private String hazards = null;
     private int hazardStep = 25;
     // per-snakes
-    private Map<String, Integer> healths = new HashMap<>();
-    private Map<String, Integer> latencies = new HashMap<>();
+    private final Map<String, Integer> healths = new HashMap<>();
+    private final Map<String, Integer> latencies = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
@@ -78,15 +79,15 @@ public class AsciiToGameState {
         return this;
     }
 
-    private List<KeyValue<CoordsDto, Character>> getNeighbours(List<String> rows, int height, int width,
-            List<CoordsDto> soFar, CoordsDto center, char lookupChar) {
-        LinkedList<KeyValue<CoordsDto, Character>> result = new LinkedList<>();
+    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, int height, int width,
+                                                                 List<Coordinates> soFar, Coordinates center, char lookupChar) {
+        LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
 
-        Function<KeyValue<CoordsDto, Character>, Void> addIfChecksUp = pair -> {
-            CoordsDto coords = pair.getKey();
+        Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
+            Coordinates coords = pair.getKey();
 
             // avoid already found pieces
-            if (soFar.indexOf(coords) >= 0) {
+            if (soFar.contains(coords)) {
                 return null;
             }
 
@@ -116,20 +117,20 @@ public class AsciiToGameState {
         int yup = y + 1;
 
         // arrow pointing to center
-        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(xleft, y), '>'));
-        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(x, yup), 'v'));
-        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(xright, y), '<'));
-        addIfChecksUp.apply(new KeyValue<>(new CoordsDto(x, ydown), '^'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xleft, y), '>'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yup), 'v'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xright, y), '<'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, ydown), '^'));
 
         return result;
     }
 
-    private CoordsDto getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<CoordsDto> soFar,
-            CoordsDto current, char bodyChar) {
-        List<KeyValue<CoordsDto, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
+    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<Coordinates> soFar,
+                                                    Coordinates current, char bodyChar) {
+        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
 
         // priority 1 - arrows pointing
-        for (KeyValue<CoordsDto, Character> keyValue : neighbours) {
+        for (KeyValue<Coordinates, Character> keyValue : neighbours) {
             if ("<^>v".indexOf(keyValue.getValue()) >= 0) {
                 return keyValue.getKey();
             }
@@ -149,21 +150,11 @@ public class AsciiToGameState {
             throw new IllegalStateException("V is not allowed in ascii");
         }
 
-        RulesetDto ruleset = new RulesetDto();
-        ruleset.setName(rulesetName);
-        ruleset.setVersion("1.0.0");
+        Rules rules = new Rules(rulesetName, "1.0.0", 500);
+        GameState game = new GameState("test-game-id", turn, rules, null, null);
+        HazardPredictor gameState = new HazardPredictor(game, hazardStep);
 
-        GameDto game = new GameDto();
-        game.setId("test-game-id");
-        game.setRuleset(ruleset);
-        game.setTimeout(500);
-
-        HazardPredictor gameState = new HazardPredictor();
-        gameState.setGame(game);
-        gameState.setTurn(turn);
-        gameState.setHazardStep(hazardStep);
-
-        BoardDto board = new BoardDto();
+        Board board = new Board();
 
         List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
         rows.removeAll(Arrays.asList("", null));
@@ -179,6 +170,8 @@ public class AsciiToGameState {
                 throw new IllegalStateException("Rows have invalid size");
             }
         });
+
+        Dimensions dimensions = new Dimensions(width, height);
 
         board.setHeight(height);
         board.setWidth(width);

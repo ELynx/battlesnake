@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
 
 @Tag("Internals")
 class DoubleMatrixTest {
@@ -13,14 +15,16 @@ class DoubleMatrixTest {
 
     @Test
     void test_uninitialized_matrix() {
-        int width = 11, height = 15;
+        int width = 11;
+        int height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
         double outsideValue = -2.0d;
 
-        DoubleMatrix matrix = DoubleMatrix.uninitializedMatrix(width, height, outsideValue);
+        DoubleMatrix matrix = DoubleMatrix.uninitializedMatrix(dimensions, outsideValue);
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
+                assertThat(matrix.getValue(new Coordinates(x, y)), is(equalTo(0.0d)));
             }
         }
     }
@@ -28,13 +32,14 @@ class DoubleMatrixTest {
     @Test
     void test_zero_matrix() {
         int width = 11, height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
         double outsideValue = -2.0d;
 
-        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(width, height, outsideValue);
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(dimensions, outsideValue);
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
+                assertThat(matrix.getValue(new Coordinates(x, y)), is(equalTo(0.0d)));
             }
         }
     }
@@ -42,6 +47,7 @@ class DoubleMatrixTest {
     @Test
     void test_zero() {
         int width = 11, height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
         double outsideValue = -2.0d;
         double insideValue = 123.4d;
 
@@ -65,6 +71,7 @@ class DoubleMatrixTest {
     @Test
     void test_add_get() {
         int width = 11, height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
         double outsideValue = -2.0d;
         double insideValue = 123.4d;
 
