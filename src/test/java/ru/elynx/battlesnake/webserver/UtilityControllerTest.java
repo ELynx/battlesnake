@@ -19,7 +19,7 @@ class UtilityControllerTest {
     private final static String API_ENDPOINT_BASE = "/utility";
 
     @Test
-    void statusIsOk() throws Exception {
+    void test_status_is_ok() throws Exception {
         mockMvc.perform(get(API_ENDPOINT_BASE + "/status")).andExpect(status().isOk());
     }
 }

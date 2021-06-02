@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.api.CoordsDto;
-import ru.elynx.battlesnake.api.GameStateDto;
-import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Snake;
 
 @Tag("Internals")
 class FreeSpaceMatrixTest {
@@ -15,8 +17,9 @@ class FreeSpaceMatrixTest {
     void test_uninitialized_matrix() {
         for (int width = 1; width < 50; ++width) {
             for (int height = 1; height < 50; ++height) {
-                FreeSpaceMatrix tested = FreeSpaceMatrix.uninitializedMatrix(width, height);
-                assertEquals(0, tested.getFreeSpace(0, 0));
+                Dimensions dimensions = new Dimensions(width, height);
+                FreeSpaceMatrix tested = FreeSpaceMatrix.uninitializedMatrix(dimensions);
+                assertEquals(0, tested.getFreeSpace(new Coordinates(0, 0)));
             }
         }
     }
@@ -25,9 +28,10 @@ class FreeSpaceMatrixTest {
     void test_empty_matrix() {
         for (int width = 1; width < 50; ++width) {
             for (int height = 1; height < 50; ++height) {
-                FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(width, height);
-                int freeSpaceInEmptyMatrix = tested.getFreeSpace(0, 0);
-                assertEquals(width * height, freeSpaceInEmptyMatrix);
+                Dimensions dimensions = new Dimensions(width, height);
+                FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
+                int freeSpaceInEmptyMatrix = tested.getFreeSpace(new Coordinates(0, 0));
+                assertEquals(dimensions.area(), freeSpaceInEmptyMatrix);
             }
         }
     }
@@ -36,17 +40,18 @@ class FreeSpaceMatrixTest {
     void test_is_free_outside() {
         int width = 11;
         int height = 11;
+        Dimensions dimensions = new Dimensions(width, height);
 
-        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(width, height);
+        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
 
         for (int x = -1; x <= width; ++x) {
-            assertFalse(tested.isFree(x, -1), "Outside is not free");
-            assertFalse(tested.isFree(x, height), "Outside is not free");
+            assertFalse(tested.isFree(new Coordinates(x, -1)), "Outside is not free");
+            assertFalse(tested.isFree(new Coordinates(x, height)), "Outside is not free");
         }
 
         for (int y = -1; y <= height; ++y) {
-            assertFalse(tested.isFree(-1, y), "Outside is not free");
-            assertFalse(tested.isFree(width, y), "Outside is not free");
+            assertFalse(tested.isFree(new Coordinates(-1, y)), "Outside is not free");
+            assertFalse(tested.isFree(new Coordinates(width, y)), "Outside is not free");
         }
     }
 
@@ -54,17 +59,18 @@ class FreeSpaceMatrixTest {
     void test_get_space_outside() {
         int width = 11;
         int height = 11;
+        Dimensions dimensions = new Dimensions(width, height);
 
-        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(width, height);
+        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
 
         for (int x = -1; x <= width; ++x) {
-            assertEquals(0, tested.getFreeSpace(x, -1));
-            assertEquals(0, tested.getFreeSpace(x, height));
+            assertEquals(0, tested.getFreeSpace(new Coordinates(x, -1)));
+            assertEquals(0, tested.getFreeSpace(new Coordinates(x, height)));
         }
 
         for (int y = -1; y <= height; ++y) {
-            assertEquals(0, tested.getFreeSpace(-1, y));
-            assertEquals(0, tested.getFreeSpace(width, y));
+            assertEquals(0, tested.getFreeSpace(new Coordinates(-1, y)));
+            assertEquals(0, tested.getFreeSpace(new Coordinates(width, y)));
         }
     }
 
@@ -72,29 +78,31 @@ class FreeSpaceMatrixTest {
     void test_set_occupied_outside() {
         int width = 11;
         int height = 11;
+        Dimensions dimensions = new Dimensions(width, height);
 
-        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(width, height);
+        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
 
         for (int x = -1; x <= width; ++x) {
-            assertFalse(tested.setOccupied(x, -1), "Cannot mark outside");
-            assertFalse(tested.setOccupied(x, height), "Cannot mark outside");
+            assertFalse(tested.setOccupied(new Coordinates(x, -1)), "Cannot mark outside");
+            assertFalse(tested.setOccupied(new Coordinates(x, height)), "Cannot mark outside");
         }
 
         for (int y = -1; y <= height; ++y) {
-            assertFalse(tested.setOccupied(-1, y), "Cannot mark outside");
-            assertFalse(tested.setOccupied(width, y), "Cannot mark outside");
+            assertFalse(tested.setOccupied(new Coordinates(-1, y)), "Cannot mark outside");
+            assertFalse(tested.setOccupied(new Coordinates(width, y)), "Cannot mark outside");
         }
     }
 
     // use snake bodies as flags to set occupied cells
     FreeSpaceMatrix buildFromAscii(String asciiGameState) {
-        GameStateDto tmp = new AsciiToGameState(asciiGameState).setStartSnakeSize(1).build();
+        HazardPredictor tmp1 = new AsciiToGameState(asciiGameState).setStartSnakeSize(1).build();
+        GameState tmp = tmp1.getGameState();
 
-        FreeSpaceMatrix target = FreeSpaceMatrix.emptyMatrix(tmp.getBoard().getWidth(), tmp.getBoard().getHeight());
+        FreeSpaceMatrix target = FreeSpaceMatrix.emptyMatrix(tmp.getBoard().getDimensions());
 
-        for (SnakeDto snakeDto : tmp.getBoard().getSnakes()) {
-            for (CoordsDto coordsDto : snakeDto.getBody()) {
-                target.setOccupied(coordsDto.getX(), coordsDto.getY());
+        for (Snake snake : tmp.getBoard().getSnakes()) {
+            for (Coordinates coordinates : snake.getBody()) {
+                target.setOccupied(coordinates);
             }
         }
 
@@ -124,18 +132,18 @@ class FreeSpaceMatrixTest {
         long count6 = asciiGameState.chars().filter(c -> c == '&').count();
         long count7 = asciiGameState.chars().filter(c -> c == '%').count();
 
-        assertEquals(count1, tested.getFreeSpace(0, 9));
-        assertEquals(count2, tested.getFreeSpace(8, 6));
-        assertEquals(count3, tested.getFreeSpace(28, 7));
-        assertEquals(count4, tested.getFreeSpace(6, 2));
-        assertEquals(count5, tested.getFreeSpace(1, 1));
-        assertEquals(count6, tested.getFreeSpace(6, 0));
-        assertEquals(count7, tested.getFreeSpace(39, 0));
+        assertEquals(count1, tested.getFreeSpace(new Coordinates(0, 9)));
+        assertEquals(count2, tested.getFreeSpace(new Coordinates(8, 6)));
+        assertEquals(count3, tested.getFreeSpace(new Coordinates(28, 7)));
+        assertEquals(count4, tested.getFreeSpace(new Coordinates(6, 2)));
+        assertEquals(count5, tested.getFreeSpace(new Coordinates(1, 1)));
+        assertEquals(count6, tested.getFreeSpace(new Coordinates(6, 0)));
+        assertEquals(count7, tested.getFreeSpace(new Coordinates(39, 0)));
 
         for (int x = -1; x <= 40; ++x) {
             for (int y = -1; y <= 10; ++y) {
-                boolean isFree = tested.isFree(x, y);
-                boolean hasFreeSpace = tested.getFreeSpace(x, y) > 0;
+                boolean isFree = tested.isFree(new Coordinates(x, y));
+                boolean hasFreeSpace = tested.getFreeSpace(new Coordinates(x, y)) > 0;
 
                 assertEquals(hasFreeSpace, isFree, "Same report for two getters");
             }
@@ -143,6 +151,6 @@ class FreeSpaceMatrixTest {
 
         tested.empty();
 
-        assertEquals(40 * 10, tested.getFreeSpace(0, 0));
+        assertEquals(40 * 10, tested.getFreeSpace(new Coordinates(0, 0)));
     }
 }

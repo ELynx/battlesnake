@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 public class Rules {
-    static String ROYALE_RULES_NAME = "royale";
+    private static final String ROYALE_RULES_NAME = "royale";
 
     @NonNull
     String name;

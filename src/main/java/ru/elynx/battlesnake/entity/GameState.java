@@ -20,7 +20,6 @@ public class GameState {
     @NonNull
     Snake you;
 
-    // TODO unit test
     /**
      * Predict if snake will grow on it's tail this turn
      *

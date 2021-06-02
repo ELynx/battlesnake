@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @Tag("API")
 public class ApiDeSerTest {
-    private final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"
+    public final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"
             + "    \"id\": \"game-00fe20da-94ad-11ea-bb37\",\n" + "    \"ruleset\": {\n"
             + "      \"name\": \"standard\",\n" + "      \"version\": \"v.1.2.3\"\n" + "    },\n"
             + "    \"timeout\": 500\n" + "  },\n" + "  \"turn\": 14,\n" + "  \"board\": {\n" + "    \"height\": 11,\n"

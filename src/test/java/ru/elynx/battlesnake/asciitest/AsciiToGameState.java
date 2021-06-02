@@ -6,8 +6,6 @@ import org.javatuples.KeyValue;
 import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
-import ru.elynx.battlesnake.testspecific.TestSnakeDto;
-import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
 public class AsciiToGameState {
     // mandatory
@@ -80,7 +78,7 @@ public class AsciiToGameState {
     }
 
     private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, int height, int width,
-                                                                 List<Coordinates> soFar, Coordinates center, char lookupChar) {
+            List<Coordinates> soFar, Coordinates center, char lookupChar) {
         LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
 
         Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
@@ -126,8 +124,9 @@ public class AsciiToGameState {
     }
 
     private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<Coordinates> soFar,
-                                                    Coordinates current, char bodyChar) {
-        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current, bodyChar);
+            Coordinates current, char bodyChar) {
+        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current,
+                bodyChar);
 
         // priority 1 - arrows pointing
         for (KeyValue<Coordinates, Character> keyValue : neighbours) {
@@ -150,12 +149,6 @@ public class AsciiToGameState {
             throw new IllegalStateException("V is not allowed in ascii");
         }
 
-        Rules rules = new Rules(rulesetName, "1.0.0", 500);
-        GameState game = new GameState("test-game-id", turn, rules, null, null);
-        HazardPredictor gameState = new HazardPredictor(game, hazardStep);
-
-        Board board = new Board();
-
         List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
         rows.removeAll(Arrays.asList("", null));
 
@@ -173,17 +166,14 @@ public class AsciiToGameState {
 
         Dimensions dimensions = new Dimensions(width, height);
 
-        board.setHeight(height);
-        board.setWidth(width);
-
-        LinkedList<CoordsDto> food = new LinkedList<>();
-        LinkedList<SnakeDto> snakes = new LinkedList<>();
-        SnakeDto you = null;
+        LinkedList<Coordinates> food = new LinkedList<>();
+        LinkedList<Snake> snakes = new LinkedList<>();
+        Snake you = null;
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < height; ++h) {
                 int x = w;
                 int y = height - h - 1;
-                CoordsDto coords = new CoordsDto(x, y);
+                Coordinates coords = new Coordinates(x, y);
 
                 char c = rows.get(h).charAt(w);
 
@@ -193,35 +183,36 @@ public class AsciiToGameState {
 
                 if (c >= 'A' && c <= 'Z') {
                     String s = String.valueOf(c);
-                    SnakeDto snake = new TestSnakeDto(ToApiVersion.V1);
-                    snake.setId(s);
-                    snake.setName("Snake " + s);
-                    snake.setHealth(healths.getOrDefault(s, 99));
-                    snake.setLatency(latencies.getOrDefault(s, 100));
-                    snake.setHead(coords);
-                    snake.setSquad("Test squad " + s);
-                    snake.setShout("Test snake " + s);
-                    snake.setBody(new LinkedList<>());
+                    String id = s;
+                    String name = "Snake " + s;
+                    String squad = "Test squad " + s;
+                    String shout = "Test snake " + s;
+                    Coordinates head = coords;
+                    int health = healths.getOrDefault(s, 99);
+                    int latency = latencies.getOrDefault(s, 100);
 
                     char lowercaseC = (char) (c + 'a' - 'A');
 
-                    for (CoordsDto current = snake.getHead(); current != null; current = getNextSnakeCoordsDtoOrNull(
-                            rows, height, width, snake.getBody(), current, lowercaseC)) {
-                        snake.getBody().add(current);
+                    LinkedList<Coordinates> body = new LinkedList<>();
+                    for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows,
+                            height, width, body, current, lowercaseC)) {
+                        body.add(current);
 
                         // emergency stop if looped somewhere
-                        if (snake.getBody().size() > height * width) {
-                            throw new IllegalStateException(
-                                    "Loops within snake [" + c + "]: [" + snake.getBody() + ']');
+                        if (body.size() > height * width) {
+                            throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
                         }
                     }
 
                     // fill in snake up to start size, simulate starting conditions
-                    for (int i = snake.getBody().size(); i < startSnakeSize; ++i) {
-                        snake.getBody().add(snake.getBody().get(i - 1));
+                    for (int i = body.size(); i < startSnakeSize; ++i) {
+                        body.add(body.get(i - 1));
                     }
 
-                    snake.setLength(snake.getBody().size());
+                    int length = body.size();
+
+                    Snake snake = new Snake(id, name, health, body, latency, head, length, shout, squad);
+
                     snakes.add(snake);
 
                     if (c == 'Y') {
@@ -235,12 +226,12 @@ public class AsciiToGameState {
             throw new IllegalStateException("Not enough snakes or you");
         }
 
-        board.setFood(food);
+        List<Coordinates> generatedHazards;
 
         if (hazards == null) {
-            board.setHazards(Collections.emptyList());
+            generatedHazards = Collections.emptyList();
         } else {
-            List<CoordsDto> toAdd = new LinkedList<>();
+            List<Coordinates> toAdd = new LinkedList<>();
 
             List<String> rows2 = Arrays.asList(hazards.split("\\r?\\n"));
             rows2.removeAll(Arrays.asList("", null));
@@ -249,7 +240,7 @@ public class AsciiToGameState {
                 for (int h = 0; h < height; ++h) {
                     int x = w;
                     int y = height - h - 1;
-                    CoordsDto coords = new CoordsDto(x, y);
+                    Coordinates coords = new Coordinates(x, y);
 
                     char c = rows2.get(h).charAt(w);
 
@@ -259,14 +250,14 @@ public class AsciiToGameState {
                 }
             }
 
-            board.setHazards(toAdd);
+            generatedHazards = toAdd;
         }
 
-        board.setSnakes(snakes);
+        Board board = new Board(dimensions, food, generatedHazards, snakes);
 
-        gameState.setBoard(board);
-        gameState.setYou(you);
+        Rules rules = new Rules(rulesetName, "1.0.0", 500);
+        GameState game = new GameState("test-game-id", turn, rules, board, you);
 
-        return gameState;
+        return new HazardPredictor(game, hazardStep);
     }
 }
