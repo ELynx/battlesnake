@@ -7,7 +7,7 @@ import ru.elynx.battlesnake.api.GameStateDto;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface GameStateMapper {
     @Mapping(target = "gameId", source = "game.id")
 
