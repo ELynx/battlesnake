@@ -1,23 +1,21 @@
 package ru.elynx.battlesnake.engine.strategies.weightedsearch;
 
-import static ru.elynx.battlesnake.entity.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.*;
 import java.util.function.Supplier;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.strategies.Common;
-import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.*;
 
 public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
@@ -41,44 +39,39 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected WeightedSearchStrategy() {
     }
 
-    protected void applyHunger(GameStatePredictor gameState) {
-        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
-                HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
+    protected void applyHunger(HazardPredictor hazardPredictor) {
+        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT,
+                HUNGER_HEALTH_THRESHOLD - hazardPredictor.getGameState().getYou().getHealth(), HUNGER_HEALTH_THRESHOLD,
+                MAX_FOOD_WEIGHT);
 
         if (foodWeight <= 0.0)
             return;
 
-        for (CoordsDto food : gameState.getBoard().getFood()) {
-            final int x = food.getX();
-            final int y = food.getY();
-
-            weightMatrix.splash2ndOrder(x, y, foodWeight);
+        for (Coordinates food : hazardPredictor.getGameState().getBoard().getFood()) {
+            weightMatrix.splash2ndOrder(food, foodWeight);
         }
     }
 
-    protected void applySnakes(GameStatePredictor gameState) {
+    protected void applySnakes(HazardPredictor hazardPredictor) {
         // mark body as impassable
         // apply early for predictor
-        Common.forSnakeBody(gameState, coordsDto -> {
-            final int x = coordsDto.getX();
-            final int y = coordsDto.getY();
-
-            weightMatrix.addValue(x, y, SNAKE_BODY_WEIGHT);
-            freeSpaceMatrix.setOccupied(x, y);
+        Common.forSnakeBody(hazardPredictor, coordinates -> {
+            weightMatrix.addValue(coordinates, SNAKE_BODY_WEIGHT);
+            freeSpaceMatrix.setOccupied(coordinates);
         });
 
         final List<Triplet<Integer, Integer, Double>> blockedByNotWalkable = new LinkedList<>();
 
-        final String ownId = gameState.getYou().getId();
-        final CoordsDto ownHead = gameState.getYou().getHead();
-        final int ownSize = gameState.getYou().getLength();
+        final String ownId = hazardPredictor.getGameState().getYou().getId();
+        final Coordinates ownHead = hazardPredictor.getGameState().getYou().getHead();
+        final int ownSize = hazardPredictor.getGameState().getYou().getLength();
 
-        for (SnakeDto snake : gameState.getBoard().getSnakes()) {
+        for (Snake snake : hazardPredictor.getGameState().getBoard().getSnakes()) {
             final String id = snake.getId();
 
             // manage head
             if (!id.equals(ownId)) {
-                final CoordsDto head = snake.getHead();
+                final Coordinates head = snake.getHead();
                 final int size = snake.getLength();
 
                 double baseWeight;
@@ -93,16 +86,13 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 }
 
                 if (baseWeight != 0.0) {
-                    final int x = head.getX();
-                    final int y = head.getY();
-
-                    if (Util.manhattanDistance(head, ownHead) > 4) {
+                    if (head.manhattanDistance(ownHead) > 4) {
                         // cheap and easy on faraway snakes
-                        weightMatrix.splash1stOrder(x, y, baseWeight);
+                        weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
                         // spread hunt/danger weights
                         List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake,
-                                gameState);
+                                hazardPredictor);
 
                         predictions.forEach(prediction -> {
                             final int px = prediction.getValue0();
@@ -110,7 +100,8 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                             final double pv = prediction.getValue2();
                             final double pw = baseWeight * pv;
 
-                            weightMatrix.splash2ndOrder(px, py, pw, 4.0);
+                            // TODO typing
+                            weightMatrix.splash2ndOrder(new Coordinates(px, py), pw, 4.0);
 
                             if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
                                 // edible means preliminary walkable
@@ -119,7 +110,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                                 // if walkable by edibility, see if reachable in single move
                                 if (walkable) {
                                     // keep walkable only if next move can eat
-                                    walkable = Util.manhattanDistance(ownHead, px, py) == 1;
+                                    // TODO typing
+                                    Coordinates temp = new Coordinates(px, py);
+                                    walkable = temp.manhattanDistance(ownHead) == 1;
                                 }
 
                                 if (!walkable) {
@@ -135,33 +128,38 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         for (Triplet<Integer, Integer, Double> triplet : blockedByNotWalkable) {
             final int bx = triplet.getValue0();
             final int by = triplet.getValue1();
+
+            // TODO typing
+            Coordinates temp = new Coordinates(bx, by);
+
             final double bv = triplet.getValue2();
             final double bw = SNAKE_BODY_WEIGHT * bv;
 
-            weightMatrix.addValue(bx, by, bw);
-            freeSpaceMatrix.setOccupied(bx, by);
+            weightMatrix.addValue(temp, bw);
+            freeSpaceMatrix.setOccupied(temp);
         }
     }
 
-    protected void applyHazards(GameStatePredictor gameState) {
-        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            final int x = hazard.getX();
-            final int y = hazard.getY();
-
-            weightMatrix.addValue(x, y, DETERRENT_WEIGHT);
+    protected void applyHazards(HazardPredictor hazardPredictor) {
+        for (Coordinates hazard : hazardPredictor.getGameState().getBoard().getHazards()) {
+            weightMatrix.addValue(hazard, DETERRENT_WEIGHT);
         }
 
-        for (Triplet<Integer, Integer, Double> prediction : gameState.getPredictedHazards()) {
+        for (Triplet<Integer, Integer, Double> prediction : hazardPredictor.getPredictedHazards()) {
             final int x = prediction.getValue0();
             final int y = prediction.getValue1();
+
+            // TODO typing
+            Coordinates temp = new Coordinates(x, y);
+
             final double pv = prediction.getValue2();
             final double pw = DETERRENT_WEIGHT * pv;
 
-            weightMatrix.addValue(x, y, pw);
+            weightMatrix.addValue(temp, pw);
         }
     }
 
-    protected void applyGameState(GameStatePredictor gameState) {
+    protected void applyGameState(HazardPredictor gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
@@ -170,22 +168,25 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         applyHazards(gameState);
     }
 
-    protected double getCrossWeight(int x, int y) {
-        double result = weightMatrix.getValue(x, y - 1);
-        result += weightMatrix.getValue(x - 1, y);
-        result += weightMatrix.getValue(x, y);
-        result += weightMatrix.getValue(x + 1, y);
-        result += weightMatrix.getValue(x, y + 1);
+    protected double getCrossWeight(Coordinates coordinates) {
+        double result = weightMatrix.getValue(coordinates);
+        for (Coordinates neighbour : coordinates.sideNeighbours()) {
+            result += weightMatrix.getValue(neighbour);
+        }
         return result;
     }
 
-    protected double getOpportunitiesWeight(String direction, int x, int y) {
+    protected double getOpportunitiesWeight(MoveCommand moveCommand, Coordinates coordinates) {
+        // TODO all of this
+        int x = coordinates.getX();
+        int y = coordinates.getY();
+
         int x0;
         int x1;
         int y0;
         int y1;
 
-        switch (direction) {
+        switch (moveCommand) {
             case DOWN :
                 x0 = x - 2;
                 x1 = x + 2;
@@ -218,7 +219,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
-                double weight = weightMatrix.getValue(xi, yi);
+                double weight = weightMatrix.getValue(new Coordinates(xi, yi)); // TODO typing
                 // decrease penalties, they will be handled on approach
                 if (weight < 0.0) {
                     weight = weight / 10.0;
@@ -230,35 +231,37 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return opportunities;
     }
 
-    protected Optional<String> rank(List<Triplet<String, Integer, Integer>> toRank, int length) {
+    protected Optional<MoveCommand> rank(List<Triplet<MoveCommand, Integer, Integer>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
         // sort by reversed comparator, since bigger weight means better solution
-        return toRank
-                .stream().filter(
-                        triplet -> freeSpaceMatrix.isFree(triplet.getValue1(), triplet.getValue2()))
-                .sorted(Comparator
-                        .comparingInt((Triplet<String, Integer, Integer> triplet) -> Math.min(length + 1,
-                                freeSpaceMatrix.getFreeSpace(triplet.getValue1(), triplet.getValue2())))
-                        .thenComparingDouble(triplet -> weightMatrix.getValue(triplet.getValue1(), triplet.getValue2()))
-                        .thenComparingDouble(triplet -> getCrossWeight(triplet.getValue1(), triplet.getValue2()))
-                        .thenComparingDouble(triplet -> getOpportunitiesWeight(triplet.getValue0(), triplet.getValue1(),
-                                triplet.getValue2()))
-                        .reversed())
+        return toRank.stream().filter(
+                triplet -> freeSpaceMatrix.isFree(new Coordinates(triplet.getValue1(), triplet.getValue2()))).sorted(
+                        Comparator
+                                .comparingInt((Triplet<MoveCommand, Integer, Integer> triplet) -> Math.min(length + 1,
+                                        freeSpaceMatrix.getFreeSpace(
+                                                new Coordinates(triplet.getValue1(), triplet.getValue2()))))
+                                .thenComparingDouble(triplet -> weightMatrix
+                                        .getValue(new Coordinates(triplet.getValue1(), triplet.getValue2())))
+                                .thenComparingDouble(triplet -> getCrossWeight(
+                                        new Coordinates(triplet.getValue1(), triplet.getValue2())))
+                                .thenComparingDouble(triplet -> getOpportunitiesWeight(triplet.getValue0(),
+                                        new Coordinates(triplet.getValue1(), triplet.getValue2())))
+                                .reversed())
                 .map(Triplet::getValue0).findFirst();
     }
 
-    public Optional<String> bestMove(GameStatePredictor gameState) {
-        final CoordsDto head = gameState.getYou().getHead();
-        final int length = gameState.getYou().getLength();
+    public Optional<MoveCommand> bestMove(HazardPredictor hazardPredictor) {
+        Coordinates head = hazardPredictor.getGameState().getYou().getHead();
+        int length = hazardPredictor.getGameState().getYou().getLength();
 
         final int x = head.getX();
         final int y = head.getY();
 
-        List<Triplet<String, Integer, Integer>> ranked = new LinkedList<>();
+        List<Triplet<MoveCommand, Integer, Integer>> ranked = new LinkedList<>();
         ranked.add(new Triplet<>(DOWN, x, y - 1));
         ranked.add(new Triplet<>(LEFT, x - 1, y));
         ranked.add(new Triplet<>(RIGHT, x + 1, y));
@@ -273,40 +276,40 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public void init(GameStatePredictor gameState) {
-        final int width = gameState.getBoard().getWidth();
-        final int height = gameState.getBoard().getHeight();
+    public void init(HazardPredictor hazardPredictor) {
+        Dimensions dimensions = hazardPredictor.getGameState().getBoard().getDimensions();
 
-        weightMatrix = DoubleMatrix.uninitializedMatrix(width, height, WALL_WEIGHT);
-        freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(width, height);
+        weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
+        freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
     }
 
     @Override
-    public Void processStart(GameStatePredictor gameState) {
+    public Void processStart(HazardPredictor hazardPredictor) {
         return null;
     }
 
     @Override
-    public Move processMove(GameStatePredictor gameState) {
-        applyGameState(gameState);
-        Optional<String> move = bestMove(gameState);
+    public Move processMove(HazardPredictor hazardPredictor) {
+        applyGameState(hazardPredictor);
+        Optional<MoveCommand> move = bestMove(hazardPredictor);
 
         if (move.isEmpty()) {
-            return new Move(); // would repeat last turn
+            // TODO remove null
+            return new Move(MoveCommand.REPEAT_LAST, null); // would repeat last turn
         }
 
-        return new Move(move.get());
+        return new Move(move.get(), null); // TODO remove null
     }
 
     @Override
-    public Void processEnd(GameStatePredictor gameState) {
+    public Void processEnd(HazardPredictor hazardPredictor) {
         return null;
     }
 
     @Override
-    public boolean isWalkable(int x, int y) {
-        return freeSpaceMatrix.isFree(x, y);
+    public boolean isWalkable(Coordinates coordinates) {
+        return freeSpaceMatrix.isFree(coordinates);
     }
 
     @Configuration

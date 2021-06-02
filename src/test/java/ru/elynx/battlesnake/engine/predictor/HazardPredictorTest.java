@@ -11,13 +11,13 @@ import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 
 @Tag("Internals")
-class GameStatePredictorTest {
+class HazardPredictorTest {
     private static final double fuzz = 0.0001d;
 
     @Test
     void test_is_growing() {
         AsciiToGameState generator = new AsciiToGameState("__Y__");
-        GameStatePredictor tested;
+        HazardPredictor tested;
 
         tested = generator.build();
         assertFalse(tested.isGrowing(tested.getYou()), "Not growing under normal conditions");
@@ -35,7 +35,7 @@ class GameStatePredictorTest {
     @Test
     void test_predict_hazard_not_that_mode() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____");
-        GameStatePredictor tested;
+        HazardPredictor tested;
 
         // default state, no hazard step set
         tested = generator.build();
@@ -55,7 +55,7 @@ class GameStatePredictorTest {
     void test_predict_hazard_already_full() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
                 .setRulesetName(ROYALE_RULESET_NAME).setTurn(24);
-        GameStatePredictor tested;
+        HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
@@ -78,7 +78,7 @@ class GameStatePredictorTest {
     void test_predict_hazard_not_that_turn() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
                 .setRulesetName(ROYALE_RULESET_NAME).setTurn(23);
-        GameStatePredictor tested;
+        HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);
@@ -91,7 +91,7 @@ class GameStatePredictorTest {
     void test_predict_hazard() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
                 .setRulesetName(ROYALE_RULESET_NAME).setTurn(24);
-        GameStatePredictor tested;
+        HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
         tested.setHazardStep(25);

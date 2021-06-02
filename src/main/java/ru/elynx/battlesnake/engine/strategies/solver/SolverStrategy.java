@@ -1,18 +1,17 @@
 package ru.elynx.battlesnake.engine.strategies.solver;
 
-import static ru.elynx.battlesnake.entity.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.IGameStrategy;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.entity.*;
 
 public class SolverStrategy implements IGameStrategy {
-    private StringField whereToGo;
+    private MoveCommandField whereToGo;
     private int stage = Integer.MIN_VALUE;
 
     @Override
@@ -20,42 +19,42 @@ public class SolverStrategy implements IGameStrategy {
         return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "noob");
     }
 
-    protected int calculateStage(GameStateDto gameStateDto) {
-        return Integer.MIN_VALUE;
+    protected int calculateStage(GameState gameState) {
+        return stage;
     }
 
-    protected StringField makeDirections(int stage, int width, int height) {
+    protected MoveCommandField makeDirections(int stage, Dimensions dimensions) {
         return null;
     }
 
-    protected String makeMove(GameStateDto gameStateDto) {
-        final int newStage = calculateStage(gameStateDto);
+    protected MoveCommand makeMove(GameState gameState) {
+        int newStage = calculateStage(gameState);
         if (newStage != stage) {
-            final BoardDto board = gameStateDto.getBoard();
-            whereToGo = makeDirections(newStage, board.getWidth(), board.getHeight());
+            Board board = gameState.getBoard();
+            whereToGo = makeDirections(newStage, board.getDimensions());
             stage = newStage;
         }
 
         if (whereToGo != null) {
-            final CoordsDto head = gameStateDto.getYou().getHead();
-            return whereToGo.getString(head.getX(), head.getY());
+            Coordinates head = gameState.getYou().getHead();
+            return whereToGo.getMoveCommand(head);
         } else {
-            return UP;
+            return REPEAT_LAST;
         }
     }
 
     @Override
-    public Void processStart(GameStatePredictor gameState) {
+    public Void processStart(HazardPredictor hazardPredictor) {
         return null;
     }
 
     @Override
-    public Move processMove(GameStatePredictor gameState) {
-        return new Move(makeMove(gameState), "e4e2");
+    public Move processMove(HazardPredictor hazardPredictor) {
+        return new Move(makeMove(hazardPredictor.getGameState()), "e4e2");
     }
 
     @Override
-    public Void processEnd(GameStatePredictor gameState) {
+    public Void processEnd(HazardPredictor hazardPredictor) {
         return null;
     }
 

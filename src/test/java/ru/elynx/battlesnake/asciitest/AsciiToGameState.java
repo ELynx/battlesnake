@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
 import ru.elynx.battlesnake.api.*;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
 
@@ -144,7 +144,7 @@ public class AsciiToGameState {
         return neighbours.get(0).getKey();
     }
 
-    public GameStatePredictor build() {
+    public HazardPredictor build() {
         if (ascii.indexOf('V') >= 0) {
             throw new IllegalStateException("V is not allowed in ascii");
         }
@@ -158,7 +158,7 @@ public class AsciiToGameState {
         game.setRuleset(ruleset);
         game.setTimeout(500);
 
-        GameStatePredictor gameState = new GameStatePredictor();
+        HazardPredictor gameState = new HazardPredictor();
         gameState.setGame(game);
         gameState.setTurn(turn);
         gameState.setHazardStep(hazardStep);

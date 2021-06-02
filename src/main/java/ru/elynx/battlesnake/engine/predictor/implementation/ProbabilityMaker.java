@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Triplet;
-import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.entity.Coordinates;
 
 public class ProbabilityMaker {
     private static final int MAX_ITEMS = 4;
@@ -44,24 +44,24 @@ public class ProbabilityMaker {
         return stackPosition == 0;
     }
 
-    public void addPosition(CoordsDto coords) {
-        addPositionImpl(coords, LEAST_SCORE);
+    public void addPosition(Coordinates coordinates) {
+        addPositionImpl(coordinates, LEAST_SCORE);
     }
 
-    public void addPositionWithScore(CoordsDto coords, int score) {
+    public void addPositionWithScore(Coordinates coordinates, int score) {
         if (score >= LEAST_SCORE) {
-            addPositionImpl(coords, score);
+            addPositionImpl(coordinates, score);
         }
     }
 
-    private void addPositionImpl(CoordsDto coords, int score) {
-        putPositionOnStack(coords, score);
+    private void addPositionImpl(Coordinates coordinates, int score) {
+        putPositionOnStack(coordinates, score);
         increaseTotalScore(score);
     }
 
-    private void putPositionOnStack(CoordsDto coords, int score) {
-        stack[stackPosition + X_STACK_POSITION] = coords.getX();
-        stack[stackPosition + Y_STACK_POSITION] = coords.getY();
+    private void putPositionOnStack(Coordinates coordinates, int score) {
+        stack[stackPosition + X_STACK_POSITION] = coordinates.getX();
+        stack[stackPosition + Y_STACK_POSITION] = coordinates.getY();
         stack[stackPosition + SCORE_STACK_POSITION] = score;
 
         stackPosition += STACK_SIZE_PER_ITEM;

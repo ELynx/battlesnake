@@ -3,8 +3,8 @@ package ru.elynx.battlesnake.webserver;
 import com.newrelic.api.agent.NewRelic;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import ru.elynx.battlesnake.api.GameStateDto;
-import ru.elynx.battlesnake.api.SnakeDto;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Snake;
 
 @Service
 @Scope("singleton")
@@ -24,29 +24,29 @@ class StatisticsTracker {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, name);
     }
 
-    private void always(GameStateDto gameState) {
+    private void always(GameState gameState) {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
 
-        NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getGame().getRuleset().getName());
-        NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getGame().getRuleset().getVersion());
-        NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getGame().getTimeout());
+        NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getRules().getName());
+        NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getRules().getVersion());
+        NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getRules().getTimeout());
     }
 
-    public void start(GameStateDto gameState) {
+    public void start(GameState gameState) {
         always(gameState);
     }
 
-    public void move(GameStateDto gameState) {
+    public void move(GameState gameState) {
         always(gameState);
 
         NewRelic.addCustomParameter(TIMEOUT_REPORTED_PARAMETER, gameState.getYou().isTimedOut());
     }
 
-    public void end(GameStateDto gameState) {
+    public void end(GameState gameState) {
         always(gameState);
 
         boolean victory = false;
-        for (SnakeDto someSnake : gameState.getBoard().getSnakes()) {
+        for (Snake someSnake : gameState.getBoard().getSnakes()) {
             if (someSnake.getId().equals(gameState.getYou().getId())) {
                 victory = true;
                 break;

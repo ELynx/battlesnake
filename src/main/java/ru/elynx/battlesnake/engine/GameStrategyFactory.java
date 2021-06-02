@@ -13,7 +13,7 @@ public class GameStrategyFactory implements IGameStrategyFactory {
 
     @Override
     public IGameStrategy getGameStrategy(String name) throws SnakeNotFoundException {
-        final Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
+        Supplier<IGameStrategy> supplier = registeredGameStrategies.get(name);
 
         if (supplier == null)
             throw new SnakeNotFoundException(name);

@@ -4,8 +4,6 @@ import java.util.List;
 import lombok.Value;
 import lombok.With;
 
-// TODO unit tests
-
 @Value
 public class Coordinates {
     @With
@@ -13,6 +11,7 @@ public class Coordinates {
     @With
     int y;
 
+    // TODO unit test
     public Coordinates move(MoveCommand moveCommand) {
         switch (moveCommand) {
             case DOWN :
@@ -28,15 +27,18 @@ public class Coordinates {
         }
     }
 
+    // TODO unit test
     public Iterable<Coordinates> sideNeighbours() {
         return List.of(move(MoveCommand.DOWN), move(MoveCommand.LEFT), move(MoveCommand.RIGHT), move(MoveCommand.UP));
     }
 
+    // TODO unit test
     public Iterable<Coordinates> angleNeighbours() {
         return List.of(new Coordinates(getX() - 1, getY() - 1), new Coordinates(getX() + 1, getY() - 1),
                 new Coordinates(getX() - 1, getY() + 1), new Coordinates(getX() + 1, getY() + 1));
     }
 
+    // TODO unit test
     public boolean within(Dimensions dimensions) {
         return getX() >= 0 && getY() >= 0 && getX() < dimensions.getWidth() && getY() < dimensions.getHeight();
     }

@@ -1,22 +1,24 @@
 package ru.elynx.battlesnake.engine.strategies.solver;
 
-import static ru.elynx.battlesnake.entity.Move.Moves.*;
+import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-import ru.elynx.battlesnake.api.CoordsDto;
-import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.MoveCommand;
 
 class SoloLengthChallengeStrategy extends SolverStrategy {
     private boolean latch1 = false;
     private boolean latch2 = false;
 
     @Override
-    protected int calculateStage(GameStateDto gameStateDto) {
+    protected int calculateStage(GameState gameState) {
         if (latch2)
             return 2;
 
-        final CoordsDto head = gameStateDto.getYou().getHead();
+        Coordinates head = gameState.getYou().getHead();
         if (latch1 && head.getX() == 6 && head.getY() == 0) {
             latch2 = true;
             return 2;
@@ -26,11 +28,11 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
             return 1;
 
         // wait for length
-        if (gameStateDto.getYou().getLength() < 23)
+        if (gameState.getYou().getLength() < 23)
             return 0;
 
         // wait for food to fill in the space
-        if (gameStateDto.getBoard().getFood().size() < 25)
+        if (gameState.getBoard().getFood().size() < 25)
             return 0;
 
         latch1 = true;
@@ -38,40 +40,38 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
     }
 
     @Override
-    protected StringField makeDirections(int stage, int width, int height) {
+    protected MoveCommandField makeDirections(int stage, Dimensions dimensions) {
         if (stage == 1)
-            return makeStage1(width, height);
+            return makeStage1(dimensions);
 
         if (stage == 2)
-            return makeStage2(width, height);
+            return makeStage2(dimensions);
 
         // in any unknown situation, go loop
-        return makeStage0(width, height);
+        return makeStage0(dimensions);
     }
 
     /**
      * Stage zero. Make trident.
      *
-     * @param width
-     *            7
-     * @param height
-     *            7
+     * @param dimensions
+     *            7x7
      * @return Instructions on how to run in circles.
      */
-    private StringField makeStage0(int width, int height) {
-        if (width != 7 || height != 7) {
+    private MoveCommandField makeStage0(Dimensions dimensions) {
+        if (dimensions.area() != 49) {
             return null;
         }
 
-        String[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
-        String[] map5 = map6;
-        String[] map4 = map5;
-        String[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, LEFT};
-        String[] map2 = {DOWN, UP, DOWN, UP, DOWN, UP, UP};
-        String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, UP};
-        String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP, UP};
+        MoveCommand[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
+        MoveCommand[] map5 = map6;
+        MoveCommand[] map4 = map5;
+        MoveCommand[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, LEFT};
+        MoveCommand[] map2 = {DOWN, UP, DOWN, UP, DOWN, UP, UP};
+        MoveCommand[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, UP};
+        MoveCommand[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP, UP};
 
-        Stream<String> directions = Arrays.stream(map0);
+        Stream<MoveCommand> directions = Arrays.stream(map0);
         directions = Stream.concat(directions, Arrays.stream(map1));
         directions = Stream.concat(directions, Arrays.stream(map2));
         directions = Stream.concat(directions, Arrays.stream(map3));
@@ -79,32 +79,30 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
         directions = Stream.concat(directions, Arrays.stream(map5));
         directions = Stream.concat(directions, Arrays.stream(map6));
 
-        return StringField.of(width, height, directions.toArray(String[]::new));
+        return MoveCommandField.of(dimensions, directions.toArray(MoveCommand[]::new));
     }
 
     /**
      * Stage one. Wait for escape.
      *
-     * @param width
-     *            7
-     * @param height
-     *            7
+     * @param dimensions
+     *            7x7
      * @return Instructions on how to cover the field.
      */
-    private StringField makeStage1(int width, int height) {
-        if (width != 7 || height != 7) {
+    private MoveCommandField makeStage1(Dimensions dimensions) {
+        if (dimensions.area() != 49) {
             return null;
         }
 
-        String[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
-        String[] map5 = map6;
-        String[] map4 = map5;
-        String[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, UP};
-        String[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
-        String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
-        String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
+        MoveCommand[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
+        MoveCommand[] map5 = map6;
+        MoveCommand[] map4 = map5;
+        MoveCommand[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, UP};
+        MoveCommand[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
+        MoveCommand[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
+        MoveCommand[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
 
-        Stream<String> directions = Arrays.stream(map0);
+        Stream<MoveCommand> directions = Arrays.stream(map0);
         directions = Stream.concat(directions, Arrays.stream(map1));
         directions = Stream.concat(directions, Arrays.stream(map2));
         directions = Stream.concat(directions, Arrays.stream(map3));
@@ -112,32 +110,30 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
         directions = Stream.concat(directions, Arrays.stream(map5));
         directions = Stream.concat(directions, Arrays.stream(map6));
 
-        return StringField.of(width, height, directions.toArray(String[]::new));
+        return MoveCommandField.of(dimensions, directions.toArray(MoveCommand[]::new));
     }
 
     /**
      * Stage two. Run.
      *
-     * @param width
-     *            7
-     * @param height
-     *            7
+     * @param dimensions
+     *            7x7
      * @return Instructions on how to cover the field.
      */
-    private StringField makeStage2(int width, int height) {
-        if (width != 7 || height != 7) {
+    private MoveCommandField makeStage2(Dimensions dimensions) {
+        if (dimensions.area() != 49) {
             return null;
         }
 
-        String[] map6 = {DOWN, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT};
-        String[] map5 = {DOWN, LEFT, LEFT, LEFT, LEFT, LEFT, UP};
-        String[] map4 = {RIGHT, RIGHT, RIGHT, RIGHT, DOWN, UP, UP};
-        String[] map3 = {DOWN, LEFT, DOWN, LEFT, RIGHT, UP, UP};
-        String[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
-        String[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
-        String[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
+        MoveCommand[] map6 = {DOWN, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT};
+        MoveCommand[] map5 = {DOWN, LEFT, LEFT, LEFT, LEFT, LEFT, UP};
+        MoveCommand[] map4 = {RIGHT, RIGHT, RIGHT, RIGHT, DOWN, UP, UP};
+        MoveCommand[] map3 = {DOWN, LEFT, DOWN, LEFT, RIGHT, UP, UP};
+        MoveCommand[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
+        MoveCommand[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
+        MoveCommand[] map0 = {RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, UP};
 
-        Stream<String> directions = Arrays.stream(map0);
+        Stream<MoveCommand> directions = Arrays.stream(map0);
         directions = Stream.concat(directions, Arrays.stream(map1));
         directions = Stream.concat(directions, Arrays.stream(map2));
         directions = Stream.concat(directions, Arrays.stream(map3));
@@ -145,6 +141,6 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
         directions = Stream.concat(directions, Arrays.stream(map5));
         directions = Stream.concat(directions, Arrays.stream(map6));
 
-        return StringField.of(width, height, directions.toArray(String[]::new));
+        return MoveCommandField.of(dimensions, directions.toArray(MoveCommand[]::new));
     }
 }

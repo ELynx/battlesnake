@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.elynx.battlesnake.engine.IGameStrategy;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 
 class MySnake implements IGameStrategy {
     @Override
@@ -29,17 +29,17 @@ class MySnake implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(GameStatePredictor gameState) {
+    public Void processStart(HazardPredictor gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(GameStatePredictor gameState) {
+    public Move processMove(HazardPredictor gameState) {
         return new Move("UP", "shshshshsh");
     }
 
     @Override
-    public Void processEnd(GameStatePredictor gameState) {
+    public Void processEnd(HazardPredictor gameState) {
         return null;
     }
 }

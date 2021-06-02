@@ -47,7 +47,7 @@ class ProbabilityMakerTest {
         tested.addPosition(new CoordsDto(2, 2));
         tested.addPosition(new CoordsDto(3, 3));
 
-        final CoordsDto oneTooMuch = new CoordsDto(4, 4);
+        CoordsDto oneTooMuch = new CoordsDto(4, 4);
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> tested.addPosition(oneTooMuch));
     }
 

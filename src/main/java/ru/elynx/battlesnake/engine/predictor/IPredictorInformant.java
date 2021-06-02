@@ -1,12 +1,7 @@
 package ru.elynx.battlesnake.engine.predictor;
 
-import ru.elynx.battlesnake.api.CoordsDto;
+import ru.elynx.battlesnake.entity.Coordinates;
 
 public interface IPredictorInformant {
-    // TODO leave only this
-    default boolean isWalkable(CoordsDto coords) {
-        return isWalkable(coords.getX(), coords.getY());
-    }
-
-    boolean isWalkable(int x, int y);
+    boolean isWalkable(Coordinates coordinates);
 }

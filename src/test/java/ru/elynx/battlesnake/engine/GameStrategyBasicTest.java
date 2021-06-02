@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.testspecific.TestMove;
 import ru.elynx.battlesnake.testspecific.TestSnakeDto;
 import ru.elynx.battlesnake.testspecific.ToApiVersion;
@@ -30,14 +30,14 @@ import ru.elynx.battlesnake.testspecific.ToApiVersion;
 class GameStrategyBasicTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
 
-    static GameStatePredictor dummyGameState;
+    static HazardPredictor dummyGameState;
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
     @BeforeAll
     static void fillDummies() {
-        dummyGameState = new GameStatePredictor();
+        dummyGameState = new HazardPredictor();
 
         dummyGameState.setGame(new GameDto());
         dummyGameState.getGame().setId(GameStrategyBasicTest.class.getSimpleName());
@@ -224,7 +224,7 @@ class GameStrategyBasicTest {
 
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            GameStatePredictor gameState = generator.build();
+            HazardPredictor gameState = generator.build();
             gameStrategy.init(gameState);
             TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), not(equalToIgnoringCase(notTo[j])));
@@ -246,7 +246,7 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            GameStatePredictor gameState = generator.build();
+            HazardPredictor gameState = generator.build();
             gameStrategy.init(gameState);
             TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
@@ -267,7 +267,7 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            GameStatePredictor gameState = generator.build();
+            HazardPredictor gameState = generator.build();
             gameStrategy.init(gameState);
             TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));
@@ -288,7 +288,7 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            GameStatePredictor gameState = generator.build();
+            HazardPredictor gameState = generator.build();
             gameStrategy.init(gameState);
             TestMove move = new TestMove(gameStrategy.processMove(gameState), ToApiVersion.V1);
             assertThat("Step " + i, move.getMove(), equalToIgnoringCase(to[i]));

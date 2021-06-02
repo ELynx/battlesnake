@@ -134,8 +134,8 @@ class FreeSpaceMatrixTest {
 
         for (int x = -1; x <= 40; ++x) {
             for (int y = -1; y <= 10; ++y) {
-                final boolean isFree = tested.isFree(x, y);
-                final boolean hasFreeSpace = tested.getFreeSpace(x, y) > 0;
+                boolean isFree = tested.isFree(x, y);
+                boolean hasFreeSpace = tested.getFreeSpace(x, y) > 0;
 
                 assertEquals(hasFreeSpace, isFree, "Same report for two getters");
             }

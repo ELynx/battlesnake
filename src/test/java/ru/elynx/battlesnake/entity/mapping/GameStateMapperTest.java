@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.elynx.battlesnake.api.ApiDeSerTest;
+import ru.elynx.battlesnake.api.CoordsDto;
 import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 
 class GameStateMapperTest {
@@ -93,5 +95,18 @@ class GameStateMapperTest {
         assertEquals(3, entity.getYou().getLength());
         assertEquals("why are we shouting??", entity.getYou().getShout());
         assertEquals("", entity.getYou().getSquad());
+    }
+
+    @Test
+    void test_CoordsDto_to_Coordinates(@Autowired GameStateMapper tested) {
+        for (int x = -11; x <= 11; ++x) {
+            for (int y = -11; y <= 11; ++y) {
+                CoordsDto dto = new CoordsDto(x, y);
+                Coordinates entity = tested.toEntity(dto);
+
+                assertEquals(dto.getX(), entity.getX());
+                assertEquals(dto.getY(), entity.getY());
+            }
+        }
     }
 }

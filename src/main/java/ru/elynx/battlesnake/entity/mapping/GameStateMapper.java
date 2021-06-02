@@ -2,7 +2,9 @@ package ru.elynx.battlesnake.entity.mapping;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import ru.elynx.battlesnake.api.CoordsDto;
 import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 
 @Mapper
@@ -16,4 +18,9 @@ public interface GameStateMapper {
     @Mapping(target = "board.dimensions.width", source = "board.width")
     @Mapping(target = "board.dimensions.height", source = "board.height")
     GameState toEntity(GameStateDto dto);
+
+    @Mapping(target = "move", ignore = true)
+    @Mapping(target = "withX", ignore = true)
+    @Mapping(target = "withY", ignore = true)
+    Coordinates toEntity(CoordsDto dto);
 }

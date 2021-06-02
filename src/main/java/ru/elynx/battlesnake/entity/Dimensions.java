@@ -7,6 +7,7 @@ public class Dimensions {
     int width;
     int height;
 
+    // TODO unit test
     public int area() {
         return getWidth() * getHeight();
     }

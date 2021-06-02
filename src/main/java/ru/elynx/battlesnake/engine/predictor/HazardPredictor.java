@@ -3,57 +3,37 @@ package ru.elynx.battlesnake.engine.predictor;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
-import ru.elynx.battlesnake.api.CoordsDto;
-import ru.elynx.battlesnake.api.GameStateDto;
-import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
+import ru.elynx.battlesnake.entity.GameState;
 
-public class GameStatePredictor extends GameStateDto {
-    private static final int INITIAL_LENGTH = 3;
-    private static final int MAX_HEALTH = 100;
+public class HazardPredictor {
+    private final GameState gameState;
+    private final int hazardStep;
 
-    protected int hazardStep = 0;
+    @Getter(lazy = true)
+    private final List<Triplet<Integer, Integer, Double>> predictedHazards = getPredictedHazardsImpl();
 
-    private List<Triplet<Integer, Integer, Double>> predictedHazardsCache = null;
-
-    public void setHazardStep(int hazardStep) {
+    public HazardPredictor(GameState gameState, int hazardStep) {
+        this.gameState = gameState;
         this.hazardStep = hazardStep;
     }
 
-    /**
-     * Predict if snake will grow on it's tail this turn
-     *
-     * @param snake
-     *            Snake to be checked
-     * @return True if snake will not empty it's tail cell.
-     */
-    public boolean isGrowing(SnakeDto snake) {
-        // initial expansion
-        if (getTurn() < INITIAL_LENGTH) {
-            return true;
-        }
-
-        // just ate food
-        return snake.getHealth().equals(MAX_HEALTH);
-    }
-
-    public List<Triplet<Integer, Integer, Double>> getPredictedHazards() {
-        if (predictedHazardsCache == null) {
-            predictedHazardsCache = getPredictedHazardsImpl();
-        }
-
-        return predictedHazardsCache;
+    // TODO this is a plug
+    public GameState getGameState() {
+        return gameState;
     }
 
     private List<Triplet<Integer, Integer, Double>> getPredictedHazardsImpl() {
-        if (hazardStep != 0 && getGame().getRuleset().isRoyale()) {
-            final int width = getBoard().getWidth();
-            final int height = getBoard().getHeight();
+        if (hazardStep != 0 && gameState.getRules().isRoyale()) {
+            Dimensions dimensions = gameState.getBoard().getDimensions();
 
             // if everything is hazard, there is no more prediction
-            if (getBoard().getHazards().size() >= width * height) {
+            if (gameState.getBoard().getHazards().size() >= dimensions.area()) {
                 return Collections.emptyList();
             }
 
@@ -61,11 +41,11 @@ public class GameStatePredictor extends GameStateDto {
             // seed is re-used through game, and business logic is based on repeatability
             // in theory, it is quite possible to determine hazards accurately
 
-            if (getTurn() % hazardStep == hazardStep - 1) {
-                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyMatrix(width, height);
+            if (gameState.getTurn() % hazardStep == hazardStep - 1) {
+                FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyMatrix(dimensions);
 
-                for (CoordsDto hazard : getBoard().getHazards()) {
-                    freeSpaceMatrix.setOccupied(hazard.getX(), hazard.getY());
+                for (Coordinates hazard : gameState.getBoard().getHazards()) {
+                    freeSpaceMatrix.setOccupied(hazard);
                 }
 
                 int xMin = -1;
@@ -73,17 +53,19 @@ public class GameStatePredictor extends GameStateDto {
                 int yMin = -1;
                 int yMax = -1;
 
-                for (int x = 0; x < width; ++x) {
+                for (int x = 0; x < dimensions.getWidth(); ++x) {
                     if (yMin == -1 && yMax == -1) {
                         int y;
-                        for (y = 0; y < height; ++y)
-                            if (freeSpaceMatrix.isFree(x, y)) {
+                        for (y = 0; y < dimensions.getHeight(); ++y)
+                            // TODO type
+                            if (freeSpaceMatrix.isFree(new Coordinates(x, y))) {
                                 yMin = y;
                                 break;
                             }
 
-                        for (; y < height; ++y)
-                            if (freeSpaceMatrix.isFree(x, y))
+                        for (; y < dimensions.getHeight(); ++y)
+                            // TODO type
+                            if (freeSpaceMatrix.isFree(new Coordinates(x, y)))
                                 yMax = y;
                             else
                                 break;
@@ -93,7 +75,8 @@ public class GameStatePredictor extends GameStateDto {
                         if (xMin == -1)
                             xMin = x;
 
-                        if (freeSpaceMatrix.isFree(x, yMin))
+                        // TODO type
+                        if (freeSpaceMatrix.isFree(new Coordinates(x, yMin)))
                             xMax = x;
                         else
                             break;
@@ -101,7 +84,7 @@ public class GameStatePredictor extends GameStateDto {
                 }
 
                 Map<Pair<Integer, Integer>, Double> probabilities = new HashMap<>();
-                final double singleProbability = 0.25d;
+                double singleProbability = 0.25d;
 
                 BiFunction<Integer, Integer, Void> markAsProbable = (Integer x, Integer y) -> {
                     probabilities.compute(new Pair<>(x, y), (key, value) -> {
