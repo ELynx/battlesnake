@@ -96,7 +96,7 @@ public class DoubleMatrix extends Matrix {
         if (splash1stOrder(coordinates, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            for (Coordinates neighbour : coordinates.angleNeighbours()) {
+            for (Coordinates neighbour : coordinates.cornerNeighbours()) {
                 addValue(neighbour, valueAtImpact);
             }
 

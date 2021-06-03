@@ -30,7 +30,7 @@ public class Coordinates {
         return List.of(move(MoveCommand.DOWN), move(MoveCommand.LEFT), move(MoveCommand.RIGHT), move(MoveCommand.UP));
     }
 
-    public Iterable<Coordinates> angleNeighbours() {
+    public Iterable<Coordinates> cornerNeighbours() {
         return List.of(new Coordinates(getX() - 1, getY() - 1), new Coordinates(getX() + 1, getY() - 1),
                 new Coordinates(getX() - 1, getY() + 1), new Coordinates(getX() + 1, getY() + 1));
     }

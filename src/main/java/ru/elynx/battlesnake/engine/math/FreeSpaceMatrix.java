@@ -7,7 +7,7 @@ import ru.elynx.battlesnake.entity.Dimensions;
 public class FreeSpaceMatrix extends Matrix {
     private static final int OCCUPIED_VALUE = 0;
     private static final int UNSET_VALUE = -1;
-    private static final int FILL_VALUE = -2;
+    private static final int FLOOD_FILL_VALUE = -2;
 
     private static final int X_STACK_POSITION = 0;
     private static final int Y_STACK_POSITION = 1;
@@ -63,12 +63,12 @@ public class FreeSpaceMatrix extends Matrix {
      * @return True if cell was not set as occupied.
      */
     public boolean isFree(Coordinates coordinates) {
-        int value = getValueByXY(coordinates);
+        int value = getValue(coordinates);
         // it does not matter if cell has free space calculated or not to be free
         return value != OCCUPIED_VALUE;
     }
 
-    private int getValueByXY(Coordinates coordinates) {
+    private int getValue(Coordinates coordinates) {
         int boundIndex = calculateBoundIndex(coordinates);
         return getValueByBoundIndex(boundIndex);
     }
@@ -87,17 +87,16 @@ public class FreeSpaceMatrix extends Matrix {
     public int getFreeSpace(Coordinates coordinates) {
         // if cell is set as occupied, return it
         // if flood fill already calculated free space, return it
-        int value = getValueByXY(coordinates);
+        int value = getValue(coordinates);
         if (value > UNSET_VALUE)
             return value;
 
-        // TODO consistent typing
-        return getFreeSpaceByFloodFill(coordinates.getX(), coordinates.getY());
+        return getFreeSpaceByFloodFill(coordinates);
     }
 
-    private int getFreeSpaceByFloodFill(int startX, int startY) {
-        floodFillStack[X_STACK_POSITION] = startX;
-        floodFillStack[Y_STACK_POSITION] = startY;
+    private int getFreeSpaceByFloodFill(Coordinates coordinates) {
+        floodFillStack[X_STACK_POSITION] = coordinates.getX();
+        floodFillStack[Y_STACK_POSITION] = coordinates.getY();
         int stackPosition = STACK_SIZE_PER_ITEM;
 
         while (stackPosition > 0) {
@@ -128,7 +127,7 @@ public class FreeSpaceMatrix extends Matrix {
 
         if (getValueByBoundIndex(boundIndex) == UNSET_VALUE) {
             // index is tested to be bound by operation above
-            setValueByIndex(boundIndex, FILL_VALUE);
+            setValueByIndex(boundIndex, FLOOD_FILL_VALUE);
             return true;
         }
         return false;
@@ -152,20 +151,20 @@ public class FreeSpaceMatrix extends Matrix {
 
     private boolean isSet(int x, int y) {
         // TODO here
-        int value = getValueByXY(new Coordinates(x, y));
+        int value = getValue(new Coordinates(x, y));
         return value != UNSET_VALUE;
     }
 
     private int countAndFill() {
         int count = 0;
         for (int index = 0; index < spaceValues.length; ++index) {
-            if (getValueByIndex(index) == FILL_VALUE)
+            if (getValueByIndex(index) == FLOOD_FILL_VALUE)
                 ++count;
         }
 
         if (count > 0) {
             for (int index = 0; index < spaceValues.length; ++index) {
-                if (getValueByIndex(index) == FILL_VALUE)
+                if (getValueByIndex(index) == FLOOD_FILL_VALUE)
                     setValueByIndex(index, count);
             }
         }
