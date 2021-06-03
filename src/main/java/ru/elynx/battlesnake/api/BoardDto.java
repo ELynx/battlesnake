@@ -1,10 +1,11 @@
 package ru.elynx.battlesnake.api;
 
 import java.util.List;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 
 @Value
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class BoardDto {
     @NonNull
     Integer height;

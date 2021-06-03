@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 @Tag("API")
 public class ApiDeSerTest {
     public final static String API_EXAMPLE_GAME_STATE = "{\n" + "  \"game\": {\n"

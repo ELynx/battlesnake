@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.api.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 
+@SpringBootTest
 class BattlesnakeInfoMapperTest {
     @Test
     void test_entity_to_dto(@Autowired BattlesnakeInfoMapper tested) {

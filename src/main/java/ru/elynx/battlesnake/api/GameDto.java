@@ -1,9 +1,10 @@
 package ru.elynx.battlesnake.api;
 
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 
 @Value
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class GameDto {
     @NonNull
     String id;

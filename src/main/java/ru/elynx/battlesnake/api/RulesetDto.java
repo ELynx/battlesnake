@@ -1,11 +1,10 @@
 package ru.elynx.battlesnake.api;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Value
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class RulesetDto {
     @NonNull
     String name;

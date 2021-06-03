@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.api.MoveDto;
 import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
+@SpringBootTest
 class MoveMapperTest {
     @Test
     void test_full_move(@Autowired MoveMapper tested) {
