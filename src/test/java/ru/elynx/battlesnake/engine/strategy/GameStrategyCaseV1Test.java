@@ -1,8 +1,8 @@
-package ru.elynx.battlesnake.engine;
+package ru.elynx.battlesnake.engine.strategy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static ru.elynx.battlesnake.engine.GameStrategyBasicTest.STRATEGY_NAMES;
+import static ru.elynx.battlesnake.engine.strategy.GameStrategyBasicTest.STRATEGY_NAMES;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import org.junit.jupiter.api.Tag;

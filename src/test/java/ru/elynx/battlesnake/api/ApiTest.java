@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
 @Tag("API")
-class ApiDeSerTest {
+class ApiTest {
     @Test
     void test_deserialize_exemplar_GameStateDto() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

@@ -13,7 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import ru.elynx.battlesnake.api.BattlesnakeInfoDto;
 import ru.elynx.battlesnake.api.GameStateDto;
 import ru.elynx.battlesnake.api.MoveDto;
-import ru.elynx.battlesnake.engine.SnakeNotFoundException;
+import ru.elynx.battlesnake.engine.strategy.SnakeNotFoundException;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;

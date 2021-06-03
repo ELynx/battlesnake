@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.solver;
+package ru.elynx.battlesnake.engine.strategy.solver;
 
 import ru.elynx.battlesnake.engine.math.Matrix;
 import ru.elynx.battlesnake.entity.Coordinates;

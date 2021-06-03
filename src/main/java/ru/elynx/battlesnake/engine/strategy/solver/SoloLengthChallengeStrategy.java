@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.solver;
+package ru.elynx.battlesnake.engine.strategy.solver;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 

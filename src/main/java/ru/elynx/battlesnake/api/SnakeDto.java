@@ -4,8 +4,8 @@ import java.util.List;
 import lombok.*;
 
 @Value
-@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 public class SnakeDto {
     @NonNull
     String id;

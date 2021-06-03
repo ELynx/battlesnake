@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine;
+package ru.elynx.battlesnake.engine.strategy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -22,7 +22,7 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 @SpringBootTest
 @Tag("StrategyBasic")
 class GameStrategyBasicTest {
-    public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
+    public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.strategy.GameStrategyBasicTest#provideStrategyNames";
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;

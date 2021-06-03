@@ -3,8 +3,8 @@ package ru.elynx.battlesnake.api;
 import lombok.*;
 
 @Value
-@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 public class GameStateDto {
     @NonNull
     GameDto game;

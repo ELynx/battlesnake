@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine;
+package ru.elynx.battlesnake.engine.strategy;
 
 import java.util.Set;
 

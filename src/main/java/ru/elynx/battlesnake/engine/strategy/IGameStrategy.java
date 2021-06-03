@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine;
+package ru.elynx.battlesnake.engine.strategy;
 
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;

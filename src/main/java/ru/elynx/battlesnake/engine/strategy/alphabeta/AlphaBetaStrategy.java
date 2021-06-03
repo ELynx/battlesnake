@@ -1,9 +1,9 @@
-package ru.elynx.battlesnake.engine.strategies.alphabeta;
+package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.engine.IGameStrategy;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 
 public class AlphaBetaStrategy extends OmegaStrategy {

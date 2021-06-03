@@ -1,13 +1,12 @@
-package ru.elynx.battlesnake.engine.strategies.solver;
+package ru.elynx.battlesnake.engine.strategy.solver;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.api.*;
-import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class SolverStrategy implements IGameStrategy {

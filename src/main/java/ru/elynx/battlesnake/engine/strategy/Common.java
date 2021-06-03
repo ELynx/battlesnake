@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies;
+package ru.elynx.battlesnake.engine.strategy;
 
 import java.util.List;
 import java.util.function.Consumer;

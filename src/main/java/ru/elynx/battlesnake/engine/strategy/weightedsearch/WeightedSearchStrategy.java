@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategies.weightedsearch;
+package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
@@ -7,14 +7,14 @@ import java.util.function.Supplier;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
-import ru.elynx.battlesnake.engine.strategies.Common;
+import ru.elynx.battlesnake.engine.strategy.Common;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
