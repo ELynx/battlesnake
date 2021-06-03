@@ -98,18 +98,17 @@ public class FreeSpaceMatrix extends Matrix {
         while (!floodFillStack.isEmpty()) {
             Coordinates checked = floodFillStack.removeLast();
 
-            int checkedY = checked.getY();
-
             int leftX = checked.getX();
-            while (fillIfUnset(new Coordinates(leftX - 1, checkedY))) {
+            while (fillIfUnset(checked.withX(leftX - 1))) {
                 leftX -= 1;
             }
 
             int rightX = checked.getX();
-            while (fillIfUnset(new Coordinates(rightX, checkedY))) {
+            while (fillIfUnset(checked.withX(rightX))) {
                 rightX += 1;
             }
 
+            int checkedY = checked.getY();
             scanAndQueue(leftX, rightX - 1, checkedY + 1);
             scanAndQueue(leftX, rightX - 1, checkedY - 1);
         }
@@ -132,10 +131,11 @@ public class FreeSpaceMatrix extends Matrix {
     private void scanAndQueue(int leftX, int rightX, int y) {
         boolean queued = false;
         for (int x = leftX; x <= rightX; ++x) {
-            if (isSet(new Coordinates(x, y))) {
+            Coordinates tmp = new Coordinates(x, y);
+            if (isSet(tmp)) {
                 queued = false;
             } else if (!queued) {
-                floodFillStack.add(new Coordinates(x, y));
+                floodFillStack.add(tmp);
                 queued = true;
             }
         }
