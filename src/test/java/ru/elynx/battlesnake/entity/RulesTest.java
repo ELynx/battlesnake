@@ -11,10 +11,13 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 class RulesTest {
     @Test
     void test_is_royale() {
-        Rules tested1 = EntityBuilder.rulesWithName(ApiExampleBuilder.royaleRulesetName());
-        assertTrue(tested1.isRoyale());
+        Rules tested = EntityBuilder.rulesWithName(ApiExampleBuilder.royaleRulesetName());
+        assertTrue(tested.isRoyale());
+    }
 
-        Rules tested2 = EntityBuilder.rulesWithName(ApiExampleBuilder.standardRulesetName());
-        assertFalse(tested1.isRoyale());
+    @Test
+    void test_is_not_royale() {
+        Rules tested = EntityBuilder.rulesWithName(ApiExampleBuilder.standardRulesetName());
+        assertFalse(tested.isRoyale());
     }
 }
