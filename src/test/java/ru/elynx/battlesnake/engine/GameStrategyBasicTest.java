@@ -135,7 +135,7 @@ class GameStrategyBasicTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    void gameStrategyDoesNotGoIntoWall(String name) {
+    void test_strategy_does_not_move_into_wall(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(withAllDefaults());
@@ -153,10 +153,10 @@ class GameStrategyBasicTest {
 
         for (int y = 0; y < h; ++y) {
             Move move1 = gameStrategy.processMove(withHead(0, y));
-            assertNotEquals(RIGHT, move1.getMoveCommand());
+            assertNotEquals(LEFT, move1.getMoveCommand());
 
             Move move2 = gameStrategy.processMove(withHead(w - 1, y));
-            assertNotEquals(LEFT, move2.getMoveCommand());
+            assertNotEquals(RIGHT, move2.getMoveCommand());
         }
     }
 
@@ -164,8 +164,6 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_circling_novice(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         String[] circles = {"Y_\n__", "_Y\n__", "__\nY_", "__\n_Y"};
         MoveCommand[] notTo = {LEFT, UP, UP, RIGHT, DOWN, LEFT, RIGHT, DOWN};
@@ -190,8 +188,6 @@ class GameStrategyBasicTest {
     void test_circling_easy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         String[] circles = {"Yy\n__", "_Y\n_y", "__\nyY", "y_\nY_", "Y_\ny_", "yY\n__", "_y\n_Y", "__\nYy"};
         MoveCommand[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};
         assertThat(to.length, is(circles.length));
@@ -211,8 +207,6 @@ class GameStrategyBasicTest {
     void test_circling_medium(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         String[] circles = {"Yy\n_y", "_Y\nyy", "y_\nyY", "yy\nY_", "Y_\nyy", "yY\ny_", "yy\n_Y", "_y\nYy"};
         MoveCommand[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};
         assertThat(to.length, is(circles.length));
@@ -231,8 +225,6 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_circling_hard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         String[] circles = {"Y<\n>^", "vY\n>^", "v<\n>Y", "v<\nY^", "Yv\n^<", ">Y\n^<", ">v\n^Y", ">v\nY<"};
         MoveCommand[] to = {DOWN, LEFT, UP, RIGHT, RIGHT, DOWN, LEFT, UP};

@@ -28,8 +28,6 @@ class GameStrategyCaseV1Test {
     void test_empty_space_better_than_snake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___A_______\n" + //
                 "___aaa_yyy_\n" + //
@@ -55,8 +53,6 @@ class GameStrategyCaseV1Test {
     void test_avoid_fruit_surrounded_by_snake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -80,8 +76,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_avoid_fruit_in_corner_easy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
@@ -107,8 +101,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_avoid_fruit_in_corner_hard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
@@ -137,8 +129,6 @@ class GameStrategyCaseV1Test {
     void test_dont_die_for_food(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         // head to head even with snake of same length is lose
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y\n" + //
@@ -160,8 +150,6 @@ class GameStrategyCaseV1Test {
     void test_dont_die_for_food_and_hunt(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y____\n" + //
                 "____y____\n" + //
@@ -182,8 +170,6 @@ class GameStrategyCaseV1Test {
     void test_dont_give_up(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         // given no food spawns, tail will clear out the passage out in 5 turns
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____Y\n" + //
@@ -201,8 +187,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_eat_in_hazard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
@@ -249,8 +233,6 @@ class GameStrategyCaseV1Test {
     void test_sees_the_inevitable(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -282,8 +264,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_does_not_go_into_hazard_lake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -330,8 +310,6 @@ class GameStrategyCaseV1Test {
     void test_sees_escape_route(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -365,8 +343,6 @@ class GameStrategyCaseV1Test {
     void test_sees_escape_route_plus(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        System.out.println("Testing " + name);
-
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -398,8 +374,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_hazard_better_than_lose(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
@@ -443,8 +417,6 @@ class GameStrategyCaseV1Test {
     @MethodSource(STRATEGY_NAMES)
     void test_does_not_corner_self(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        System.out.println("Testing " + name);
 
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "________00_\n" + //
