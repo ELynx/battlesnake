@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.engine.math;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 
@@ -9,18 +11,14 @@ public class FreeSpaceMatrix extends Matrix {
     private static final int UNSET_VALUE = -1;
     private static final int FLOOD_FILL_VALUE = -2;
 
-    private static final int X_STACK_POSITION = 0;
-    private static final int Y_STACK_POSITION = 1;
-    private static final int STACK_SIZE_PER_ITEM = Y_STACK_POSITION + 1;
-
     private final int[] spaceValues;
-    private final int[] floodFillStack;
+    private final Deque<Coordinates> floodFillStack;
 
     private FreeSpaceMatrix(Dimensions dimensions) {
         super(dimensions);
 
         this.spaceValues = new int[dimensions.area()];
-        this.floodFillStack = new int[this.spaceValues.length * 2]; // potentially stack each xy
+        this.floodFillStack = new ArrayDeque<>();
     }
 
     public static FreeSpaceMatrix uninitializedMatrix(Dimensions dimensions) {
@@ -95,63 +93,56 @@ public class FreeSpaceMatrix extends Matrix {
     }
 
     private int getFreeSpaceByFloodFill(Coordinates coordinates) {
-        floodFillStack[X_STACK_POSITION] = coordinates.getX();
-        floodFillStack[Y_STACK_POSITION] = coordinates.getY();
-        int stackPosition = STACK_SIZE_PER_ITEM;
+        floodFillStack.add(coordinates);
 
-        while (stackPosition > 0) {
-            int checkedX = floodFillStack[stackPosition + X_STACK_POSITION - STACK_SIZE_PER_ITEM];
-            int checkedY = floodFillStack[stackPosition + Y_STACK_POSITION - STACK_SIZE_PER_ITEM];
-            stackPosition -= STACK_SIZE_PER_ITEM;
+        while (!floodFillStack.isEmpty()) {
+            Coordinates checked = floodFillStack.removeLast();
 
-            int leftX = checkedX;
-            while (fillIfUnset(leftX - 1, checkedY)) {
+            int checkedY = checked.getY();
+
+            int leftX = checked.getX();
+            while (fillIfUnset(new Coordinates(leftX - 1, checkedY))) {
                 leftX -= 1;
             }
 
-            int rightX = checkedX;
-            while (fillIfUnset(rightX, checkedY)) {
+            int rightX = checked.getX();
+            while (fillIfUnset(new Coordinates(rightX, checkedY))) {
                 rightX += 1;
             }
 
-            stackPosition = scanAndQueue(leftX, rightX - 1, checkedY + 1, stackPosition);
-            stackPosition = scanAndQueue(leftX, rightX - 1, checkedY - 1, stackPosition);
+            scanAndQueue(leftX, rightX - 1, checkedY + 1);
+            scanAndQueue(leftX, rightX - 1, checkedY - 1);
         }
 
         return countAndFill();
     }
 
-    private boolean fillIfUnset(int x, int y) {
-        // TODO here
-        int boundIndex = calculateBoundIndex(new Coordinates(x, y));
+    private boolean fillIfUnset(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
 
         if (getValueByBoundIndex(boundIndex) == UNSET_VALUE) {
             // index is tested to be bound by operation above
             setValueByIndex(boundIndex, FLOOD_FILL_VALUE);
             return true;
         }
+
         return false;
     }
 
-    private int scanAndQueue(int leftX, int rightX, int y, int stackPos) {
+    private void scanAndQueue(int leftX, int rightX, int y) {
         boolean queued = false;
         for (int x = leftX; x <= rightX; ++x) {
-            if (isSet(x, y)) {
+            if (isSet(new Coordinates(x, y))) {
                 queued = false;
             } else if (!queued) {
-                floodFillStack[stackPos + X_STACK_POSITION] = x;
-                floodFillStack[stackPos + Y_STACK_POSITION] = y;
-                stackPos += STACK_SIZE_PER_ITEM;
+                floodFillStack.add(new Coordinates(x, y));
                 queued = true;
             }
         }
-
-        return stackPos;
     }
 
-    private boolean isSet(int x, int y) {
-        // TODO here
-        int value = getValue(new Coordinates(x, y));
+    private boolean isSet(Coordinates coordinates) {
+        int value = getValue(coordinates);
         return value != UNSET_VALUE;
     }
 
