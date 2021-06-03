@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
-import ru.elynx.battlesnake.api.*;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
 
@@ -109,16 +108,16 @@ public class AsciiToGameState {
         int x = center.getX();
         int y = center.getY();
 
-        int xleft = x - 1;
-        int xright = x + 1;
-        int ydown = y - 1;
-        int yup = y + 1;
+        int xLeft = x - 1;
+        int xRight = x + 1;
+        int yDown = y - 1;
+        int yUp = y + 1;
 
         // arrow pointing to center
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xleft, y), '>'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yup), 'v'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xright, y), '<'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, ydown), '^'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xLeft, y), '>'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yUp), 'v'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xRight, y), '<'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yDown), '^'));
 
         return result;
     }
@@ -173,23 +172,22 @@ public class AsciiToGameState {
             for (int h = 0; h < height; ++h) {
                 int x = w;
                 int y = height - h - 1;
-                Coordinates coords = new Coordinates(x, y);
+                Coordinates coordinates = new Coordinates(x, y);
 
                 char c = rows.get(h).charAt(w);
 
                 if (c == '0') {
-                    food.add(coords);
+                    food.add(coordinates);
                 }
 
                 if (c >= 'A' && c <= 'Z') {
-                    String s = String.valueOf(c);
-                    String id = s;
-                    String name = "Snake " + s;
-                    String squad = "Test squad " + s;
-                    String shout = "Test snake " + s;
-                    Coordinates head = coords;
-                    int health = healths.getOrDefault(s, 99);
-                    int latency = latencies.getOrDefault(s, 100);
+                    String id = String.valueOf(c);
+                    String name = "Snake " + id;
+                    String squad = "Test squad " + id;
+                    String shout = "Test snake " + id;
+                    Coordinates head = coordinates;
+                    int health = healths.getOrDefault(id, 99);
+                    int latency = latencies.getOrDefault(id, 100);
 
                     char lowercaseC = (char) (c + 'a' - 'A');
 

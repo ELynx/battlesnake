@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.entity.mapping;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
 @SpringBootTest
+@Tag("Internals")
 class MoveMapperTest {
     @Test
     void test_full_move(@Autowired MoveMapper tested) {

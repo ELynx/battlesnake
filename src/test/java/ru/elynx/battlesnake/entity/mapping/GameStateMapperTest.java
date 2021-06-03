@@ -2,20 +2,22 @@ package ru.elynx.battlesnake.entity.mapping;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.elynx.battlesnake.api.ApiDeSerTest;
 import ru.elynx.battlesnake.api.CoordsDto;
 import ru.elynx.battlesnake.api.GameStateDto;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.testbuilder.DtoBuilder;
 
 @SpringBootTest
+@Tag("Internals")
 class GameStateMapperTest {
     @Test
     void test_GameStateDto_to_GameState(@Autowired GameStateMapper tested) throws Exception {
-        GameStateDto dto = ApiDeSerTest.makeApiExampleGameStateDto();
+        GameStateDto dto = DtoBuilder.gameStateDto();
 
         GameState entity = tested.toEntity(dto);
 

@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.elynx.battlesnake.api.ApiDeSerTest.API_EXAMPLE_GAME_STATE;
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
 import java.util.LinkedList;
@@ -26,11 +25,12 @@ import ru.elynx.battlesnake.engine.IGameStrategy;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
 class MySnake implements IGameStrategy {
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("AuThOr", "#112233", "hed", "tell", "qwerty");
+        return new BattlesnakeInfo("Test Aut|hor", "#112233", "Test He|ad", "Test Ta|il", "Test Vers|ion");
     }
 
     @Override
@@ -40,7 +40,7 @@ class MySnake implements IGameStrategy {
 
     @Override
     public Move processMove(HazardPredictor gameState) {
-        return new Move(UP, "shshshshsh");
+        return new Move(UP, "Test Sh|out");
     }
 
     @Override
@@ -69,21 +69,22 @@ class GameControllerTest {
 
     @Test
     void test_start_is_ok() {
-        assertDoesNotThrow(() -> mockMvc.perform(post(API_ENDPOINT_BASE + "/start").content(API_EXAMPLE_GAME_STATE)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()));
+        assertDoesNotThrow(
+                () -> mockMvc.perform(post(API_ENDPOINT_BASE + "/start").content(ApiExampleBuilder.gameState())
+                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()));
     }
 
     @Test
     void test_move_is_ok_and_has_move() {
         assertDoesNotThrow(() -> mockMvc
-                .perform(post(API_ENDPOINT_BASE + "/move").content(API_EXAMPLE_GAME_STATE)
+                .perform(post(API_ENDPOINT_BASE + "/move").content(ApiExampleBuilder.gameState())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("move"))));
     }
 
     @Test
     void test_end_is_ok() {
-        assertDoesNotThrow(() -> mockMvc.perform(post(API_ENDPOINT_BASE + "/end").content(API_EXAMPLE_GAME_STATE)
+        assertDoesNotThrow(() -> mockMvc.perform(post(API_ENDPOINT_BASE + "/end").content(ApiExampleBuilder.gameState())
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()));
     }
 
@@ -115,7 +116,7 @@ class GameControllerTest {
         urls.add(API_ENDPOINT_BASE + " 123/move");
         urls.add(API_ENDPOINT_BASE + " 123/end");
 
-        String callToMySnake123 = API_EXAMPLE_GAME_STATE.replaceAll("My Snake", "My Snake 123");
+        String callToMySnake123 = ApiExampleBuilder.gameState().replaceAll("My Snake", "My Snake 123");
 
         for (String url : urls) {
             assertDoesNotThrow(

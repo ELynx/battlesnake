@@ -17,37 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
+import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 @SpringBootTest
 @Tag("StrategyBasic")
 class GameStrategyBasicTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.GameStrategyBasicTest#provideStrategyNames";
-
-    private static HazardPredictor withHead(int x, int y) {
-        Coordinates head = new Coordinates(x, y);
-
-        List<Coordinates> body = new ArrayList<>();
-        body.add(head);
-
-        List<Snake> snakes = new ArrayList<>();
-        snakes.add(new Snake("TestYou-id", "TestYou-name", 99, body, 250, head, 1, "TestYou-shout", ""));
-
-        String gameId = "test-case";
-        int turn = 0;
-        Rules rules = new Rules("standard", "1.234", 500);
-
-        Dimensions dimensions = new Dimensions(15, 11);
-        List<Coordinates> food = Collections.emptyList();
-        List<Coordinates> hazards = Collections.emptyList();
-        Board board = new Board(dimensions, food, hazards, snakes);
-
-        GameState gameState = new GameState(gameId, turn, rules, board, snakes.get(0));
-        return new HazardPredictor(gameState, 0);
-    }
-
-    HazardPredictor withAllDefaults() {
-        return withHead(0, 0);
-    }
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
@@ -105,23 +80,23 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_init(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        assertDoesNotThrow(() -> gameStrategy.init(withAllDefaults()));
+        assertDoesNotThrow(() -> gameStrategy.init(EntityBuilder.hazardPredictor()));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_start(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(withAllDefaults());
-        assertDoesNotThrow(() -> gameStrategy.processStart(withAllDefaults()));
+        gameStrategy.init(EntityBuilder.hazardPredictor());
+        assertDoesNotThrow(() -> gameStrategy.processStart(EntityBuilder.hazardPredictor()));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_produce_Move(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(withAllDefaults());
-        Move move = gameStrategy.processMove(withAllDefaults());
+        gameStrategy.init(EntityBuilder.hazardPredictor());
+        Move move = gameStrategy.processMove(EntityBuilder.hazardPredictor());
         assertNotNull(move);
     }
 
@@ -129,8 +104,8 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_end(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(withAllDefaults());
-        assertDoesNotThrow(() -> gameStrategy.processEnd(withAllDefaults()));
+        gameStrategy.init(EntityBuilder.hazardPredictor());
+        assertDoesNotThrow(() -> gameStrategy.processEnd(EntityBuilder.hazardPredictor()));
     }
 
     @ParameterizedTest
@@ -138,24 +113,26 @@ class GameStrategyBasicTest {
     void test_strategy_does_not_move_into_wall(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        gameStrategy.init(withAllDefaults());
+        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
+        gameStrategy.init(entity1);
 
-        int w = withAllDefaults().getGameState().getBoard().getDimensions().getWidth();
-        int h = withAllDefaults().getGameState().getBoard().getDimensions().getHeight();
+        Dimensions dimensions = entity1.getGameState().getBoard().getDimensions();
+        int w = dimensions.getWidth();
+        int h = dimensions.getHeight();
 
         for (int x = 0; x < w; ++x) {
-            Move move1 = gameStrategy.processMove(withHead(x, 0));
+            Move move1 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(x, 0));
             assertNotEquals(DOWN, move1.getMoveCommand());
 
-            Move move2 = gameStrategy.processMove(withHead(x, h - 1));
+            Move move2 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(x, h - 1));
             assertNotEquals(UP, move2.getMoveCommand());
         }
 
         for (int y = 0; y < h; ++y) {
-            Move move1 = gameStrategy.processMove(withHead(0, y));
+            Move move1 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(0, y));
             assertNotEquals(LEFT, move1.getMoveCommand());
 
-            Move move2 = gameStrategy.processMove(withHead(w - 1, y));
+            Move move2 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(w - 1, y));
             assertNotEquals(RIGHT, move2.getMoveCommand());
         }
     }
