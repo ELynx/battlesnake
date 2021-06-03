@@ -27,7 +27,6 @@ public class Snake {
 
     String squad;
 
-    // TODO unit test
     public boolean isTimedOut() {
         if (latency == null)
             return false;

@@ -12,6 +12,26 @@ class CoordinatesTest {
     private static final Coordinates p3 = new Coordinates(100, 100);
 
     @Test
+    void test_move() {
+        fail("Test not implemented");
+    }
+
+    @Test
+    void test_side_neighbours() {
+        fail("Test not implemented");
+    }
+
+    @Test
+    void test_angle_neighbours() {
+        fail("Test not implemented");
+    }
+
+    @Test
+    void test_within() {
+        fail("Test not implemented");
+    }
+
+    @Test
     void test_manhattan_of_coordinate() {
         assertEquals(0, p1.manhattanDistance(p1));
         assertEquals(0, p2.manhattanDistance(p2));

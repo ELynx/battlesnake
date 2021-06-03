@@ -13,7 +13,6 @@ public class Rules {
     String version;
     int timeout;
 
-    // TODO unit test
     public boolean isRoyale() {
         return ROYALE_RULES_NAME.equals(name);
     }

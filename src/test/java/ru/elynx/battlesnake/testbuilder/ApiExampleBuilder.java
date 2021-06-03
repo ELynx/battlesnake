@@ -31,4 +31,12 @@ public class ApiExampleBuilder {
                 + "    \"length\": 3,\n" + "    \"shout\": \"why are we shouting??\",\n" + "    \"squad\": \"\"\n"
                 + "  }\n" + "}";
     }
+
+    public static String standardRulesetName() {
+        return "standard";
+    }
+
+    public static String royaleRulesetName() {
+        return "royale";
+    }
 }

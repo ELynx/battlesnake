@@ -10,6 +10,10 @@ public class EntityBuilder {
     private EntityBuilder() {
     }
 
+    public static HazardPredictor hazardPredictor() {
+        return hazardPredictorWithHeadPosition(0, 0);
+    }
+
     public static HazardPredictor hazardPredictorWithHeadPosition(int x, int y) {
         Coordinates head = new Coordinates(x, y);
 
@@ -32,7 +36,13 @@ public class EntityBuilder {
         return new HazardPredictor(gameState, 0);
     }
 
-    public static HazardPredictor hazardPredictor() {
-        return hazardPredictorWithHeadPosition(0, 0);
+    public static Rules rulesWithName(String name) {
+        return new Rules(name, "1.000", 500);
+    }
+
+    public static Snake snakeWithTimeout(Integer latency) {
+        Coordinates head = new Coordinates(0, 0);
+        List<Coordinates> body = List.of(head);
+        return new Snake("Test I|d", "Test Na|me", 99, body, latency, head, body.size(), "Test Sh|out", "");
     }
 }
