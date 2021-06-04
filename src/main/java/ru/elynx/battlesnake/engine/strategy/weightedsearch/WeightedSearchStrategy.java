@@ -4,6 +4,7 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.*;
 import java.util.function.Supplier;
+import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,12 +56,13 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     protected void applySnakes(HazardPredictor hazardPredictor) {
         // mark body as impassable
         // apply early for predictor
-        Common.forSnakeBody(hazardPredictor, coordinates -> {
+        GameState gameState = hazardPredictor.getGameState();
+        Common.forAllSnakeBodies(gameState, coordinates -> {
             weightMatrix.addValue(coordinates, SNAKE_BODY_WEIGHT);
             freeSpaceMatrix.setOccupied(coordinates);
         });
 
-        final List<Triplet<Integer, Integer, Double>> blockedByNotWalkable = new LinkedList<>();
+        final List<Pair<Coordinates, Double>> blockedByNotWalkable = new LinkedList<>();
 
         final String ownId = hazardPredictor.getGameState().getYou().getId();
         final Coordinates ownHead = hazardPredictor.getGameState().getYou().getHead();
@@ -91,17 +93,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
                         // spread hunt/danger weights
-                        List<Triplet<Integer, Integer, Double>> predictions = snakeMovePredictor.predict(snake,
-                                hazardPredictor);
+                        List<Pair<Coordinates, Double>> predictions = snakeMovePredictor.predict(snake, gameState);
 
                         predictions.forEach(prediction -> {
-                            final int px = prediction.getValue0();
-                            final int py = prediction.getValue1();
-                            final double pv = prediction.getValue2();
-                            final double pw = baseWeight * pv;
+                            Coordinates pc = prediction.getValue0();
+                            double pv = prediction.getValue1();
+                            double pw = baseWeight * pv;
 
-                            // TODO typing
-                            weightMatrix.splash2ndOrder(new Coordinates(px, py), pw, 4.0);
+                            weightMatrix.splash2ndOrder(pc, pw, 4.0);
 
                             if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
                                 // edible means preliminary walkable
@@ -110,9 +109,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                                 // if walkable by edibility, see if reachable in single move
                                 if (walkable) {
                                     // keep walkable only if next move can eat
-                                    // TODO typing
-                                    Coordinates temp = new Coordinates(px, py);
-                                    walkable = temp.manhattanDistance(ownHead) == 1;
+                                    walkable = pc.manhattanDistance(ownHead) == 1;
                                 }
 
                                 if (!walkable) {
@@ -125,18 +122,13 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             }
         }
 
-        for (Triplet<Integer, Integer, Double> triplet : blockedByNotWalkable) {
-            final int bx = triplet.getValue0();
-            final int by = triplet.getValue1();
+        for (Pair<Coordinates, Double> blocked : blockedByNotWalkable) {
+            Coordinates bc = blocked.getValue0();
+            double bv = blocked.getValue1();
+            double bw = SNAKE_BODY_WEIGHT * bv;
 
-            // TODO typing
-            Coordinates temp = new Coordinates(bx, by);
-
-            final double bv = triplet.getValue2();
-            final double bw = SNAKE_BODY_WEIGHT * bv;
-
-            weightMatrix.addValue(temp, bw);
-            freeSpaceMatrix.setOccupied(temp);
+            weightMatrix.addValue(bc, bw);
+            freeSpaceMatrix.setOccupied(bc);
         }
     }
 

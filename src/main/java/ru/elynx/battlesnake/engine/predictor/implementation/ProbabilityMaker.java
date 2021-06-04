@@ -3,7 +3,7 @@ package ru.elynx.battlesnake.engine.predictor.implementation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.javatuples.Triplet;
+import org.javatuples.Pair;
 import ru.elynx.battlesnake.entity.Coordinates;
 
 public class ProbabilityMaker {
@@ -71,15 +71,15 @@ public class ProbabilityMaker {
         totalScore += score;
     }
 
-    public List<Triplet<Integer, Integer, Double>> makeProbabilities() {
+    public List<Pair<Coordinates, Double>> makeProbabilities() {
         if (isEmpty())
             return Collections.emptyList();
 
         return makeProbabilitiesImpl();
     }
 
-    private List<Triplet<Integer, Integer, Double>> makeProbabilitiesImpl() {
-        List<Triplet<Integer, Integer, Double>> result = new ArrayList<>(stackPosition / STACK_SIZE_PER_ITEM);
+    private List<Pair<Coordinates, Double>> makeProbabilitiesImpl() {
+        List<Pair<Coordinates, Double>> result = new ArrayList<>(stackPosition / STACK_SIZE_PER_ITEM);
         for (int i = 0; i < stackPosition; i += STACK_SIZE_PER_ITEM) {
             result.add(makeProbabilityFromStack(i));
         }
@@ -87,11 +87,11 @@ public class ProbabilityMaker {
         return result;
     }
 
-    private Triplet<Integer, Integer, Double> makeProbabilityFromStack(int stackOffset) {
+    private Pair<Coordinates, Double> makeProbabilityFromStack(int stackOffset) {
         int x = stack[stackOffset + X_STACK_POSITION];
         int y = stack[stackOffset + Y_STACK_POSITION];
         double p = stack[stackOffset + SCORE_STACK_POSITION] / (double) totalScore;
 
-        return new Triplet<>(x, y, p);
+        return new Pair<>(new Coordinates(x, y), p);
     }
 }

@@ -5,7 +5,7 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
-import org.javatuples.Triplet;
+import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
@@ -16,6 +16,7 @@ import ru.elynx.battlesnake.engine.strategy.Common;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 
 public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
@@ -45,21 +46,23 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
         freeSpaceMatrix.empty();
-        Common.forSnakeBody(hazardPredictor, coordinates -> freeSpaceMatrix.setOccupied(coordinates));
 
-        List<Triplet<Integer, Integer, Double>> predictions = predictor.predict(hazardPredictor.getGameState().getYou(),
-                hazardPredictor);
+        GameState gameState = hazardPredictor.getGameState();
+        Common.forAllSnakeBodies(gameState, coordinates -> freeSpaceMatrix.setOccupied(coordinates));
+
+        List<Pair<Coordinates, Double>> predictions = predictor.predict(hazardPredictor.getGameState().getYou(),
+                gameState);
 
         // repeat last
         if (predictions.isEmpty()) {
             return new Move(REPEAT_LAST, null); // TODO not null
         }
 
-        predictions.sort(Comparator.<Triplet<Integer, Integer, Double>>comparingDouble(Triplet::getValue2).reversed());
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        Triplet<Integer, Integer, Double> bestPrediction = predictions.get(0);
-        int px = bestPrediction.getValue0();
-        int py = bestPrediction.getValue1();
+        Pair<Coordinates, Double> bestPrediction = predictions.get(0);
+        int px = bestPrediction.getValue0().getX();
+        int py = bestPrediction.getValue0().getY();
 
         Coordinates head = hazardPredictor.getGameState().getYou().getHead();
         int x = head.getX();

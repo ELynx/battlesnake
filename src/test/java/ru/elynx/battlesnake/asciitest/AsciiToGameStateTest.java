@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
@@ -117,7 +116,7 @@ class AsciiToGameStateTest {
         System.out.print("Expected: ");
         System.out.println(expectedFood);
 
-        assertThat(entity.getBoard().getFood(), Matchers.containsInAnyOrder(expectedFood.toArray()));
+        assertThat(entity.getBoard().getFood(), containsInAnyOrder(expectedFood.toArray()));
     }
 
     @Test
@@ -215,10 +214,10 @@ class AsciiToGameStateTest {
 
         Snake b = getSnakeOrNull(entity, "B");
         assertEquals(15, b.getHealth());
-        assertThat(b.getLatency(), Matchers.greaterThanOrEqualTo(0));
+        assertThat(b.getLatency(), greaterThanOrEqualTo(0));
 
         Snake c = getSnakeOrNull(entity, "C");
-        assertThat(c.getHealth(), Matchers.is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
+        assertThat(c.getHealth(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
         assertEquals(0, c.getLatency());
     }
 

@@ -2,10 +2,11 @@ package ru.elynx.battlesnake.engine.predictor;
 
 import java.util.Collections;
 import java.util.List;
-import org.javatuples.Triplet;
+import org.javatuples.Pair;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
 public class SnakeMovePredictor {
@@ -17,7 +18,7 @@ public class SnakeMovePredictor {
         this.probabilityMaker = new ProbabilityMaker();
     }
 
-    public List<Triplet<Integer, Integer, Double>> predict(Snake snake, HazardPredictor hazardPredictor) {
+    public List<Pair<Coordinates, Double>> predict(Snake snake, GameState gameState) {
         // graceful error handling
         if (snake.getLength() == 0) {
             return Collections.emptyList();
@@ -25,7 +26,7 @@ public class SnakeMovePredictor {
 
         prepareInternals();
 
-        ScoreMaker scoreMaker = new ScoreMaker(snake, hazardPredictor.getGameState());
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
 
         // head position this turn
         Coordinates head = snake.getHead();
@@ -76,13 +77,13 @@ public class SnakeMovePredictor {
         return getProbabilityOfCoords(List.of(forward, left, right), scoreMaker);
     }
 
-    private List<Triplet<Integer, Integer, Double>> getFourWayProbability(Coordinates from, ScoreMaker scoreMaker) {
+    private List<Pair<Coordinates, Double>> getFourWayProbability(Coordinates from, ScoreMaker scoreMaker) {
         // possibility to go anywhere
         return getProbabilityOfCoords(from.sideNeighbours(), scoreMaker);
     }
 
     // TODO naming
-    private List<Triplet<Integer, Integer, Double>> getProbabilityOfCoords(Iterable<Coordinates> coordinates,
+    private List<Pair<Coordinates, Double>> getProbabilityOfCoords(Iterable<Coordinates> coordinates,
             ScoreMaker scoreMaker) {
         // TODO rename
         for (Coordinates cell : coordinates) {
@@ -139,7 +140,7 @@ public class SnakeMovePredictor {
         probabilityMaker.addPosition(coordinates);
     }
 
-    private List<Triplet<Integer, Integer, Double>> makeProbabilities() {
+    private List<Pair<Coordinates, Double>> makeProbabilities() {
         return probabilityMaker.makeProbabilities();
     }
 }
