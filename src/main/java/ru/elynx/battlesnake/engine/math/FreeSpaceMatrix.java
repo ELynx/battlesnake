@@ -75,11 +75,6 @@ public class FreeSpaceMatrix extends Matrix {
         return getValueByBoundIndex(boundIndex);
     }
 
-    private int getValueByXY(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
-        return getValueByBoundIndex(boundIndex);
-    }
-
     private int getValueByBoundIndex(int boundIndex) {
         if (boundIndex < 0)
             return OCCUPIED_VALUE;
@@ -171,6 +166,11 @@ public class FreeSpaceMatrix extends Matrix {
     private boolean isSet(int x, int y) {
         int value = getValueByXY(x, y);
         return value != UNSET_VALUE;
+    }
+
+    private int getValueByXY(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
+        return getValueByBoundIndex(boundIndex);
     }
 
     private int countFilledCells() {
