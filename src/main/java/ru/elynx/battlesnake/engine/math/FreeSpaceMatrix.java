@@ -160,8 +160,8 @@ public class FreeSpaceMatrix extends Matrix {
             if (isSet(x, y)) {
                 queued = false;
             } else if (!queued) {
-                floodFillStack[X_STACK_POSITION] = x;
-                floodFillStack[Y_STACK_POSITION] = y;
+                floodFillStack[floodFillStackPosition + X_STACK_POSITION] = x;
+                floodFillStack[floodFillStackPosition + Y_STACK_POSITION] = y;
                 floodFillStackPosition += STACK_SIZE_PER_ITEM;
                 queued = true;
             }
