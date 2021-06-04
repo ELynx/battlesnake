@@ -10,12 +10,10 @@ import ru.elynx.battlesnake.entity.Snake;
 
 public class SnakeMovePredictor {
     private final IPredictorInformant informant;
-    private final ScoreMaker scoreMaker;
     private final ProbabilityMaker probabilityMaker;
 
     public SnakeMovePredictor(IPredictorInformant informant) {
         this.informant = informant;
-        this.scoreMaker = new ScoreMaker();
         this.probabilityMaker = new ProbabilityMaker();
     }
 
@@ -25,7 +23,9 @@ public class SnakeMovePredictor {
             return Collections.emptyList();
         }
 
-        prepareInternals(snake, hazardPredictor);
+        prepareInternals();
+
+        ScoreMaker scoreMaker = new ScoreMaker(snake, hazardPredictor.getGameState());
 
         // head position this turn
         Coordinates head = snake.getHead();
@@ -39,7 +39,7 @@ public class SnakeMovePredictor {
 
         // there are cases, notably start, when body pieces can overlap
         if (head.equals(firstBodySegment)) {
-            return getFourWayProbability(head);
+            return getFourWayProbability(head, scoreMaker);
         }
 
         // TODO clear up algo
@@ -73,19 +73,20 @@ public class SnakeMovePredictor {
         Coordinates left = new Coordinates(xl, yl);
         Coordinates right = new Coordinates(xr, yr);
 
-        return getProbabilityOfCoords(List.of(forward, left, right));
+        return getProbabilityOfCoords(List.of(forward, left, right), scoreMaker);
     }
 
-    private List<Triplet<Integer, Integer, Double>> getFourWayProbability(Coordinates from) {
+    private List<Triplet<Integer, Integer, Double>> getFourWayProbability(Coordinates from, ScoreMaker scoreMaker) {
         // possibility to go anywhere
-        return getProbabilityOfCoords(from.sideNeighbours());
+        return getProbabilityOfCoords(from.sideNeighbours(), scoreMaker);
     }
 
     // TODO naming
-    private List<Triplet<Integer, Integer, Double>> getProbabilityOfCoords(Iterable<Coordinates> coordinates) {
+    private List<Triplet<Integer, Integer, Double>> getProbabilityOfCoords(Iterable<Coordinates> coordinates,
+            ScoreMaker scoreMaker) {
         // TODO rename
         for (Coordinates cell : coordinates) {
-            addScoredMoveIfWalkable(cell);
+            addScoredMoveIfWalkable(cell, scoreMaker);
         }
 
         if (noMovesAdded()) {
@@ -97,8 +98,7 @@ public class SnakeMovePredictor {
         return makeProbabilities();
     }
 
-    private void prepareInternals(Snake snake, HazardPredictor hazardPredictor) {
-        scoreMaker.reset(snake, hazardPredictor);
+    private void prepareInternals() {
         probabilityMaker.reset();
     }
 
@@ -114,13 +114,13 @@ public class SnakeMovePredictor {
         return probabilityMaker.isEmpty();
     }
 
-    private void addScoredMoveIfWalkable(Coordinates coordinates) {
+    private void addScoredMoveIfWalkable(Coordinates coordinates, ScoreMaker scoreMaker) {
         if (informant.isWalkable(coordinates)) {
-            addScoredMove(coordinates);
+            addScoredMove(coordinates, scoreMaker);
         }
     }
 
-    private void addScoredMove(Coordinates coordinates) {
+    private void addScoredMove(Coordinates coordinates, ScoreMaker scoreMaker) {
         int score = scoreMaker.scoreMove(coordinates);
         addMove(coordinates, score);
     }
@@ -140,7 +140,6 @@ public class SnakeMovePredictor {
     }
 
     private List<Triplet<Integer, Integer, Double>> makeProbabilities() {
-        scoreMaker.freeReferences();
         return probabilityMaker.makeProbabilities();
     }
 }

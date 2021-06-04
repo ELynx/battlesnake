@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.predictor.implementation;
 
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
 public class ScoreMaker {
@@ -22,25 +22,15 @@ public class ScoreMaker {
     private static final int HAZARD_SCORE = -4;
     private static final int HEAD_TO_HEAD_LOSE_SCORE = -5;
 
-    private Snake snake;
-    private HazardPredictor hazardPredictor;
+    private final Snake snake;
+    private final GameState gameState;
 
     Coordinates coordinates;
     private Mode mode;
 
-    public ScoreMaker() {
-        // all fields are initialized per call
-    }
-
-    public void reset(Snake snake, HazardPredictor hazardPredictor) {
+    public ScoreMaker(Snake snake, GameState gameState) {
         this.snake = snake;
-        this.hazardPredictor = hazardPredictor;
-    }
-
-    // TODO automatic reference clean-up
-    public void freeReferences() {
-        this.snake = null;
-        this.hazardPredictor = null;
+        this.gameState = gameState;
     }
 
     public int scoreMove(Coordinates coordinates) {
@@ -68,7 +58,7 @@ public class ScoreMaker {
     }
 
     private int getFoodScore() {
-        for (Coordinates food : hazardPredictor.getGameState().getBoard().getFood()) {
+        for (Coordinates food : gameState.getBoard().getFood()) {
             if (food.equals(coordinates)) {
                 return FOOD_SCORE;
             }
@@ -81,9 +71,9 @@ public class ScoreMaker {
         int score = 0;
 
         int ownLength = snake.getLength();
-        for (Snake otherSnake : hazardPredictor.getGameState().getBoard().getSnakes()) {
-            if (isNotSelf(otherSnake) && isScoreTarget(otherSnake)) {
-                int otherLength = otherSnake.getLength();
+        for (Snake someSnake : gameState.getBoard().getSnakes()) {
+            if (isNotSelf(someSnake) && isScoreTarget(someSnake)) {
+                int otherLength = someSnake.getLength();
 
                 if (ownLength < otherLength)
                     return HEAD_TO_HEAD_LOSE_SCORE;
@@ -123,7 +113,7 @@ public class ScoreMaker {
     }
 
     private int getHazardScore() {
-        for (Coordinates hazard : hazardPredictor.getGameState().getBoard().getHazards()) {
+        for (Coordinates hazard : gameState.getBoard().getHazards()) {
             if (hazard.equals(coordinates)) {
                 return HAZARD_SCORE;
             }
