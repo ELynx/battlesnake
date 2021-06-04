@@ -27,11 +27,6 @@ class CoordinatesTest {
     }
 
     @Test
-    void test_within() {
-        fail("Test not implemented");
-    }
-
-    @Test
     void test_manhattan_of_coordinate() {
         assertEquals(0, p1.manhattanDistance(p1));
         assertEquals(0, p2.manhattanDistance(p2));

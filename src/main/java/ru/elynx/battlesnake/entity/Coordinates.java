@@ -35,10 +35,6 @@ public class Coordinates {
                 new Coordinates(getX() - 1, getY() + 1), new Coordinates(getX() + 1, getY() + 1));
     }
 
-    public boolean within(Dimensions dimensions) {
-        return getX() >= 0 && getY() >= 0 && getX() < dimensions.getWidth() && getY() < dimensions.getHeight();
-    }
-
     public int manhattanDistance(Coordinates other) {
         return Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY());
     }

@@ -11,14 +11,22 @@ public class Matrix {
     }
 
     protected int calculateBoundIndex(Coordinates coordinates) {
-        if (!coordinates.within(dimensions)) {
+        return calculateBoundIndex(coordinates.getX(), coordinates.getY());
+    }
+
+    protected int calculateBoundIndex(int x, int y) {
+        if (!within(x, y)) {
             return -1;
         }
 
-        return calculateIndex(coordinates);
+        return calculateIndex(x, y);
     }
 
-    private int calculateIndex(Coordinates coordinates) {
-        return coordinates.getX() + dimensions.getWidth() * coordinates.getY();
+    private boolean within(int x, int y) {
+        return x >= 0 && y >= 0 && x < dimensions.getWidth() && y < dimensions.getHeight();
+    }
+
+    private int calculateIndex(int x, int y) {
+        return x + dimensions.getWidth() * y;
     }
 }
