@@ -287,11 +287,10 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         Optional<MoveCommand> move = bestMove(hazardPredictor);
 
         if (move.isEmpty()) {
-            // TODO remove null
-            return new Move(MoveCommand.REPEAT_LAST, null); // would repeat last turn
+            return new Move(MoveCommand.REPEAT_LAST); // would repeat last turn
         }
 
-        return new Move(move.get(), null); // TODO remove null
+        return new Move(move.get());
     }
 
     @Override

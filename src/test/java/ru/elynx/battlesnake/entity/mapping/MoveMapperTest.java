@@ -24,8 +24,7 @@ class MoveMapperTest {
 
     @Test
     void test_move_only(@Autowired MoveMapper tested) {
-        // TODO null-less ctor
-        Move entity = new Move(MoveCommand.UP, null);
+        Move entity = new Move(MoveCommand.UP);
         MoveDto dto = tested.toDto(entity);
 
         assertEquals("UP", dto.getMove());
@@ -36,7 +35,6 @@ class MoveMapperTest {
     void test_REPEAT_LAST_throws(@Autowired MoveMapper tested) {
         Move entity = new Move(MoveCommand.REPEAT_LAST, "should throw");
 
-        // TODO define exception
-        assertThrows(Exception.class, () -> tested.toDto(entity));
+        assertThrows(IllegalArgumentException.class, () -> tested.toDto(entity));
     }
 }

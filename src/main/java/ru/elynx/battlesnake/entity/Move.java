@@ -7,5 +7,15 @@ import lombok.Value;
 public class Move {
     @NonNull
     MoveCommand moveCommand;
-    String shout; // TODO nullable
+    String shout;
+
+    public Move(MoveCommand moveCommand) {
+        this.moveCommand = moveCommand;
+        this.shout = null;
+    }
+
+    public Move(MoveCommand moveCommand, String shout) {
+        this.moveCommand = moveCommand;
+        this.shout = shout;
+    }
 }

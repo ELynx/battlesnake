@@ -55,7 +55,7 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
         // repeat last
         if (predictions.isEmpty()) {
-            return new Move(REPEAT_LAST, null); // TODO not null
+            return new Move(REPEAT_LAST);
         }
 
         predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
@@ -73,15 +73,15 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
         // TODO not nulls
         if (dx > 0) {
-            return new Move(RIGHT, null);
+            return new Move(RIGHT);
         } else if (dx < 0) {
-            return new Move(LEFT, null);
+            return new Move(LEFT);
         } else if (dy > 0) {
-            return new Move(UP, null);
+            return new Move(UP);
         } else if (dy < 0) {
-            return new Move(DOWN, null);
+            return new Move(DOWN);
         } else {
-            return new Move(REPEAT_LAST, null);
+            return new Move(REPEAT_LAST);
         }
     }
 
