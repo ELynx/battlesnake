@@ -10,28 +10,31 @@ import ru.elynx.battlesnake.entity.MoveCommand;
 @Component
 public class MoveValidator {
     @BeforeMapping
-    public void verifyMoveCommand(Move entity, @TargetType Class<?> targetType) throws IllegalArgumentException {
+    public void validateMove(Move move, @TargetType Class<?> targetType) throws IllegalArgumentException {
         if (targetType.equals(MoveDto.class)) {
-            verifyMoveCommandForDto(entity.getMoveCommand());
+            validateMoveForMoveDto(move);
         }
     }
 
-    private void verifyMoveCommandForDto(MoveCommand moveCommand) throws IllegalArgumentException {
-        if (!isDtoMove(moveCommand)) {
+    private void validateMoveForMoveDto(Move move) throws IllegalArgumentException {
+        validateMoveCommandForMoveDto(move.getMoveCommand());
+    }
+
+    private void validateMoveCommandForMoveDto(MoveCommand moveCommand) throws IllegalArgumentException {
+        if (!isDtoMoveCommand(moveCommand)) {
             throw new IllegalArgumentException("MoveCommand [" + moveCommand + "] cannot be translated into Dto");
         }
     }
 
-    private boolean isDtoMove(MoveCommand moveCommand) {
-        // this logic would not get any new fields beside explicitly listed four
-        // unless major change in Battlesnake API happens and movement becomes
-        // something different from grid-based
+    private boolean isDtoMoveCommand(MoveCommand moveCommand) {
         switch (moveCommand) {
+            // explicitly test for four values that are specified at API level
             case DOWN :
             case LEFT :
             case RIGHT :
             case UP :
                 return true;
+            // all other (current and future) values are custom
             default :
                 return false;
         }

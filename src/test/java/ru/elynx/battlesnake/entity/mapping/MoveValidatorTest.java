@@ -21,10 +21,10 @@ class MoveValidatorTest {
                 case LEFT :
                 case RIGHT :
                 case UP :
-                    assertDoesNotThrow(() -> tested.verifyMoveCommand(entity, MoveDto.class));
+                    assertDoesNotThrow(() -> tested.validateMove(entity, MoveDto.class));
                     break;
                 default :
-                    assertThrows(IllegalArgumentException.class, () -> tested.verifyMoveCommand(entity, MoveDto.class));
+                    assertThrows(IllegalArgumentException.class, () -> tested.validateMove(entity, MoveDto.class));
                     break;
             }
         }

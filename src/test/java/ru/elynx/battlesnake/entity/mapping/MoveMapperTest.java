@@ -14,7 +14,7 @@ import ru.elynx.battlesnake.entity.MoveCommand;
 @Tag("Internals")
 class MoveMapperTest {
     @Test
-    void test_full_move(@Autowired MoveMapper tested) {
+    void test_move_and_shout(@Autowired MoveMapper tested) {
         Move entity = new Move(MoveCommand.UP, "some shout");
         MoveDto dto = tested.toDto(entity);
 
@@ -23,7 +23,7 @@ class MoveMapperTest {
     }
 
     @Test
-    void test_move_only(@Autowired MoveMapper tested) {
+    void test_move(@Autowired MoveMapper tested) {
         Move entity = new Move(MoveCommand.UP);
         MoveDto dto = tested.toDto(entity);
 
@@ -32,9 +32,22 @@ class MoveMapperTest {
     }
 
     @Test
-    void test_REPEAT_LAST_throws(@Autowired MoveMapper tested) {
-        Move entity = new Move(MoveCommand.REPEAT_LAST, "should throw");
+    void test_values_throw_or_not(@Autowired MoveMapper tested) {
+        for (MoveCommand moveCommand : MoveCommand.values()) {
+            Move entity = new Move(moveCommand);
 
-        assertThrows(IllegalArgumentException.class, () -> tested.toDto(entity));
+            switch (moveCommand) {
+                case DOWN :
+                case LEFT :
+                case RIGHT :
+                case UP : {
+                    assertDoesNotThrow(() -> tested.toDto(entity));
+                }
+                    break;
+                default :
+                    assertThrows(IllegalArgumentException.class, () -> tested.toDto(entity));
+                    break;
+            }
+        }
     }
 }
