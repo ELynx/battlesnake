@@ -7,6 +7,6 @@ import ru.elynx.battlesnake.entity.Move;
 
 @Mapper(componentModel = "spring")
 public interface MoveMapper {
-    @Mapping(source = "moveCommand", target = "move")
+    @Mapping(target = "move", source = "moveCommand")
     MoveDto toDto(Move entity);
 }

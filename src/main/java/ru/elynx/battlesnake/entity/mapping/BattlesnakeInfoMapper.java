@@ -7,6 +7,6 @@ import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 
 @Mapper(componentModel = "spring")
 public interface BattlesnakeInfoMapper {
-    @Mapping(constant = "1", target = "apiversion")
+    @Mapping(target = "apiversion", constant = "1")
     BattlesnakeInfoDto toDto(BattlesnakeInfo entity);
 }
