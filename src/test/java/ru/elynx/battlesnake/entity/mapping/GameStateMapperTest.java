@@ -105,7 +105,7 @@ class GameStateMapperTest {
     void test_CoordsDto_to_Coordinates(@Autowired GameStateMapper tested) {
         for (int x = -11; x <= 11; ++x) {
             for (int y = -11; y <= 11; ++y) {
-                CoordsDto dto = new CoordsDto(x, y);
+                CoordsDto dto = CoordsDto.builder().x(x).y(y).build();
                 Coordinates entity = tested.toEntity(dto);
 
                 assertEquals(dto.getX(), entity.getX());

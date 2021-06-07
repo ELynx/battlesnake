@@ -1,10 +1,11 @@
 package ru.elynx.battlesnake.api;
 
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
-@AllArgsConstructor
-@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@Builder
+@Jacksonized
 public class GameDto {
     @NonNull
     String id;

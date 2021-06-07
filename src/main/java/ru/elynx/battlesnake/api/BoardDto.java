@@ -2,10 +2,11 @@ package ru.elynx.battlesnake.api;
 
 import java.util.List;
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
-@AllArgsConstructor
-@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@Builder
+@Jacksonized
 public class BoardDto {
     @NonNull
     Integer height;
