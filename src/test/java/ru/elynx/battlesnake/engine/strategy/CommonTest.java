@@ -25,10 +25,7 @@ class CommonTest {
         Common.forAllSnakeBodies(entity, what);
 
         // tail will go away
-        List<Coordinates> expected = List.of(new Coordinates(0, 0), new Coordinates(1, 0), new Coordinates(2, 0),
-                new Coordinates(3, 0), new Coordinates(4, 0), new Coordinates(4, 1));
-
-        assertEquals(expected.size(), visited.size());
-        assertThat(visited, containsInAnyOrder(expected));
+        assertThat(visited, containsInAnyOrder(new Coordinates(0, 0), new Coordinates(1, 0), new Coordinates(2, 0),
+                new Coordinates(3, 0), new Coordinates(4, 0), new Coordinates(4, 1)));
     }
 }

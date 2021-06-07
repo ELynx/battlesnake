@@ -4,8 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -105,18 +103,8 @@ class AsciiToGameStateTest {
         assertEquals(13, entity.getBoard().getDimensions().getWidth());
         assertEquals(3, entity.getBoard().getDimensions().getHeight());
 
-        List<Coordinates> expectedFood = new ArrayList<>();
-        expectedFood.add(new Coordinates(0, 0));
-        expectedFood.add(new Coordinates(11, 1));
-        expectedFood.add(new Coordinates(1, 2));
-        expectedFood.add(new Coordinates(2, 2));
-
-        System.out.print("Got food: ");
-        System.out.println(entity.getBoard().getFood());
-        System.out.print("Expected: ");
-        System.out.println(expectedFood);
-
-        assertThat(entity.getBoard().getFood(), containsInAnyOrder(expectedFood.toArray()));
+        assertThat(entity.getBoard().getFood(), containsInAnyOrder(new Coordinates(0, 0), new Coordinates(11, 1),
+                new Coordinates(1, 2), new Coordinates(2, 2)));
     }
 
     @Test
