@@ -63,7 +63,6 @@ public class ProbabilityMaker {
         stack[stackPosition + X_STACK_POSITION] = coordinates.getX();
         stack[stackPosition + Y_STACK_POSITION] = coordinates.getY();
         stack[stackPosition + SCORE_STACK_POSITION] = score;
-
         stackPosition += STACK_SIZE_PER_ITEM;
     }
 

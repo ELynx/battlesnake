@@ -129,7 +129,7 @@ public class DoubleMatrix extends Matrix {
             y1 = point1.getY();
         }
 
-        double sum = 0.0;
+        double sum = 0.0d;
         for (int y = y0; y <= y1; ++y) {
             for (int x = x0; x <= x1; ++x) {
                 int boundIndex = calculateBoundIndex(x, y);

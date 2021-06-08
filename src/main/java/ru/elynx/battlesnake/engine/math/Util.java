@@ -5,7 +5,7 @@ public class Util {
     }
 
     public static double scale(double from, double value, double max, double to) {
-        double clamped = clamp(0.0, value / max, 1.0);
+        double clamped = clamp(0.0d, value / max, 1.0d);
         return scale(from, clamped, to);
     }
 
