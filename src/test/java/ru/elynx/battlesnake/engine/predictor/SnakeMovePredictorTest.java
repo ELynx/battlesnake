@@ -25,12 +25,12 @@ class SnakeMovePredictorTest {
             for (Snake snake : gameState.getBoard().getSnakes()) {
                 for (Coordinates body : snake.getBody()) {
                     if (body.equals(tested)) {
-                        return true;
+                        return false;
                     }
                 }
             }
 
-            return false;
+            return true;
         }
     }
 
@@ -44,7 +44,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(6, 8), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(7, 7), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -57,7 +57,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(2, 8), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -70,7 +70,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(11, 1), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -83,7 +83,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(11, 1), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -96,7 +96,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(4, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -109,7 +109,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(4, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -122,7 +122,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(4, 4), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -135,7 +135,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(11, 4), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -148,7 +148,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(9, 4), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -161,7 +161,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(0, 2), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -174,7 +174,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(3, 2), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(2, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -187,7 +187,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(3, 2), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(2, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -200,7 +200,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(0, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -213,6 +213,6 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(0, predictions.size());
+        assertEquals(new Coordinates(9, 0), predictions.iterator().next().getValue0());
     }
 }
