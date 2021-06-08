@@ -25,7 +25,7 @@ public class ScoreMaker {
     private final Snake snake;
     private final GameState gameState;
 
-    Coordinates coordinates;
+    private Coordinates coordinates;
     private Mode mode;
 
     public ScoreMaker(Snake snake, GameState gameState) {
