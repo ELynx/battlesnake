@@ -92,11 +92,20 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
+        // TODO clean up
         List<Coordinates> walkable = new ArrayList<>(4);
+        List<Integer> scores = new ArrayList<>(4);
+        int greatestScore = Integer.MIN_VALUE;
 
         for (Coordinates direction : directions) {
             if (predictorInformant.isWalkable(direction)) {
                 walkable.add(direction);
+
+                int score = scoreMaker.scoreMove(direction);
+                if (score > greatestScore)
+                    greatestScore = score;
+
+                scores.add(score);
             }
         }
 
@@ -104,17 +113,17 @@ public class SnakeMovePredictor {
             return Collections.emptyList();
         }
 
-        probabilityMaker.reset();
-
-        for (Coordinates direction : walkable) {
-            int score = scoreMaker.scoreMove(direction);
-            probabilityMaker.addPositionWithScore(direction, score);
+        int correction;
+        if (greatestScore < 1) {
+            correction = 1 - greatestScore;
+        } else {
+            correction = 0;
         }
 
-        if (probabilityMaker.isEmpty()) {
-            for (Coordinates direction : walkable) {
-                probabilityMaker.addPosition(direction);
-            }
+        probabilityMaker.reset();
+
+        for (int i = 0; i < walkable.size(); ++i) {
+            probabilityMaker.addPositionWithScore(walkable.get(i), scores.get(i) + correction);
         }
 
         return probabilityMaker.makeProbabilities();
