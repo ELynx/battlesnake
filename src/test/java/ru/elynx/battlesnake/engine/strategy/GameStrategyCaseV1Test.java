@@ -18,6 +18,7 @@ import ru.elynx.battlesnake.entity.Move;
 @Tag("StrategyCase")
 class GameStrategyCaseV1Test {
     private static final String ROYALE_RULES_NAME = "royale";
+
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
