@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.engine.predictor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Pair;
@@ -91,55 +92,31 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
-        resetMoves();
+        List<Coordinates> walkable = new ArrayList<>(4);
 
         for (Coordinates direction : directions) {
-            addScoredMoveIfWalkable(direction, scoreMaker);
-        }
-
-        if (noMovesAdded()) {
-            for (Coordinates direction : directions) {
-                addMoveIfWalkable(direction);
+            if (predictorInformant.isWalkable(direction)) {
+                walkable.add(direction);
             }
         }
 
-        return makeProbabilities();
-    }
+        if (walkable.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-    private void resetMoves() {
         probabilityMaker.reset();
-    }
 
-    private boolean noMovesAdded() {
-        return probabilityMaker.isEmpty();
-    }
-
-    private void addScoredMoveIfWalkable(Coordinates coordinates, ScoreMaker scoreMaker) {
-        if (predictorInformant.isWalkable(coordinates)) {
-            addScoredMove(coordinates, scoreMaker);
+        for (Coordinates direction : walkable) {
+            int score = scoreMaker.scoreMove(direction);
+            probabilityMaker.addPositionWithScore(direction, score);
         }
-    }
 
-    private void addScoredMove(Coordinates coordinates, ScoreMaker scoreMaker) {
-        int score = scoreMaker.scoreMove(coordinates);
-        addMove(coordinates, score);
-    }
-
-    private void addMove(Coordinates coordinates, int score) {
-        probabilityMaker.addPositionWithScore(coordinates, score);
-    }
-
-    private void addMoveIfWalkable(Coordinates coordinates) {
-        if (predictorInformant.isWalkable(coordinates)) {
-            addMove(coordinates);
+        if (probabilityMaker.isEmpty()) {
+            for (Coordinates direction : walkable) {
+                probabilityMaker.addPosition(direction);
+            }
         }
-    }
 
-    private void addMove(Coordinates coordinates) {
-        probabilityMaker.addPosition(coordinates);
-    }
-
-    private List<Pair<Coordinates, Double>> makeProbabilities() {
         return probabilityMaker.makeProbabilities();
     }
 }
