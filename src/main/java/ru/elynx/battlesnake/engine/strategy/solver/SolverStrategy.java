@@ -18,30 +18,6 @@ public class SolverStrategy implements IGameStrategy {
         return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "noob");
     }
 
-    protected int calculateStage(GameState gameState) {
-        return stage;
-    }
-
-    protected MoveCommandField makeDirections(int stage, Dimensions dimensions) {
-        return null;
-    }
-
-    protected MoveCommand makeMove(GameState gameState) {
-        int newStage = calculateStage(gameState);
-        if (newStage != stage) {
-            Board board = gameState.getBoard();
-            whereToGo = makeDirections(newStage, board.getDimensions());
-            stage = newStage;
-        }
-
-        if (whereToGo != null) {
-            Coordinates head = gameState.getYou().getHead();
-            return whereToGo.getMoveCommand(head);
-        } else {
-            return REPEAT_LAST;
-        }
-    }
-
     @Override
     public Void processStart(HazardPredictor hazardPredictor) {
         return null;
@@ -50,6 +26,37 @@ public class SolverStrategy implements IGameStrategy {
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
         return new Move(makeMove(hazardPredictor.getGameState()), "e4e2");
+    }
+
+    private MoveCommand makeMove(GameState gameState) {
+        processStage(gameState);
+
+        return getMoveCommand(gameState);
+    }
+
+    private void processStage(GameState gameState) {
+        int newStage = calculateStage(gameState);
+        if (newStage != stage) {
+            Board board = gameState.getBoard();
+            whereToGo = makeDirections(newStage, board.getDimensions());
+            stage = newStage;
+        }
+    }
+    protected int calculateStage(GameState gameState) {
+        return stage;
+    }
+
+    protected MoveCommandField makeDirections(int stage, Dimensions dimensions) {
+        return null;
+    }
+
+    private MoveCommand getMoveCommand(GameState gameState) {
+        if (whereToGo != null) {
+            Coordinates head = gameState.getYou().getHead();
+            return whereToGo.getMoveCommand(head);
+        } else {
+            return REPEAT_LAST;
+        }
     }
 
     @Override

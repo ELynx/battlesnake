@@ -64,8 +64,8 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
         }
 
         MoveCommand[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
-        MoveCommand[] map5 = map6;
-        MoveCommand[] map4 = map5;
+        MoveCommand[] map5 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
+        MoveCommand[] map4 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
         MoveCommand[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, LEFT};
         MoveCommand[] map2 = {DOWN, UP, DOWN, UP, DOWN, UP, UP};
         MoveCommand[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, UP};
@@ -95,8 +95,8 @@ class SoloLengthChallengeStrategy extends SolverStrategy {
         }
 
         MoveCommand[] map6 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
-        MoveCommand[] map5 = map6;
-        MoveCommand[] map4 = map5;
+        MoveCommand[] map5 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
+        MoveCommand[] map4 = {DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN};
         MoveCommand[] map3 = {DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, UP};
         MoveCommand[] map2 = {DOWN, UP, DOWN, UP, DOWN, RIGHT, UP};
         MoveCommand[] map1 = {DOWN, UP, LEFT, UP, LEFT, UP, LEFT};
