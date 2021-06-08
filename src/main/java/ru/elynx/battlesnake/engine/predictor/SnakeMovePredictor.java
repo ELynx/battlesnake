@@ -10,40 +10,46 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
 public class SnakeMovePredictor {
-    private final IPredictorInformant informant;
+    private final IPredictorInformant predictorInformant;
     private final ProbabilityMaker probabilityMaker;
 
-    public SnakeMovePredictor(IPredictorInformant informant) {
-        this.informant = informant;
+    public SnakeMovePredictor(IPredictorInformant predictorInformant) {
+        this.predictorInformant = predictorInformant;
         this.probabilityMaker = new ProbabilityMaker();
     }
 
     public List<Pair<Coordinates, Double>> predict(Snake snake, GameState gameState) {
-        // graceful error handling
         if (snake.getLength() == 0) {
             return Collections.emptyList();
         }
 
-        prepareInternals();
+        return predictImpl(snake, gameState);
+    }
 
+    private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
+        Iterable<Coordinates> directions = possibleDirections(snake);
         ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
 
+        return getProbabilityOf(directions, scoreMaker);
+    }
+
+    private Iterable<Coordinates> possibleDirections(Snake snake) {
         // head position this turn
         Coordinates head = snake.getHead();
-        int x1 = head.getX();
-        int y1 = head.getY();
-
         // head position last turn
         Coordinates firstBodySegment = getFirstBodySegment(snake);
-        int x0 = firstBodySegment.getX();
-        int y0 = firstBodySegment.getY();
 
         // there are cases, notably start, when body pieces can overlap
         if (head.equals(firstBodySegment)) {
-            return getFourWayProbability(head, scoreMaker);
+            // from initial state, any direction is possible
+            return head.sideNeighbours();
         }
 
-        // TODO clear up algo
+        int x1 = head.getX();
+        int y1 = head.getY();
+
+        int x0 = firstBodySegment.getX();
+        int y0 = firstBodySegment.getY();
 
         // delta of this move
         int dx = x1 - x0;
@@ -55,10 +61,9 @@ public class SnakeMovePredictor {
 
         Coordinates forward = new Coordinates(xf, yf);
 
+        // timed out snake will repeat it's move
         if (snake.isTimedOut()) {
-            // timed out snakes do not care for walk-ability
-            addMove(forward);
-            return makeProbabilities();
+            return List.of(forward);
         }
 
         // magic of matrix multiplication
@@ -74,33 +79,7 @@ public class SnakeMovePredictor {
         Coordinates left = new Coordinates(xl, yl);
         Coordinates right = new Coordinates(xr, yr);
 
-        return getProbabilityOfCoords(List.of(forward, left, right), scoreMaker);
-    }
-
-    private List<Pair<Coordinates, Double>> getFourWayProbability(Coordinates from, ScoreMaker scoreMaker) {
-        // possibility to go anywhere
-        return getProbabilityOfCoords(from.sideNeighbours(), scoreMaker);
-    }
-
-    // TODO naming
-    private List<Pair<Coordinates, Double>> getProbabilityOfCoords(Iterable<Coordinates> coordinates,
-            ScoreMaker scoreMaker) {
-        // TODO rename
-        for (Coordinates cell : coordinates) {
-            addScoredMoveIfWalkable(cell, scoreMaker);
-        }
-
-        if (noMovesAdded()) {
-            for (Coordinates cell : coordinates) {
-                addMoveIfWalkable(cell);
-            }
-        }
-
-        return makeProbabilities();
-    }
-
-    private void prepareInternals() {
-        probabilityMaker.reset();
+        return List.of(forward, left, right);
     }
 
     private Coordinates getFirstBodySegment(Snake snake) {
@@ -111,12 +90,32 @@ public class SnakeMovePredictor {
         }
     }
 
+    private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
+        resetMoves();
+
+        for (Coordinates direction : directions) {
+            addScoredMoveIfWalkable(direction, scoreMaker);
+        }
+
+        if (noMovesAdded()) {
+            for (Coordinates direction : directions) {
+                addMoveIfWalkable(direction);
+            }
+        }
+
+        return makeProbabilities();
+    }
+
+    private void resetMoves() {
+        probabilityMaker.reset();
+    }
+
     private boolean noMovesAdded() {
         return probabilityMaker.isEmpty();
     }
 
     private void addScoredMoveIfWalkable(Coordinates coordinates, ScoreMaker scoreMaker) {
-        if (informant.isWalkable(coordinates)) {
+        if (predictorInformant.isWalkable(coordinates)) {
             addScoredMove(coordinates, scoreMaker);
         }
     }
@@ -131,7 +130,7 @@ public class SnakeMovePredictor {
     }
 
     private void addMoveIfWalkable(Coordinates coordinates) {
-        if (informant.isWalkable(coordinates)) {
+        if (predictorInformant.isWalkable(coordinates)) {
             addMove(coordinates);
         }
     }
