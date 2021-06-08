@@ -44,11 +44,7 @@ public class ProbabilityMaker {
         return stackPosition == 0;
     }
 
-    public void addPosition(Coordinates coordinates) {
-        addPositionImpl(coordinates, LEAST_SCORE);
-    }
-
-    public void addPositionWithScore(Coordinates coordinates, int score) {
+    public void addPosition(Coordinates coordinates, int score) {
         if (score >= LEAST_SCORE) {
             addPositionImpl(coordinates, score);
         }

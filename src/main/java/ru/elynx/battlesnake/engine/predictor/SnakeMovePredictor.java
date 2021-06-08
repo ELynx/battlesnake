@@ -123,7 +123,7 @@ public class SnakeMovePredictor {
         probabilityMaker.reset();
 
         for (int i = 0; i < walkable.size(); ++i) {
-            probabilityMaker.addPositionWithScore(walkable.get(i), scores.get(i) + correction);
+            probabilityMaker.addPosition(walkable.get(i), scores.get(i) + correction);
         }
 
         return probabilityMaker.makeProbabilities();

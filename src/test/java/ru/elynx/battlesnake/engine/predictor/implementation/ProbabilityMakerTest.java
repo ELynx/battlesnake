@@ -15,6 +15,7 @@ import ru.elynx.battlesnake.entity.Coordinates;
 @Tag("Internals")
 class ProbabilityMakerTest {
     private static final double fuzz = 0.0001d;
+    private static final int score = 1;
 
     @Test
     void test_ctor() {
@@ -28,7 +29,7 @@ class ProbabilityMakerTest {
     void test_add_and_reset() {
         ProbabilityMaker tested = new ProbabilityMaker();
 
-        tested.addPosition(new Coordinates(0, 0));
+        tested.addPosition(new Coordinates(0, 0), score);
 
         assertEquals(1, tested.makeProbabilities().size(), "Preparation");
 
@@ -42,13 +43,13 @@ class ProbabilityMakerTest {
     void test_add_excess() {
         ProbabilityMaker tested = new ProbabilityMaker();
 
-        tested.addPosition(new Coordinates(0, 0));
-        tested.addPosition(new Coordinates(1, 1));
-        tested.addPosition(new Coordinates(2, 2));
-        tested.addPosition(new Coordinates(3, 3));
+        tested.addPosition(new Coordinates(0, 0), score);
+        tested.addPosition(new Coordinates(1, 1), score);
+        tested.addPosition(new Coordinates(2, 2), score);
+        tested.addPosition(new Coordinates(3, 3), score);
 
         Coordinates oneTooMuch = new Coordinates(4, 4);
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> tested.addPosition(oneTooMuch));
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> tested.addPosition(oneTooMuch, score));
     }
 
     @Test
@@ -56,20 +57,20 @@ class ProbabilityMakerTest {
         ProbabilityMaker tested = new ProbabilityMaker();
         List<Pair<Coordinates, Double>> list;
 
-        tested.addPosition(new Coordinates(0, 0));
+        tested.addPosition(new Coordinates(0, 0), score);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(1, list.size());
         assertThat(list.get(0).getValue1(), is(closeTo(1.0d, fuzz)));
 
-        tested.addPosition(new Coordinates(1, 1));
+        tested.addPosition(new Coordinates(1, 1), score);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(2, list.size());
         assertThat(list.get(0).getValue1(), is(closeTo(0.5d, fuzz)));
         assertThat(list.get(1).getValue1(), is(closeTo(0.5d, fuzz)));
 
-        tested.addPosition(new Coordinates(2, 2));
+        tested.addPosition(new Coordinates(2, 2), score);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(3, list.size());
@@ -77,7 +78,7 @@ class ProbabilityMakerTest {
         assertThat(list.get(1).getValue1(), is(closeTo(1.0d / 3.0d, fuzz)));
         assertThat(list.get(2).getValue1(), is(closeTo(1.0d / 3.0d, fuzz)));
 
-        tested.addPosition(new Coordinates(3, 3));
+        tested.addPosition(new Coordinates(3, 3), score);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(4, list.size());
@@ -92,26 +93,26 @@ class ProbabilityMakerTest {
         ProbabilityMaker tested = new ProbabilityMaker();
         List<Pair<Coordinates, Double>> list;
 
-        tested.addPositionWithScore(new Coordinates(0, 0), -1);
-        tested.addPositionWithScore(new Coordinates(0, 0), 0);
+        tested.addPosition(new Coordinates(0, 0), -1);
+        tested.addPosition(new Coordinates(0, 0), 0);
         assertTrue(tested.isEmpty());
         list = tested.makeProbabilities();
         assertTrue(list.isEmpty(), "Non-positive score must be skipped");
 
-        tested.addPositionWithScore(new Coordinates(0, 0), 3);
+        tested.addPosition(new Coordinates(0, 0), 3);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(1, list.size());
         assertThat(list.get(0).getValue1(), is(closeTo(1.0d, fuzz)));
 
-        tested.addPositionWithScore(new Coordinates(1, 1), 3);
+        tested.addPosition(new Coordinates(1, 1), 3);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(2, list.size());
         assertThat(list.get(0).getValue1(), is(closeTo(0.5d, fuzz)));
         assertThat(list.get(1).getValue1(), is(closeTo(0.5d, fuzz)));
 
-        tested.addPositionWithScore(new Coordinates(2, 2), 6);
+        tested.addPosition(new Coordinates(2, 2), 6);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(3, list.size());
@@ -120,7 +121,7 @@ class ProbabilityMakerTest {
         assertThat(list.get(1).getValue1(), is(closeTo(1.0d / 4.0d, fuzz)));
         assertThat(list.get(2).getValue1(), is(closeTo(1.0d / 2.0d, fuzz)));
 
-        tested.addPositionWithScore(new Coordinates(3, 3), 6);
+        tested.addPosition(new Coordinates(3, 3), 6);
         assertFalse(tested.isEmpty());
         list = tested.makeProbabilities();
         assertEquals(4, list.size());
