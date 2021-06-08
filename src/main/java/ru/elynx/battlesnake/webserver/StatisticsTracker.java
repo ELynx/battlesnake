@@ -41,8 +41,7 @@ class StatisticsTracker {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
         NewRelic.addCustomParameter(SNAKE_HEALTH_PARAMETER, gameState.getYou().getHealth());
         NewRelic.addCustomParameter(SNAKE_LENGTH_PARAMETER, gameState.getYou().getLength());
-        NewRelic.addCustomParameter(SNAKE_LATENCY,
-                Optional.ofNullable(gameState.getYou().getLatency()).orElse(0));
+        NewRelic.addCustomParameter(SNAKE_LATENCY, Optional.ofNullable(gameState.getYou().getLatency()).orElse(0));
         NewRelic.addCustomParameter(SNAKE_TIMED_OUT, gameState.getYou().isTimedOut());
     }
 
