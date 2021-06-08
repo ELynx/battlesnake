@@ -6,66 +6,51 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Supplier;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
-import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
-import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Move;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategyFactory;
+import ru.elynx.battlesnake.entity.mapping.BattlesnakeInfoMapper;
+import ru.elynx.battlesnake.entity.mapping.GameStateMapper;
+import ru.elynx.battlesnake.entity.mapping.MoveMapper;
+import ru.elynx.battlesnake.entity.mapping.MoveValidator;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
+import ru.elynx.battlesnake.testbuilder.MySnakeGameStrategyFactory;
 
-class MySnake implements IGameStrategy {
-    @Override
-    public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("Test Aut|hor", "#112233", "Test He|ad", "Test Ta|il", "Test Vers|ion");
-    }
-
-    @Override
-    public Void processStart(HazardPredictor gameState) {
-        return null;
-    }
-
-    @Override
-    public Move processMove(HazardPredictor gameState) {
-        return new Move(UP, "Test Sh|out");
-    }
-
-    @Override
-    public Void processEnd(HazardPredictor gameState) {
-        return null;
-    }
-}
-
-@TestConfiguration
-class MySnakeSupplier {
-    @Bean("My Snake")
-    public Supplier<IGameStrategy> makeMySnake() {
-        return MySnake::new;
-    }
-}
-
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(MySnakeSupplier.class)
 @Tag("API")
 class GameControllerTest {
-    @Autowired
+    private final static String API_ENDPOINT_BASE = "/battlesnake/api/v1/snakes/My Snake";
+
     private MockMvc mockMvc;
 
-    private final static String API_ENDPOINT_BASE = "/battlesnake/api/v1/snakes/My Snake";
+    @BeforeEach
+    void prepareMockMvc()
+            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        IGameStrategyFactory gameStrategyFactory = new MySnakeGameStrategyFactory();
+        SnakeManager snakeManager = new SnakeManager(gameStrategyFactory);
+
+        StatisticsTracker statisticsTracker = new StatisticsTracker();
+
+        BattlesnakeInfoMapper battlesnakeInfoMapper = Mappers.getMapper(BattlesnakeInfoMapper.class);
+        GameStateMapper gameStateMapper = Mappers.getMapper(GameStateMapper.class);
+
+        MoveValidator moveValidator = new MoveValidator();
+        MoveMapper moveMapper = Mappers.getMapperClass(MoveMapper.class).getConstructor(MoveValidator.class)
+                .newInstance(moveValidator);
+
+        GameController gameController = new GameController(snakeManager, statisticsTracker, battlesnakeInfoMapper,
+                gameStateMapper, moveMapper);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(gameController).build();
+    }
 
     @Test
     void test_start_is_ok() {
@@ -83,9 +68,19 @@ class GameControllerTest {
     }
 
     @Test
-    void test_end_is_ok() {
+    void test_end_is_ok_after_start() {
+        assertDoesNotThrow(
+                () -> mockMvc.perform(post(API_ENDPOINT_BASE + "/start").content(ApiExampleBuilder.gameState())
+                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()));
+
         assertDoesNotThrow(() -> mockMvc.perform(post(API_ENDPOINT_BASE + "/end").content(ApiExampleBuilder.gameState())
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()));
+    }
+
+    @Test
+    void test_end_returns_not_found_on_empty_context() {
+        assertDoesNotThrow(() -> mockMvc.perform(post(API_ENDPOINT_BASE + "/end").content(ApiExampleBuilder.gameState())
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound()));
     }
 
     @Test
