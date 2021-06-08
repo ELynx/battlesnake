@@ -84,6 +84,7 @@ public class SnakeMovePredictor {
     }
 
     private Coordinates getFirstBodySegment(Snake snake) {
+        // check for caution, edge cases, etc
         if (snake.getLength().equals(1)) {
             return snake.getHead();
         } else {
@@ -92,38 +93,35 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
-        // TODO clean up
-        List<Coordinates> walkable = new ArrayList<>(4);
-        List<Integer> scores = new ArrayList<>(4);
+        List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
         int greatestScore = Integer.MIN_VALUE;
 
         for (Coordinates direction : directions) {
             if (predictorInformant.isWalkable(direction)) {
-                walkable.add(direction);
-
                 int score = scoreMaker.scoreMove(direction);
                 if (score > greatestScore)
                     greatestScore = score;
 
-                scores.add(score);
+                walkableDirections.add(new Pair<>(direction, score));
             }
         }
 
-        if (walkable.isEmpty()) {
+        if (walkableDirections.isEmpty()) {
             return Collections.emptyList();
         }
 
-        int correction;
+        int correctionForWorst;
         if (greatestScore < 1) {
-            correction = 1 - greatestScore;
+            correctionForWorst = 1 - greatestScore;
         } else {
-            correction = 0;
+            correctionForWorst = 0;
         }
 
         probabilityMaker.reset();
 
-        for (int i = 0; i < walkable.size(); ++i) {
-            probabilityMaker.addPosition(walkable.get(i), scores.get(i) + correction);
+        for (Pair<Coordinates, Integer> walkableDirection : walkableDirections) {
+            probabilityMaker.addPosition(walkableDirection.getValue0(),
+                    walkableDirection.getValue1() + correctionForWorst);
         }
 
         return probabilityMaker.makeProbabilities();
