@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.testbuilder;
+package ru.elynx.battlesnake.testsnake;
 
 import java.util.Set;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;

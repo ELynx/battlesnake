@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.testbuilder;
+package ru.elynx.battlesnake.testsnake;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 

@@ -1,34 +1,15 @@
-package ru.elynx.battlesnake.engine.strategy;
+package ru.elynx.battlesnake.testbuilder;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static ru.elynx.battlesnake.engine.strategy.GameStrategyBasicTest.STRATEGY_NAMES;
-import static ru.elynx.battlesnake.entity.MoveCommand.*;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
-import ru.elynx.battlesnake.entity.Move;
 
-@SpringBootTest
-@Tag("StrategyCase")
-class GameStrategyCaseV1Test {
+public class CaseBuilder {
     private static final String ROYALE_RULES_NAME = "royale";
 
-    @Autowired
-    IGameStrategyFactory gameStrategyFactory;
+    private CaseBuilder() {
+    }
 
-    // ported from V0 to V1 for ease of understanding
-    // Y snake extended downwards to prevent "move-out-opening"
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_empty_space_better_than_snake(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor empty_space_better_than_snake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___A_______\n" + //
                 "___aaa_yyy_\n" + //
@@ -42,18 +23,10 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "___________\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        return generator.build();
     }
 
-    // ported from V0 to V1 for ease of understanding
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_surrounded_by_snake(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor avoid_fruit_surrounded_by_snake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -67,17 +40,10 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "___________\n").setHealth("Y", 2);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(UP)));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_easy(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor avoid_fruit_in_corner_easy() {
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -92,17 +58,10 @@ class GameStrategyCaseV1Test {
                 "_________yY\n" + //
                 "____yyyyyy0\n").setHealth("Y", 2);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_hard(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor avoid_fruit_in_corner_hard() {
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -117,20 +76,13 @@ class GameStrategyCaseV1Test {
                 "_________yY\n" + //
                 "_________y0\n").setHealth("Y", 2);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        return generator.build();
     }
 
-    // health is left at max to avoid starvation rage
-    // more of way to prevent greedy grab from under the train
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_dont_die_for_food(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor dont_die_for_food() {
         // head to head even with snake of same length is lose
+        // health is left at max to avoid starvation rage
+        // more of way to prevent greedy grab from under the train
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y\n" + //
                 "____y\n" + //
@@ -140,17 +92,10 @@ class GameStrategyCaseV1Test {
                 "____a\n" + //
                 "____a\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(DOWN)));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_dont_die_for_food_and_hunt(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor dont_die_for_food_and_hunt() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y____\n" + //
                 "____y____\n" + //
@@ -160,17 +105,10 @@ class GameStrategyCaseV1Test {
                 "____a____\n" + //
                 "____a____\n").setHealth("Y", 2);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(DOWN)));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_dont_give_up(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor dont_give_up() {
         // given no food spawns, tail will clear out the passage out in 5 turns
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____Y\n" + //
@@ -178,17 +116,10 @@ class GameStrategyCaseV1Test {
                 "^<<<_\n" + //
                 "_____\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(LEFT));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_eat_in_hazard(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor eat_in_hazard() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "___A_____0_\n" + //
@@ -223,17 +154,10 @@ class GameStrategyCaseV1Test {
                 "HH_______HH\n" + //
                 "HH_______HH\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(LEFT));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_sees_the_inevitable(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor sees_the_inevitable() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -255,17 +179,10 @@ class GameStrategyCaseV1Test {
         generator.setLatency("C", 58);
         generator.setLatency("Y", 66);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(RIGHT));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_does_not_go_into_hazard_lake(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor does_not_go_into_hazard_lake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -300,17 +217,10 @@ class GameStrategyCaseV1Test {
                 "___________\n" + //
                 "HHHHHHHHHHH\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(RIGHT));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_sees_escape_route(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor sees_escape_route() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -332,18 +242,11 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 59);
         generator.setLatency("Y", 86);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        return generator.build();
     }
 
     // same as above but with added fantasy about other snake's options
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_sees_escape_route_plus(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor sees_escape_route_plus() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -365,17 +268,10 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 59);
         generator.setLatency("Y", 86);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_hazard_better_than_lose(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor hazard_better_than_lose() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "__0____y___\n" + //
@@ -408,17 +304,10 @@ class GameStrategyCaseV1Test {
                 "________HHH\n" + //
                 "HHHHHHHHHHH\n");
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        return generator.build();
     }
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_does_not_corner_self(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
+    public static HazardPredictor does_not_corner_self() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "________00_\n" + //
                 "________aa_\n" + //
@@ -440,9 +329,6 @@ class GameStrategyCaseV1Test {
         generator.setLatency("B", 85);
         generator.setLatency("Y", 87);
 
-        HazardPredictor gameState = generator.build();
-        gameStrategy.init(gameState);
-        Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        return generator.build();
     }
 }

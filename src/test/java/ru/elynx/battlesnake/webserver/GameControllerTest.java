@@ -23,7 +23,7 @@ import ru.elynx.battlesnake.entity.mapping.GameStateMapper;
 import ru.elynx.battlesnake.entity.mapping.MoveMapper;
 import ru.elynx.battlesnake.entity.mapping.MoveValidator;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
-import ru.elynx.battlesnake.testbuilder.MySnakeGameStrategyFactory;
+import ru.elynx.battlesnake.testsnake.MySnakeGameStrategyFactory;
 
 @Tag("API")
 class GameControllerTest {
