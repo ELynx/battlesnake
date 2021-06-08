@@ -22,6 +22,15 @@ class SnakeMovePredictorTest {
 
         @Override
         public boolean isWalkable(Coordinates tested) {
+            if (tested.getX() < 0)
+                return false;
+            if (tested.getY() < 0)
+                return false;
+            if (tested.getX() >= gameState.getBoard().getDimensions().getWidth())
+                return false;
+            if (tested.getX() >= gameState.getBoard().getDimensions().getHeight())
+                return false;
+
             for (Snake snake : gameState.getBoard().getSnakes()) {
                 for (Coordinates body : snake.getBody()) {
                     if (body.equals(tested)) {
@@ -70,7 +79,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(11, 1), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 2), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -83,7 +92,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(11, 1), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 2), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -122,7 +131,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(4, 4), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(3, 3), predictions.iterator().next().getValue0());
     }
 
     @Test
@@ -135,7 +144,7 @@ class SnakeMovePredictorTest {
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
-        assertEquals(new Coordinates(11, 4), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 5), predictions.iterator().next().getValue0());
     }
 
     @Test
