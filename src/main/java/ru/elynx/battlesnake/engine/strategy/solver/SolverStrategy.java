@@ -15,7 +15,7 @@ public class SolverStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "noob");
+        return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "specialist");
     }
 
     @Override
@@ -25,7 +25,7 @@ public class SolverStrategy implements IGameStrategy {
 
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
-        return new Move(makeMove(hazardPredictor.getGameState()), "e4e2");
+        return new Move(makeMove(hazardPredictor.getGameState()));
     }
 
     private MoveCommand makeMove(GameState gameState) {
@@ -71,7 +71,7 @@ public class SolverStrategy implements IGameStrategy {
 
     @Configuration
     public static class SolverStrategyConfiguration {
-        @Bean("ChesssMassster")
+        @Bean("Solver-SoloLengthChallenge")
         public Supplier<IGameStrategy> chess() {
             return SoloLengthChallengeStrategy::new;
         }
