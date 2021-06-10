@@ -19,7 +19,6 @@ public class SnakeDto {
     @NonNull
     List<CoordsDto> body;
 
-    @NonNull
     Integer latency;
 
     @NonNull
