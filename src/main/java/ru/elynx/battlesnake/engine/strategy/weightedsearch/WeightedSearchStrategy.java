@@ -163,7 +163,6 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     protected double getOpportunitiesWeight(MoveCommand moveCommand, Coordinates coordinates) {
-        // TODO all of this
         int x = coordinates.getX();
         int y = coordinates.getY();
 
