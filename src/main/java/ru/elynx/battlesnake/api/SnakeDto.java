@@ -26,7 +26,6 @@ public class SnakeDto {
     @NonNull
     Integer length;
 
-    @NonNull
     String shout;
 
     String squad;
