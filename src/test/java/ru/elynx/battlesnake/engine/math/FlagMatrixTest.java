@@ -15,8 +15,16 @@ class FlagMatrixTest {
 
         FlagMatrix tested = FlagMatrix.uninitializedMatrix(dimensions, false);
 
-        for (int x = -1; x <= width; ++x) {
-            for (int y = -1; y <= height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                assertFalse(tested.isSet(x, y));
+            }
+        }
+
+        tested = FlagMatrix.uninitializedMatrix(dimensions, true);
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
             }
         }
@@ -30,8 +38,16 @@ class FlagMatrixTest {
 
         FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
 
-        for (int x = -1; x <= width; ++x) {
-            for (int y = -1; y <= height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                assertFalse(tested.isSet(x, y));
+            }
+        }
+
+        tested = FlagMatrix.unsetMatrix(dimensions, true);
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
             }
         }
@@ -136,6 +152,44 @@ class FlagMatrixTest {
 
     @Test
     void test_outside_value() {
-        fail("Implement the test");
+        int width = 11;
+        int height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
+
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
+
+        for (int x = 0; x < width; ++x) {
+            assertFalse(tested.isSet(x, -1));
+            assertFalse(tested.isSet(x, height));
+
+            assertFalse(tested.isSet(new Coordinates(x, -1)));
+            assertFalse(tested.isSet(new Coordinates(x, height)));
+        }
+
+        for (int y = 0; y < height; ++y) {
+            assertFalse(tested.isSet(-1, y));
+            assertFalse(tested.isSet(width, y));
+
+            assertFalse(tested.isSet(new Coordinates(-1, y)));
+            assertFalse(tested.isSet(new Coordinates(width, y)));
+        }
+
+        tested = FlagMatrix.unsetMatrix(dimensions, true);
+
+        for (int x = 0; x < width; ++x) {
+            assertTrue(tested.isSet(x, -1));
+            assertTrue(tested.isSet(x, height));
+
+            assertTrue(tested.isSet(new Coordinates(x, -1)));
+            assertTrue(tested.isSet(new Coordinates(x, height)));
+        }
+
+        for (int y = 0; y < height; ++y) {
+            assertTrue(tested.isSet(-1, y));
+            assertTrue(tested.isSet(width, y));
+
+            assertTrue(tested.isSet(new Coordinates(-1, y)));
+            assertTrue(tested.isSet(new Coordinates(width, y)));
+        }
     }
 }
