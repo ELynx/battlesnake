@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.engine.math;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 
 class FlagMatrixTest {
@@ -46,7 +47,8 @@ class FlagMatrixTest {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                tested.set(x, y);
+                assertTrue(tested.set(x, y));
+                assertTrue(tested.set(new Coordinates(x, y)));
             }
         }
 
@@ -70,11 +72,17 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             assertFalse(tested.set(x, -1));
             assertFalse(tested.set(x, height));
+
+            assertFalse(tested.set(new Coordinates(x, -1)));
+            assertFalse(tested.set(new Coordinates(x, height)));
         }
 
         for (int y = 0; y < height; ++y) {
             assertFalse(tested.set(-1, y));
             assertFalse(tested.set(width, y));
+
+            assertFalse(tested.set(new Coordinates(-1, y)));
+            assertFalse(tested.set(new Coordinates(width, y)));
         }
 
         for (int x = -1; x <= width; ++x) {
@@ -85,7 +93,7 @@ class FlagMatrixTest {
     }
 
     @Test
-    void test_set_and_test() {
+    void test_set_x_y_and_test() {
         int width = 11;
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
@@ -95,6 +103,27 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 assertTrue(tested.set(x, y));
+            }
+        }
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                assertTrue(tested.isSet(x, y));
+            }
+        }
+    }
+
+    @Test
+    void test_set_coordinates_and_test() {
+        int width = 11;
+        int height = 15;
+        Dimensions dimensions = new Dimensions(width, height);
+
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions);
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                assertTrue(tested.set(new Coordinates(x, y)));
             }
         }
 

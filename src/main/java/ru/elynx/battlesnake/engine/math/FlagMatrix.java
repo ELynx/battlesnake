@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.math;
 
 import java.util.Arrays;
+import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 
 public class FlagMatrix extends Matrix {
@@ -28,6 +29,11 @@ public class FlagMatrix extends Matrix {
 
     public boolean set(int x, int y) {
         int boundIndex = calculateBoundIndex(x, y);
+        return setByBoundIndex(boundIndex);
+    }
+
+    public boolean set(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
         return setByBoundIndex(boundIndex);
     }
 
