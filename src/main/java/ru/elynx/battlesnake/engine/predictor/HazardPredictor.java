@@ -57,36 +57,30 @@ public class HazardPredictor {
     private List<Pair<Coordinates, Double>> predictHazards() {
         FlagMatrix hazardField = prepareHazardField();
         Dimensions dimensions = hazardField.getDimensions();
+        int width = dimensions.getWidth();
+        int height = dimensions.getHeight();
 
         int xMin = -1;
-        int xMax = -1;
         int yMin = -1;
-        int yMax = -1;
-
-        for (int x = 0; x < dimensions.getWidth(); ++x) {
-            if (yMin == -1 && yMax == -1) {
-                int y;
-                for (y = 0; y < dimensions.getHeight(); ++y)
-                    if (!hazardField.isSet(x, y)) {
-                        yMin = y;
-                        break;
-                    }
-
-                for (; y < dimensions.getHeight(); ++y)
-                    if (!hazardField.isSet(x, y))
-                        yMax = y;
-                    else
-                        break;
-            }
-
-            if (yMin != -1) {
-                if (xMin == -1)
+        searchMin : for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                if (!hazardField.isSet(x, y)) {
                     xMin = x;
+                    yMin = y;
+                    break searchMin;
+                }
+            }
+        }
 
-                if (!hazardField.isSet(x, yMin))
+        int xMax = -1;
+        int yMax = -1;
+        searchMax : for (int y = height - 1; y >= 0; --y) {
+            for (int x = width - 1; x >= 0; --x) {
+                if (!hazardField.isSet(x, y)) {
                     xMax = x;
-                else
-                    break;
+                    yMax = y;
+                    break searchMax;
+                }
             }
         }
 
