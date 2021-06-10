@@ -36,6 +36,11 @@ public class DoubleMatrix extends Matrix {
         return getValueByBoundIndex(boundIndex);
     }
 
+    public double getValue(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
+        return getValueByBoundIndex(boundIndex);
+    }
+
     private double getValueByBoundIndex(int boundIndex) {
         if (boundIndex < 0)
             return outsideValue;
@@ -104,39 +109,5 @@ public class DoubleMatrix extends Matrix {
         }
 
         return false;
-    }
-
-    public double sumOfArea(Coordinates point1, Coordinates point2) {
-        int x0;
-        int x1;
-
-        if (point1.getX() < point2.getX()) {
-            x0 = point1.getX();
-            x1 = point2.getX();
-        } else {
-            x0 = point2.getX();
-            x1 = point1.getX();
-        }
-
-        int y0;
-        int y1;
-
-        if (point1.getY() < point2.getY()) {
-            y0 = point1.getY();
-            y1 = point2.getY();
-        } else {
-            y0 = point2.getY();
-            y1 = point1.getY();
-        }
-
-        double sum = 0.0d;
-        for (int y = y0; y <= y1; ++y) {
-            for (int x = x0; x <= x1; ++x) {
-                int boundIndex = calculateBoundIndex(x, y);
-                sum += getValueByBoundIndex(boundIndex);
-            }
-        }
-
-        return sum;
     }
 }

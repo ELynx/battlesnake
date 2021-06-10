@@ -5,7 +5,6 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 import java.util.*;
 import java.util.function.Supplier;
 import org.javatuples.Pair;
-import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
@@ -206,7 +205,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
-                double weight = weightMatrix.getValue(new Coordinates(xi, yi)); // TODO typing
+                double weight = weightMatrix.getValue(xi, yi);
                 // decrease penalties, they will be handled on approach
                 if (weight < 0.0) {
                     weight = weight / 10.0;
@@ -218,42 +217,34 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return opportunities;
     }
 
-    protected Optional<MoveCommand> rank(List<Triplet<MoveCommand, Integer, Integer>> toRank, int length) {
+    protected Optional<MoveCommand> rank(List<Pair<MoveCommand, Coordinates>> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
         // sort by reversed comparator, since bigger weight means better solution
-        return toRank.stream().filter(
-                triplet -> freeSpaceMatrix.isFree(new Coordinates(triplet.getValue1(), triplet.getValue2()))).sorted(
-                        Comparator
-                                .comparingInt((Triplet<MoveCommand, Integer, Integer> triplet) -> Math.min(length + 1,
-                                        freeSpaceMatrix.getFreeSpace(
-                                                new Coordinates(triplet.getValue1(), triplet.getValue2()))))
-                                .thenComparingDouble(triplet -> weightMatrix
-                                        .getValue(new Coordinates(triplet.getValue1(), triplet.getValue2())))
-                                .thenComparingDouble(triplet -> getCrossWeight(
-                                        new Coordinates(triplet.getValue1(), triplet.getValue2())))
-                                .thenComparingDouble(triplet -> getOpportunitiesWeight(triplet.getValue0(),
-                                        new Coordinates(triplet.getValue1(), triplet.getValue2())))
-                                .reversed())
-                .map(Triplet::getValue0).findFirst();
+        return toRank.stream().filter(pair -> freeSpaceMatrix.isFree(pair.getValue1()))
+                .sorted(Comparator
+                        .comparingInt((Pair<MoveCommand, Coordinates> pair) -> Math.min(length + 1,
+                                freeSpaceMatrix.getFreeSpace(pair.getValue1())))
+                        .thenComparingDouble(pair -> weightMatrix.getValue(pair.getValue1()))
+                        .thenComparingDouble(pair -> getCrossWeight(pair.getValue1()))
+                        .thenComparingDouble(pair -> getOpportunitiesWeight(pair.getValue0(), pair.getValue1()))
+                        .reversed())
+                .map(Pair::getValue0).findFirst();
     }
 
     public Optional<MoveCommand> bestMove(HazardPredictor hazardPredictor) {
         Coordinates head = hazardPredictor.getGameState().getYou().getHead();
+
+        List<Pair<MoveCommand, Coordinates>> ranked = new LinkedList<>();
+        ranked.add(new Pair<>(DOWN, head.move(DOWN)));
+        ranked.add(new Pair<>(LEFT, head.move(LEFT)));
+        ranked.add(new Pair<>(RIGHT, head.move(RIGHT)));
+        ranked.add(new Pair<>(UP, head.move(UP)));
+
         int length = hazardPredictor.getGameState().getYou().getLength();
-
-        final int x = head.getX();
-        final int y = head.getY();
-
-        List<Triplet<MoveCommand, Integer, Integer>> ranked = new LinkedList<>();
-        ranked.add(new Triplet<>(DOWN, x, y - 1));
-        ranked.add(new Triplet<>(LEFT, x - 1, y));
-        ranked.add(new Triplet<>(RIGHT, x + 1, y));
-        ranked.add(new Triplet<>(UP, x, y + 1));
-
         return rank(ranked, length);
     }
 

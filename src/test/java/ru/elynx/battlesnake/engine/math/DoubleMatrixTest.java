@@ -24,6 +24,7 @@ class DoubleMatrixTest {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
+                assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
                 assertThat(matrix.getValue(new Coordinates(x, y)), is(equalTo(0.0d)));
             }
         }
@@ -39,6 +40,7 @@ class DoubleMatrixTest {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
+                assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
                 assertThat(matrix.getValue(new Coordinates(x, y)), is(equalTo(0.0d)));
             }
         }
@@ -63,6 +65,7 @@ class DoubleMatrixTest {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
+                assertThat(matrix.getValue(x, y), is(equalTo(0.0d)));
                 assertThat(matrix.getValue(new Coordinates(x, y)), is(equalTo(0.0d)));
             }
         }
@@ -80,8 +83,10 @@ class DoubleMatrixTest {
         for (int x = -1; x < width + 1; ++x) {
             for (int y = -1; y < height + 1; ++y) {
                 boolean isValueSet = matrix.addValue(new Coordinates(x, y), insideValue);
-                double testedValue = matrix.getValue(new Coordinates(x, y));
+                double testedValue = matrix.getValue(x, y);
+                double testedValue2 = matrix.getValue(new Coordinates(x, y));
 
+                assertEquals(testedValue, testedValue2);
                 assertEquals(isValueSet, (x >= 0 && x < width && y >= 0 && y < height));
                 assertTrue((isValueSet && testedValue == insideValue) || (!isValueSet && testedValue == outsideValue));
             }
@@ -219,32 +224,5 @@ class DoubleMatrixTest {
         assertThat(matrix.getValue(new Coordinates(0, 1)), is(closeTo(1.5d, fuzz)));
         assertThat(matrix.getValue(new Coordinates(1, 0)), is(closeTo(1.5d, fuzz)));
         assertThat(matrix.getValue(new Coordinates(1, 1)), is(closeTo(0.0d, fuzz)));
-    }
-
-    @Test
-    void test_sum_of_area() {
-        int width = 6;
-        int height = 12;
-        Dimensions dimensions = new Dimensions(width, height);
-        double outsideValue = -10.0d;
-
-        DoubleMatrix doubleMatrix = DoubleMatrix.zeroMatrix(dimensions, outsideValue);
-
-        double insideValue = 0.01d;
-        for (int x = 0; x < width / 2; ++x) {
-            for (int y = 0; y < height / 2; ++y) {
-                Coordinates coordinates = new Coordinates(x, y);
-                doubleMatrix.addValue(coordinates, insideValue);
-            }
-        }
-
-        double sum1 = doubleMatrix.sumOfArea(new Coordinates(0, 0), new Coordinates(width - 1, height - 1));
-        assertThat(sum1, is(closeTo(insideValue * dimensions.area() / 4, fuzz)));
-
-        double sum2 = doubleMatrix.sumOfArea(new Coordinates(width - 1, height - 1), new Coordinates(0, 0));
-        assertThat(sum2, is(closeTo(insideValue * dimensions.area() / 4, fuzz)));
-
-        double sum3 = doubleMatrix.sumOfArea(new Coordinates(-5, 3), new Coordinates(3, 3));
-        assertThat(sum3, is(closeTo(outsideValue * 5.0 + insideValue * 3.0, fuzz)));
     }
 }
