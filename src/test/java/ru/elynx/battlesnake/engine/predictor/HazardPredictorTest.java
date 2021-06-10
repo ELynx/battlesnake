@@ -44,8 +44,7 @@ class HazardPredictorTest {
         assertEquals(24, tested.getGameState().getBoard().getHazards().size());
         assertEquals(1, tested.getPredictedHazards().size());
 
-        assertEquals(new Coordinates(2, 2), tested.getPredictedHazards().get(0).getValue0());
-        assertThat(tested.getPredictedHazards().get(0).getValue1(), is(closeTo(1.0d, fuzz)));
+        assertThat(tested.getPredictedHazards().get(new Coordinates(2, 2)), is(closeTo(1.0d, fuzz)));
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").setHazardStep(25).build();
 
@@ -75,8 +74,7 @@ class HazardPredictorTest {
 
         assertEquals(24, tested.getGameState().getBoard().getHazards().size());
         assertEquals(1, tested.getPredictedHazards().size());
-        assertEquals(new Coordinates(2, 2), tested.getPredictedHazards().get(0).getValue0());
-        assertThat(tested.getPredictedHazards().get(0).getValue1(), is(closeTo(1.0d, fuzz)));
+        assertThat(tested.getPredictedHazards().get(new Coordinates(2, 2)), is(closeTo(1.0d, fuzz)));
 
         tested = generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").setHazardStep(25).build();
 

@@ -14,7 +14,7 @@ public class HazardPredictor {
     private final int hazardStep;
 
     @Getter(lazy = true)
-    private final List<Pair<Coordinates, Double>> predictedHazards = getPredictedHazardsImpl();
+    private final Map<Coordinates, Double> predictedHazards = getPredictedHazardsImpl();
 
     // TODO make GameState not subordinate of HazardPredictor
     public HazardPredictor(GameState gameState, int hazardStep) {
@@ -29,12 +29,12 @@ public class HazardPredictor {
     // Go has very deterministic pseudorandom, and only two lower bits are used
     // seed is re-used through game, and business logic is based on repeatability
     // in theory, it is quite possible to determine hazards accurately
-    private List<Pair<Coordinates, Double>> getPredictedHazardsImpl() {
+    private Map<Coordinates, Double> getPredictedHazardsImpl() {
         if (isRoyale() && isPreHazardExpansionTurn() && hasCellsFreeOfHazard()) {
             return predictHazards();
         }
 
-        return Collections.emptyList();
+        return Collections.emptyMap();
     }
 
     private boolean isRoyale() {
@@ -53,7 +53,7 @@ public class HazardPredictor {
         return gameState.getTurn() % hazardStep == hazardStep - 1;
     }
 
-    private List<Pair<Coordinates, Double>> predictHazards() {
+    private Map<Coordinates, Double> predictHazards() {
         FlagMatrix hazardField = prepareHazardField();
         Dimensions dimensions = hazardField.getDimensions();
         int width = dimensions.getWidth();
@@ -96,29 +96,27 @@ public class HazardPredictor {
         return hazardField;
     }
 
-    private List<Pair<Coordinates, Double>> getProbabilities(int xMin, int xMax, int yMin, int yMax) {
+    private Map<Coordinates, Double> getProbabilities(int xMin, int xMax, int yMin, int yMax) {
         // test for edge case with simple detection
         if (xMin == xMax && yMin == yMax) {
-            return List.of(new Pair<>(new Coordinates(xMin, yMin), 1.0d));
+            return Map.of(new Coordinates(xMin, yMin), 1.0d);
         }
 
         double singleProbability = 0.25d;
 
-        List<Pair<Coordinates, Double>> result = new ArrayList<>();
+        // TODO not list of pairs
+        List<Pair<Coordinates, Double>> raw = new ArrayList<>();
         for (int x = xMin; x <= xMax; ++x) {
-            result.add(new Pair<>(new Coordinates(x, yMin), singleProbability));
-            result.add(new Pair<>(new Coordinates(x, yMax), singleProbability));
+            raw.add(new Pair<>(new Coordinates(x, yMin), singleProbability));
+            raw.add(new Pair<>(new Coordinates(x, yMax), singleProbability));
         }
 
         for (int y = yMin; y <= yMax; ++y) {
-            result.add(new Pair<>(new Coordinates(xMin, y), singleProbability));
-            result.add(new Pair<>(new Coordinates(xMax, y), singleProbability));
+            raw.add(new Pair<>(new Coordinates(xMin, y), singleProbability));
+            raw.add(new Pair<>(new Coordinates(xMax, y), singleProbability));
         }
 
         // account for corners
-        Map<Coordinates, Double> foo = result.stream()
-                .collect(Collectors.groupingBy(Pair::getValue0, Collectors.summingDouble(Pair::getValue1)));
-
-        return foo.entrySet().stream().map(x -> new Pair<>(x.getKey(), x.getValue())).collect(Collectors.toList());
+        return raw.stream().collect(Collectors.groupingBy(Pair::getValue0, Collectors.summingDouble(Pair::getValue1)));
     }
 }
