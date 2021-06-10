@@ -71,7 +71,7 @@ public class SolverStrategy implements IGameStrategy {
 
     @Configuration
     public static class SolverStrategyConfiguration {
-        @Bean("Solver-SoloLengthChallenge")
+        @Bean("Solver_SoloLengthChallenge")
         public Supplier<IGameStrategy> chess() {
             return SoloLengthChallengeStrategy::new;
         }

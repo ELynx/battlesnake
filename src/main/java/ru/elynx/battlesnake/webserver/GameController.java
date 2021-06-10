@@ -52,7 +52,7 @@ public class GameController {
     }
 
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name) {
+    public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name) {
         logger.info("Processing root meta call");
         statisticsTracker.root(name);
 
@@ -61,7 +61,7 @@ public class GameController {
     }
 
     @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
+    public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
         String terseId = terseIdentification(gameStateDto);
         logger.info("Processing request game start {}", terseId);
@@ -77,7 +77,7 @@ public class GameController {
     }
 
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
+    public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
         String terseId = terseIdentification(gameStateDto);
         logger.debug("Processing request game move {}", terseId);
@@ -95,7 +95,7 @@ public class GameController {
     }
 
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w ]+") String name,
+    public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
         String terseId = terseIdentification(gameStateDto);
         logger.info("Processing request game end {}", terseId);
