@@ -13,7 +13,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.uninitializedMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.uninitializedMatrix(dimensions, false);
 
         for (int x = -1; x <= width; ++x) {
             for (int y = -1; y <= height; ++y) {
@@ -28,7 +28,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
 
         for (int x = -1; x <= width; ++x) {
             for (int y = -1; y <= height; ++y) {
@@ -43,7 +43,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.uninitializedMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.uninitializedMatrix(dimensions, false);
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
@@ -67,7 +67,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
 
         for (int x = 0; x < width; ++x) {
             assertFalse(tested.set(x, -1));
@@ -98,7 +98,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
@@ -119,7 +119,7 @@ class FlagMatrixTest {
         int height = 15;
         Dimensions dimensions = new Dimensions(width, height);
 
-        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions);
+        FlagMatrix tested = FlagMatrix.unsetMatrix(dimensions, false);
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
@@ -132,5 +132,10 @@ class FlagMatrixTest {
                 assertTrue(tested.isSet(x, y));
             }
         }
+    }
+
+    @Test
+    void test_outside_value() {
+        fail("Implement the test");
     }
 }

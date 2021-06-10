@@ -15,7 +15,7 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     @Configuration
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
-        public Supplier<IGameStrategy> thoughtful() {
+        public Supplier<IGameStrategy> alphaBeta() {
             return AlphaBetaStrategy::new;
         }
     }

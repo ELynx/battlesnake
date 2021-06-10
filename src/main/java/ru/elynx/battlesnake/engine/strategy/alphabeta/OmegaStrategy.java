@@ -8,23 +8,15 @@ import java.util.function.Supplier;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
+import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
-import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
-import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
+import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.engine.strategy.Common;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
-import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Coordinates;
-import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.*;
 
-public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
-    protected FreeSpaceMatrix freeSpaceMatrix;
-    protected SnakeMovePredictor predictor;
-
-    protected OmegaStrategy() {
-    }
+public class OmegaStrategy implements IGameStrategy {
+    private FlagMatrix occupiedPositions;
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
@@ -33,9 +25,8 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     @Override
     public void init(HazardPredictor hazardPredictor) {
-        freeSpaceMatrix = FreeSpaceMatrix
-                .uninitializedMatrix(hazardPredictor.getGameState().getBoard().getDimensions());
-        predictor = new SnakeMovePredictor(this);
+        occupiedPositions = FlagMatrix.uninitializedMatrix(hazardPredictor.getGameState().getBoard().getDimensions(),
+                true);
     }
 
     @Override
@@ -45,43 +36,24 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
-        freeSpaceMatrix.empty();
+        occupiedPositions.unsetAll();
 
         GameState gameState = hazardPredictor.getGameState();
-        Common.forAllSnakeBodies(gameState, coordinates -> freeSpaceMatrix.setOccupied(coordinates));
+        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
 
-        List<Pair<Coordinates, Double>> predictions = predictor.predict(hazardPredictor.getGameState().getYou(),
-                gameState);
+        ScoreMaker scoreMaker = new ScoreMaker(gameState.getYou(), gameState);
 
-        // repeat last
-        if (predictions.isEmpty()) {
-            return new Move(REPEAT_LAST);
-        }
+        Coordinates head = gameState.getYou().getHead();
+        List<Pair<Coordinates, MoveCommand>> moves = List.of(new Pair<>(head.move(DOWN), DOWN),
+                new Pair<>(head.move(LEFT), LEFT), new Pair<>(head.move(RIGHT), RIGHT), new Pair<>(head.move(UP), UP));
 
-        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+        MoveCommand moveCommand = moves.stream().filter(pair -> !occupiedPositions.isSet(pair.getValue0()))
+                .sorted(Comparator
+                        .comparingInt((Pair<Coordinates, MoveCommand> pair) -> scoreMaker.scoreMove(pair.getValue0()))
+                        .reversed())
+                .map(Pair::getValue1).findFirst().orElse(REPEAT_LAST);
 
-        Pair<Coordinates, Double> bestPrediction = predictions.get(0);
-        int px = bestPrediction.getValue0().getX();
-        int py = bestPrediction.getValue0().getY();
-
-        Coordinates head = hazardPredictor.getGameState().getYou().getHead();
-        int x = head.getX();
-        int y = head.getY();
-
-        int dx = px - x;
-        int dy = py - y;
-
-        if (dx > 0) {
-            return new Move(RIGHT);
-        } else if (dx < 0) {
-            return new Move(LEFT);
-        } else if (dy > 0) {
-            return new Move(UP);
-        } else if (dy < 0) {
-            return new Move(DOWN);
-        } else {
-            return new Move(REPEAT_LAST);
-        }
+        return new Move(moveCommand);
     }
 
     @Override
@@ -89,15 +61,10 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
         return null;
     }
 
-    @Override
-    public boolean isWalkable(Coordinates coordinates) {
-        return freeSpaceMatrix.isFree(coordinates);
-    }
-
     @Configuration
     public static class OmegaStrategyConfiguration {
         @Bean("Pixel")
-        public Supplier<IGameStrategy> thoughtful() {
+        public Supplier<IGameStrategy> omega() {
             return OmegaStrategy::new;
         }
     }

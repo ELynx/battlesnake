@@ -87,7 +87,7 @@ public class HazardPredictor {
     }
 
     private FlagMatrix prepareHazardField() {
-        FlagMatrix hazardField = FlagMatrix.unsetMatrix(gameState.getBoard().getDimensions());
+        FlagMatrix hazardField = FlagMatrix.unsetMatrix(gameState.getBoard().getDimensions(), false);
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             hazardField.set(hazard);

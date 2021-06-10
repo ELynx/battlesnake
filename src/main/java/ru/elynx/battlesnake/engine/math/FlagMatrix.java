@@ -6,19 +6,21 @@ import ru.elynx.battlesnake.entity.Dimensions;
 
 public class FlagMatrix extends Matrix {
     private final boolean[] values;
+    private final boolean outsideValue;
 
-    private FlagMatrix(Dimensions dimensions) {
+    private FlagMatrix(Dimensions dimensions, boolean outsideValue) {
         super(dimensions);
 
         this.values = new boolean[dimensions.area()];
+        this.outsideValue = outsideValue;
     }
 
-    public static FlagMatrix uninitializedMatrix(Dimensions dimensions) {
-        return new FlagMatrix(dimensions);
+    public static FlagMatrix uninitializedMatrix(Dimensions dimensions, boolean outsideValue) {
+        return new FlagMatrix(dimensions, outsideValue);
     }
 
-    public static FlagMatrix unsetMatrix(Dimensions dimensions) {
-        FlagMatrix result = uninitializedMatrix(dimensions);
+    public static FlagMatrix unsetMatrix(Dimensions dimensions, boolean outsideValue) {
+        FlagMatrix result = uninitializedMatrix(dimensions, outsideValue);
         result.unsetAll();
         return result;
     }
@@ -55,9 +57,14 @@ public class FlagMatrix extends Matrix {
         return isSetByBoundIndex(boundIndex);
     }
 
+    public boolean isSet(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
+        return isSetByBoundIndex(boundIndex);
+    }
+
     private boolean isSetByBoundIndex(int boundIndex) {
         if (boundIndex < 0) {
-            return false;
+            return outsideValue;
         }
 
         return isSetByIndex(boundIndex);
