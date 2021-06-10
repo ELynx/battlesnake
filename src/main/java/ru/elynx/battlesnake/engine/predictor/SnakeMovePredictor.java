@@ -1,144 +1,129 @@
 package ru.elynx.battlesnake.engine.predictor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.javatuples.Triplet;
-import ru.elynx.battlesnake.engine.math.Util;
+import org.javatuples.Pair;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
-import ru.elynx.battlesnake.protocol.CoordsDto;
-import ru.elynx.battlesnake.protocol.SnakeDto;
+import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Snake;
 
 public class SnakeMovePredictor {
-    protected IPredictorInformant informant;
+    private final IPredictorInformant predictorInformant;
+    private final ProbabilityMaker probabilityMaker;
 
-    protected ProbabilityMaker probabilityMaker;
-
-    public SnakeMovePredictor(IPredictorInformant informant) {
-        this.informant = informant;
-
+    public SnakeMovePredictor(IPredictorInformant predictorInformant) {
+        this.predictorInformant = predictorInformant;
         this.probabilityMaker = new ProbabilityMaker();
     }
 
-    protected int score(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
-        int score = 1; // start with least positive score
-
-        for (CoordsDto food : gameState.getBoard().getFood()) {
-            if (food.getX() == x && food.getY() == y) {
-                score += 3; // sum of initial value and food is not enough to jump in front of a train
-                break;
-            }
-        }
-
-        final int ownLength = snake.getLength();
-        for (SnakeDto otherSnake : gameState.getBoard().getSnakes()) {
-            // manhattan distance 0 of prediction is collision
-            if (!snake.getId().equals(otherSnake.getId()) && Util.manhattanDistance(otherSnake.getHead(), x, y) == 1) {
-                final int otherLength = otherSnake.getLength();
-                if (ownLength < otherLength)
-                    score -= 5; // not jump in front of train
-                else if (ownLength == otherLength)
-                    score += 0; // dicey, no score affect for now
-                else // own < other
-                    score += 5; // hunt
-            }
-        }
-
-        for (CoordsDto hazard : gameState.getBoard().getHazards()) {
-            if (hazard.getX() == x && hazard.getY() == y) {
-                score -= 10;
-            }
-        }
-
-        return score;
-    }
-
-    protected void addIfWalkableScored(int x, int y, SnakeDto snake, GameStatePredictor gameState) {
-        if (informant.isWalkable(x, y)) {
-            probabilityMaker.add(x, y, score(x, y, snake, gameState));
-        }
-    }
-
-    protected void addIfWalkable(int x, int y) {
-        if (informant.isWalkable(x, y)) {
-            probabilityMaker.add(x, y);
-        }
-    }
-
-    protected void add(int x, int y) {
-        probabilityMaker.add(x, y);
-    }
-
-    public List<Triplet<Integer, Integer, Double>> predict(SnakeDto snake, GameStatePredictor gameState) {
-        // graceful error handling
+    public List<Pair<Coordinates, Double>> predict(Snake snake, GameState gameState) {
         if (snake.getLength() == 0) {
             return Collections.emptyList();
         }
 
-        probabilityMaker.reset();
+        return predictImpl(snake, gameState);
+    }
 
-        // head this turn
-        final int x1 = snake.getHead().getX();
-        final int y1 = snake.getHead().getY();
+    private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
+        Iterable<Coordinates> directions = possibleDirections(snake);
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
+
+        return getProbabilityOf(directions, scoreMaker);
+    }
+
+    private Iterable<Coordinates> possibleDirections(Snake snake) {
+        // head position this turn
+        Coordinates head = snake.getHead();
+        // head position last turn
+        Coordinates firstBodySegment = getFirstBodySegment(snake);
 
         // there are cases, notably start, when body pieces can overlap
-        int x0;
-        int y0;
-
-        if (snake.getLength() == 1) {
-            x0 = x1;
-            y0 = y1;
-        } else {
-            // head last turn
-            x0 = snake.getBody().get(1).getX();
-            y0 = snake.getBody().get(1).getY();
+        if (head.equals(firstBodySegment)) {
+            // from initial state, any direction is possible
+            return head.sideNeighbours();
         }
 
-        if (x1 == x0 && y1 == y0) {
-            // equal possibility to go anywhere
-            addIfWalkableScored(x1 - 1, y1, snake, gameState);
-            addIfWalkableScored(x1, y1 + 1, snake, gameState);
-            addIfWalkableScored(x1 + 1, y1, snake, gameState);
-            addIfWalkableScored(x1, y1 + 1, snake, gameState);
+        int x1 = head.getX();
+        int y1 = head.getY();
 
-            return probabilityMaker.make();
-        }
+        int x0 = firstBodySegment.getX();
+        int y0 = firstBodySegment.getY();
 
         // delta of this move
-        final int dx = x1 - x0;
-        final int dy = y1 - y0;
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
         // forward, repeat last move
-        final int xf = x1 + dx;
-        final int yf = y1 + dy;
+        int xf = x1 + dx;
+        int yf = y1 + dy;
 
+        Coordinates forward = new Coordinates(xf, yf);
+
+        // timed out snake will repeat it's move
         if (snake.isTimedOut()) {
-            // timed out snakes do not care for walk-ability
-            add(xf, yf);
-            return probabilityMaker.make();
+            return List.of(forward);
         }
 
         // magic of matrix multiplication
 
         // relative turn left
-        final int xl = x1 - dy;
-        final int yl = y1 + dx;
+        int xl = x1 - dy;
+        int yl = y1 + dx;
 
         // relative turn right
-        final int xr = x1 + dy;
-        final int yr = y1 - dx;
+        int xr = x1 + dy;
+        int yr = y1 - dx;
 
-        addIfWalkableScored(xf, yf, snake, gameState);
-        addIfWalkableScored(xl, yl, snake, gameState);
-        addIfWalkableScored(xr, yr, snake, gameState);
+        Coordinates left = new Coordinates(xl, yl);
+        Coordinates right = new Coordinates(xr, yr);
 
-        // if all choices are negatively bad
-        if (probabilityMaker.isEmpty()) {
-            // fill in undifferentiated
-            addIfWalkable(xf, yf);
-            addIfWalkable(xl, yl);
-            addIfWalkable(xr, yr);
+        return List.of(forward, left, right);
+    }
+
+    private Coordinates getFirstBodySegment(Snake snake) {
+        // check for caution, edge cases, etc
+        if (snake.getLength().equals(1)) {
+            return snake.getHead();
+        } else {
+            return snake.getBody().get(1);
+        }
+    }
+
+    private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
+        List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
+        int greatestScore = Integer.MIN_VALUE;
+
+        for (Coordinates direction : directions) {
+            if (predictorInformant.isWalkable(direction)) {
+                int score = scoreMaker.scoreMove(direction);
+                if (score > greatestScore)
+                    greatestScore = score;
+
+                walkableDirections.add(new Pair<>(direction, score));
+            }
         }
 
-        return probabilityMaker.make();
+        if (walkableDirections.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int correctionForWorst;
+        if (greatestScore < 1) {
+            correctionForWorst = 1 - greatestScore;
+        } else {
+            correctionForWorst = 0;
+        }
+
+        probabilityMaker.reset();
+
+        for (Pair<Coordinates, Integer> walkableDirection : walkableDirections) {
+            probabilityMaker.addPosition(walkableDirection.getValue0(),
+                    walkableDirection.getValue1() + correctionForWorst);
+        }
+
+        return probabilityMaker.makeProbabilities();
     }
 }

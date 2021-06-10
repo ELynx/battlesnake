@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.webserver;
 
-import static ru.elynx.battlesnake.protocol.Move.Moves.UP;
+import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
+import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
 import java.time.Instant;
 import java.util.Map;
@@ -10,12 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.elynx.battlesnake.engine.IGameStrategy;
-import ru.elynx.battlesnake.engine.IGameStrategyFactory;
-import ru.elynx.battlesnake.engine.SnakeNotFoundException;
-import ru.elynx.battlesnake.engine.predictor.GameStatePredictor;
-import ru.elynx.battlesnake.protocol.BattlesnakeInfo;
-import ru.elynx.battlesnake.protocol.Move;
+import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
+import ru.elynx.battlesnake.engine.strategy.IGameStrategyFactory;
+import ru.elynx.battlesnake.engine.strategy.SnakeNotFoundException;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.MoveCommand;
 
 @Service
 public class SnakeManager {
@@ -32,8 +35,8 @@ public class SnakeManager {
     }
 
     private BattlesnakeInfo getSnakeInfo(String name) throws SnakeNotFoundException {
-        final IGameStrategy tmp = gameStrategyFactory.getGameStrategy(name);
-        return tmp.getBattesnakeInfo();
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+        return gameStrategy.getBattesnakeInfo();
     }
 
     private SnakeState computeSnake(String uid, String nameOnCreation) throws SnakeNotFoundException {
@@ -61,19 +64,19 @@ public class SnakeManager {
             return;
         }
 
-        final int sizeBefore = activeSnakes.size();
+        int sizeBefore = activeSnakes.size();
 
-        final Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_AGE);
+        Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_AGE);
         activeSnakes.values().removeIf(meta -> meta.accessTime.isBefore(staleSnakeTime));
 
-        final int sizeAfter = activeSnakes.size();
+        int sizeAfter = activeSnakes.size();
 
         if (sizeAfter == sizeBefore) {
             logger.debug("Cleaning stale snakes, no stale snakes");
             return;
         }
 
-        final int delta = sizeBefore - sizeAfter;
+        int delta = sizeBefore - sizeAfter;
         logger.warn("Cleaning stale snakes, cleaned [{}] snakes older than [{}]", delta, staleSnakeTime);
     }
 
@@ -81,12 +84,13 @@ public class SnakeManager {
         return getSnakeInfo(name);
     }
 
-    public Void start(GameStatePredictor gameState) throws SnakeNotFoundException {
-        return computeSnake(gameState.getYou().getId(), gameState.getYou().getName()).gameStrategy
-                .processStart(gameState);
+    public Void start(GameState gameState) throws SnakeNotFoundException {
+        SnakeState snakeState = computeSnake(gameState.getYou().getId(), gameState.getYou().getName());
+        HazardPredictor hazardPredictor = new HazardPredictor(gameState, snakeState.hazardStep);
+        return snakeState.processStart(hazardPredictor);
     }
 
-    public Move move(GameStatePredictor gameState) throws SnakeNotFoundException {
+    public Move move(GameState gameState) throws SnakeNotFoundException {
         final SnakeState snakeState = computeSnake(gameState.getYou().getId(), gameState.getYou().getName());
 
         // track hazards
@@ -96,36 +100,38 @@ public class SnakeManager {
         }
 
         // provide hazards info
-        gameState.setHazardStep(snakeState.hazardStep);
+        HazardPredictor hazardPredictor = new HazardPredictor(gameState, snakeState.hazardStep);
 
-        final Move move = snakeState.gameStrategy.processMove(gameState);
+        final Move move = snakeState.processMove(hazardPredictor);
 
         // provide last move on request
-        if (Boolean.TRUE.equals(move.repeatLast())) {
+        if (REPEAT_LAST.equals(move.getMoveCommand())) {
             return new Move(snakeState.lastMove, move.getShout());
         }
 
         // track last move
-        snakeState.lastMove = move.getMove();
+        snakeState.lastMove = move.getMoveCommand();
 
         return move;
     }
 
-    public Void end(GameStatePredictor gameState) {
+    public Void end(GameState gameState) {
         final SnakeState snakeState = removeSnake(gameState.getYou().getId());
         if (snakeState == null) {
             throw new SnakeNotFoundException(gameState.getYou().getName());
         }
 
-        return snakeState.gameStrategy.processEnd(gameState);
+        HazardPredictor hazardPredictor = new HazardPredictor(gameState, snakeState.hazardStep);
+        return snakeState.processEnd(hazardPredictor);
     }
 
     private static class SnakeState {
         final IGameStrategy gameStrategy;
         Instant accessTime;
-        String lastMove;
+        MoveCommand lastMove;
         int hazardStep;
         boolean hazardSeen;
+        boolean initialized;
 
         SnakeState(IGameStrategy gameStrategy) {
             this.gameStrategy = gameStrategy;
@@ -133,7 +139,33 @@ public class SnakeManager {
             this.lastMove = UP;
             this.hazardStep = 25; // by default
             this.hazardSeen = false;
+            this.initialized = false;
+        }
 
+        public Void processStart(HazardPredictor hazardPredictor) {
+            if (!initialized) {
+                gameStrategy.init(hazardPredictor);
+                initialized = true;
+            }
+
+            return gameStrategy.processStart(hazardPredictor);
+        }
+
+        public Move processMove(HazardPredictor hazardPredictor) {
+            if (!initialized) {
+                gameStrategy.init(hazardPredictor);
+                initialized = true;
+            }
+
+            return gameStrategy.processMove(hazardPredictor);
+        }
+
+        public Void processEnd(HazardPredictor hazardPredictor) {
+            if (!initialized) {
+                return null;
+            }
+
+            return gameStrategy.processEnd(hazardPredictor);
         }
     }
 }

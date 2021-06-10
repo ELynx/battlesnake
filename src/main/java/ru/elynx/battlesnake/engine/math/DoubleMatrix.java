@@ -1,72 +1,90 @@
 package ru.elynx.battlesnake.engine.math;
 
-public class DoubleMatrix {
+import java.util.Arrays;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.Dimensions;
+
+public class DoubleMatrix extends Matrix {
     private static final double DEFAULT_SPLASH = 2.0d;
 
-    private final int width;
-    private final int height;
-    private final int length;
     private final double[] values;
     private final double outsideValue;
 
-    protected DoubleMatrix(int width, int height, double outsideValue) {
-        this.width = width;
-        this.height = height;
-        this.length = this.width * this.height;
-        this.values = new double[this.length];
+    private DoubleMatrix(Dimensions dimensions, double outsideValue) {
+        super(dimensions);
+
+        this.values = new double[dimensions.area()];
         this.outsideValue = outsideValue;
     }
 
-    public static DoubleMatrix uninitializedMatrix(int width, int height, double outsideValue) {
-        return new DoubleMatrix(width, height, outsideValue);
+    public static DoubleMatrix uninitializedMatrix(Dimensions dimensions, double outsideValue) {
+        return new DoubleMatrix(dimensions, outsideValue);
     }
 
-    public static DoubleMatrix zeroMatrix(int width, int height, double outsideValue) {
-        DoubleMatrix result = uninitializedMatrix(width, height, outsideValue);
+    public static DoubleMatrix zeroMatrix(Dimensions dimensions, double outsideValue) {
+        DoubleMatrix result = uninitializedMatrix(dimensions, outsideValue);
         result.zero();
         return result;
     }
 
     public void zero() {
-        for (int i = 0; i < length; ++i) {
-            values[i] = 0.0d;
-        }
+        Arrays.fill(values, 0.0d);
+    }
+
+    public double getValue(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
+        return getValueByBoundIndex(boundIndex);
     }
 
     public double getValue(int x, int y) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
-            return outsideValue;
-
-        return unsafeGetValue(index);
+        int boundIndex = calculateBoundIndex(x, y);
+        return getValueByBoundIndex(boundIndex);
     }
 
-    public boolean addValue(int x, int y, double value) {
-        final int index = safeIndex(x, y);
-        if (index < 0)
+    private double getValueByBoundIndex(int boundIndex) {
+        if (boundIndex < 0)
+            return outsideValue;
+
+        return getValueByIndex(boundIndex);
+    }
+
+    private double getValueByIndex(int index) {
+        return values[index];
+    }
+
+    public boolean addValue(Coordinates coordinates, double value) {
+        int boundIndex = calculateBoundIndex(coordinates);
+        return addValueByBoundIndex(boundIndex, value);
+    }
+
+    private boolean addValueByBoundIndex(int boundIndex, double value) {
+        if (boundIndex < 0)
             return false;
 
-        unsafeAddValue(index, value);
+        addValueByIndex(boundIndex, value);
         return true;
     }
 
-    public boolean splash1stOrder(int x, int y, double valueAtImpact) {
-        return splash1stOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    private void addValueByIndex(int index, double value) {
+        values[index] += value;
     }
 
-    public boolean splash1stOrder(int x, int y, double valueAtImpact, double denominator) {
+    public boolean splash1stOrder(Coordinates coordinates, double valueAtImpact) {
+        return splash1stOrder(coordinates, valueAtImpact, DEFAULT_SPLASH);
+    }
+
+    public boolean splash1stOrder(Coordinates coordinates, double valueAtImpact, double denominator) {
         // no impact - no setter
         if (valueAtImpact == 0.0d)
             return false;
 
-        // if impact is out of matrix ignore the setter
-        if (addValue(x, y, valueAtImpact)) {
+        // apply splash only if impact is applied
+        if (addValue(coordinates, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            addValue(x, y - 1, valueAtImpact);
-            addValue(x - 1, y, valueAtImpact);
-            addValue(x + 1, y, valueAtImpact);
-            addValue(x, y + 1, valueAtImpact);
+            for (Coordinates neighbour : coordinates.sideNeighbours()) {
+                addValue(neighbour, valueAtImpact);
+            }
 
             return true;
         }
@@ -74,41 +92,22 @@ public class DoubleMatrix {
         return false;
     }
 
-    public boolean splash2ndOrder(int x, int y, double valueAtImpact) {
-        return splash2ndOrder(x, y, valueAtImpact, DEFAULT_SPLASH);
+    public boolean splash2ndOrder(Coordinates coordinates, double valueAtImpact) {
+        return splash2ndOrder(coordinates, valueAtImpact, DEFAULT_SPLASH);
     }
 
-    public boolean splash2ndOrder(int x, int y, double valueAtImpact, double denominator) {
-        if (splash1stOrder(x, y, valueAtImpact, denominator)) {
+    public boolean splash2ndOrder(Coordinates coordinates, double valueAtImpact, double denominator) {
+        // apply splash 2nd order only if splash 1st order is applied
+        if (splash1stOrder(coordinates, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            addValue(x - 1, y - 1, valueAtImpact);
-            addValue(x + 1, y - 1, valueAtImpact);
-            addValue(x - 1, y + 1, valueAtImpact);
-            addValue(x + 1, y + 1, valueAtImpact);
+            for (Coordinates neighbour : coordinates.cornerNeighbours()) {
+                addValue(neighbour, valueAtImpact);
+            }
 
             return true;
         }
 
         return false;
-    }
-
-    protected int unsafeIndex(int x, int y) {
-        return x + width * y;
-    }
-
-    protected int safeIndex(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            return -1;
-
-        return unsafeIndex(x, y);
-    }
-
-    protected double unsafeGetValue(int index) {
-        return values[index];
-    }
-
-    protected void unsafeAddValue(int index, double value) {
-        values[index] += value;
     }
 }

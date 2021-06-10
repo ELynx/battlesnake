@@ -3,59 +3,90 @@ package ru.elynx.battlesnake.engine.predictor.implementation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.javatuples.Triplet;
+import org.javatuples.Pair;
+import ru.elynx.battlesnake.entity.Coordinates;
 
 public class ProbabilityMaker {
     private static final int MAX_ITEMS = 4;
 
-    private static final int _X = 0;
-    private static final int _Y = 1;
-    private static final int _S = 2;
-    private static final int STACK_PER_ITEM = _S + 1;
+    private static final int X_STACK_POSITION = 0;
+    private static final int Y_STACK_POSITION = 1;
+    private static final int SCORE_STACK_POSITION = 2;
+    private static final int STACK_SIZE_PER_ITEM = SCORE_STACK_POSITION + 1;
 
-    private int[] stack;
-    private int stackPos;
-    private int totalScore = 0;
+    private static final int LEAST_SCORE = 1;
+
+    private final int[] stack;
+    private int stackPosition;
+    private int totalScore;
 
     public ProbabilityMaker() {
-        stack = new int[MAX_ITEMS * STACK_PER_ITEM];
-        stackPos = 0;
-        totalScore = 0;
+        stack = new int[MAX_ITEMS * STACK_SIZE_PER_ITEM];
+
+        clearStack();
+        clearTotalScore();
     }
 
     public void reset() {
-        stackPos = 0;
+        clearStack();
+        clearTotalScore();
+    }
+
+    private void clearStack() {
+        stackPosition = 0;
+    }
+
+    private void clearTotalScore() {
         totalScore = 0;
     }
 
     public boolean isEmpty() {
-        return stackPos == 0;
+        return stackPosition == 0;
     }
 
-    public void add(int x, int y) {
-        add(x, y, 1);
-    }
-
-    public void add(int x, int y, int score) {
-        if (score > 0) {
-            stack[stackPos + _X] = x;
-            stack[stackPos + _Y] = y;
-            stack[stackPos + _S] = score;
-            stackPos += STACK_PER_ITEM;
-            totalScore += score;
+    public void addPosition(Coordinates coordinates, int score) {
+        if (score >= LEAST_SCORE) {
+            addPositionImpl(coordinates, score);
         }
     }
 
-    public List<Triplet<Integer, Integer, Double>> make() {
-        if (stackPos == 0)
+    private void addPositionImpl(Coordinates coordinates, int score) {
+        putPositionOnStack(coordinates, score);
+        increaseTotalScore(score);
+    }
+
+    private void putPositionOnStack(Coordinates coordinates, int score) {
+        stack[stackPosition + X_STACK_POSITION] = coordinates.getX();
+        stack[stackPosition + Y_STACK_POSITION] = coordinates.getY();
+        stack[stackPosition + SCORE_STACK_POSITION] = score;
+        stackPosition += STACK_SIZE_PER_ITEM;
+    }
+
+    private void increaseTotalScore(int score) {
+        totalScore += score;
+    }
+
+    public List<Pair<Coordinates, Double>> makeProbabilities() {
+        if (isEmpty())
             return Collections.emptyList();
 
-        List<Triplet<Integer, Integer, Double>> result = new ArrayList<>(stackPos / STACK_PER_ITEM);
+        return makeProbabilitiesImpl();
+    }
 
-        for (int i = 0; i < stackPos; i += STACK_PER_ITEM) {
-            result.add(new Triplet<>(stack[i + _X], stack[i + _Y], stack[i + _S] / (double) totalScore));
+    private List<Pair<Coordinates, Double>> makeProbabilitiesImpl() {
+        List<Pair<Coordinates, Double>> result = new ArrayList<>(stackPosition / STACK_SIZE_PER_ITEM);
+        for (int i = 0; i < stackPosition; i += STACK_SIZE_PER_ITEM) {
+            result.add(makeProbabilityFromStack(i));
         }
 
         return result;
+    }
+
+    private Pair<Coordinates, Double> makeProbabilityFromStack(int stackOffset) {
+        int x = stack[stackOffset + X_STACK_POSITION];
+        int y = stack[stackOffset + Y_STACK_POSITION];
+        double p = stack[stackOffset + SCORE_STACK_POSITION] / (double) totalScore;
+
+        return new Pair<>(new Coordinates(x, y), p);
     }
 }

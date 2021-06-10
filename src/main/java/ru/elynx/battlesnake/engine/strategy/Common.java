@@ -1,0 +1,38 @@
+package ru.elynx.battlesnake.engine.strategy;
+
+import java.util.List;
+import java.util.function.Consumer;
+import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Snake;
+
+public class Common {
+    private Common() {
+    }
+
+    public static void forAllSnakeBodies(GameState gameState, Consumer<Coordinates> what) {
+        for (Snake snake : gameState.getBoard().getSnakes()) {
+            forSnakeBody(snake, gameState, what);
+        }
+    }
+
+    private static void forSnakeBody(Snake snake, GameState gameState, Consumer<Coordinates> what) {
+        int tailMoveOffset = getTailMoveOffset(snake, gameState);
+
+        List<Coordinates> body = snake.getBody();
+        for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
+            Coordinates coordinates = body.get(i);
+            what.accept(coordinates);
+        }
+    }
+
+    private static int getTailMoveOffset(Snake snake, GameState gameState) {
+        if (gameState.isSnakeGrowing(snake)) {
+            // tail will grow -> cell will remain occupied
+            return 0;
+        }
+
+        // by default tail will go away
+        return 1;
+    }
+}
