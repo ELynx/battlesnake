@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.javatuples.Pair;
-import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
+import ru.elynx.battlesnake.engine.math.FlagMatrix;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 import ru.elynx.battlesnake.entity.GameState;
@@ -52,10 +52,10 @@ public class HazardPredictor {
 
     private List<Pair<Coordinates, Double>> predictHazards() {
         Dimensions dimensions = gameState.getBoard().getDimensions();
-        FreeSpaceMatrix freeSpaceMatrix = FreeSpaceMatrix.emptyMatrix(dimensions);
+        FlagMatrix hazardField = FlagMatrix.unsetMatrix(dimensions);
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
-            freeSpaceMatrix.setOccupied(hazard);
+            hazardField.set(hazard);
         }
 
         int xMin = -1;
@@ -67,15 +67,13 @@ public class HazardPredictor {
             if (yMin == -1 && yMax == -1) {
                 int y;
                 for (y = 0; y < dimensions.getHeight(); ++y)
-                    // TODO type
-                    if (freeSpaceMatrix.isFree(new Coordinates(x, y))) {
+                    if (!hazardField.isSet(x, y)) {
                         yMin = y;
                         break;
                     }
 
                 for (; y < dimensions.getHeight(); ++y)
-                    // TODO type
-                    if (freeSpaceMatrix.isFree(new Coordinates(x, y)))
+                    if (!hazardField.isSet(x, y))
                         yMax = y;
                     else
                         break;
@@ -85,8 +83,7 @@ public class HazardPredictor {
                 if (xMin == -1)
                     xMin = x;
 
-                // TODO type
-                if (freeSpaceMatrix.isFree(new Coordinates(x, yMin)))
+                if (!hazardField.isSet(x, yMin))
                     xMax = x;
                 else
                     break;
