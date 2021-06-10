@@ -137,17 +137,12 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             weightMatrix.addValue(hazard, DETERRENT_WEIGHT);
         }
 
-        for (Triplet<Integer, Integer, Double> prediction : hazardPredictor.getPredictedHazards()) {
-            final int x = prediction.getValue0();
-            final int y = prediction.getValue1();
+        for (Pair<Coordinates, Double> prediction : hazardPredictor.getPredictedHazards()) {
+            Coordinates pc = prediction.getValue0();
+            double pv = prediction.getValue1();
+            double pw = DETERRENT_WEIGHT * pv;
 
-            // TODO typing
-            Coordinates temp = new Coordinates(x, y);
-
-            final double pv = prediction.getValue2();
-            final double pw = DETERRENT_WEIGHT * pv;
-
-            weightMatrix.addValue(temp, pw);
+            weightMatrix.addValue(pc, pw);
         }
     }
 

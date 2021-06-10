@@ -71,7 +71,6 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
         int dx = px - x;
         int dy = py - y;
 
-        // TODO not nulls
         if (dx > 0) {
             return new Move(RIGHT);
         } else if (dx < 0) {
