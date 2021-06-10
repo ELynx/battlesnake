@@ -10,6 +10,10 @@ public class Matrix {
         this.dimensions = dimensions;
     }
 
+    public Dimensions getDimensions() {
+        return dimensions;
+    }
+
     protected int calculateBoundIndex(Coordinates coordinates) {
         return calculateBoundIndex(coordinates.getX(), coordinates.getY());
     }

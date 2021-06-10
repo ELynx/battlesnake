@@ -31,7 +31,7 @@ public class HazardPredictor {
     // seed is re-used through game, and business logic is based on repeatability
     // in theory, it is quite possible to determine hazards accurately
     private List<Pair<Coordinates, Double>> getPredictedHazardsImpl() {
-        if (isRoyale() && isPreHazardTurn() && hasNonHazardCells()) {
+        if (isRoyale() && isPreHazardExpansionTurn() && hasCellsFreeOfHazard()) {
             return predictHazards();
         }
 
@@ -39,24 +39,24 @@ public class HazardPredictor {
     }
 
     private boolean isRoyale() {
-        return hazardStep > 0 && gameState.getRules().isRoyale();
+        return gameState.getRules().isRoyale();
     }
 
-    private boolean hasNonHazardCells() {
+    private boolean hasCellsFreeOfHazard() {
         return gameState.getBoard().getHazards().size() < gameState.getBoard().getDimensions().area();
     }
 
-    private boolean isPreHazardTurn() {
+    private boolean isPreHazardExpansionTurn() {
+        if (hazardStep <= 0) {
+            return false;
+        }
+
         return gameState.getTurn() % hazardStep == hazardStep - 1;
     }
 
     private List<Pair<Coordinates, Double>> predictHazards() {
-        Dimensions dimensions = gameState.getBoard().getDimensions();
-        FlagMatrix hazardField = FlagMatrix.unsetMatrix(dimensions);
-
-        for (Coordinates hazard : gameState.getBoard().getHazards()) {
-            hazardField.set(hazard);
-        }
+        FlagMatrix hazardField = prepareHazardField();
+        Dimensions dimensions = hazardField.getDimensions();
 
         int xMin = -1;
         int xMax = -1;
@@ -90,6 +90,20 @@ public class HazardPredictor {
             }
         }
 
+        return getProbabilities(xMin, xMax, yMin, yMax);
+    }
+
+    private FlagMatrix prepareHazardField() {
+        FlagMatrix hazardField = FlagMatrix.unsetMatrix(gameState.getBoard().getDimensions());
+
+        for (Coordinates hazard : gameState.getBoard().getHazards()) {
+            hazardField.set(hazard);
+        }
+
+        return hazardField;
+    }
+
+    private List<Pair<Coordinates, Double>> getProbabilities(int xMin, int xMax, int yMin, int yMax) {
         Map<Coordinates, Double> probabilities = new HashMap<>();
         double singleProbability = 0.25d;
 
