@@ -30,6 +30,5 @@ public class SnakeDto {
     @NonNull
     String shout;
 
-    @NonNull
     String squad;
 }
