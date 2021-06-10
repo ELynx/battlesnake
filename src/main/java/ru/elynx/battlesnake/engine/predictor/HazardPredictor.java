@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.engine.predictor;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.javatuples.Pair;
@@ -98,33 +97,28 @@ public class HazardPredictor {
     }
 
     private List<Pair<Coordinates, Double>> getProbabilities(int xMin, int xMax, int yMin, int yMax) {
-        Map<Coordinates, Double> probabilities = new HashMap<>();
+        // test for edge case with simple detection
+        if (xMin == xMax && yMin == yMax) {
+            return List.of(new Pair<>(new Coordinates(xMin, yMin), 1.0d));
+        }
+
         double singleProbability = 0.25d;
 
-        Function<Coordinates, Void> markAsProbable = (Coordinates coordinates) -> {
-            probabilities.compute(coordinates, (key, value) -> {
-                if (value == null)
-                    return singleProbability;
-                return value + singleProbability;
-            });
-            return null;
-        };
-
+        List<Pair<Coordinates, Double>> result = new ArrayList<>();
         for (int x = xMin; x <= xMax; ++x) {
-            // TODO type
-            markAsProbable.apply(new Coordinates(x, yMin));
-            // TODO type
-            markAsProbable.apply(new Coordinates(x, yMax));
+            result.add(new Pair<>(new Coordinates(x, yMin), singleProbability));
+            result.add(new Pair<>(new Coordinates(x, yMax), singleProbability));
         }
 
         for (int y = yMin; y <= yMax; ++y) {
-            // TODO type
-            markAsProbable.apply(new Coordinates(xMin, y));
-            // TODO type
-            markAsProbable.apply(new Coordinates(xMax, y));
+            result.add(new Pair<>(new Coordinates(xMin, y), singleProbability));
+            result.add(new Pair<>(new Coordinates(xMax, y), singleProbability));
         }
 
-        return probabilities.entrySet().stream().map(in -> new Pair<>(in.getKey(), in.getValue()))
-                .collect(Collectors.toList());
+        // account for corners
+        Map<Coordinates, Double> foo = result.stream()
+                .collect(Collectors.groupingBy(Pair::getValue0, Collectors.summingDouble(Pair::getValue1)));
+
+        return foo.entrySet().stream().map(x -> new Pair<>(x.getKey(), x.getValue())).collect(Collectors.toList());
     }
 }
