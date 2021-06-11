@@ -18,7 +18,7 @@ class MoveMapperTest {
         Move entity = new Move(MoveCommand.UP, "some shout");
         MoveDto dto = tested.toDto(entity);
 
-        assertEquals("UP", dto.getMove());
+        assertEquals("up", dto.getMove());
         assertEquals("some shout", dto.getShout());
     }
 
@@ -27,7 +27,7 @@ class MoveMapperTest {
         Move entity = new Move(MoveCommand.UP);
         MoveDto dto = tested.toDto(entity);
 
-        assertEquals("UP", dto.getMove());
+        assertEquals("up", dto.getMove());
         assertNull(dto.getShout());
     }
 
@@ -41,7 +41,10 @@ class MoveMapperTest {
                 case LEFT :
                 case RIGHT :
                 case UP : {
-                    assertDoesNotThrow(() -> tested.toDto(entity));
+                    assertDoesNotThrow(() -> {
+                        MoveDto dto = tested.toDto(entity);
+                        assertEquals(moveCommand.toString().toLowerCase(), dto.getMove());
+                    });
                 }
                     break;
                 default :
