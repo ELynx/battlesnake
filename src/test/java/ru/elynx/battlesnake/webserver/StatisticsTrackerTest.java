@@ -16,22 +16,22 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 class StatisticsTrackerTest {
     @Test
     void test_root(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.root("Test"));
+        assertDoesNotThrow(() -> tested.trackRoot("Test"));
     }
 
     @Test
     void test_start(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.start(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackStart(EntityBuilder.hazardPredictor().getGameState()));
     }
 
     @Test
     void test_move(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.move(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackMove(EntityBuilder.hazardPredictor().getGameState()));
     }
 
     @Test
     void test_end(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.end(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackEnd(EntityBuilder.hazardPredictor().getGameState()));
     }
 
     @Test

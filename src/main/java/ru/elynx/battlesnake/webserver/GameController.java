@@ -40,7 +40,7 @@ public class GameController {
         this.moveMapper = moveMapper;
     }
 
-    private static String terseIdentification(GameStateDto gameStateDto) {
+    private static String makeTerseId(GameStateDto gameStateDto) {
         return "ID [" + gameStateDto.getGame().getId() + "] Turn [" + gameStateDto.getTurn() + "] Snake ["
                 + gameStateDto.getYou().getName() + "] / [" + gameStateDto.getYou().getId() + ']';
     }
@@ -48,13 +48,15 @@ public class GameController {
     @ExceptionHandler(SnakeNotFoundException.class)
     public final ResponseEntity<Void> handleSnakeNotFoundException(SnakeNotFoundException e, WebRequest webRequest) {
         logger.error("Exception handler for SnakeNotFound", e);
+
         return ResponseEntity.notFound().build();
     }
 
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name) {
         logger.info("Processing root meta call");
-        statisticsTracker.root(name);
+
+        statisticsTracker.trackRoot(name);
 
         BattlesnakeInfo battlesnakeInfo = snakeManager.root(name);
         return ResponseEntity.ok(battlesnakeInfoMapper.toDto(battlesnakeInfo));
@@ -63,12 +65,13 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/start", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> start(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
-        String terseId = terseIdentification(gameStateDto);
+        String terseId = makeTerseId(gameStateDto);
         logger.info("Processing request game start {}", terseId);
 
         GameState gameState = gameStateMapper.toEntity(gameStateDto);
 
-        statisticsTracker.start(gameState);
+        statisticsTracker.trackStart(gameState);
+
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
         }
@@ -79,12 +82,12 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MoveDto> move(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
-        String terseId = terseIdentification(gameStateDto);
+        String terseId = makeTerseId(gameStateDto);
         logger.debug("Processing request game move {}", terseId);
 
         GameState gameState = gameStateMapper.toEntity(gameStateDto);
 
-        statisticsTracker.move(gameState);
+        statisticsTracker.trackMove(gameState);
 
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();
@@ -97,12 +100,12 @@ public class GameController {
     @PostMapping(path = "/snakes/{name}/end", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> end(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name,
             @RequestBody GameStateDto gameStateDto) {
-        String terseId = terseIdentification(gameStateDto);
+        String terseId = makeTerseId(gameStateDto);
         logger.info("Processing request game end {}", terseId);
 
         GameState gameState = gameStateMapper.toEntity(gameStateDto);
 
-        statisticsTracker.end(gameState);
+        statisticsTracker.trackEnd(gameState);
 
         if (!name.equals(gameState.getYou().getName())) {
             return ResponseEntity.badRequest().build();

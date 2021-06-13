@@ -24,11 +24,11 @@ class StatisticsTracker {
 
     private long pings = 0L;
 
-    public void root(String name) {
+    public void trackRoot(String name) {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, name);
     }
 
-    public void start(GameState gameState) {
+    public void trackStart(GameState gameState) {
         common(gameState);
     }
 
@@ -51,11 +51,11 @@ class StatisticsTracker {
         NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getRules().getTimeout());
     }
 
-    public void move(GameState gameState) {
+    public void trackMove(GameState gameState) {
         common(gameState);
     }
 
-    public void end(GameState gameState) {
+    public void trackEnd(GameState gameState) {
         common(gameState);
         victory(gameState);
         turnsToEnd(gameState);
