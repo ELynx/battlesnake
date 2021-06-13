@@ -10,14 +10,4 @@ public class MoveDto {
     @NonNull
     String move;
     String shout;
-
-    // TODO with mapping
-    public MoveDto(String move, String shout) {
-        if (move == null) {
-            throw new NullPointerException("Move must not be null");
-        }
-
-        this.move = move.toLowerCase();
-        this.shout = shout;
-    }
 }
