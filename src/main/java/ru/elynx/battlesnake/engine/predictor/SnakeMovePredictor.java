@@ -31,7 +31,7 @@ public class SnakeMovePredictor {
         Iterable<Coordinates> directions = possibleDirections(snake);
         ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
 
-        return getProbabilityOf(directions, scoreMaker);
+        return getProbabilitiesOf(directions, scoreMaker);
     }
 
     private Iterable<Coordinates> possibleDirections(Snake snake) {
@@ -92,12 +92,13 @@ public class SnakeMovePredictor {
         }
     }
 
-    private List<Pair<Coordinates, Double>> getProbabilityOf(Iterable<Coordinates> directions, ScoreMaker scoreMaker) {
+    private List<Pair<Coordinates, Double>> getProbabilitiesOf(Iterable<Coordinates> directions,
+            ScoreMaker scoreMaker) {
         List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
         int greatestScore = Integer.MIN_VALUE;
 
         for (Coordinates direction : directions) {
-            if (predictorInformant.isWalkable(direction)) {
+            if (isWalkable(direction)) {
                 int score = scoreMaker.scoreMove(direction);
                 if (score > greatestScore)
                     greatestScore = score;
@@ -110,18 +111,26 @@ public class SnakeMovePredictor {
             return Collections.emptyList();
         }
 
-        int correctionForWorst;
+        return makeProbabilities(walkableDirections, greatestScore);
+    }
+
+    private boolean isWalkable(Coordinates direction) {
+        return predictorInformant.isWalkable(direction);
+    }
+
+    private List<Pair<Coordinates, Double>> makeProbabilities(List<Pair<Coordinates, Integer>> directions,
+            int greatestScore) {
+        int correctionForNonPositive;
         if (greatestScore < 1) {
-            correctionForWorst = 1 - greatestScore;
+            correctionForNonPositive = 1 - greatestScore;
         } else {
-            correctionForWorst = 0;
+            correctionForNonPositive = 0;
         }
 
         probabilityMaker.reset();
 
-        for (Pair<Coordinates, Integer> walkableDirection : walkableDirections) {
-            probabilityMaker.addPosition(walkableDirection.getValue0(),
-                    walkableDirection.getValue1() + correctionForWorst);
+        for (Pair<Coordinates, Integer> direction : directions) {
+            probabilityMaker.addPosition(direction.getValue0(), direction.getValue1() + correctionForNonPositive);
         }
 
         return probabilityMaker.makeProbabilities();

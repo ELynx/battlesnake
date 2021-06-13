@@ -41,16 +41,16 @@ public class HazardPredictor {
         return gameState.getRules().isRoyale();
     }
 
-    private boolean hasCellsFreeOfHazard() {
-        return gameState.getBoard().getHazards().size() < gameState.getBoard().getDimensions().area();
-    }
-
     private boolean isPreHazardExpansionTurn() {
         if (hazardStep <= 0) {
             return false;
         }
 
         return gameState.getTurn() % hazardStep == hazardStep - 1;
+    }
+
+    private boolean hasCellsFreeOfHazard() {
+        return gameState.getBoard().getHazards().size() < gameState.getBoard().getDimensions().area();
     }
 
     private Map<Coordinates, Double> predictHazards() {
