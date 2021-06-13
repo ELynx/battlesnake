@@ -29,13 +29,13 @@ public class FlagMatrix extends Matrix {
         Arrays.fill(values, false);
     }
 
-    public boolean set(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
+    public boolean set(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
         return setByBoundIndex(boundIndex);
     }
 
-    public boolean set(Coordinates coordinates) {
-        int boundIndex = calculateBoundIndex(coordinates);
+    public boolean set(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
         return setByBoundIndex(boundIndex);
     }
 
@@ -52,13 +52,13 @@ public class FlagMatrix extends Matrix {
         values[index] = true;
     }
 
-    public boolean isSet(int x, int y) {
-        int boundIndex = calculateBoundIndex(x, y);
+    public boolean isSet(Coordinates coordinates) {
+        int boundIndex = calculateBoundIndex(coordinates);
         return isSetByBoundIndex(boundIndex);
     }
 
-    public boolean isSet(Coordinates coordinates) {
-        int boundIndex = calculateBoundIndex(coordinates);
+    public boolean isSet(int x, int y) {
+        int boundIndex = calculateBoundIndex(x, y);
         return isSetByBoundIndex(boundIndex);
     }
 

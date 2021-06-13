@@ -97,18 +97,18 @@ public class FreeSpaceMatrix extends Matrix {
     }
 
     private int getFreeSpaceByFloodFill(Coordinates coordinates) {
-        setFloodFillCellTo(coordinates);
-        floodFill();
-        return countFilledCells();
+        initiateFloodFillAt(coordinates);
+        preformFloodFill();
+        return tallyFloodFilledCells();
     }
 
-    private void setFloodFillCellTo(Coordinates coordinates) {
+    private void initiateFloodFillAt(Coordinates coordinates) {
         floodFillStack[X_STACK_POSITION] = coordinates.getX();
         floodFillStack[Y_STACK_POSITION] = coordinates.getY();
         floodFillStackPosition = STACK_SIZE_PER_ITEM;
     }
 
-    private void floodFill() {
+    private void preformFloodFill() {
         while (hasFloodFillStackItems()) {
             floodFillByOneStackItem();
         }
@@ -173,20 +173,24 @@ public class FreeSpaceMatrix extends Matrix {
         return getValueByBoundIndex(boundIndex);
     }
 
-    private int countFilledCells() {
+    private int tallyFloodFilledCells() {
         int count = 0;
-        for (int index = 0; index < spaceValues.length; ++index) {
+        for (int index = 0; index < boundIndexLimit(); ++index) {
             if (getValueByIndex(index) == FLOOD_FILL_VALUE)
                 ++count;
         }
 
         if (count > 0) {
-            for (int index = 0; index < spaceValues.length; ++index) {
+            for (int index = 0; index < boundIndexLimit(); ++index) {
                 if (getValueByIndex(index) == FLOOD_FILL_VALUE)
                     setValueByIndex(index, count);
             }
         }
 
         return count;
+    }
+
+    private int boundIndexLimit() {
+        return spaceValues.length;
     }
 }
