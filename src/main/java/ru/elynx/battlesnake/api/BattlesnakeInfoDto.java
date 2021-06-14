@@ -1,7 +1,8 @@
 package ru.elynx.battlesnake.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.NonNull;
+import lombok.Value;
 
 @Value
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

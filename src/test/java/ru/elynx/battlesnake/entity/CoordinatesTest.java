@@ -2,7 +2,7 @@ package ru.elynx.battlesnake.entity;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import org.junit.jupiter.api.Tag;

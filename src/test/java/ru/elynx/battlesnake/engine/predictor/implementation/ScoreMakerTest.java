@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.predictor.implementation;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import org.junit.jupiter.api.Tag;

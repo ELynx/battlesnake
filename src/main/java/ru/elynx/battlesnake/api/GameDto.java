@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.api;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 @Value

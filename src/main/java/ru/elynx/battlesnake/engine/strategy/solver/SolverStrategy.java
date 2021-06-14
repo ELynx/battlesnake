@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.strategy.solver;
 
-import static ru.elynx.battlesnake.entity.MoveCommand.*;
+import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
