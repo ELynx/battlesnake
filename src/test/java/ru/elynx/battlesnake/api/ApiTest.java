@@ -101,24 +101,24 @@ class ApiTest {
         ObjectMapper mapper = new ObjectMapper();
 
         String serialized = mapper
-                .writeValueAsString(new BattlesnakeInfoDto("1", "AuThOr", "#dedbff", "begin", "end", "bestest"));
+                .writeValueAsString(new BattlesnakeInfoDto("1", "Auth|or", "#112233", "He|ad", "Ta|il", "Vers|ion"));
 
         assertTrue(serialized.matches(".*\"apiversion\"\\s*:\\s*\"1\".*"));
-        assertTrue(serialized.matches(".*\"author\"\\s*:\\s*\"AuThOr\".*"));
-        assertTrue(serialized.matches(".*\"color\"\\s*:\\s*\"#dedbff\".*"));
-        assertTrue(serialized.matches(".*\"head\"\\s*:\\s*\"begin\".*"));
-        assertTrue(serialized.matches(".*\"tail\"\\s*:\\s*\"end\".*"));
-        assertTrue(serialized.matches(".*\"version\"\\s*:\\s*\"bestest\".*"));
+        assertTrue(serialized.matches(".*\"author\"\\s*:\\s*\"Auth\\|or\".*"));
+        assertTrue(serialized.matches(".*\"color\"\\s*:\\s*\"#112233\".*"));
+        assertTrue(serialized.matches(".*\"head\"\\s*:\\s*\"He\\|ad\".*"));
+        assertTrue(serialized.matches(".*\"tail\"\\s*:\\s*\"Ta\\|il\".*"));
+        assertTrue(serialized.matches(".*\"version\"\\s*:\\s*\"Vers\\|ion\".*"));
     }
 
     @Test
     void test_serialize_MoveDto() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
-        String serialized = mapper.writeValueAsString(new MoveDto("down", "shshshout"));
+        String serialized = mapper.writeValueAsString(new MoveDto("down", "Sh|out"));
 
         assertTrue(serialized.matches(".*\"move\"\\s*:\\s*\"down\".*"));
-        assertTrue(serialized.matches(".*\"shout\"\\s*:\\s*\"shshshout\".*"));
+        assertTrue(serialized.matches(".*\"shout\"\\s*:\\s*\"Sh\\|out\".*"));
 
         serialized = mapper.writeValueAsString(new MoveDto("right", null));
 

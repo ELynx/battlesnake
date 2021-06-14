@@ -18,6 +18,7 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
 
@@ -26,6 +27,7 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
     }
@@ -41,6 +43,7 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
 
@@ -49,6 +52,7 @@ class FlagMatrixTest {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
     }
@@ -73,6 +77,7 @@ class FlagMatrixTest {
         for (int x = -1; x <= width; ++x) {
             for (int y = -1; y <= height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
     }
@@ -104,6 +109,7 @@ class FlagMatrixTest {
         for (int x = -1; x <= width; ++x) {
             for (int y = -1; y <= height; ++y) {
                 assertFalse(tested.isSet(x, y));
+                assertFalse(tested.isSet(new Coordinates(x, y)));
             }
         }
     }
@@ -145,7 +151,7 @@ class FlagMatrixTest {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                assertTrue(tested.isSet(x, y));
+                assertTrue(tested.isSet(new Coordinates(x, y)));
             }
         }
     }
