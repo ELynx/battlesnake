@@ -13,6 +13,7 @@ import ru.elynx.battlesnake.entity.Coordinates;
 @Tag("Internals")
 class HazardPredictorTest {
     private static final String ROYALE_RULES_NAME = "royale";
+    private static final String STANDARD_RULESET_NAME = "standard";
     private static final double fuzz = 0.0001d;
 
     @Test
@@ -21,15 +22,15 @@ class HazardPredictorTest {
         HazardPredictor tested;
 
         // default state, no hazard step set
-        tested = generator.build();
+        tested = generator.setTurn(24).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards by default");
 
         // set mode, not set step
-        tested = generator.setRulesetName(ROYALE_RULES_NAME).build();
+        tested = generator.setRulesetName(ROYALE_RULES_NAME).setHazardStep(0).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
 
         // set step, not set mode
-        tested = generator.setRulesetName("standard").setHazardStep(25).build();
+        tested = generator.setRulesetName(STANDARD_RULESET_NAME).setHazardStep(25).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
     }
 
@@ -39,17 +40,22 @@ class HazardPredictorTest {
                 .setRulesetName(ROYALE_RULES_NAME).setTurn(24);
         HazardPredictor tested;
 
-        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
-
-        assertEquals(24, tested.getGameState().getBoard().getHazards().size());
-        assertEquals(1, tested.getPredictedHazards().size());
-
-        assertThat(tested.getPredictedHazards().get(new Coordinates(2, 2)), is(closeTo(1.0d, fuzz)));
-
         tested = generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").setHazardStep(25).build();
 
         assertEquals(25, tested.getGameState().getBoard().getHazards().size());
         assertEquals(0, tested.getPredictedHazards().size());
+    }
+
+    @Test
+    void test_predict_hazard_last_cell_is_one() {
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
+                .setRulesetName(ROYALE_RULES_NAME).setTurn(24);
+        HazardPredictor tested;
+
+        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
+
+        assertEquals(24, tested.getGameState().getBoard().getHazards().size());
+        assertEquals(1, tested.getPredictedHazards().size());
     }
 
     @Test
