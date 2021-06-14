@@ -2,7 +2,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'org.springframework.boot' version '2.5.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
+    id 'application'
     id 'com.diffplug.spotless' version '5.13.0'
     id 'de.undercouch.download' version '4.1.1'
     id 'io.freefair.lombok' version '6.0.0-m2'
@@ -11,10 +11,6 @@ plugins {
 group = 'ru.elynx'
 version = '2.0.0'
 sourceCompatibility = '11'
-
-java {
-    sourceCompatibility = '11'
-}
 
 repositories {
     mavenCentral()
@@ -98,6 +94,26 @@ spotless {
     }
 }
 
+application {
+    mainClass.set('ru.elynx.battlesnake.BattlesnakeApplication')
+}
+
 test {
     useJUnitPlatform()
+}
+
+var disabledTasks = [
+    'bootStartScripts',
+    'bootDistTar',
+    'bootDistZip',
+    'jar',
+    'startScripts',
+    'distTar',
+    'distZip'
+]
+
+tasks.each {
+    if (disabledTasks.contains(it.name)) {
+        it.enabled = false
+    }
 }
