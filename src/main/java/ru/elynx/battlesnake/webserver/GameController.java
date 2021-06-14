@@ -52,6 +52,14 @@ public class GameController {
         return ResponseEntity.notFound().build();
     }
 
+    @ExceptionHandler(InvalidGameStateException.class)
+    public final ResponseEntity<Void> handleInvalidGameStateException(InvalidGameStateException e,
+            WebRequest webRequest) {
+        logger.error("Exception handler for InvalidGameState", e);
+
+        return ResponseEntity.badRequest().build();
+    }
+
     @GetMapping(path = "/snakes/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattlesnakeInfoDto> root(@PathVariable @NotNull @Pattern(regexp = "[\\w]+") String name) {
         logger.info("Processing root meta call");
@@ -72,11 +80,10 @@ public class GameController {
 
         statisticsTracker.trackStart(gameState);
 
-        if (!name.equals(gameState.getYou().getName())) {
-            return ResponseEntity.badRequest().build();
-        }
+        validateGameState(name, gameState);
 
-        return ResponseEntity.ok(snakeManager.start(gameState));
+        Void start = snakeManager.start(gameState);
+        return ResponseEntity.ok(start);
     }
 
     @PostMapping(path = "/snakes/{name}/move", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,9 +96,7 @@ public class GameController {
 
         statisticsTracker.trackMove(gameState);
 
-        if (!name.equals(gameState.getYou().getName())) {
-            return ResponseEntity.badRequest().build();
-        }
+        validateGameState(name, gameState);
 
         Move move = snakeManager.move(gameState);
         return ResponseEntity.ok(moveMapper.toDto(move));
@@ -107,10 +112,15 @@ public class GameController {
 
         statisticsTracker.trackEnd(gameState);
 
-        if (!name.equals(gameState.getYou().getName())) {
-            return ResponseEntity.badRequest().build();
-        }
+        validateGameState(name, gameState);
 
-        return ResponseEntity.ok(snakeManager.end(gameState));
+        Void end = snakeManager.end(gameState);
+        return ResponseEntity.ok(end);
+    }
+
+    private void validateGameState(String requestedSnakeName, GameState gameState) throws InvalidGameStateException {
+        if (!requestedSnakeName.equals(gameState.getYou().getName())) {
+            throw new InvalidGameStateException("Requested snake name does not match content of game state");
+        }
     }
 }

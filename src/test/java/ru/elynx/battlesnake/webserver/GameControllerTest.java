@@ -121,4 +121,20 @@ class GameControllerTest {
 
         assertDoesNotThrow(() -> mockMvc.perform(get(API_ENDPOINT_BASE + " 123")).andExpect(status().isNotFound()));
     }
+
+    @Test
+    void test_name_and_body_difference_return_bad_request() {
+        List<String> urls = new LinkedList<>();
+        urls.add(API_ENDPOINT_BASE + "/start");
+        urls.add(API_ENDPOINT_BASE + "/move");
+        urls.add(API_ENDPOINT_BASE + "/end");
+
+        String callToSomeSnake = ApiExampleBuilder.gameState().replaceAll("My Snake", "Some Snake");
+
+        for (String url : urls) {
+            assertDoesNotThrow(
+                    () -> mockMvc.perform(post(url).content(callToSomeSnake).contentType(MediaType.APPLICATION_JSON))
+                            .andExpect(status().isBadRequest()));
+        }
+    }
 }
