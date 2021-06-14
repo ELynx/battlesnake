@@ -8,8 +8,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GameStrategyFactory implements IGameStrategyFactory {
+    private final Map<String, Supplier<IGameStrategy>> registeredGameStrategies;
+
     @Autowired
-    Map<String, Supplier<IGameStrategy>> registeredGameStrategies;
+    public GameStrategyFactory(Map<String, Supplier<IGameStrategy>> registeredGameStrategies) {
+        this.registeredGameStrategies = registeredGameStrategies;
+    }
 
     @Override
     public IGameStrategy getGameStrategy(String name) throws SnakeNotFoundException {
