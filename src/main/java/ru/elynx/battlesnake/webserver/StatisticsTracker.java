@@ -9,7 +9,7 @@ import ru.elynx.battlesnake.entity.Snake;
 
 @Service
 @Scope("singleton")
-class StatisticsTracker {
+public class StatisticsTracker {
     private static final String SNAKE_NAME_PARAMETER = "snakeName";
     private static final String SNAKE_HEALTH_PARAMETER = "snakeHealth";
     private static final String SNAKE_LENGTH_PARAMETER = "snakeLength";
