@@ -4,8 +4,6 @@ import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 
 public class CaseBuilder {
-    private static final String ROYALE_RULES_NAME = "royale";
-
     private CaseBuilder() {
     }
 
@@ -133,7 +131,7 @@ public class CaseBuilder {
                 "_____0__y_y\n" + //
                 "__0_____yyy\n");
 
-        generator.setRulesetName(ROYALE_RULES_NAME);
+        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(122);
         generator.setHealth("A", 64);
         generator.setHealth("B", 52);
@@ -196,7 +194,7 @@ public class CaseBuilder {
                 "_>>>>xX____\n" + //
                 "0______0___\n");
 
-        generator.setRulesetName(ROYALE_RULES_NAME);
+        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(55);
         generator.setHealth("Y", 90);
         generator.setHealth("W", 99);
@@ -285,7 +283,7 @@ public class CaseBuilder {
                 "0___aaaa_a_\n" + //
                 "_______aaa_\n");
 
-        generator.setRulesetName(ROYALE_RULES_NAME);
+        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(174);
         generator.setHealth("A", 89);
         generator.setHealth("Y", 97);

@@ -9,11 +9,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.entity.Coordinates;
+import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
 @Tag("Internals")
 class HazardPredictorTest {
-    private static final String ROYALE_RULES_NAME = "royale";
-    private static final String STANDARD_RULESET_NAME = "standard";
     private static final double fuzz = 0.0001d;
 
     @Test
@@ -26,18 +25,18 @@ class HazardPredictorTest {
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards by default");
 
         // set mode, not set step
-        tested = generator.setRulesetName(ROYALE_RULES_NAME).setHazardStep(0).build();
+        tested = generator.setRulesetName(ApiExampleBuilder.royaleRulesetName()).setHazardStep(0).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
 
         // set step, not set mode
-        tested = generator.setRulesetName(STANDARD_RULESET_NAME).setHazardStep(25).build();
+        tested = generator.setRulesetName(ApiExampleBuilder.standardRulesetName()).setHazardStep(25).build();
         assertEquals(0, tested.getPredictedHazards().size(), "No predicted hazards");
     }
 
     @Test
     void test_predict_hazard_already_full() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ROYALE_RULES_NAME).setTurn(24);
+                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
         HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").setHazardStep(25).build();
@@ -49,7 +48,7 @@ class HazardPredictorTest {
     @Test
     void test_predict_hazard_last_cell_is_one() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ROYALE_RULES_NAME).setTurn(24);
+                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
         HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
@@ -61,7 +60,7 @@ class HazardPredictorTest {
     @Test
     void test_predict_hazard_not_that_turn() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ROYALE_RULES_NAME).setTurn(23);
+                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(23);
         HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
@@ -73,7 +72,7 @@ class HazardPredictorTest {
     @Test
     void test_predict_hazard() {
         AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ROYALE_RULES_NAME).setTurn(24);
+                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
         HazardPredictor tested;
 
         tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
