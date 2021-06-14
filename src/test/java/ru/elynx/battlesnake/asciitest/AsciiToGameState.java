@@ -5,13 +5,14 @@ import java.util.function.Function;
 import org.javatuples.KeyValue;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
+import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
 public class AsciiToGameState {
     // mandatory
     private final String ascii;
     // has some defaults, thus added by "builder" pattern
     private int turn = 42;
-    private String rulesetName = "standard";
+    private String rulesetName = ApiExampleBuilder.standardRulesetName();
     private int startSnakeSize = 3;
     private String hazards = null;
     private int hazardStep = 25;

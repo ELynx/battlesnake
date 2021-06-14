@@ -11,6 +11,7 @@ import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
+import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
 @Tag("TestComponent")
 class AsciiToGameStateTest {
@@ -30,8 +31,8 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        HazardPredictor entity1 = tested.setTurn(123).setRulesetName("standard").setStartSnakeSize(4).setHealth("Y", 99)
-                .setLatency("A", 0).setHazards("" + //
+        HazardPredictor entity1 = tested.setTurn(123).setRulesetName(ApiExampleBuilder.standardRulesetName())
+                .setStartSnakeSize(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
                         "HHHHHHHHHHH\n" + //
                         "H_________H\n" + //
                         "H_________H\n" + //

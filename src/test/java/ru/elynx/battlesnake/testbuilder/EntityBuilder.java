@@ -25,7 +25,7 @@ public class EntityBuilder {
 
         String gameId = "Test Ga|me I|d";
         int turn = 0;
-        Rules rules = new Rules("standard", "1.234", 500);
+        Rules rules = new Rules(ApiExampleBuilder.standardRulesetName(), "1.234", 500);
 
         Dimensions dimensions = new Dimensions(15, 11);
         List<Coordinates> food = Collections.emptyList();
