@@ -88,12 +88,12 @@ class ApiTest {
         assertEquals(0, gameStateDto.getYou().getBody().get(1).getY());
         assertEquals(2, gameStateDto.getYou().getBody().get(2).getX());
         assertEquals(0, gameStateDto.getYou().getBody().get(2).getY());
-        assertEquals(111, gameStateDto.getYou().getLatency());
+        assertNull(gameStateDto.getYou().getLatency());
         assertEquals(0, gameStateDto.getYou().getHead().getX());
         assertEquals(0, gameStateDto.getYou().getHead().getY());
         assertEquals(3, gameStateDto.getYou().getLength());
         assertEquals("why are we shouting??", gameStateDto.getYou().getShout());
-        assertEquals("", gameStateDto.getYou().getSquad());
+        assertNull(gameStateDto.getYou().getSquad());
     }
 
     @Test

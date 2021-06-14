@@ -93,12 +93,12 @@ class GameStateMapperTest {
         assertEquals(0, entity.getYou().getBody().get(1).getY());
         assertEquals(2, entity.getYou().getBody().get(2).getX());
         assertEquals(0, entity.getYou().getBody().get(2).getY());
-        assertEquals(111, entity.getYou().getLatency());
+        assertNull(entity.getYou().getLatency());
         assertEquals(0, entity.getYou().getHead().getX());
         assertEquals(0, entity.getYou().getHead().getY());
         assertEquals(3, entity.getYou().getLength());
         assertEquals("why are we shouting??", entity.getYou().getShout());
-        assertEquals("", entity.getYou().getSquad());
+        assertNull(entity.getYou().getSquad());
     }
 
     @Test

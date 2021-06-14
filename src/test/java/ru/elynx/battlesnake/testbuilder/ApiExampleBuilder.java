@@ -27,9 +27,8 @@ public class ApiExampleBuilder {
                 + "  \"you\": {\n" + "    \"id\": \"snake-508e96ac-94ad-11ea-bb37\",\n"
                 + "    \"name\": \"My Snake\",\n" + "    \"health\": 54,\n" + "    \"body\": [\n"
                 + "      {\"x\": 0, \"y\": 0}, \n" + "      {\"x\": 1, \"y\": 0}, \n" + "      {\"x\": 2, \"y\": 0}\n"
-                + "    ],\n" + "    \"latency\": \"111\",\n" + "    \"head\": {\"x\": 0, \"y\": 0},\n"
-                + "    \"length\": 3,\n" + "    \"shout\": \"why are we shouting??\",\n" + "    \"squad\": \"\"\n"
-                + "  }\n" + "}";
+                + "    ],\n" + "    \"head\": {\"x\": 0, \"y\": 0},\n" + "    \"length\": 3,\n"
+                + "    \"shout\": \"why are we shouting??\"\n" + "  }\n" + "}";
     }
 
     public static String standardRulesetName() {
