@@ -42,7 +42,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(UP))).validate(name);
+        assertMove(move.getMoveCommand(), not(equalTo(UP))).failing("Pixel").failing("Voxel").validate(name);
     }
 
     @ParameterizedTest
@@ -54,7 +54,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
+        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").failing("Voxel").validate(name);
     }
 
     @ParameterizedTest
@@ -66,7 +66,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
+        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Ahaetulla").failing("Pixel").failing("Voxel")
+                .validate(name);
     }
 
     @ParameterizedTest
@@ -78,7 +79,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).validate(name);
+        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).failing("Pixel").failing("Voxel").validate(name);
     }
 
     @ParameterizedTest
@@ -138,7 +139,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(RIGHT)).validate(name);
+        assertMove(move.getMoveCommand(), equalTo(RIGHT)).failing("Ahaetulla").failing("Pixel").failing("Voxel")
+                .validate(name);
     }
 
     @ParameterizedTest
@@ -186,6 +188,6 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
+        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").failing("Voxel").validate(name);
     }
 }
