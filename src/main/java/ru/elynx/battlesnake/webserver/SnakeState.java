@@ -11,23 +11,40 @@ import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
 class SnakeState {
-    final IGameStrategy gameStrategy;
-    Instant accessTime;
-    MoveCommand lastMove;
-    int hazardStep;
-    boolean hazardSeen;
-    boolean initialized;
+    private static final int DEFAULT_HAZARD_STEP = 25;
+
+    private final IGameStrategy gameStrategy;
+    private boolean initialized;
+
+    private int hazardStep;
+    private boolean hazardSeen;
+
+    private MoveCommand lastMove;
+
+    private Instant accessTime;
 
     SnakeState(IGameStrategy gameStrategy) {
         this.gameStrategy = gameStrategy;
-        this.accessTime = Instant.now();
-        this.lastMove = UP;
-        this.hazardStep = 25; // by default
-        this.hazardSeen = false;
         this.initialized = false;
+
+        this.hazardStep = DEFAULT_HAZARD_STEP;
+        this.hazardSeen = false;
+
+        this.lastMove = UP;
+
+        updateAccessTime();
+    }
+
+    private void updateAccessTime() {
+        accessTime = Instant.now();
+    }
+
+    public boolean isLastAccessedBefore(Instant than) {
+        return accessTime.isBefore(than);
     }
 
     public Void processStart(GameState gameState) {
+        updateAccessTime();
         HazardPredictor hazardPredictor = makeHazardPredictor(gameState);
         return initializeAndProcessStart(hazardPredictor);
     }
@@ -53,6 +70,7 @@ class SnakeState {
     }
 
     public Move processMove(GameState gameState) {
+        updateAccessTime();
         trackHazard(gameState);
         HazardPredictor hazardPredictor = makeHazardPredictor(gameState);
         Move move = initializeAndProcessMove(hazardPredictor);
@@ -86,6 +104,8 @@ class SnakeState {
     }
 
     public Void processEnd(GameState gameState) {
+        updateAccessTime();
+
         if (!initialized) {
             return null;
         }

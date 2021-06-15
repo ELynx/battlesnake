@@ -37,7 +37,7 @@ public class SnakeManager {
         int sizeBefore = activeSnakes.size();
 
         Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_AGE);
-        activeSnakes.values().removeIf(meta -> meta.accessTime.isBefore(staleSnakeTime));
+        activeSnakes.values().removeIf(meta -> meta.isLastAccessedBefore(staleSnakeTime));
 
         int sizeAfter = activeSnakes.size();
 
@@ -82,7 +82,6 @@ public class SnakeManager {
             }
 
             logger.debug("Accessing existing snake instance [{}]", snakeId1);
-            snakeState.accessTime = Instant.now();
             return snakeState;
         });
     }
