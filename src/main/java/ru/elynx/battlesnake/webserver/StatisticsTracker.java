@@ -29,15 +29,15 @@ public class StatisticsTracker {
     }
 
     public void trackStart(GameState gameState) {
-        common(gameState);
+        trackCommon(gameState);
     }
 
-    private void common(GameState gameState) {
-        snakeInfo(gameState);
-        rulesetInfo(gameState);
+    private void trackCommon(GameState gameState) {
+        trackSnakeInfo(gameState);
+        trackRulesetInfo(gameState);
     }
 
-    private void snakeInfo(GameState gameState) {
+    private void trackSnakeInfo(GameState gameState) {
         NewRelic.addCustomParameter(SNAKE_NAME_PARAMETER, gameState.getYou().getName());
         NewRelic.addCustomParameter(SNAKE_HEALTH_PARAMETER, gameState.getYou().getHealth());
         NewRelic.addCustomParameter(SNAKE_LENGTH_PARAMETER, gameState.getYou().getLength());
@@ -45,23 +45,23 @@ public class StatisticsTracker {
         NewRelic.addCustomParameter(SNAKE_TIMED_OUT, gameState.getYou().isTimedOut());
     }
 
-    private void rulesetInfo(GameState gameState) {
+    private void trackRulesetInfo(GameState gameState) {
         NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getRules().getName());
         NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getRules().getVersion());
         NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getRules().getTimeout());
     }
 
     public void trackMove(GameState gameState) {
-        common(gameState);
+        trackCommon(gameState);
     }
 
     public void trackEnd(GameState gameState) {
-        common(gameState);
-        victory(gameState);
-        turnsToEnd(gameState);
+        trackCommon(gameState);
+        trackVictory(gameState);
+        trackTurnsToEnd(gameState);
     }
 
-    private void victory(GameState gameState) {
+    private void trackVictory(GameState gameState) {
         boolean victory = false;
         for (Snake someSnake : gameState.getBoard().getSnakes()) {
             if (someSnake.getId().equals(gameState.getYou().getId())) {
@@ -73,7 +73,7 @@ public class StatisticsTracker {
         NewRelic.addCustomParameter(VICTORY_PARAMETER, victory);
     }
 
-    private void turnsToEnd(GameState gameState) {
+    private void trackTurnsToEnd(GameState gameState) {
         NewRelic.addCustomParameter(TURNS_TO_END_PARAMETER, gameState.getTurn());
     }
 
