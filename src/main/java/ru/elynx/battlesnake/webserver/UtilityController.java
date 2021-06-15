@@ -25,6 +25,11 @@ public class UtilityController {
         logger.info("Processing status call");
         statisticsTracker.ping();
 
+        String status = makeStatus();
+        return ResponseEntity.ok(status);
+    }
+
+    private String makeStatus() {
         long statusPings = statisticsTracker.getPings();
 
         long mb = 1024L * 1024L;
@@ -33,9 +38,7 @@ public class UtilityController {
         long freeMemory = runtime.freeMemory() / mb;
         long totalMemory = runtime.totalMemory() / mb;
 
-        String response = String.format("Status pings %s%nFree memory, MB %s%nTotal memory, MB %s", statusPings,
-                freeMemory, totalMemory);
-
-        return ResponseEntity.ok(response);
+        return String.format("Status pings %s%nFree memory, MB %s%nTotal memory, MB %s", statusPings, freeMemory,
+                totalMemory);
     }
 }
