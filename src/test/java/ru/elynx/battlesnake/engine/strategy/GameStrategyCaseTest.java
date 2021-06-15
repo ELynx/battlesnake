@@ -1,9 +1,9 @@
 package ru.elynx.battlesnake.engine.strategy;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRATEGY_NAMES;
+import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import org.junit.jupiter.api.Tag;
@@ -30,7 +30,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -42,7 +42,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(UP)));
+        assertMove(move.getMoveCommand(), not(equalTo(UP))).validate(name);
     }
 
     @ParameterizedTest
@@ -54,7 +54,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
     }
 
     @ParameterizedTest
@@ -66,7 +66,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
     }
 
     @ParameterizedTest
@@ -78,7 +78,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(DOWN)));
+        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).validate(name);
     }
 
     @ParameterizedTest
@@ -90,7 +90,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), not(equalTo(DOWN)));
+        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).validate(name);
     }
 
     @ParameterizedTest
@@ -102,7 +102,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(LEFT));
+        assertMove(move.getMoveCommand(), equalTo(LEFT)).validate(name);
     }
 
     @ParameterizedTest
@@ -114,7 +114,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(LEFT));
+        assertMove(move.getMoveCommand(), equalTo(LEFT)).validate(name);
     }
 
     @ParameterizedTest
@@ -126,7 +126,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(RIGHT));
+        assertMove(move.getMoveCommand(), equalTo(RIGHT)).validate(name);
     }
 
     @ParameterizedTest
@@ -138,7 +138,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(RIGHT));
+        assertMove(move.getMoveCommand(), equalTo(RIGHT)).validate(name);
     }
 
     @ParameterizedTest
@@ -150,7 +150,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -162,7 +162,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -174,7 +174,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(DOWN));
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -186,6 +186,6 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertThat(move.getMoveCommand(), equalTo(UP));
+        assertMove(move.getMoveCommand(), equalTo(UP)).validate(name);
     }
 }
