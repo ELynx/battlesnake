@@ -16,20 +16,20 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 
 @Service
-public class SnakeManager {
-    private static final long STALE_SNAKE_ROUTINE_DELAY = 60000; // milliseconds
-    private static final long STALE_SNAKE_AGE = 5000; // milliseconds
+public class SnakeStateManager {
+    private static final long STALE_SNAKE_STATE_ROUTINE_DELAY = 60000; // milliseconds
+    private static final long STALE_SNAKE_STATE_AGE = 5000; // milliseconds
 
-    private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
+    private final Logger logger = LoggerFactory.getLogger(SnakeStateManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, SnakeState> activeSnakes = new ConcurrentHashMap<>();
 
     @Autowired
-    public SnakeManager(IGameStrategyFactory gameStrategyFactory) {
+    public SnakeStateManager(IGameStrategyFactory gameStrategyFactory) {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
-    @Scheduled(initialDelay = STALE_SNAKE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_ROUTINE_DELAY)
+    @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_STATE_ROUTINE_DELAY)
     private void cleanStaleSnakes() {
         if (activeSnakes.isEmpty()) {
             logger.debug("Cleaning stale snakes, nothing to clean");
@@ -38,7 +38,7 @@ public class SnakeManager {
 
         int sizeBefore = activeSnakes.size();
 
-        Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_AGE);
+        Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_STATE_AGE);
         activeSnakes.values().removeIf(meta -> meta.isLastAccessedBefore(staleSnakeTime));
 
         int sizeAfter = activeSnakes.size();

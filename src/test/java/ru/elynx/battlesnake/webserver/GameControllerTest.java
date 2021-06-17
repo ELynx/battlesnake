@@ -35,7 +35,7 @@ class GameControllerTest {
     void prepareMockMvc()
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         IGameStrategyFactory gameStrategyFactory = new MySnakeGameStrategyFactory();
-        SnakeManager snakeManager = new SnakeManager(gameStrategyFactory);
+        SnakeStateManager snakeStateManager = new SnakeStateManager(gameStrategyFactory);
 
         StatisticsTracker statisticsTracker = new StatisticsTracker();
 
@@ -46,7 +46,7 @@ class GameControllerTest {
         MoveMapper moveMapper = Mappers.getMapperClass(MoveMapper.class).getConstructor(MoveValidator.class)
                 .newInstance(moveValidator);
 
-        GameController gameController = new GameController(snakeManager, statisticsTracker, battlesnakeInfoMapper,
+        GameController gameController = new GameController(snakeStateManager, statisticsTracker, battlesnakeInfoMapper,
                 gameStateMapper, moveMapper);
 
         mockMvc = MockMvcBuilders.standaloneSetup(gameController).build();
