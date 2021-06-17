@@ -7,21 +7,30 @@ import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
 
 public class EntityBuilder {
+    private static final int DEFAULT_SNAKE_HEAD_X = 0;
+    private static final int DEFAULT_SNAKE_HEAD_Y = 0;
+    private static final String DEFAULT_SNAKE_NAME = "Test Na|me";
+    private static final Integer DEFAULT_SNAKE_LATENCY = 250;
+
     private EntityBuilder() {
     }
 
     public static HazardPredictor hazardPredictor() {
-        return hazardPredictorWithHeadPosition(0, 0);
+        return hazardPredictorWithYouSnake(
+                buildSnake(DEFAULT_SNAKE_HEAD_X, DEFAULT_SNAKE_HEAD_Y, DEFAULT_SNAKE_NAME, DEFAULT_SNAKE_LATENCY));
     }
 
     public static HazardPredictor hazardPredictorWithHeadPosition(int x, int y) {
-        Coordinates head = new Coordinates(x, y);
+        return hazardPredictorWithYouSnake(snakeWithHead(x, y));
+    }
 
-        List<Coordinates> body = new ArrayList<>();
-        body.add(head);
+    public static HazardPredictor hazardPredictorWithName(String name) {
+        return hazardPredictorWithYouSnake(snakeWithName(name));
+    }
 
+    private static HazardPredictor hazardPredictorWithYouSnake(Snake you) {
         List<Snake> snakes = new ArrayList<>();
-        snakes.add(new Snake("Test I|d", "Test Na|me", 99, body, 250, head, 1, "Test Sh|out", ""));
+        snakes.add(you);
 
         String gameId = "Test Ga|me I|d";
         int turn = 0;
@@ -40,9 +49,24 @@ public class EntityBuilder {
         return new Rules(name, "1.000", 500);
     }
 
-    public static Snake snakeWithTimeout(Integer latency) {
-        Coordinates head = new Coordinates(0, 0);
-        List<Coordinates> body = List.of(head);
-        return new Snake("Test I|d", "Test Na|me", 99, body, latency, head, body.size(), "Test Sh|out", "");
+    private static Snake snakeWithHead(int x, int y) {
+        return buildSnake(x, y, DEFAULT_SNAKE_NAME, DEFAULT_SNAKE_LATENCY);
+    }
+
+    private static Snake snakeWithName(String name) {
+        return buildSnake(DEFAULT_SNAKE_HEAD_X, DEFAULT_SNAKE_HEAD_Y, name, DEFAULT_SNAKE_LATENCY);
+    }
+
+    public static Snake snakeWithLatency(Integer latency) {
+        return buildSnake(DEFAULT_SNAKE_HEAD_X, DEFAULT_SNAKE_HEAD_Y, DEFAULT_SNAKE_NAME, latency);
+    }
+
+    private static Snake buildSnake(int x, int y, String name, Integer latency) {
+        Coordinates head = new Coordinates(x, y);
+
+        List<Coordinates> body = new ArrayList<>();
+        body.add(head);
+
+        return new Snake("Test I|d", name, 99, body, latency, head, 1, "Test Sh|out", null);
     }
 }

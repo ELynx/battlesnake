@@ -11,13 +11,13 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 class SnakeTest {
     @Test
     void test_is_timed_out() {
-        Snake tested1 = EntityBuilder.snakeWithTimeout(100);
+        Snake tested1 = EntityBuilder.snakeWithLatency(100);
         assertFalse(tested1.isTimedOut());
 
-        Snake tested2 = EntityBuilder.snakeWithTimeout(0);
+        Snake tested2 = EntityBuilder.snakeWithLatency(0);
         assertTrue(tested2.isTimedOut());
 
-        Snake testedInitialState = EntityBuilder.snakeWithTimeout(null);
+        Snake testedInitialState = EntityBuilder.snakeWithLatency(null);
         assertFalse(testedInitialState.isTimedOut());
     }
 }
