@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategyFactory;
 import ru.elynx.battlesnake.engine.strategy.SnakeNotFoundException;
-import ru.elynx.battlesnake.entity.*;
+import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Move;
 
 @Service
 public class SnakeManager {
