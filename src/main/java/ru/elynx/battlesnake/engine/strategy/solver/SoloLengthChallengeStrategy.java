@@ -9,7 +9,7 @@ import ru.elynx.battlesnake.entity.Dimensions;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
-class SoloLengthChallengeStrategy extends SolverStrategy {
+public class SoloLengthChallengeStrategy extends SolverStrategy {
     private boolean latch1 = false;
     private boolean latch2 = false;
 
