@@ -10,7 +10,7 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
-class SnakeState {
+public class SnakeState {
     private static final int DEFAULT_HAZARD_STEP = 25;
 
     private final IGameStrategy gameStrategy;
