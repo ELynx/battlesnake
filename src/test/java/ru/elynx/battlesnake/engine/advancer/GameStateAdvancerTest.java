@@ -2,6 +2,8 @@ package ru.elynx.battlesnake.engine.advancer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
@@ -9,9 +11,6 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 class GameStateAdvancerTest {
     BiFunction<Snake, GameState, MoveCommand> moveRight = (Snake snake, GameState gameState) -> MoveCommand.RIGHT;
