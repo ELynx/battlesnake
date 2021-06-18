@@ -1,7 +1,5 @@
 package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
-import static ru.elynx.battlesnake.entity.MoveCommand.*;
-
 import java.util.*;
 import java.util.function.Supplier;
 import org.javatuples.Pair;
@@ -32,14 +30,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     private static final double DETERRENT_WEIGHT = -100.0d;
 
-    protected DoubleMatrix weightMatrix;
-    protected FreeSpaceMatrix freeSpaceMatrix;
-    protected SnakeMovePredictor snakeMovePredictor;
+    private DoubleMatrix weightMatrix;
+    private FreeSpaceMatrix freeSpaceMatrix;
+    private SnakeMovePredictor snakeMovePredictor;
 
-    protected WeightedSearchStrategy() {
+    private WeightedSearchStrategy() {
     }
 
-    protected void applyHunger(HazardPredictor hazardPredictor) {
+    private void applyHunger(HazardPredictor hazardPredictor) {
         final double foodWeight = Util.scale(MIN_FOOD_WEIGHT,
                 HUNGER_HEALTH_THRESHOLD - hazardPredictor.getGameState().getYou().getHealth(), HUNGER_HEALTH_THRESHOLD,
                 MAX_FOOD_WEIGHT);
@@ -52,7 +50,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    protected void applySnakes(HazardPredictor hazardPredictor) {
+    private void applySnakes(HazardPredictor hazardPredictor) {
         // mark body as impassable
         // apply early for predictor
         GameState gameState = hazardPredictor.getGameState();
@@ -131,7 +129,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    protected void applyHazards(HazardPredictor hazardPredictor) {
+    private void applyHazards(HazardPredictor hazardPredictor) {
         for (Coordinates hazard : hazardPredictor.getGameState().getBoard().getHazards()) {
             weightMatrix.addValue(hazard, DETERRENT_WEIGHT);
         }
@@ -145,7 +143,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    protected void applyGameState(HazardPredictor gameState) {
+    private void applyGameState(HazardPredictor gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
@@ -154,7 +152,11 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         applyHazards(gameState);
     }
 
-    protected double getCrossWeight(Coordinates coordinates) {
+    private int getBoundedFreeSpace(int length, Coordinates coordinates) {
+        return Math.min(length + 1, freeSpaceMatrix.getFreeSpace(coordinates));
+    }
+
+    private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
         for (Coordinates neighbour : coordinates.sideNeighbours()) {
             result += weightMatrix.getValue(neighbour);
@@ -162,7 +164,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return result;
     }
 
-    protected double getOpportunitiesWeight(MoveCommand moveCommand, Coordinates coordinates) {
+    private double getOpportunitiesWeight(CoordinatesWithDirection coordinates) {
         int x = coordinates.getX();
         int y = coordinates.getY();
 
@@ -171,7 +173,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         int y0;
         int y1;
 
-        switch (moveCommand) {
+        switch (coordinates.getDirection()) {
             case DOWN :
                 x0 = x - 2;
                 x1 = x + 2;
@@ -216,34 +218,25 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return opportunities;
     }
 
-    protected Optional<MoveCommand> rank(List<Pair<MoveCommand, Coordinates>> toRank, int length) {
+    private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
         // sort by reversed comparator, since bigger weight means better solution
-        return toRank.stream().filter(pair -> freeSpaceMatrix.isFree(pair.getValue1()))
-                .sorted(Comparator
-                        .comparingInt((Pair<MoveCommand, Coordinates> pair) -> Math.min(length + 1,
-                                freeSpaceMatrix.getFreeSpace(pair.getValue1())))
-                        .thenComparingDouble(pair -> weightMatrix.getValue(pair.getValue1()))
-                        .thenComparingDouble(pair -> getCrossWeight(pair.getValue1()))
-                        .thenComparingDouble(pair -> getOpportunitiesWeight(pair.getValue0(), pair.getValue1()))
-                        .reversed())
-                .map(Pair::getValue0).findFirst();
+        return toRank.stream().filter(this::isWalkable).sorted(Comparator
+                .comparingInt((CoordinatesWithDirection coordinates) -> getBoundedFreeSpace(length, coordinates))
+                .thenComparingDouble(coordinates -> weightMatrix.getValue(coordinates))
+                .thenComparingDouble(this::getCrossWeight).thenComparingDouble(this::getOpportunitiesWeight).reversed())
+                .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 
     public Optional<MoveCommand> bestMove(HazardPredictor hazardPredictor) {
-        Coordinates head = hazardPredictor.getGameState().getYou().getHead();
+        GameState gameState = hazardPredictor.getGameState();
 
-        List<Pair<MoveCommand, Coordinates>> ranked = new LinkedList<>();
-        ranked.add(new Pair<>(DOWN, head.move(DOWN)));
-        ranked.add(new Pair<>(LEFT, head.move(LEFT)));
-        ranked.add(new Pair<>(RIGHT, head.move(RIGHT)));
-        ranked.add(new Pair<>(UP, head.move(UP)));
-
-        int length = hazardPredictor.getGameState().getYou().getLength();
+        Collection<CoordinatesWithDirection> ranked = gameState.getYou().getHead().sideNeighbours();
+        int length = gameState.getYou().getLength();
         return rank(ranked, length);
     }
 

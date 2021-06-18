@@ -29,13 +29,13 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
-        Collection<Coordinates> directions = possibleDirections(snake);
+        Collection<? extends Coordinates> directions = possibleDirections(snake);
         ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
 
         return getProbabilitiesOf(directions, scoreMaker);
     }
 
-    private Collection<Coordinates> possibleDirections(Snake snake) {
+    private Collection<? extends Coordinates> possibleDirections(Snake snake) {
         // head position this turn
         Coordinates head = snake.getHead();
         // head position last turn
@@ -93,7 +93,7 @@ public class SnakeMovePredictor {
         }
     }
 
-    private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<Coordinates> directions,
+    private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<? extends Coordinates> directions,
             ScoreMaker scoreMaker) {
         List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
         int greatestScore = Integer.MIN_VALUE;

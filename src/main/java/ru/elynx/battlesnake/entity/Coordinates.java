@@ -6,30 +6,21 @@ import java.util.Collection;
 import java.util.List;
 import lombok.Value;
 import lombok.With;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal
 public class Coordinates {
     @With
     int x;
     @With
     int y;
 
-    public Coordinates move(MoveCommand moveCommand) {
-        switch (moveCommand) {
-            case DOWN :
-                return withY(getY() - 1);
-            case LEFT :
-                return withX(getX() - 1);
-            case RIGHT :
-                return withX(getX() + 1);
-            case UP :
-                return withY(getY() + 1);
-            default :
-                throw new IllegalArgumentException("MoveCommand [" + moveCommand + "] is not a supported direction");
-        }
+    public CoordinatesWithDirection move(MoveCommand direction) {
+        return CoordinatesWithDirection.fromCoordinates(this, direction);
     }
 
-    public Collection<Coordinates> sideNeighbours() {
+    public Collection<CoordinatesWithDirection> sideNeighbours() {
         return List.of(move(DOWN), move(LEFT), move(RIGHT), move(UP));
     }
 
