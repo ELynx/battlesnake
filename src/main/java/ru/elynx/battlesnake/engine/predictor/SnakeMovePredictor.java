@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.predictor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.javatuples.Pair;
@@ -28,13 +29,13 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
-        Iterable<Coordinates> directions = possibleDirections(snake);
+        Collection<Coordinates> directions = possibleDirections(snake);
         ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
 
         return getProbabilitiesOf(directions, scoreMaker);
     }
 
-    private Iterable<Coordinates> possibleDirections(Snake snake) {
+    private Collection<Coordinates> possibleDirections(Snake snake) {
         // head position this turn
         Coordinates head = snake.getHead();
         // head position last turn
@@ -92,7 +93,7 @@ public class SnakeMovePredictor {
         }
     }
 
-    private List<Pair<Coordinates, Double>> getProbabilitiesOf(Iterable<Coordinates> directions,
+    private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<Coordinates> directions,
             ScoreMaker scoreMaker) {
         List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
         int greatestScore = Integer.MIN_VALUE;

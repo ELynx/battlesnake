@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.entity;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Collection;
 import java.util.List;
 import lombok.Value;
 import lombok.With;
@@ -28,11 +29,11 @@ public class Coordinates {
         }
     }
 
-    public Iterable<Coordinates> sideNeighbours() {
+    public Collection<Coordinates> sideNeighbours() {
         return List.of(move(DOWN), move(LEFT), move(RIGHT), move(UP));
     }
 
-    public Iterable<Coordinates> cornerNeighbours() {
+    public Collection<Coordinates> cornerNeighbours() {
         return List.of(new Coordinates(getX() - 1, getY() - 1), new Coordinates(getX() + 1, getY() - 1),
                 new Coordinates(getX() - 1, getY() + 1), new Coordinates(getX() + 1, getY() + 1));
     }
