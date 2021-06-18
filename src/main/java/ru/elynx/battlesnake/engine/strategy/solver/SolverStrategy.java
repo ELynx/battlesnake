@@ -42,10 +42,29 @@ public class SolverStrategy implements IGameStrategy {
             stage = newStage;
         }
     }
+
+    /**
+     * Derive the stage of solution from game state. Stage is then used to create
+     * movement commands field.
+     *
+     * @param gameState
+     *            to be analyzed
+     * @return Derived stage
+     */
     protected int calculateStage(GameState gameState) {
         return stage;
     }
 
+    /**
+     * Based on the stage, create movement command field. Cached by caller on stage
+     * change.
+     *
+     * @param stage
+     *            to create commands for
+     * @param dimensions
+     *            of required movement commands field
+     * @return Movement commands field
+     */
     protected MoveCommandField makeDirections(int stage, Dimensions dimensions) {
         return null;
     }
