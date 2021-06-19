@@ -55,14 +55,14 @@ class GameStateAdvancerTest {
     @Test
     void test_snake_moves() {
         HazardPredictor entity1 = new AsciiToGameState("" + //
-                "___\n" + //
+                "yy_\n" + //
                 "_Y_\n" + //
                 "___\n").setStartSnakeSize(1).build();
         GameState from = entity1.getGameState();
 
         HazardPredictor entity2 = new AsciiToGameState("" + //
-                "___\n" + //
-                "__Y\n" + //
+                "_y_\n" + //
+                "_yY\n" + //
                 "___\n").setStartSnakeSize(1).build();
         GameState expected = entity2.getGameState();
 
