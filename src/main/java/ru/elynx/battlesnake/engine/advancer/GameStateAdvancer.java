@@ -1,12 +1,9 @@
 package ru.elynx.battlesnake.engine.advancer;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import ru.elynx.battlesnake.entity.Board;
-import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.MoveCommand;
-import ru.elynx.battlesnake.entity.Snake;
+import ru.elynx.battlesnake.entity.*;
 
 public class GameStateAdvancer {
     private GameStateAdvancer() {
@@ -20,7 +17,7 @@ public class GameStateAdvancer {
     }
 
     private static GameState assemble(GameState current, int turn, List<Snake> snakes) {
-        Snake you = snakes.stream().filter(someSnake -> someSnake.getId().equals(current.getYou().getId())).findFirst()
+        Snake you = snakes.stream().filter(someSnake -> someSnake.getId().equals(current.getYou().getId())).findAny()
                 .orElse(null);
 
         if (you == null) {
@@ -38,6 +35,33 @@ public class GameStateAdvancer {
     }
 
     private static List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
-        return gameState.getBoard().getSnakes();
+        List<Snake> snakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
+
+        for (Snake snake : gameState.getBoard().getSnakes()) {
+            MoveCommand moveCommand = moveDecider.apply(snake, gameState);
+            snakes.add(moveSnake(snake, moveCommand));
+        }
+
+        return snakes;
+    }
+
+    private static Snake moveSnake(Snake current, MoveCommand moveCommand) {
+        Coordinates nextHead = current.getHead().sideNeighbours().stream()
+                .filter((CoordinatesWithDirection coordinates) -> moveCommand.equals(coordinates.getDirection()))
+                .findAny().orElse(null);
+
+        if (nextHead == null) {
+            throw new IllegalStateException("Could not find next head position for [" + current.getId()
+                    + "] and move command [" + moveCommand + ']');
+        }
+
+        List<Coordinates> body = new ArrayList<>(current.getBody().size());
+        body.add(nextHead);
+        for (int i = 0; i < current.getBody().size() - 1; ++i) {
+            body.add(current.getBody().get(i));
+        }
+
+        return new Snake(current.getId(), current.getName(), current.getHealth(), body, current.getLatency(), nextHead,
+                body.size(), current.getShout(), current.getSquad());
     }
 }
