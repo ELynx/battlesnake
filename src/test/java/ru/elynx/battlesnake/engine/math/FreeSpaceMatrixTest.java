@@ -96,7 +96,7 @@ class FreeSpaceMatrixTest {
 
     // use snake bodies as flags to set occupied cells
     FreeSpaceMatrix buildFromAscii(String asciiGameState) {
-        HazardPredictor tmp1 = new AsciiToGameState(asciiGameState).setStartSnakeSize(1).build();
+        HazardPredictor tmp1 = new AsciiToGameState(asciiGameState).setStartSnakeLength(1).build();
         GameState tmp = tmp1.getGameState();
 
         FreeSpaceMatrix target = FreeSpaceMatrix.emptyMatrix(tmp.getBoard().getDimensions());

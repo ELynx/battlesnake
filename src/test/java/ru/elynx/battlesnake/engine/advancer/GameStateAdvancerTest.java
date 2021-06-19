@@ -111,7 +111,7 @@ class GameStateAdvancerTest {
         HazardPredictor entity2 = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
-                "_Y_\n").setTurn(2).setHealth("Y", Snake.getMaxHealth()).build();
+                "_Y_\n").setTurn(2).setLength("Y", 4).setHealth("Y", Snake.getMaxHealth()).build();
         GameState turn2 = entity2.getGameState();
 
         HazardPredictor entity3 = new AsciiToGameState("" + //

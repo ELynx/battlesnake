@@ -32,7 +32,7 @@ class AsciiToGameStateTest {
                 "___>^^<<<__\n");
 
         HazardPredictor entity1 = tested.setTurn(123).setRulesetName(ApiExampleBuilder.standardRulesetName())
-                .setStartSnakeSize(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
+                .setStartSnakeLength(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
                         "HHHHHHHHHHH\n" + //
                         "H_________H\n" + //
                         "H_________H\n" + //
@@ -134,15 +134,30 @@ class AsciiToGameStateTest {
     }
 
     @Test
-    void test_start_snake_size() {
+    void test_start_snake_length() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
 
-        HazardPredictor entity1 = tested.setStartSnakeSize(11).build();
-        GameState entity = entity1.getGameState();
+        HazardPredictor entity1 = tested.setStartSnakeLength(11).build();
+        GameState gameState = entity1.getGameState();
 
-        assertEquals(4, entity.getBoard().getSnakes().size());
+        assertEquals(4, gameState.getBoard().getSnakes().size());
 
-        for (Snake snake : entity.getBoard().getSnakes()) {
+        for (Snake snake : gameState.getBoard().getSnakes()) {
+            assertEquals(11, snake.getLength());
+        }
+    }
+
+    @Test
+    void test_snake_length() {
+        AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        HazardPredictor entity1 = tested.setLength("Y", 11).setLength("A", 11).setLength("B", 11).setLength("C", 11)
+                .build();
+        GameState gameState = entity1.getGameState();
+
+        assertEquals(4, gameState.getBoard().getSnakes().size());
+
+        for (Snake snake : gameState.getBoard().getSnakes()) {
             assertEquals(11, snake.getLength());
         }
     }

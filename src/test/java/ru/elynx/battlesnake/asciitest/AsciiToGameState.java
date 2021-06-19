@@ -13,12 +13,13 @@ public class AsciiToGameState {
     // has some defaults, thus added by "builder" pattern
     private int turn = 42;
     private String rulesetName = ApiExampleBuilder.standardRulesetName();
-    private int startSnakeSize = 3;
+    private int startSnakeLength = 3;
     private String hazards = null;
     private int hazardStep = 25;
     // per-snakes
     private final Map<String, Integer> healths = new HashMap<>();
     private final Map<String, Integer> latencies = new HashMap<>();
+    private final Map<String, Integer> lengths = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
@@ -37,11 +38,11 @@ public class AsciiToGameState {
         return this;
     }
 
-    public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
-        if (startSnakeSize <= 0)
+    public AsciiToGameState setStartSnakeLength(int startSnakeLength) {
+        if (startSnakeLength <= 0)
             throw new IllegalArgumentException("Snake size must be greater than 0");
 
-        this.startSnakeSize = startSnakeSize;
+        this.startSnakeLength = startSnakeLength;
         return this;
     }
 
@@ -74,6 +75,14 @@ public class AsciiToGameState {
             throw new IllegalArgumentException("Latency must be greater or equal to 0");
 
         latencies.put(name, latency);
+        return this;
+    }
+
+    public AsciiToGameState setLength(String name, int length) {
+        if (length < 1)
+            throw new IllegalArgumentException("Length must be greater than 0");
+
+        lengths.put(name, length);
         return this;
     }
 
@@ -204,7 +213,8 @@ public class AsciiToGameState {
                     }
 
                     // fill in snake up to start size, simulate starting conditions
-                    for (int i = body.size(); i < startSnakeSize; ++i) {
+                    int snakeLength = lengths.getOrDefault(id, startSnakeLength);
+                    for (int i = body.size(); i < snakeLength; ++i) {
                         body.add(body.get(i - 1));
                     }
 
