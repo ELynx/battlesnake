@@ -4,6 +4,7 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,20 +37,23 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
-        occupiedPositions.unsetAll();
-
         GameState gameState = hazardPredictor.getGameState();
-        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
-
-        ScoreMaker scoreMaker = new ScoreMaker(gameState.getYou(), gameState);
-
-        Collection<CoordinatesWithDirection> moves = gameState.getYou().getHead().sideNeighbours();
-
-        MoveCommand moveCommand = moves.stream().filter(this::isWalkable)
-                .sorted(Comparator.comparingInt(scoreMaker::scoreMove).reversed())
-                .map(CoordinatesWithDirection::getDirection).findFirst().orElse(REPEAT_LAST);
+        MoveCommand moveCommand = bestMoveForSnake(gameState.getYou(), gameState).orElse(REPEAT_LAST);
 
         return new Move(moveCommand);
+    }
+
+    protected Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
+        occupiedPositions.unsetAll();
+
+        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
+
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
+
+        Collection<CoordinatesWithDirection> moves = snake.getHead().sideNeighbours();
+
+        return moves.stream().filter(this::isWalkable).sorted(Comparator.comparingInt(scoreMaker::scoreMove).reversed())
+                .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 
     @Override
