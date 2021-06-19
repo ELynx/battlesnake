@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.entity;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,13 @@ class SnakeTest {
         gameState = new AsciiToGameState("yY_").setStartSnakeSize(3).setHealth("Y", 42).build().getGameState();
         assertTrue(gameState.getYou().isGrowing(), "Growing when stepping on tail");
 
-        gameState = new AsciiToGameState("yyY").setStartSnakeSize(3).setHealth("Y", 100).build().getGameState();
+        gameState = new AsciiToGameState("yyY").setStartSnakeSize(3).setHealth("Y", Snake.getMaxHealth()).build()
+                .getGameState();
         assertTrue(gameState.getYou().isGrowing(), "Full health grows");
+    }
+
+    @Test
+    void test_max_health() {
+        assertEquals(100, Snake.getMaxHealth());
     }
 }

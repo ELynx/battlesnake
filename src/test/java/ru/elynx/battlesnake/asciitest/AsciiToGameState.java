@@ -187,7 +187,7 @@ public class AsciiToGameState {
                     String squad = "Test squad " + id;
                     String shout = "Test snake " + id;
                     Coordinates head = coordinates;
-                    int health = healths.getOrDefault(id, 99);
+                    int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
                     int latency = latencies.getOrDefault(id, 100);
 
                     char lowercaseC = (char) (c + 'a' - 'A');

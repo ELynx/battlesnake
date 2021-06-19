@@ -206,7 +206,7 @@ class AsciiToGameStateTest {
         assertThat(b.getLatency(), greaterThanOrEqualTo(0));
 
         Snake c = getSnakeOrNull(entity, "C");
-        assertThat(c.getHealth(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
+        assertThat(c.getHealth(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(Snake.getMaxHealth()))));
         assertEquals(0, c.getLatency());
     }
 

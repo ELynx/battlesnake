@@ -55,4 +55,8 @@ public class Snake {
 
         return false;
     }
+
+    public static int getMaxHealth() {
+        return MAX_HEALTH;
+    }
 }

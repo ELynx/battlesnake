@@ -17,26 +17,6 @@ public class GameStateAdvancer {
         return assemble(gameState, turn, snakes);
     }
 
-    private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
-        Snake you = findYouSnake(gameState, snakes);
-
-        Board board = new Board(gameState.getBoard().getDimensions(), Collections.emptyList(),
-                gameState.getBoard().getHazards(), snakes);
-
-        return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
-    }
-
-    private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
-        Snake you = snakes.stream().filter(someSnake -> someSnake.getId().equals(gameState.getYou().getId())).findAny()
-                .orElse(null);
-
-        if (you == null) {
-            throw new IllegalStateException("You was not found");
-        }
-
-        return you;
-    }
-
     private static int makeTurn(GameState gameState) {
         return gameState.getTurn() + 1;
     }
@@ -44,24 +24,31 @@ public class GameStateAdvancer {
     private static List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
         List<Snake> snakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
-        for (Snake snake : gameState.getBoard().getSnakes()) {
-            MoveCommand moveCommand = moveDecider.apply(snake, gameState);
-            snakes.add(makeSnake(snake, moveCommand));
+        for (Snake current : gameState.getBoard().getSnakes()) {
+            MoveCommand moveCommand = moveDecider.apply(current, gameState);
+            Snake future = makeSnake(current, moveCommand);
+            if (future != null) {
+                snakes.add(future);
+            }
         }
 
         return snakes;
     }
 
     private static Snake makeSnake(Snake snake, MoveCommand moveCommand) {
-        List<Coordinates> body = makeSnakeBody(snake, moveCommand);
         int health = makeHealth(snake);
+        List<Coordinates> body = makeBody(snake, moveCommand);
 
         return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), body.get(0), body.size(),
                 snake.getShout(), snake.getSquad());
     }
 
-    private static List<Coordinates> makeSnakeBody(Snake snake, MoveCommand moveCommand) {
-        Coordinates nextHead = makeSnakeHead(snake, moveCommand);
+    private static int makeHealth(Snake snake) {
+        return snake.getHealth() - 1;
+    }
+
+    private static List<Coordinates> makeBody(Snake snake, MoveCommand moveCommand) {
+        Coordinates nextHead = makeHead(snake, moveCommand);
 
         List<Coordinates> body = new ArrayList<>(snake.getBody().size());
         body.add(nextHead);
@@ -75,7 +62,7 @@ public class GameStateAdvancer {
         return body;
     }
 
-    private static Coordinates makeSnakeHead(Snake snake, MoveCommand moveCommand) {
+    private static Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
         Coordinates nextHead = snake.getHead().sideNeighbours().stream()
                 .filter((CoordinatesWithDirection coordinates) -> moveCommand.equals(coordinates.getDirection()))
                 .findAny().orElse(null);
@@ -88,7 +75,19 @@ public class GameStateAdvancer {
         return nextHead;
     }
 
-    private static int makeHealth(Snake snake) {
-        return snake.getHealth() - 1;
+    private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
+        Snake you = findYouSnake(gameState, snakes);
+
+        Board board = new Board(gameState.getBoard().getDimensions(), Collections.emptyList(),
+                gameState.getBoard().getHazards(), snakes);
+
+        return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
+    }
+
+    private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
+        // this is what API actually does
+        // losing end `game state` has `you` defined, but absent from `board.snakes`
+        return snakes.stream().filter(someSnake -> someSnake.getId().equals(gameState.getYou().getId())).findAny()
+                .orElse(gameState.getYou());
     }
 }
