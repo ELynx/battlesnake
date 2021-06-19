@@ -26,7 +26,7 @@ public class GameStateAdvancer {
 
         for (Snake current : gameState.getBoard().getSnakes()) {
             MoveCommand moveCommand = moveDecider.apply(current, gameState);
-            Snake future = makeSnake(current, moveCommand);
+            Snake future = makeSnake(gameState, current, moveCommand);
             if (future != null) {
                 snakes.add(future);
             }
@@ -35,31 +35,13 @@ public class GameStateAdvancer {
         return snakes;
     }
 
-    private static Snake makeSnake(Snake snake, MoveCommand moveCommand) {
-        int health = makeHealth(snake);
-        List<Coordinates> body = makeBody(snake, moveCommand);
+    private static Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
+        Coordinates head = makeHead(snake, moveCommand);
+        int health = makeHealth(gameState, snake, head);
+        List<Coordinates> body = makeBody(gameState, snake, head);
 
-        return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), body.get(0), body.size(),
+        return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), head, body.size(),
                 snake.getShout(), snake.getSquad());
-    }
-
-    private static int makeHealth(Snake snake) {
-        return snake.getHealth() - 1;
-    }
-
-    private static List<Coordinates> makeBody(Snake snake, MoveCommand moveCommand) {
-        Coordinates nextHead = makeHead(snake, moveCommand);
-
-        List<Coordinates> body = new ArrayList<>(snake.getBody().size());
-        body.add(nextHead);
-
-        int growthOffset = snake.isGrowing() ? 0 : 1;
-
-        for (int i = 0; i < snake.getBody().size() - growthOffset; ++i) {
-            body.add(snake.getBody().get(i));
-        }
-
-        return body;
     }
 
     private static Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
@@ -73,6 +55,37 @@ public class GameStateAdvancer {
         }
 
         return nextHead;
+    }
+
+    private static int makeHealth(GameState gameState, Snake snake, Coordinates head) {
+        if (isFood(gameState, head)) {
+            return Snake.getMaxHealth();
+        }
+
+        return snake.getHealth() - 1;
+    }
+
+    private static boolean isFood(GameState gameState, Coordinates coordinates) {
+        return gameState.getBoard().getFood().contains(coordinates);
+    }
+
+    private static List<Coordinates> makeBody(GameState gameState, Snake snake, Coordinates head) {
+        // TODO remove check duplicated by makeHealth
+        boolean isGrowing = isFood(gameState, head);
+
+        List<Coordinates> body = new ArrayList<>(snake.getBody().size() + (isGrowing ? 1 : 0));
+        body.add(head);
+
+        // last piece always moves out
+        for (int i = 0; i < snake.getBody().size() - 1; ++i) {
+            body.add(snake.getBody().get(i));
+        }
+
+        if (isGrowing) {
+            body.add(body.get(body.size() - 1));
+        }
+
+        return body;
     }
 
     private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
