@@ -9,25 +9,31 @@ public class GameStateAdvancer {
     private GameStateAdvancer() {
     }
 
-    public static GameState advance(GameState current, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
-        int turn = makeTurn(current);
-        List<Snake> snakes = makeSnakes(current, moveDecider);
+    public static GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
+        int turn = makeTurn(gameState);
+        List<Snake> snakes = makeSnakes(gameState, moveDecider);
 
-        return assemble(current, turn, snakes);
+        return assemble(gameState, turn, snakes);
     }
 
-    private static GameState assemble(GameState current, int turn, List<Snake> snakes) {
-        Snake you = snakes.stream().filter(someSnake -> someSnake.getId().equals(current.getYou().getId())).findAny()
+    private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
+        Snake you = findYouSnake(gameState, snakes);
+
+        Board board = new Board(gameState.getBoard().getDimensions(), gameState.getBoard().getFood(),
+                gameState.getBoard().getHazards(), snakes);
+
+        return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
+    }
+
+    private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
+        Snake you = snakes.stream().filter(someSnake -> someSnake.getId().equals(gameState.getYou().getId())).findAny()
                 .orElse(null);
 
         if (you == null) {
             throw new IllegalStateException("You was not found");
         }
 
-        Board board = new Board(current.getBoard().getDimensions(), current.getBoard().getFood(),
-                current.getBoard().getHazards(), snakes);
-
-        return new GameState(current.getGameId(), turn, current.getRules(), board, you);
+        return you;
     }
 
     private static int makeTurn(GameState gameState) {
@@ -39,29 +45,49 @@ public class GameStateAdvancer {
 
         for (Snake snake : gameState.getBoard().getSnakes()) {
             MoveCommand moveCommand = moveDecider.apply(snake, gameState);
-            snakes.add(moveSnake(snake, moveCommand));
+            snakes.add(makeSnake(gameState, snake, moveCommand));
         }
 
         return snakes;
     }
 
-    private static Snake moveSnake(Snake current, MoveCommand moveCommand) {
-        Coordinates nextHead = current.getHead().sideNeighbours().stream()
+    private static Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
+        List<Coordinates> body = makeSnakeBody(gameState, snake, moveCommand);
+        int health = makeHealth(snake);
+
+        return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), body.get(0), body.size(),
+                snake.getShout(), snake.getSquad());
+    }
+
+    private static List<Coordinates> makeSnakeBody(GameState gameState, Snake snake, MoveCommand moveCommand) {
+        Coordinates nextHead = makeSnakeHead(snake, moveCommand);
+
+        List<Coordinates> body = new ArrayList<>(snake.getBody().size());
+        body.add(nextHead);
+
+        int growthOffset = gameState.isSnakeGrowing(snake) ? 0 : 1;
+
+        for (int i = 0; i < snake.getBody().size() - growthOffset; ++i) {
+            body.add(snake.getBody().get(i));
+        }
+
+        return body;
+    }
+
+    private static Coordinates makeSnakeHead(Snake snake, MoveCommand moveCommand) {
+        Coordinates nextHead = snake.getHead().sideNeighbours().stream()
                 .filter((CoordinatesWithDirection coordinates) -> moveCommand.equals(coordinates.getDirection()))
                 .findAny().orElse(null);
 
         if (nextHead == null) {
-            throw new IllegalStateException("Could not find next head position for [" + current.getId()
+            throw new IllegalStateException("Could not find next head position for [" + snake.getId()
                     + "] and move command [" + moveCommand + ']');
         }
 
-        List<Coordinates> body = new ArrayList<>(current.getBody().size());
-        body.add(nextHead);
-        for (int i = 0; i < current.getBody().size() - 1; ++i) {
-            body.add(current.getBody().get(i));
-        }
+        return nextHead;
+    }
 
-        return new Snake(current.getId(), current.getName(), current.getHealth(), body, current.getLatency(), nextHead,
-                body.size(), current.getShout(), current.getSquad());
+    private static int makeHealth(Snake snake) {
+        return snake.getHealth() - 1;
     }
 }

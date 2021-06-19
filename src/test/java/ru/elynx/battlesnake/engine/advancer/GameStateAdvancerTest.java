@@ -58,13 +58,13 @@ class GameStateAdvancerTest {
         HazardPredictor entity1 = new AsciiToGameState("" + //
                 "yy_\n" + //
                 "_Y_\n" + //
-                "___\n").build();
+                "___\n").setHealth("Y", 25).build();
         GameState from = entity1.getGameState();
 
         HazardPredictor entity2 = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_yY\n" + //
-                "___\n").build();
+                "___\n").setHealth("Y", 24).build();
         GameState expected = entity2.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
