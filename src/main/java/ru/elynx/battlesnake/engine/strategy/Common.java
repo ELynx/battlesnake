@@ -12,12 +12,12 @@ public class Common {
 
     public static void forAllSnakeBodies(GameState gameState, Consumer<Coordinates> what) {
         for (Snake snake : gameState.getBoard().getSnakes()) {
-            forSnakeBody(snake, gameState, what);
+            forSnakeBody(snake, what);
         }
     }
 
-    private static void forSnakeBody(Snake snake, GameState gameState, Consumer<Coordinates> what) {
-        int tailMoveOffset = getTailMoveOffset(snake, gameState);
+    private static void forSnakeBody(Snake snake, Consumer<Coordinates> what) {
+        int tailMoveOffset = getTailMoveOffset(snake);
 
         List<Coordinates> body = snake.getBody();
         for (int i = 0; i < body.size() - tailMoveOffset; ++i) {
@@ -26,8 +26,8 @@ public class Common {
         }
     }
 
-    private static int getTailMoveOffset(Snake snake, GameState gameState) {
-        if (gameState.isSnakeGrowing(snake)) {
+    private static int getTailMoveOffset(Snake snake) {
+        if (snake.isGrowing()) {
             // tail will grow -> cell will remain occupied
             return 0;
         }

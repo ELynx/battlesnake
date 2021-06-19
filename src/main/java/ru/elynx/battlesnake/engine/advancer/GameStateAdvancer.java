@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import ru.elynx.battlesnake.entity.*;
@@ -19,7 +20,7 @@ public class GameStateAdvancer {
     private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
         Snake you = findYouSnake(gameState, snakes);
 
-        Board board = new Board(gameState.getBoard().getDimensions(), gameState.getBoard().getFood(),
+        Board board = new Board(gameState.getBoard().getDimensions(), Collections.emptyList(),
                 gameState.getBoard().getHazards(), snakes);
 
         return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
@@ -45,27 +46,27 @@ public class GameStateAdvancer {
 
         for (Snake snake : gameState.getBoard().getSnakes()) {
             MoveCommand moveCommand = moveDecider.apply(snake, gameState);
-            snakes.add(makeSnake(gameState, snake, moveCommand));
+            snakes.add(makeSnake(snake, moveCommand));
         }
 
         return snakes;
     }
 
-    private static Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
-        List<Coordinates> body = makeSnakeBody(gameState, snake, moveCommand);
+    private static Snake makeSnake(Snake snake, MoveCommand moveCommand) {
+        List<Coordinates> body = makeSnakeBody(snake, moveCommand);
         int health = makeHealth(snake);
 
         return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), body.get(0), body.size(),
                 snake.getShout(), snake.getSquad());
     }
 
-    private static List<Coordinates> makeSnakeBody(GameState gameState, Snake snake, MoveCommand moveCommand) {
+    private static List<Coordinates> makeSnakeBody(Snake snake, MoveCommand moveCommand) {
         Coordinates nextHead = makeSnakeHead(snake, moveCommand);
 
         List<Coordinates> body = new ArrayList<>(snake.getBody().size());
         body.add(nextHead);
 
-        int growthOffset = gameState.isSnakeGrowing(snake) ? 0 : 1;
+        int growthOffset = snake.isGrowing() ? 0 : 1;
 
         for (int i = 0; i < snake.getBody().size() - growthOffset; ++i) {
             body.add(snake.getBody().get(i));

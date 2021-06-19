@@ -73,6 +73,25 @@ class GameStateAdvancerTest {
     }
 
     @Test
+    void test_food_persists() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "yy_\n" + //
+                "_Y_\n" + //
+                "0__\n").setHealth("Y", 25).build();
+        GameState from = entity1.getGameState();
+
+        HazardPredictor entity2 = new AsciiToGameState("" + //
+                "_y_\n" + //
+                "_yY\n" + //
+                "0__\n").setHealth("Y", 24).build();
+        GameState expected = entity2.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(expected.getBoard(), to.getBoard());
+    }
+
+    @Test
     void test_snake_health_decrease() {
         HazardPredictor entity1 = EntityBuilder.hazardPredictor();
         GameState from = entity1.getGameState();
