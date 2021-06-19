@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import ru.elynx.battlesnake.entity.*;
@@ -89,12 +88,33 @@ public class GameStateAdvancer {
     }
 
     private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
+        // TODO improve checking, consumed food is actually known
+        List<Coordinates> food = filterConsumedFood(gameState, snakes);
+
+        Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
+
         Snake you = findYouSnake(gameState, snakes);
-
-        Board board = new Board(gameState.getBoard().getDimensions(), Collections.emptyList(),
-                gameState.getBoard().getHazards(), snakes);
-
         return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
+    }
+
+    private static List<Coordinates> filterConsumedFood(GameState gameState, List<Snake> snakes) {
+        List<Coordinates> food = new ArrayList<>(gameState.getBoard().getFood().size());
+
+        for (Coordinates potentialFood : gameState.getBoard().getFood()) {
+            boolean consumed = false;
+            for (Snake snake : snakes) {
+                if (potentialFood.equals(snake.getHead())) {
+                    consumed = true;
+                    break;
+                }
+            }
+
+            if (!consumed) {
+                food.add(potentialFood);
+            }
+        }
+
+        return food;
     }
 
     private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
