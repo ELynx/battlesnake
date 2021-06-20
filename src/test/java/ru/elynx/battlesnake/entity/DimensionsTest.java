@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,30 @@ class DimensionsTest {
                 assertEquals(height, tested.getHeight());
 
                 assertEquals(width * height, tested.area());
+            }
+        }
+    }
+
+    @Test
+    void test_out_of_bounds() {
+        int width = 11;
+        int height = 11;
+        Dimensions tested = new Dimensions(width, height);
+
+        for (int x = -1; x <= width; ++x) {
+            for (int y = -1; y <= height; ++y) {
+                boolean byCoordinates = tested.outOfBounds(new Coordinates(x, y));
+                boolean byXY = tested.outOfBounds(x, y);
+
+                assertThat(byXY, equalTo(byCoordinates));
+
+                if (x == -1 || x == width || y == -1 || y == height) {
+                    assertTrue(byXY);
+                    assertTrue(byCoordinates);
+                } else {
+                    assertFalse(byXY);
+                    assertFalse(byCoordinates);
+                }
             }
         }
     }

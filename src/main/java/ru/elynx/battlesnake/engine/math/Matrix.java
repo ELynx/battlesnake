@@ -19,15 +19,11 @@ public class Matrix {
     }
 
     protected int calculateBoundIndex(int x, int y) {
-        if (outside(x, y)) {
+        if (dimensions.outOfBounds(x, y)) {
             return -1;
         }
 
         return calculateIndex(x, y);
-    }
-
-    private boolean outside(int x, int y) {
-        return x < 0 || y < 0 || x >= dimensions.getWidth() || y >= dimensions.getHeight();
     }
 
     private int calculateIndex(int x, int y) {

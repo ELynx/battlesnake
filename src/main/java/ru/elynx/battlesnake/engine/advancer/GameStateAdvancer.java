@@ -36,7 +36,15 @@ public class GameStateAdvancer {
 
     private static Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
         Coordinates head = makeHead(snake, moveCommand);
+        if (gameState.getBoard().getDimensions().outOfBounds(head)) {
+            return null; // eliminate by out of bounds
+        }
+
         int health = makeHealth(gameState, snake, head);
+        if (health <= 0) {
+            return null; // eliminate by health
+        }
+
         List<Coordinates> body = makeBody(gameState, snake, head);
 
         return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), head, body.size(),
