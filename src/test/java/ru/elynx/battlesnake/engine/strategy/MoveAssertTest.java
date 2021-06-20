@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
 class MoveAssertTest {
@@ -23,7 +24,7 @@ class MoveAssertTest {
     @Test
     void test_assert_move_failing_valid() {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).failing("Foo");
-        assertDoesNotThrow(() -> tested.validate("Foo"));
+        assertThrows(TestAbortedException.class, () -> tested.validate("Foo"));
     }
 
     @Test

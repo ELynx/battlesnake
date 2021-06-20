@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.strategy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class MoveAssert {
 
     public void validate(String name) throws AssertionError {
         if (failingStrategies.contains(name)) {
+            assumeTrue(matcher.matches(moveCommand));
             assertThat(moveCommand, not(matcher));
         } else {
             assertThat(moveCommand, matcher);
