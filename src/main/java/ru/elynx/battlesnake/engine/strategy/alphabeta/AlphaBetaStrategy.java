@@ -74,7 +74,7 @@ public class AlphaBetaStrategy extends OmegaStrategy {
         Common.forAllSnakeBodies(step0, coordinates -> occupiedPositions.set(coordinates));
 
         ScoreMaker scoreMaker0 = new ScoreMaker(step0.getYou(), step0, this);
-        int score = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
+        int thisMoveScore = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
 
         // score for all possible moves
         occupiedPositions.unsetAll();
@@ -82,13 +82,12 @@ public class AlphaBetaStrategy extends OmegaStrategy {
 
         ScoreMaker scoreMaker = new ScoreMaker(step1.getYou(), step1, this);
 
+        int nextMoveScore = 0;
         for (CoordinatesWithDirection coordinates : step1.getYou().getHead().sideNeighbours()) {
-            if (!coordinates.equals(step0.getYou().getHead())) {
-                score += scoreMaker.scoreMove(coordinates);
-            }
+            nextMoveScore += scoreMaker.scoreMove(coordinates);
         }
 
-        return score;
+        return thisMoveScore + nextMoveScore;
     }
 
     @Configuration
