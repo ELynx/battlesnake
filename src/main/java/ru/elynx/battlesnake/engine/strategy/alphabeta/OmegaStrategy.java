@@ -17,7 +17,7 @@ import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
-    private FlagMatrix occupiedPositions;
+    protected FlagMatrix occupiedPositions;
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
@@ -45,7 +45,6 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     protected Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
         occupiedPositions.unsetAll();
-
         Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
 
         ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);

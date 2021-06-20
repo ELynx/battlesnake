@@ -101,6 +101,19 @@ public class CaseBuilder {
                 "__bB0Cc__\n" + //
                 "____A____\n" + //
                 "____a____\n" + //
+                "____a____\n");
+
+        return generator.build();
+    }
+
+    public static HazardPredictor eat_if_last_chance() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____y____\n" + //
+                "____y____\n" + //
+                "____Y____\n" + //
+                "__bB0Cc__\n" + //
+                "____A____\n" + //
+                "____a____\n" + //
                 "____a____\n").setHealth("Y", 2);
 
         return generator.build();

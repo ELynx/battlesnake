@@ -110,6 +110,22 @@ class ScoreMakerTest {
     }
 
     @Test
+    void test_eat_if_last_chance() {
+        HazardPredictor entity1 = CaseBuilder.eat_if_last_chance();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState);
+
+        assertEquals(1, tested.scoreHead());
+        assertEquals(-5, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-2, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-2, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
     void test_dont_give_up() {
         HazardPredictor entity1 = CaseBuilder.dont_give_up();
         GameState gameState = entity1.getGameState();

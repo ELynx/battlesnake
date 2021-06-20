@@ -122,6 +122,19 @@ class SnakeMovePredictorTest {
     }
 
     @Test
+    void test_eat_if_last_chance() {
+        HazardPredictor entity1 = CaseBuilder.eat_if_last_chance();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+
+        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+
+        assertEquals(new Coordinates(5, 4), predictions.iterator().next().getValue0());
+    }
+
+    @Test
     void test_dont_give_up() {
         HazardPredictor entity1 = CaseBuilder.dont_give_up();
         GameState gameState = entity1.getGameState();
