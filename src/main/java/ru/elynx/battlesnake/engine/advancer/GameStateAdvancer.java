@@ -133,7 +133,7 @@ public class GameStateAdvancer {
         for (Snake checked : snakes) {
             boolean survived = true;
             for (Snake other : snakes) {
-                if (isCollision(checked, other)) {
+                if (isCollisionLoss(checked, other)) {
                     survived = false;
                     break;
                 }
@@ -147,7 +147,21 @@ public class GameStateAdvancer {
         return result;
     }
 
-    private static boolean isCollision(Snake checked, Snake other) {
+    private static boolean isCollisionLoss(Snake checked, Snake other) {
+        List<Coordinates> body = other.getBody();
+
+        for (int i = 0; i < body.size(); ++i) {
+            Coordinates coordinates = body.get(i);
+
+            if (coordinates.equals(checked.getHead())) {
+                if (i == 0) {
+                    return false; // TODO
+                } else {
+                    return true; // head to any part of body is always loss
+                }
+            }
+        }
+
         return false;
     }
 
