@@ -155,7 +155,9 @@ public class GameStateAdvancer {
 
             if (coordinates.equals(checked.getHead())) {
                 if (i == 0) {
-                    return false; // TODO
+                    if (!other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength()) {
+                        return true;
+                    }
                 } else {
                     return true; // head to any part of body is always loss
                 }
