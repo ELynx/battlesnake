@@ -275,7 +275,30 @@ class GameStateAdvancerTest {
             }
         });
 
-        assertEquals(0, to.getBoard().getFood().size());
         assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_winner() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "______y_\n" + //
+                "___bbBy_\n" + //
+                "___ccCy_\n" + //
+                "___ddDy_\n" + //
+                "___eeEy_\n" + //
+                "___ffFY_\n" + //
+                "___aaA__\n").setStartSnakeLength(1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+            if ("Y".equals(snake.getId())) {
+                return moveDown.apply(snake, gameState);
+            } else {
+                return moveRight.apply(snake, gameState);
+            }
+        });
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+        assertEquals("Y", to.getBoard().getSnakes().get(0).getId());
     }
 }
