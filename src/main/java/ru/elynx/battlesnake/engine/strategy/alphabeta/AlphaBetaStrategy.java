@@ -23,28 +23,22 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     public Move processMove(HazardPredictor hazardPredictor) {
         GameState gameState = hazardPredictor.getGameState();
 
-        occupiedPositions.unsetAll();
-        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
-
-        ScoreMaker scoreMaker = new ScoreMaker(gameState.getYou(), gameState, this);
-        Coordinates head = gameState.getYou().getHead();
-
         MoveCommand moveCommand = DOWN;
-        int bestScore = scoreMaker.scoreMove(head.move(moveCommand)) + forMoveCommand(gameState, moveCommand);
+        int bestScore = forMoveCommand(gameState, moveCommand);
 
-        int tmp = scoreMaker.scoreMove(head.move(LEFT)) + forMoveCommand(gameState, LEFT);
+        int tmp = forMoveCommand(gameState, LEFT);
         if (tmp > bestScore) {
             moveCommand = LEFT;
             bestScore = tmp;
         }
 
-        tmp = scoreMaker.scoreMove(head.move(RIGHT)) + forMoveCommand(gameState, RIGHT);
+        tmp = forMoveCommand(gameState, RIGHT);
         if (tmp > bestScore) {
             moveCommand = RIGHT;
             bestScore = tmp;
         }
 
-        tmp = scoreMaker.scoreMove(head.move(UP)) + forMoveCommand(gameState, UP);
+        tmp = forMoveCommand(gameState, UP);
         if (tmp > bestScore) {
             moveCommand = UP;
         }
@@ -75,13 +69,23 @@ public class AlphaBetaStrategy extends OmegaStrategy {
             return -100;
         }
 
+        // score for arriving here
+        occupiedPositions.unsetAll();
+        Common.forAllSnakeBodies(step0, coordinates -> occupiedPositions.set(coordinates));
+
+        ScoreMaker scoreMaker0 = new ScoreMaker(step0.getYou(), step0, this);
+        int score = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
+
+        // score for all possible moves
         occupiedPositions.unsetAll();
         Common.forAllSnakeBodies(step1, coordinates -> occupiedPositions.set(coordinates));
 
         ScoreMaker scoreMaker = new ScoreMaker(step1.getYou(), step1, this);
-        int score = 0;
+
         for (CoordinatesWithDirection coordinates : step1.getYou().getHead().sideNeighbours()) {
-            score += scoreMaker.scoreMove(coordinates);
+            if (!coordinates.equals(step0.getYou().getHead())) {
+                score += scoreMaker.scoreMove(coordinates);
+            }
         }
 
         return score;
