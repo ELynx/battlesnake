@@ -72,7 +72,7 @@ public class CaseBuilder {
                 "___________\n" + //
                 "___________\n" + //
                 "_________yY\n" + //
-                "_________y0\n").setHealth("Y", 2);
+                "________yy0\n").setHealth("Y", 2);
 
         return generator.build();
     }

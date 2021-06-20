@@ -66,7 +66,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Ahaetulla").failing("Pixel").validate(name);
+        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
