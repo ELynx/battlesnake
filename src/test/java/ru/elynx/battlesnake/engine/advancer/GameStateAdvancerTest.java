@@ -129,4 +129,129 @@ class GameStateAdvancerTest {
         assertEquals(turn3, advance3fromAdvance2);
         assertEquals(turn3, advance3fromTurn2);
     }
+
+    @Test
+    void test_snake_eat_food_head_to_head() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "_Y_\n" + //
+                "A0_\n").setStartSnakeLength(1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+            if ("Y".equals(snake.getId())) {
+                return moveDown.apply(snake, gameState);
+            } else {
+                return moveRight.apply(snake, gameState);
+            }
+        });
+
+        assertEquals(0, to.getBoard().getFood().size());
+        assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_out_of_health() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "_y_\n" + //
+                "_y_\n" + //
+                "_Y_\n").setHealth("Y", 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_out_of_health_prevented_by_food() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "_y_\n" + //
+                "_y_\n" + //
+                "_Y0\n").setHealth("Y", 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+        assertEquals(4, to.getBoard().getSnakes().get(0).getLength());
+    }
+
+    @Test
+    void test_snake_elimination_moved_out_of_bounds() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "_y_\n" + //
+                "_y_\n" + //
+                "_Y_\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveDown);
+
+        assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_collide_self() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "_Y<\n" + //
+                ">>^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveDown);
+
+        assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_collide_self_avoid_tail() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "_v<\n" + //
+                "_Y^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_collide_self_avoid_initial_1() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "Y__\n" + //
+                "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_collide_self_avoid_initial_2() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "yY_\n" + //
+                "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveRight);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_snake_elimination_collide_self_avoid_after_full_health() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "___\n" + //
+                "yyY\n" + //
+                "___\n").setLength("Y", 4).setHealth("Y", Snake.getMaxHealth()).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, moveDown);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+    }
 }
