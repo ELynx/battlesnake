@@ -6,6 +6,7 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.engine.predictor.SimplePredictorInformant;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
@@ -20,13 +21,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(6, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(1, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -36,11 +38,12 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(1, tested.scoreMove(head.move(RIGHT)));
         assertEquals(4, tested.scoreMove(head.move(UP)));
     }
@@ -52,12 +55,13 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(4, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(1, tested.scoreMove(head.move(UP)));
     }
 
@@ -68,12 +72,13 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(4, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(1, tested.scoreMove(head.move(UP)));
     }
 
@@ -84,13 +89,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
         assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -100,29 +106,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(-5, tested.scoreMove(head.move(DOWN)));
         assertEquals(-2, tested.scoreMove(head.move(LEFT)));
         assertEquals(-2, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
-    }
-
-    @Test
-    void test_eat_if_last_chance() {
-        HazardPredictor entity1 = CaseBuilder.eat_if_last_chance();
-        GameState gameState = entity1.getGameState();
-        Snake snake = gameState.getYou();
-        Coordinates head = snake.getHead();
-
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
-
-        assertEquals(1, tested.scoreHead());
-        assertEquals(-5, tested.scoreMove(head.move(DOWN)));
-        assertEquals(-2, tested.scoreMove(head.move(LEFT)));
-        assertEquals(-2, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -132,13 +123,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
-        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
         assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -148,12 +140,13 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(-3, tested.scoreHead());
-        assertEquals(-3, tested.scoreMove(head.move(DOWN)));
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
         assertEquals(0, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(-3, tested.scoreMove(head.move(UP)));
     }
 
@@ -164,13 +157,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(6, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(6, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -180,13 +174,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(1, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -196,12 +191,13 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
-        assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(-4, tested.scoreMove(head.move(UP)));
     }
 
@@ -212,12 +208,13 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
-        assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
-        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(-4, tested.scoreMove(head.move(UP)));
     }
 
@@ -228,13 +225,14 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(-4, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(-4, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
     }
 
     @Test
@@ -244,11 +242,12 @@ class ScoreMakerTest {
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
-        ScoreMaker tested = new ScoreMaker(snake, gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
 
-        assertEquals(1, tested.scoreHead());
-        assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(1, tested.scoreMove(head.move(LEFT)));
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
         assertEquals(6, tested.scoreMove(head.move(RIGHT)));
         assertEquals(6, tested.scoreMove(head.move(UP)));
     }

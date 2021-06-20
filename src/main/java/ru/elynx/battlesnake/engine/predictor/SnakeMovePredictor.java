@@ -11,6 +11,7 @@ import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
+// TODO does it need to sort walkable on it's own
 public class SnakeMovePredictor {
     private final IPredictorInformant predictorInformant;
     private final ProbabilityMaker probabilityMaker;
@@ -30,7 +31,7 @@ public class SnakeMovePredictor {
 
     private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
         Collection<? extends Coordinates> directions = possibleDirections(snake);
-        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState, predictorInformant);
 
         return getProbabilitiesOf(directions, scoreMaker);
     }
@@ -95,28 +96,22 @@ public class SnakeMovePredictor {
 
     private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<? extends Coordinates> directions,
             ScoreMaker scoreMaker) {
-        List<Pair<Coordinates, Integer>> walkableDirections = new ArrayList<>(4);
-        int greatestScore = Integer.MIN_VALUE;
-
-        for (Coordinates direction : directions) {
-            if (isWalkable(direction)) {
-                int score = scoreMaker.scoreMove(direction);
-                if (score > greatestScore)
-                    greatestScore = score;
-
-                walkableDirections.add(new Pair<>(direction, score));
-            }
-        }
-
-        if (walkableDirections.isEmpty()) {
+        if (directions.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return makeProbabilities(walkableDirections, greatestScore);
-    }
+        List<Pair<Coordinates, Integer>> scoredDirections = new ArrayList<>(directions.size());
+        int greatestScore = Integer.MIN_VALUE;
 
-    private boolean isWalkable(Coordinates direction) {
-        return predictorInformant.isWalkable(direction);
+        for (Coordinates direction : directions) {
+            int score = scoreMaker.scoreMove(direction);
+            if (score > greatestScore)
+                greatestScore = score;
+
+            scoredDirections.add(new Pair<>(direction, score));
+        }
+
+        return makeProbabilities(scoredDirections, greatestScore);
     }
 
     private List<Pair<Coordinates, Double>> makeProbabilities(List<Pair<Coordinates, Integer>> directions,

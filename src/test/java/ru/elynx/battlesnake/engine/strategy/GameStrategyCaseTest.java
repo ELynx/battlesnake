@@ -78,7 +78,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).failing("Pixel").failing("Voxel").validate(name);
+        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -90,19 +90,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).failing("Voxel").validate(name);
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_eat_if_last_chance(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        HazardPredictor gameState = CaseBuilder.eat_if_last_chance();
-        gameStrategy.init(gameState);
-
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).failing("Ahaetulla").failing("Pixel").validate(name);
+        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).validate(name);
     }
 
     @ParameterizedTest
@@ -198,6 +186,6 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").failing("Voxel").validate(name);
+        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
     }
 }

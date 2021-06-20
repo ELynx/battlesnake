@@ -13,35 +13,6 @@ import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
 @Tag("Internals")
 class SnakeMovePredictorTest {
-    static class TestIsWalkable implements IPredictorInformant {
-        private final GameState gameState;
-
-        TestIsWalkable(GameState gameState) {
-            this.gameState = gameState;
-        }
-
-        @Override
-        public boolean isWalkable(Coordinates tested) {
-            if (tested.getX() < 0)
-                return false;
-            if (tested.getY() < 0)
-                return false;
-            if (tested.getX() >= gameState.getBoard().getDimensions().getWidth())
-                return false;
-            if (tested.getX() >= gameState.getBoard().getDimensions().getHeight())
-                return false;
-
-            for (Snake snake : gameState.getBoard().getSnakes()) {
-                for (Coordinates body : snake.getBody()) {
-                    if (body.equals(tested)) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-    }
 
     @Test
     void test_empty_space_better_than_snake() {
@@ -49,7 +20,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -62,7 +33,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -75,7 +46,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -88,7 +59,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -101,7 +72,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -114,20 +85,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
-        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
-        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
-
-        assertEquals(new Coordinates(5, 4), predictions.iterator().next().getValue0());
-    }
-
-    @Test
-    void test_eat_if_last_chance() {
-        HazardPredictor entity1 = CaseBuilder.eat_if_last_chance();
-        GameState gameState = entity1.getGameState();
-        Snake snake = gameState.getYou();
-
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -140,7 +98,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -153,7 +111,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -166,7 +124,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -179,7 +137,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -192,7 +150,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -205,7 +163,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -218,7 +176,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 
@@ -231,7 +189,7 @@ class SnakeMovePredictorTest {
         GameState gameState = entity1.getGameState();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
 

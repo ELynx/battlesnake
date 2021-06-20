@@ -1,53 +1,49 @@
 package ru.elynx.battlesnake.engine.predictor.implementation;
 
+import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
 public class ScoreMaker {
-    private enum Mode {
-        MOVE_MODE, HEAD_MODE
-    }
-
     // delivering h2h win is best
     // eating food is good
     // staying alive is OK
     // h2h draw depends on other snake's risk, is as bad as eating food is good
     // going into hazard negates base + food, but better than h2h lose
     // h2h lose negates base + food
+    // collision is the worst because it is certain self-induced loss
     private static final int HEAD_TO_HEAD_WIN_SCORE = 5;
     private static final int FOOD_SCORE = 3;
     private static final int BASE_SCORE = 1;
     private static final int HEAD_TO_HEAD_DRAW_SCORE = -3;
     private static final int HAZARD_SCORE = -4;
     private static final int HEAD_TO_HEAD_LOSE_SCORE = -5;
+    private static final int COLLISION_SCORE = -10;
 
     private final Snake snake;
     private final GameState gameState;
+    private final IPredictorInformant predictorInformant;
 
     private Coordinates coordinates;
-    private Mode mode;
 
-    public ScoreMaker(Snake snake, GameState gameState) {
+    public ScoreMaker(Snake snake, GameState gameState, IPredictorInformant predictorInformant) {
         this.snake = snake;
         this.gameState = gameState;
+        this.predictorInformant = predictorInformant;
     }
 
     public int scoreMove(Coordinates coordinates) {
         this.coordinates = coordinates;
-        this.mode = Mode.MOVE_MODE;
-
-        return scoreImpl();
-    }
-
-    public int scoreHead() {
-        this.coordinates = snake.getHead();
-        this.mode = Mode.HEAD_MODE;
 
         return scoreImpl();
     }
 
     private int scoreImpl() {
+        if (isCollision()) {
+            return COLLISION_SCORE;
+        }
+
         int score = BASE_SCORE;
 
         score += getFoodScore();
@@ -55,6 +51,10 @@ public class ScoreMaker {
         score += getHazardScore();
 
         return score;
+    }
+
+    private boolean isCollision() {
+        return !predictorInformant.isWalkable(coordinates);
     }
 
     private int getFoodScore() {
@@ -94,22 +94,11 @@ public class ScoreMaker {
     }
 
     private boolean isScoreTarget(Snake otherSnake) {
-        switch (mode) {
-            case MOVE_MODE :
-                return isNextMove(otherSnake);
-            case HEAD_MODE :
-                return isCollision(otherSnake);
-            default :
-                return false;
-        }
+        return isNextMove(otherSnake);
     }
 
     private boolean isNextMove(Snake otherSnake) {
         return otherSnake.getHead().manhattanDistance(coordinates) == 1;
-    }
-
-    private boolean isCollision(Snake otherSnake) {
-        return otherSnake.getHead().equals(coordinates);
     }
 
     private int getHazardScore() {

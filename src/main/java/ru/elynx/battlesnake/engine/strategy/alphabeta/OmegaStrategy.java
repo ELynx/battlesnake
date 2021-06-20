@@ -47,11 +47,11 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
         occupiedPositions.unsetAll();
         Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
 
-        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState);
+        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState, this);
 
         Collection<CoordinatesWithDirection> moves = snake.getHead().sideNeighbours();
 
-        return moves.stream().filter(this::isWalkable).sorted(Comparator.comparingInt(scoreMaker::scoreMove).reversed())
+        return moves.stream().sorted(Comparator.comparingInt(scoreMaker::scoreMove).reversed())
                 .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 

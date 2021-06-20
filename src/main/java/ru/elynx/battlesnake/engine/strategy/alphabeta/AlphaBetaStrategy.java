@@ -23,22 +23,28 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     public Move processMove(HazardPredictor hazardPredictor) {
         GameState gameState = hazardPredictor.getGameState();
 
-        MoveCommand moveCommand = DOWN;
-        int bestScore = forMoveCommand(gameState, moveCommand);
+        occupiedPositions.unsetAll();
+        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
 
-        int tmp = forMoveCommand(gameState, LEFT);
+        ScoreMaker scoreMaker = new ScoreMaker(gameState.getYou(), gameState, this);
+        Coordinates head = gameState.getYou().getHead();
+
+        MoveCommand moveCommand = DOWN;
+        int bestScore = scoreMaker.scoreMove(head.move(moveCommand)) + forMoveCommand(gameState, moveCommand);
+
+        int tmp = scoreMaker.scoreMove(head.move(LEFT)) + forMoveCommand(gameState, LEFT);
         if (tmp > bestScore) {
             moveCommand = LEFT;
             bestScore = tmp;
         }
 
-        tmp = forMoveCommand(gameState, RIGHT);
+        tmp = scoreMaker.scoreMove(head.move(RIGHT)) + forMoveCommand(gameState, RIGHT);
         if (tmp > bestScore) {
             moveCommand = RIGHT;
             bestScore = tmp;
         }
 
-        tmp = forMoveCommand(gameState, UP);
+        tmp = scoreMaker.scoreMove(head.move(UP)) + forMoveCommand(gameState, UP);
         if (tmp > bestScore) {
             moveCommand = UP;
         }
@@ -47,16 +53,7 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     }
 
     private int forMoveCommand(GameState step0, MoveCommand moveCommand) {
-        CoordinatesWithDirection headAtStep1 = step0.getYou().getHead().move(moveCommand);
-
-        occupiedPositions.unsetAll();
-        Common.forAllSnakeBodies(step0, coordinates -> occupiedPositions.set(coordinates));
-
-        if (!isWalkable(headAtStep1)) {
-            return -100;
-        }
-
-        BiFunction<Snake, GameState, MoveCommand> step1Function = (Snake snake, GameState gameState) -> {
+        BiFunction<Snake, GameState, MoveCommand> step1MoveFunction = (Snake snake, GameState gameState) -> {
             if (gameState.getYou().getId().equals(snake.getId())) {
                 return moveCommand;
             }
@@ -64,30 +61,27 @@ public class AlphaBetaStrategy extends OmegaStrategy {
             return bestMoveForSnake(snake, gameState).orElse(UP);
         };
 
-        GameState step1 = GameStateAdvancer.advance(step0, step1Function);
+        GameState step1 = GameStateAdvancer.advance(step0, step1MoveFunction);
 
-        boolean found = false;
+        boolean eliminated = true;
         for (Snake someSnake : step1.getBoard().getSnakes()) {
             if (someSnake.getId().equals(step1.getYou().getId())) {
-                found = true;
+                eliminated = false;
                 break;
             }
         }
 
-        // eliminated
-        if (!found) {
+        if (eliminated) {
             return -100;
         }
 
         occupiedPositions.unsetAll();
         Common.forAllSnakeBodies(step1, coordinates -> occupiedPositions.set(coordinates));
 
-        ScoreMaker scoreMaker = new ScoreMaker(step1.getYou(), step1);
-        int score = scoreMaker.scoreHead();
+        ScoreMaker scoreMaker = new ScoreMaker(step1.getYou(), step1, this);
+        int score = 0;
         for (CoordinatesWithDirection coordinates : step1.getYou().getHead().sideNeighbours()) {
-            if (isWalkable(coordinates)) {
-                score += scoreMaker.scoreMove(coordinates);
-            }
+            score += scoreMaker.scoreMove(coordinates);
         }
 
         return score;
