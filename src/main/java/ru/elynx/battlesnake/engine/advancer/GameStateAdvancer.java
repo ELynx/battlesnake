@@ -127,7 +127,28 @@ public class GameStateAdvancer {
     }
 
     private static List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
-        return snakes;
+        List<Snake> result = new ArrayList<>(snakes.size());
+
+        // TODO speed up by using snake lengths
+        for (Snake checked : snakes) {
+            boolean survived = true;
+            for (Snake other : snakes) {
+                if (isCollision(checked, other)) {
+                    survived = false;
+                    break;
+                }
+            }
+
+            if (survived) {
+                result.add(checked);
+            }
+        }
+
+        return result;
+    }
+
+    private static boolean isCollision(Snake checked, Snake other) {
+        return false;
     }
 
     private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
