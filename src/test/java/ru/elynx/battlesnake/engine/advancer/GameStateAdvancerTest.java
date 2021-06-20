@@ -254,4 +254,28 @@ class GameStateAdvancerTest {
 
         assertEquals(1, to.getBoard().getSnakes().size());
     }
+
+    @Test
+    void test_snake_elimination_side() {
+        HazardPredictor entity1 = new AsciiToGameState("" + //
+                "______y_\n" + //
+                "___bbBy_\n" + //
+                "___ccCy_\n" + //
+                "___ddDy_\n" + //
+                "___eeEy_\n" + //
+                "_____AYa\n" + //
+                "_____aaa\n").setStartSnakeLength(1).build();
+        GameState from = entity1.getGameState();
+
+        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+            if ("Y".equals(snake.getId())) {
+                return moveDown.apply(snake, gameState);
+            } else {
+                return moveRight.apply(snake, gameState);
+            }
+        });
+
+        assertEquals(0, to.getBoard().getFood().size());
+        assertEquals(0, to.getBoard().getSnakes().size());
+    }
 }
