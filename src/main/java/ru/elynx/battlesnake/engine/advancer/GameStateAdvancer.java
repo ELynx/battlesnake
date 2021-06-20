@@ -98,6 +98,7 @@ public class GameStateAdvancer {
     private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
         // TODO improve checking, consumed food is actually known
         List<Coordinates> food = filterConsumedFood(gameState, snakes);
+        snakes = eliminateSnakesByCollision(snakes);
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
 
@@ -123,6 +124,10 @@ public class GameStateAdvancer {
         }
 
         return food;
+    }
+
+    private static List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
+        return snakes;
     }
 
     private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
