@@ -2,8 +2,11 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
@@ -20,29 +23,13 @@ public class AlphaBetaStrategy extends OmegaStrategy {
 
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
+        GameState state0 = hazardPredictor.getGameState();
 
-        MoveCommand moveCommand = DOWN;
-        int bestScore = forMoveCommand(gameState, moveCommand);
+        Stream<MoveCommand> moves = Stream.of(DOWN, LEFT, RIGHT, UP);
 
-        int tmp = forMoveCommand(gameState, LEFT);
-        if (tmp > bestScore) {
-            moveCommand = LEFT;
-            bestScore = tmp;
-        }
-
-        tmp = forMoveCommand(gameState, RIGHT);
-        if (tmp > bestScore) {
-            moveCommand = RIGHT;
-            bestScore = tmp;
-        }
-
-        tmp = forMoveCommand(gameState, UP);
-        if (tmp > bestScore) {
-            moveCommand = UP;
-        }
-
-        return new Move(moveCommand);
+        Optional<MoveCommand> moveCommand = moves
+                .max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move)));
+        return new Move(moveCommand.orElse(REPEAT_LAST));
     }
 
     private int forMoveCommand(GameState step0, MoveCommand moveCommand) {
