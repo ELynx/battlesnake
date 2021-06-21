@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
 import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
-import ru.elynx.battlesnake.engine.strategy.Common;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
@@ -70,17 +69,11 @@ public class AlphaBetaStrategy extends OmegaStrategy {
         }
 
         // score for arriving here
-        occupiedPositions.unsetAll();
-        Common.forAllSnakeBodies(step0, coordinates -> occupiedPositions.set(coordinates));
-
-        ScoreMaker scoreMaker0 = new ScoreMaker(step0.getYou(), step0, this);
+        ScoreMaker scoreMaker0 = makeScoreMaker(step0.getYou(), step0);
         int thisMoveScore = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
 
         // score for all possible moves
-        occupiedPositions.unsetAll();
-        Common.forAllSnakeBodies(step1, coordinates -> occupiedPositions.set(coordinates));
-
-        ScoreMaker scoreMaker = new ScoreMaker(step1.getYou(), step1, this);
+        ScoreMaker scoreMaker = makeScoreMaker(step1.getYou(), step1);
 
         int nextMoveScore = 0;
         for (CoordinatesWithDirection coordinates : step1.getYou().getHead().sideNeighbours()) {

@@ -17,7 +17,7 @@ import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
-    protected FlagMatrix occupiedPositions;
+    private FlagMatrix occupiedPositions;
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
@@ -26,8 +26,8 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     @Override
     public void init(HazardPredictor hazardPredictor) {
-        occupiedPositions = FlagMatrix.uninitializedMatrix(hazardPredictor.getGameState().getBoard().getDimensions(),
-                true);
+        GameState gameState = hazardPredictor.getGameState();
+        occupiedPositions = FlagMatrix.uninitializedMatrix(gameState.getBoard().getDimensions(), true);
     }
 
     @Override
@@ -38,21 +38,27 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     @Override
     public Move processMove(HazardPredictor hazardPredictor) {
         GameState gameState = hazardPredictor.getGameState();
-        MoveCommand moveCommand = bestMoveForSnake(gameState.getYou(), gameState).orElse(REPEAT_LAST);
+        Optional<MoveCommand> moveCommand = bestMoveForSnake(gameState.getYou(), gameState);
 
-        return new Move(moveCommand);
+        return new Move(moveCommand.orElse(REPEAT_LAST));
     }
 
     protected Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
-        occupiedPositions.unsetAll();
-        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
-
-        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState, this);
+        ScoreMaker scoreMaker = makeScoreMaker(snake, gameState);
 
         Collection<CoordinatesWithDirection> moves = snake.getHead().sideNeighbours();
-
         return moves.stream().sorted(Comparator.comparingInt(scoreMaker::scoreMove).reversed())
                 .map(CoordinatesWithDirection::getDirection).findFirst();
+    }
+
+    protected ScoreMaker makeScoreMaker(Snake snake, GameState gameState) {
+        setupPredictorInformant(gameState);
+        return new ScoreMaker(snake, gameState, this);
+    }
+
+    private void setupPredictorInformant(GameState gameState) {
+        occupiedPositions.unsetAll();
+        Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
     }
 
     @Override
