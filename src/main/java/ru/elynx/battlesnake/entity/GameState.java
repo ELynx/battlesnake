@@ -16,4 +16,18 @@ public class GameState {
     Board board;
     @NonNull
     Snake you;
+
+    public boolean isYouEliminated() {
+        return isEliminated(you);
+    }
+
+    public boolean isEliminated(Snake snake) {
+        for (Snake someSnake : board.getSnakes()) {
+            if (someSnake.getId().equals(snake.getId())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

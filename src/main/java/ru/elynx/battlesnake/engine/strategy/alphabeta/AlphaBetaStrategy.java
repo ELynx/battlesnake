@@ -55,33 +55,24 @@ public class AlphaBetaStrategy extends OmegaStrategy {
         };
 
         GameState step1 = GameStateAdvancer.advance(step0, step1MoveFunction);
-
-        boolean eliminated = true;
-        for (Snake someSnake : step1.getBoard().getSnakes()) {
-            if (someSnake.getId().equals(step1.getYou().getId())) {
-                eliminated = false;
-                break;
-            }
-        }
-
-        if (eliminated) {
+        if (step1.isYouEliminated()) {
             return -100;
         }
 
         // score for arriving here
         ScoreMaker scoreMaker0 = makeScoreMaker(step0.getYou(), step0);
-        int thisMoveScore = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
+        int score0 = scoreMaker0.scoreMove(step0.getYou().getHead().move(moveCommand));
 
         // score for all possible moves
-        ScoreMaker scoreMaker = makeScoreMaker(step1.getYou(), step1);
+        ScoreMaker scoreMaker1 = makeScoreMaker(step1.getYou(), step1);
 
-        int nextMoveScore = 0;
+        int score1 = 0;
         for (CoordinatesWithDirection coordinates : step1.getYou().getHead().sideNeighbours()) {
-            nextMoveScore += scoreMaker.scoreMove(coordinates);
+            score1 += scoreMaker1.scoreMove(coordinates);
         }
 
         // TODO these are random weights to pass the tests
-        return 4 * thisMoveScore + nextMoveScore;
+        return 4 * score0 + score1;
     }
 
     @Configuration
