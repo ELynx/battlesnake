@@ -251,4 +251,38 @@ class ScoreMakerTest {
         assertEquals(6, tested.scoreMove(head.move(RIGHT)));
         assertEquals(6, tested.scoreMove(head.move(UP)));
     }
+
+    @Test
+    void test_avoid_lock_1() {
+        HazardPredictor entity1 = CaseBuilder.avoid_lock_1();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-2, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_avoid_lock_2() {
+        HazardPredictor entity1 = CaseBuilder.avoid_lock_2();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+    }
 }

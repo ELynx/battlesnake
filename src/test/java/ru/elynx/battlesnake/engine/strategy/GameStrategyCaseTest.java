@@ -188,4 +188,28 @@ class GameStrategyCaseTest {
         Move move = gameStrategy.processMove(gameState);
         assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_avoid_lock_1(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        HazardPredictor gameState = CaseBuilder.avoid_lock_1();
+        gameStrategy.init(gameState);
+
+        Move move = gameStrategy.processMove(gameState);
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_avoid_lock_2(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        HazardPredictor gameState = CaseBuilder.avoid_lock_2();
+        gameStrategy.init(gameState);
+
+        Move move = gameStrategy.processMove(gameState);
+        assertMove(move.getMoveCommand(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
+    }
 }

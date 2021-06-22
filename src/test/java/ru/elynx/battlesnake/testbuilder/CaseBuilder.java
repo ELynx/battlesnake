@@ -329,4 +329,38 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static HazardPredictor avoid_lock_1() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________>v\n" + //
+                "_________^v\n" + //
+                "__________A\n" + //
+                "___bb_bB___\n" + //
+                "____bbb_>>Y\n" + //
+                "________^<_\n");
+
+        return generator.build();
+    }
+
+    public static HazardPredictor avoid_lock_2() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "__________a\n" + //
+                "__________a\n" + //
+                "__________a\n" + //
+                "__Aaaaaaaaa\n" + //
+                "___________\n" + //
+                "Yyyy_______\n" + //
+                "___y_______\n" + //
+                "__yy_______\n" + //
+                "yyy________\n");
+
+        return generator.build();
+    }
 }

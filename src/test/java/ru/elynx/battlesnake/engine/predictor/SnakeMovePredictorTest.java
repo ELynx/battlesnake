@@ -215,4 +215,32 @@ class SnakeMovePredictorTest {
 
         assertEquals(new Coordinates(9, 0), predictions.get(0).getValue0());
     }
+
+    @Test
+    void test_avoid_lock_1() {
+        HazardPredictor entity1 = CaseBuilder.avoid_lock_1();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_lock_2() {
+        HazardPredictor entity1 = CaseBuilder.avoid_lock_2();
+        GameState gameState = entity1.getGameState();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(0, 2), predictions.get(0).getValue0());
+    }
 }
