@@ -42,8 +42,13 @@ public class AlphaBetaStrategy extends OmegaStrategy {
         };
 
         GameState step1 = GameStateAdvancer.advance(step0, step1MoveFunction);
-        if (step1.isYouEliminated()) {
+
+        if (isEliminatedBetweenStates(step0, step1)) {
             return -100;
+        }
+
+        if (isWonBetweenStates(step0, step1)) {
+            return 100;
         }
 
         // score for arriving here
@@ -60,6 +65,38 @@ public class AlphaBetaStrategy extends OmegaStrategy {
 
         // TODO these are random weights to pass the tests
         return 4 * score0 + score1;
+    }
+
+    /**
+     * Test if `you` lost between two game states
+     *
+     * @param gameState0
+     *            passed for consistency of interface
+     * @param gameState1
+     *            tested to see if `you` lost
+     * @return true if `you` lost
+     */
+    private boolean isEliminatedBetweenStates(GameState gameState0, GameState gameState1) {
+        return gameState1.isYouEliminated();
+    }
+
+    /**
+     * Test if `you` won between two game states
+     *
+     * @param gameState0
+     *            to prevent any move from "winning" in solo
+     * @param gameState1
+     *            tested to see if `you` won
+     * @return true if `you` won
+     */
+    private boolean isWonBetweenStates(GameState gameState0, GameState gameState1) {
+        if (gameState0.getBoard().getSnakes().size() == 2) {
+            if (gameState1.getBoard().getSnakes().size() == 1) {
+                return !gameState1.isYouEliminated();
+            }
+        }
+
+        return false;
     }
 
     @Configuration
