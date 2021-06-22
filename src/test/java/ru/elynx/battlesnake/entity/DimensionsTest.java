@@ -10,13 +10,22 @@ import org.junit.jupiter.api.Test;
 @Tag("Internals")
 class DimensionsTest {
     @Test
-    void test_area() {
+    void test_ctor() {
         for (int width = 1; width < 100; ++width) {
             for (int height = 1; height < 100; ++height) {
                 Dimensions tested = new Dimensions(width, height);
 
                 assertEquals(width, tested.getWidth());
                 assertEquals(height, tested.getHeight());
+            }
+        }
+    }
+
+    @Test
+    void test_area() {
+        for (int width = 1; width < 100; ++width) {
+            for (int height = 1; height < 100; ++height) {
+                Dimensions tested = new Dimensions(width, height);
 
                 assertEquals(width * height, tested.area());
             }
@@ -43,6 +52,20 @@ class DimensionsTest {
                     assertFalse(byXY);
                     assertFalse(byCoordinates);
                 }
+            }
+        }
+    }
+
+    @Test
+    void test_center() {
+        for (int width = 1; width < 100; ++width) {
+            for (int height = 1; height < 100; ++height) {
+                Dimensions tested = new Dimensions(width, height);
+
+                Coordinates center = tested.center();
+
+                assertEquals(width / 2, center.getX());
+                assertEquals(height / 2, center.getY());
             }
         }
     }

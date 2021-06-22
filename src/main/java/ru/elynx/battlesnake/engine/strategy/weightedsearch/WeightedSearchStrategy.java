@@ -37,15 +37,15 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private WeightedSearchStrategy() {
     }
 
-    private void applyHunger(HazardPredictor hazardPredictor) {
-        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT,
-                HUNGER_HEALTH_THRESHOLD - hazardPredictor.getGameState().getYou().getHealth(), HUNGER_HEALTH_THRESHOLD,
-                MAX_FOOD_WEIGHT);
+    private void applyFood(HazardPredictor hazardPredictor) {
+        GameState gameState = hazardPredictor.getGameState();
+        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
+                HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
-        if (foodWeight <= 0.0)
+        if (foodWeight <= 0.0d)
             return;
 
-        for (Coordinates food : hazardPredictor.getGameState().getBoard().getFood()) {
+        for (Coordinates food : gameState.getBoard().getFood()) {
             weightMatrix.splash2ndOrder(food, foodWeight);
         }
     }
@@ -84,7 +84,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                     edible = false;
                 }
 
-                if (baseWeight != 0.0) {
+                if (baseWeight != 0.0d) {
                     if (head.manhattanDistance(ownHead) > 4) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(head, baseWeight);
@@ -97,7 +97,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                             double pv = prediction.getValue1();
                             double pw = baseWeight * pv;
 
-                            weightMatrix.splash2ndOrder(pc, pw, 4.0);
+                            weightMatrix.splash2ndOrder(pc, pw, 4.0d);
 
                             if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
                                 // edible means preliminary walkable
@@ -130,24 +130,37 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     private void applyHazards(HazardPredictor hazardPredictor) {
-        for (Coordinates hazard : hazardPredictor.getGameState().getBoard().getHazards()) {
-            weightMatrix.addValue(hazard, DETERRENT_WEIGHT);
+        GameState gameState = hazardPredictor.getGameState();
+        Coordinates center = gameState.getBoard().getDimensions().center();
+
+        for (Coordinates hazard : gameState.getBoard().getHazards()) {
+            double w = hazardPositionWeight(center, hazard);
+            double ww = DETERRENT_WEIGHT * w;
+            weightMatrix.addValue(hazard, ww);
         }
 
         for (Map.Entry<Coordinates, Double> prediction : hazardPredictor.getPredictedHazards().entrySet()) {
             Coordinates pc = prediction.getKey();
             double pv = prediction.getValue();
-            double pw = DETERRENT_WEIGHT * pv;
+            double w = hazardPositionWeight(center, pc);
+            double pw = DETERRENT_WEIGHT * pv * w;
 
             weightMatrix.addValue(pc, pw);
         }
+    }
+
+    private double hazardPositionWeight(Coordinates center, Coordinates hazard) {
+        int distanceInSteps = center.manhattanDistance(hazard);
+        int distanceInStepsFromCorner = center.getX() + center.getY(); // from (0, 0)
+        // small gradient will still be detected
+        return Util.scale(0.95, distanceInSteps, distanceInStepsFromCorner, 1.0d);
     }
 
     private void applyGameState(HazardPredictor gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
-        applyHunger(gameState);
+        applyFood(gameState);
         applySnakes(gameState);
         applyHazards(gameState);
     }
@@ -202,14 +215,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 return DETERRENT_WEIGHT; // don't throw in the middle of the move
         }
 
-        double opportunities = 0.0;
+        double opportunities = 0.0d;
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
                 double weight = weightMatrix.getValue(xi, yi);
                 // decrease penalties, they will be handled on approach
-                if (weight < 0.0) {
-                    weight = weight / 10.0;
+                if (weight < 0.0d) {
+                    weight = weight / 10.0d;
                 }
                 opportunities += weight;
             }
@@ -242,7 +255,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#50c878", "smile", "sharp", "1a");
+        return new BattlesnakeInfo("ELynx", "#50c878", "smile", "sharp", "2");
     }
 
     @Override
