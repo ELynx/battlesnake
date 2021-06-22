@@ -21,7 +21,7 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#314152", "pixel-round", "pixel-round", "not very smart");
+        return new BattlesnakeInfo("ELynx", "#314152", "pixel-round", "pixel-round", "2");
     }
 
     @Override

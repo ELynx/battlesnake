@@ -15,7 +15,7 @@ public class SolverStrategy implements IGameStrategy {
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "specialist");
+        return new BattlesnakeInfo("ELynx", "#268bd2", "beluga", "block-bum", "1");
     }
 
     @Override

@@ -18,7 +18,7 @@ import ru.elynx.battlesnake.entity.*;
 public class AlphaBetaStrategy extends OmegaStrategy {
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "1");
+        return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2");
     }
 
     @Override
