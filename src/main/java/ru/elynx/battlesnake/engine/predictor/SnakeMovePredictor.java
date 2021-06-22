@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
@@ -40,35 +41,28 @@ public class SnakeMovePredictor {
             return getRepeatLastMove(snake);
         }
 
-        return snake.getHead().sideNeighbours();
+        return getWalkableMoves(snake);
     }
 
     private List<? extends Coordinates> getRepeatLastMove(Snake snake) {
+        Coordinates dXdY = getDxDy(snake);
+
+        // default to UP
+        if (Coordinates.ZERO.equals(dXdY)) {
+            dXdY = Coordinates.ZERO.withY(1);
+        }
+
+        Coordinates head = snake.getHead();
+        return List.of(new Coordinates(head.getX() + dXdY.getX(), head.getY() + dXdY.getY()));
+    }
+
+    private Coordinates getDxDy(Snake snake) {
         // head position this turn
         Coordinates head = snake.getHead();
         // head position last turn
         Coordinates neck = getNeck(snake);
 
-        int x1 = head.getX();
-        int y1 = head.getY();
-
-        int x0 = neck.getX();
-        int y0 = neck.getY();
-
-        // delta of this move
-        int dx = x1 - x0;
-        int dy = y1 - y0;
-
-        // default to UP
-        if (dx == 0 && dy == 0) {
-            dy = 1;
-        }
-
-        // forward, repeat last move
-        int xf = x1 + dx;
-        int yf = y1 + dy;
-
-        return List.of(new Coordinates(xf, yf));
+        return new Coordinates(head.getX() - neck.getX(), head.getY() - neck.getY());
     }
 
     private Coordinates getNeck(Snake snake) {
@@ -78,6 +72,16 @@ public class SnakeMovePredictor {
         } else {
             return snake.getBody().get(1);
         }
+    }
+
+    private List<? extends Coordinates> getWalkableMoves(Snake snake) {
+        // this is shorter than dxdy -> triplet -> check
+        // if profiling ever shows that doing this is slow
+        // then use matrix multiplication for forward-left-right triplet
+        // then individually check each direction
+        // this relies on isWalkable returning false on backward movement
+        return snake.getHead().sideNeighbours().stream().filter(predictorInformant::isWalkable)
+                .collect(Collectors.toList());
     }
 
     private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<? extends Coordinates> directions,
