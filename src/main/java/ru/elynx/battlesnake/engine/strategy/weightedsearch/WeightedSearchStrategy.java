@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
+import com.newrelic.api.agent.NewRelic;
 import java.util.*;
 import java.util.function.Supplier;
 import org.javatuples.Pair;
@@ -33,6 +34,8 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private DoubleMatrix weightMatrix;
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
+
+    private boolean experiment;
 
     private WeightedSearchStrategy() {
     }
@@ -137,6 +140,10 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             double w = hazardPositionWeight(center, hazard);
             double ww = DETERRENT_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
+        }
+
+        if (experiment) {
+            return;
         }
 
         for (Map.Entry<Coordinates, Double> prediction : hazardPredictor.getPredictedHazards().entrySet()) {
@@ -265,6 +272,12 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
+
+        if (hazardPredictor.getGameState().getRules().isRoyale()) {
+            experiment = new Random().nextBoolean();
+        } else {
+            experiment = false;
+        }
     }
 
     @Override
@@ -286,6 +299,10 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Override
     public Void processEnd(HazardPredictor hazardPredictor) {
+        if (hazardPredictor.getGameState().getRules().isRoyale()) {
+            NewRelic.addCustomParameter("hazardPredictionDisabled", experiment);
+        }
+
         return null;
     }
 
