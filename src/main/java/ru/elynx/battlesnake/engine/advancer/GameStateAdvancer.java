@@ -40,12 +40,12 @@ public class GameStateAdvancer {
             return null; // eliminate by out of bounds
         }
 
-        int health = makeHealth(gameState, snake, head);
+        int health = makeStandardHealth(gameState, snake, head);
         if (health <= 0) {
             return null; // eliminate by health
         }
 
-        List<Coordinates> body = makeBody(gameState, snake, head);
+        List<Coordinates> body = makeBody(snake, head, health);
 
         return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), head, body.size(),
                 snake.getShout(), snake.getSquad());
@@ -64,7 +64,7 @@ public class GameStateAdvancer {
         return nextHead;
     }
 
-    private static int makeHealth(GameState gameState, Snake snake, Coordinates head) {
+    private static int makeStandardHealth(GameState gameState, Snake snake, Coordinates head) {
         if (isFood(gameState, head)) {
             return Snake.getMaxHealth();
         }
@@ -76,11 +76,12 @@ public class GameStateAdvancer {
         return gameState.getBoard().getFood().contains(coordinates);
     }
 
-    private static List<Coordinates> makeBody(GameState gameState, Snake snake, Coordinates head) {
-        // TODO remove check duplicated by makeHealth
-        boolean isGrowing = isFood(gameState, head);
+    private static List<Coordinates> makeBody(Snake snake, Coordinates head, int health) {
+        boolean isGrowing = health == Snake.getMaxHealth();
 
-        List<Coordinates> body = new ArrayList<>(snake.getBody().size() + (isGrowing ? 1 : 0));
+        int bodyCapacity = snake.getBody().size() + (isGrowing ? 1 : 0);
+        List<Coordinates> body = new ArrayList<>(bodyCapacity);
+
         body.add(head);
 
         // last piece always moves out
@@ -99,6 +100,10 @@ public class GameStateAdvancer {
         // TODO improve checking, consumed food is actually known
         List<Coordinates> food = filterConsumedFood(gameState, snakes);
         snakes = eliminateSnakesByCollision(snakes);
+
+        if (gameState.getRules().isRoyale()) {
+            snakes = applyHazards(gameState, snakes);
+        }
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
 
@@ -165,6 +170,10 @@ public class GameStateAdvancer {
         }
 
         return false;
+    }
+
+    private static List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
+        return snakes;
     }
 
     private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
