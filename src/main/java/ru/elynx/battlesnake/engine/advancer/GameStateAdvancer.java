@@ -173,7 +173,34 @@ public class GameStateAdvancer {
     }
 
     private static List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
-        return snakes;
+        List<Snake> result = new ArrayList<>(snakes.size());
+
+        for (Snake potentialSnake : snakes) {
+            Snake snake = applyHazards(gameState, potentialSnake);
+            if (snake != null) {
+                result.add(snake);
+            }
+        }
+
+        return result;
+    }
+
+    private static Snake applyHazards(GameState gameState, Snake snake) {
+        int health = makeRoyaleHealth(gameState, snake);
+        if (health <= 0) {
+            return null;
+        }
+
+        return snake.withHealth(health);
+    }
+
+    private static int makeRoyaleHealth(GameState gameState, Snake snake) {
+        // head is already updated
+        if (gameState.getBoard().getHazards().contains(snake.getHead())) {
+            return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
+        }
+
+        return snake.getHealth();
     }
 
     private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {

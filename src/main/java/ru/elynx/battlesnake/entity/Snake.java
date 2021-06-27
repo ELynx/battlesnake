@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.entity;
 import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 
 @Value
 public class Snake {
@@ -13,6 +14,7 @@ public class Snake {
     @NonNull
     String name;
 
+    @With
     int health;
 
     @NonNull

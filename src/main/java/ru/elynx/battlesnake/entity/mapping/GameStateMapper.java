@@ -4,8 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.elynx.battlesnake.api.CoordsDto;
 import ru.elynx.battlesnake.api.GameStateDto;
+import ru.elynx.battlesnake.api.SnakeDto;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.Snake;
 
 @Mapper(componentModel = "spring")
 public interface GameStateMapper {
@@ -23,4 +25,7 @@ public interface GameStateMapper {
     @Mapping(target = "withX", ignore = true)
     @Mapping(target = "withY", ignore = true)
     Coordinates toEntity(CoordsDto dto);
+
+    @Mapping(target = "withHealth", ignore = true)
+    Snake toEntity(SnakeDto dto);
 }
