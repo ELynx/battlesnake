@@ -22,7 +22,7 @@ public class Board {
      *
      * @return hazards that currently damage snake health.
      */
-    List<Coordinates> getActiveHazards() {
+    public List<Coordinates> getActiveHazards() {
         return hazards;
     }
 }

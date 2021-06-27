@@ -132,7 +132,11 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private void applyHazards(GameState gameState) {
         Coordinates center = gameState.getBoard().getDimensions().center();
 
-        for (Coordinates hazard : gameState.getBoard().getHazards()) {
+        List<Coordinates> hazards = experiment
+                ? gameState.getBoard().getHazards()
+                : gameState.getBoard().getActiveHazards();
+
+        for (Coordinates hazard : hazards) {
             double w = hazardPositionWeight(center, hazard);
             double ww = DETERRENT_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
@@ -281,7 +285,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     @Override
     public Void processEnd(GameState gameState) {
         if (gameState.getRules().isRoyale()) {
-            NewRelic.addCustomParameter("twoStepHazardEnabled", experiment);
+            NewRelic.addCustomParameter("getHazardsEnabled", experiment);
         }
 
         return null;

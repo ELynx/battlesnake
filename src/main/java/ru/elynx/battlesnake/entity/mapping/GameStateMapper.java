@@ -19,13 +19,14 @@ public interface GameStateMapper {
 
     @Mapping(target = "board.dimensions.width", source = "board.width")
     @Mapping(target = "board.dimensions.height", source = "board.height")
+    @Mapping(target = "board.activeHazards", ignore = true)
     GameState toEntity(GameStateDto dto);
+
+    @Mapping(target = "withHealth", ignore = true)
+    Snake toEntity(SnakeDto dto);
 
     @Mapping(target = "move", ignore = true)
     @Mapping(target = "withX", ignore = true)
     @Mapping(target = "withY", ignore = true)
     Coordinates toEntity(CoordsDto dto);
-
-    @Mapping(target = "withHealth", ignore = true)
-    Snake toEntity(SnakeDto dto);
 }
