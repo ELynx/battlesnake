@@ -3,8 +3,10 @@ package ru.elynx.battlesnake.entity;
 import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal
 public class Board {
     @NonNull
     Dimensions dimensions;
