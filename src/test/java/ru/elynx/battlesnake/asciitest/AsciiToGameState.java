@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
@@ -15,7 +14,6 @@ public class AsciiToGameState {
     private String rulesetName = ApiExampleBuilder.standardRulesetName();
     private int startSnakeLength = 3;
     private String hazards = null;
-    private int hazardStep = 25;
     // per-snakes
     private final Map<String, Integer> healths = new HashMap<>();
     private final Map<String, Integer> latencies = new HashMap<>();
@@ -59,14 +57,6 @@ public class AsciiToGameState {
 
         this.hazards = hazards;
         return setRulesetName(ApiExampleBuilder.royaleRulesetName());
-    }
-
-    public AsciiToGameState setHazardStep(int hazardStep) {
-        if (hazardStep < 0)
-            throw new IllegalArgumentException("Hazard step is greater or equal to zero");
-
-        this.hazardStep = hazardStep;
-        return this;
     }
 
     public AsciiToGameState setHealth(String name, int health) {
@@ -160,7 +150,7 @@ public class AsciiToGameState {
         return neighbours.get(0).getKey();
     }
 
-    public HazardPredictor build() {
+    public GameState build() {
         if (ascii.indexOf('V') >= 0) {
             throw new IllegalStateException("V is not allowed in ascii");
         }
@@ -272,8 +262,7 @@ public class AsciiToGameState {
         Board board = new Board(dimensions, food, generatedHazards, snakes);
 
         Rules rules = new Rules(rulesetName, "1.0.0", 500);
-        GameState game = new GameState("test-game-id", turn, rules, board, you);
 
-        return new HazardPredictor(game, hazardStep);
+        return new GameState("test-game-id", turn, rules, board, you);
     }
 }

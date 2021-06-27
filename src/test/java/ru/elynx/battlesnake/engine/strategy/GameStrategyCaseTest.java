@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
@@ -26,7 +26,7 @@ class GameStrategyCaseTest {
     void test_empty_space_better_than_snake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.empty_space_better_than_snake();
+        GameState gameState = CaseBuilder.empty_space_better_than_snake();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -38,7 +38,7 @@ class GameStrategyCaseTest {
     void test_avoid_fruit_surrounded_by_snake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -50,7 +50,7 @@ class GameStrategyCaseTest {
     void test_avoid_fruit_in_corner_easy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.avoid_fruit_in_corner_easy();
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -62,7 +62,7 @@ class GameStrategyCaseTest {
     void test_avoid_fruit_in_corner_hard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.avoid_fruit_in_corner_hard();
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -74,7 +74,7 @@ class GameStrategyCaseTest {
     void test_dont_die_for_food(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.dont_die_for_food();
+        GameState gameState = CaseBuilder.dont_die_for_food();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -86,7 +86,7 @@ class GameStrategyCaseTest {
     void test_dont_die_for_food_and_hunt(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.dont_die_for_food_and_hunt();
+        GameState gameState = CaseBuilder.dont_die_for_food_and_hunt();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -98,7 +98,7 @@ class GameStrategyCaseTest {
     void test_dont_give_up(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.dont_give_up();
+        GameState gameState = CaseBuilder.dont_give_up();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -110,7 +110,7 @@ class GameStrategyCaseTest {
     void test_eat_in_hazard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.eat_in_hazard();
+        GameState gameState = CaseBuilder.eat_in_hazard();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -122,7 +122,7 @@ class GameStrategyCaseTest {
     void test_sees_the_inevitable(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.sees_the_inevitable();
+        GameState gameState = CaseBuilder.sees_the_inevitable();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -134,7 +134,7 @@ class GameStrategyCaseTest {
     void test_does_not_go_into_hazard_lake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.does_not_go_into_hazard_lake();
+        GameState gameState = CaseBuilder.does_not_go_into_hazard_lake();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -146,7 +146,7 @@ class GameStrategyCaseTest {
     void test_sees_escape_route(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.sees_escape_route();
+        GameState gameState = CaseBuilder.sees_escape_route();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -158,7 +158,7 @@ class GameStrategyCaseTest {
     void test_sees_escape_route_plus(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.sees_escape_route_plus();
+        GameState gameState = CaseBuilder.sees_escape_route_plus();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -170,7 +170,7 @@ class GameStrategyCaseTest {
     void test_hazard_better_than_lose(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.hazard_better_than_lose();
+        GameState gameState = CaseBuilder.hazard_better_than_lose();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -182,7 +182,7 @@ class GameStrategyCaseTest {
     void test_does_not_corner_self(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.does_not_corner_self();
+        GameState gameState = CaseBuilder.does_not_corner_self();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -194,7 +194,7 @@ class GameStrategyCaseTest {
     void test_avoid_lock_1(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.avoid_lock_1();
+        GameState gameState = CaseBuilder.avoid_lock_1();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);
@@ -206,7 +206,7 @@ class GameStrategyCaseTest {
     void test_avoid_lock_2(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor gameState = CaseBuilder.avoid_lock_2();
+        GameState gameState = CaseBuilder.avoid_lock_2();
         gameStrategy.init(gameState);
 
         Move move = gameStrategy.processMove(gameState);

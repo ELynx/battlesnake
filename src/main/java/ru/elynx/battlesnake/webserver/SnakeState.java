@@ -4,20 +4,14 @@ import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
 import java.time.Instant;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
 public class SnakeState {
-    private static final int DEFAULT_HAZARD_STEP = 25;
-
     private final IGameStrategy gameStrategy;
     private boolean initialized;
-
-    private int hazardStep;
-    private boolean hazardSeen;
 
     private MoveCommand lastMove;
 
@@ -26,9 +20,6 @@ public class SnakeState {
     SnakeState(IGameStrategy gameStrategy) {
         this.gameStrategy = gameStrategy;
         this.initialized = false;
-
-        this.hazardStep = DEFAULT_HAZARD_STEP;
-        this.hazardSeen = false;
 
         this.lastMove = UP;
 
@@ -45,52 +36,38 @@ public class SnakeState {
 
     public Void processStart(GameState gameState) {
         updateAccessTime();
-        HazardPredictor hazardPredictor = makeHazardPredictor(gameState);
-        return initializeAndProcessStart(hazardPredictor);
+        return initializeAndProcessStart(gameState);
     }
 
-    private HazardPredictor makeHazardPredictor(GameState gameState) {
-        return new HazardPredictor(gameState, hazardStep);
+    private Void initializeAndProcessStart(GameState gameState) {
+        initialize(gameState);
+        return processStartImpl(gameState);
     }
 
-    private Void initializeAndProcessStart(HazardPredictor hazardPredictor) {
-        initialize(hazardPredictor);
-        return processStart(hazardPredictor);
-    }
-
-    private void initialize(HazardPredictor hazardPredictor) {
+    private void initialize(GameState gameState) {
         if (!initialized) {
-            gameStrategy.init(hazardPredictor);
+            gameStrategy.init(gameState);
             initialized = true;
         }
     }
 
-    private Void processStart(HazardPredictor hazardPredictor) {
-        return gameStrategy.processStart(hazardPredictor);
+    private Void processStartImpl(GameState gameState) {
+        return gameStrategy.processStart(gameState);
     }
 
     public Move processMove(GameState gameState) {
         updateAccessTime();
-        trackHazard(gameState);
-        HazardPredictor hazardPredictor = makeHazardPredictor(gameState);
-        Move move = initializeAndProcessMove(hazardPredictor);
+        Move move = initializeAndProcessMove(gameState);
         return handleRepeatLastMove(move);
     }
 
-    private void trackHazard(GameState gameState) {
-        if (!hazardSeen && !gameState.getBoard().getHazards().isEmpty()) {
-            hazardStep = gameState.getTurn();
-            hazardSeen = true;
-        }
+    private Move initializeAndProcessMove(GameState gameState) {
+        initialize(gameState);
+        return processMoveImpl(gameState);
     }
 
-    private Move initializeAndProcessMove(HazardPredictor hazardPredictor) {
-        initialize(hazardPredictor);
-        return processMove(hazardPredictor);
-    }
-
-    private Move processMove(HazardPredictor hazardPredictor) {
-        return gameStrategy.processMove(hazardPredictor);
+    private Move processMoveImpl(GameState gameState) {
+        return gameStrategy.processMove(gameState);
     }
 
     private Move handleRepeatLastMove(Move move) {
@@ -110,11 +87,10 @@ public class SnakeState {
             return null;
         }
 
-        HazardPredictor hazardPredictor = makeHazardPredictor(gameState);
-        return processEnd(hazardPredictor);
+        return processEndImpl(gameState);
     }
 
-    private Void processEnd(HazardPredictor hazardPredictor) {
-        return gameStrategy.processEnd(hazardPredictor);
+    private Void processEndImpl(GameState gameState) {
+        return gameStrategy.processEnd(gameState);
     }
 }

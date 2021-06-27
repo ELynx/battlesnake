@@ -25,14 +25,13 @@ class SnakeTest {
     void test_is_growing() {
         GameState gameState;
 
-        gameState = new AsciiToGameState("yyY").setStartSnakeLength(3).setHealth("Y", 42).build().getGameState();
+        gameState = new AsciiToGameState("yyY").setStartSnakeLength(3).setHealth("Y", 42).build();
         assertFalse(gameState.getYou().isGrowing(), "Not growing under normal conditions");
 
-        gameState = new AsciiToGameState("yY_").setStartSnakeLength(3).setHealth("Y", 42).build().getGameState();
+        gameState = new AsciiToGameState("yY_").setStartSnakeLength(3).setHealth("Y", 42).build();
         assertTrue(gameState.getYou().isGrowing(), "Growing when stepping on tail");
 
-        gameState = new AsciiToGameState("yyY").setStartSnakeLength(3).setHealth("Y", Snake.getMaxHealth()).build()
-                .getGameState();
+        gameState = new AsciiToGameState("yyY").setStartSnakeLength(3).setHealth("Y", Snake.getMaxHealth()).build();
         assertTrue(gameState.getYou().isGrowing(), "Full health grows");
     }
 

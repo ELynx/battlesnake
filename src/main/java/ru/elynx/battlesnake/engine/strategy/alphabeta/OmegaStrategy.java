@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.engine.strategy.Common;
@@ -25,19 +24,17 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     }
 
     @Override
-    public void init(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
+    public void init(GameState gameState) {
         occupiedPositions = FlagMatrix.uninitializedMatrix(gameState.getBoard().getDimensions(), true);
     }
 
     @Override
-    public Void processStart(HazardPredictor hazardPredictor) {
+    public Void processStart(GameState gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
+    public Move processMove(GameState gameState) {
         Optional<MoveCommand> moveCommand = bestMoveForSnake(gameState.getYou(), gameState);
 
         return new Move(moveCommand.orElse(REPEAT_LAST));
@@ -62,7 +59,7 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     }
 
     @Override
-    public Void processEnd(HazardPredictor hazardPredictor) {
+    public Void processEnd(GameState gameState) {
         return null;
     }
 

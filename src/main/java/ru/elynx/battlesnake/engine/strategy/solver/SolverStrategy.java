@@ -5,7 +5,6 @@ import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
@@ -19,13 +18,13 @@ public class SolverStrategy implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(HazardPredictor hazardPredictor) {
+    public Void processStart(GameState gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(HazardPredictor hazardPredictor) {
-        return new Move(makeMove(hazardPredictor.getGameState()));
+    public Move processMove(GameState gameState) {
+        return new Move(makeMove(gameState));
     }
 
     private MoveCommand makeMove(GameState gameState) {
@@ -79,7 +78,7 @@ public class SolverStrategy implements IGameStrategy {
     }
 
     @Override
-    public Void processEnd(HazardPredictor hazardPredictor) {
+    public Void processEnd(GameState gameState) {
         return null;
     }
 

@@ -12,8 +12,7 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 class SimplePredictorInformantTest {
     @Test
     void test_out_of_bounds_is_not() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SimplePredictorInformant tested = new SimplePredictorInformant(gameState);
 
@@ -30,8 +29,7 @@ class SimplePredictorInformantTest {
 
     @Test
     void test_snake_is_not() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SimplePredictorInformant tested = new SimplePredictorInformant(gameState);
 
@@ -44,8 +42,7 @@ class SimplePredictorInformantTest {
 
     @Test
     void test_free_is() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SimplePredictorInformant tested = new SimplePredictorInformant(gameState);
 

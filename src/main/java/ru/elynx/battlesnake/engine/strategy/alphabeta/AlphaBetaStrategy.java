@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
@@ -22,9 +21,7 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     }
 
     @Override
-    public Move processMove(HazardPredictor hazardPredictor) {
-        GameState state0 = hazardPredictor.getGameState();
-
+    public Move processMove(GameState state0) {
         Stream<MoveCommand> moves = Stream.of(DOWN, LEFT, RIGHT, UP);
 
         Optional<MoveCommand> moveCommand = moves

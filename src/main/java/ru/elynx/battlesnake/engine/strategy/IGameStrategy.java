@@ -1,20 +1,20 @@
 package ru.elynx.battlesnake.engine.strategy;
 
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
+import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 
 public interface IGameStrategy {
     BattlesnakeInfo getBattesnakeInfo();
 
-    default void init(HazardPredictor hazardPredictor) {
+    default void init(GameState gameState) {
     }
 
-    Void processStart(HazardPredictor hazardPredictor);
+    Void processStart(GameState gameState);
 
-    Move processMove(HazardPredictor hazardPredictor);
+    Move processMove(GameState gameState);
 
-    Void processEnd(HazardPredictor hazardPredictor);
+    Void processEnd(GameState gameState);
 
     default boolean isCombatant() {
         return true;

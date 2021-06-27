@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
@@ -28,8 +27,7 @@ class SnakeStateTest {
 
     @Test
     void test_process_start() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SnakeState tested = new SnakeState(mySnakeStrategy);
 
@@ -38,8 +36,7 @@ class SnakeStateTest {
 
     @Test
     void test_move_start() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SnakeState tested = new SnakeState(mySnakeStrategy);
 
@@ -49,8 +46,7 @@ class SnakeStateTest {
 
     @Test
     void test_end_start() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameState();
 
         SnakeState tested = new SnakeState(mySnakeStrategy);
 

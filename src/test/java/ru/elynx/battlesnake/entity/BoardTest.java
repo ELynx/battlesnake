@@ -5,14 +5,12 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
 class BoardTest {
     @Test
     void test_base_class_does_not_predict() {
-        HazardPredictor entity1 = CaseBuilder.eat_in_hazard();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.eat_in_hazard();
 
         Board tested = gameState.getBoard();
         assumeFalse(tested.getHazards().size() == 0);

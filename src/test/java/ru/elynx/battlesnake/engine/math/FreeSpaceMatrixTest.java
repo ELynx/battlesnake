@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 import ru.elynx.battlesnake.entity.GameState;
@@ -96,8 +95,7 @@ class FreeSpaceMatrixTest {
 
     // use snake bodies as flags to set occupied cells
     FreeSpaceMatrix buildFromAscii(String asciiGameState) {
-        HazardPredictor tmp1 = new AsciiToGameState(asciiGameState).setStartSnakeLength(1).build();
-        GameState tmp = tmp1.getGameState();
+        GameState tmp = new AsciiToGameState(asciiGameState).setStartSnakeLength(1).build();
 
         FreeSpaceMatrix target = FreeSpaceMatrix.emptyMatrix(tmp.getBoard().getDimensions());
 

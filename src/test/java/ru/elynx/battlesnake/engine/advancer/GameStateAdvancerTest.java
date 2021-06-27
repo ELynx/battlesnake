@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
 import ru.elynx.battlesnake.entity.Snake;
@@ -18,8 +17,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_constants() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState from = entity1.getGameState();
+        GameState from = EntityBuilder.gameState();
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
         assertEquals(from.getGameId(), to.getGameId());
@@ -28,8 +26,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_turn_increment() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState from = entity1.getGameState();
+        GameState from = EntityBuilder.gameState();
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
         assertEquals(from.getTurn() + 1, to.getTurn());
@@ -37,8 +34,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_consistency() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState from = entity1.getGameState();
+        GameState from = EntityBuilder.gameState();
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
         Function<Snake, Void> testSnake = (Snake snake) -> {
@@ -55,17 +51,15 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_moves() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "yy_\n" + //
                 "_Y_\n" + //
                 "___\n").setHealth("Y", 25).build();
-        GameState from = entity1.getGameState();
 
-        HazardPredictor entity2 = new AsciiToGameState("" + //
+        GameState expected = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_yY\n" + //
                 "___\n").setHealth("Y", 24).build();
-        GameState expected = entity2.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -74,17 +68,15 @@ class GameStateAdvancerTest {
 
     @Test
     void test_food_persists() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "yy_\n" + //
                 "_Y_\n" + //
                 "0__\n").setHealth("Y", 25).build();
-        GameState from = entity1.getGameState();
 
-        HazardPredictor entity2 = new AsciiToGameState("" + //
+        GameState expected = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_yY\n" + //
                 "0__\n").setHealth("Y", 24).build();
-        GameState expected = entity2.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -93,8 +85,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_health_decrease() {
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
-        GameState from = entity1.getGameState();
+        GameState from = EntityBuilder.gameState();
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
         assertEquals(from.getYou().getHealth() - 1, to.getYou().getHealth());
@@ -102,23 +93,20 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_eat_food() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState turn1 = new AsciiToGameState("" + //
                 "_yy\n" + //
                 "_Y_\n" + //
                 "_0_\n").setTurn(1).setHealth("Y", 42).build();
-        GameState turn1 = entity1.getGameState();
 
-        HazardPredictor entity2 = new AsciiToGameState("" + //
+        GameState turn2 = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y_\n").setTurn(2).setLength("Y", 4).setHealth("Y", Snake.getMaxHealth()).build();
-        GameState turn2 = entity2.getGameState();
 
-        HazardPredictor entity3 = new AsciiToGameState("" + //
+        GameState turn3 = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_yY\n").setTurn(3).setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState turn3 = entity3.getGameState();
 
         GameState advance2 = GameStateAdvancer.advance(turn1, moveDown);
 
@@ -132,11 +120,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_eat_food_head_to_head() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "_Y_\n" + //
                 "A0_\n").setStartSnakeLength(1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
@@ -152,11 +139,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_out_of_health() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y_\n").setHealth("Y", 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -165,11 +151,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_out_of_health_prevented_by_food() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y0\n").setHealth("Y", 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -179,11 +164,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_moved_out_of_bounds() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y_\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveDown);
 
@@ -192,11 +176,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_collide_self() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "_Y<\n" + //
                 ">>^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveDown);
 
@@ -205,11 +188,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_collide_self_avoid_tail() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "_v<\n" + //
                 "_Y^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -218,11 +200,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_collide_self_avoid_initial_1() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "Y__\n" + //
                 "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -231,11 +212,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_collide_self_avoid_initial_2() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "yY_\n" + //
                 "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -244,11 +224,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_collide_self_avoid_after_full_health() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "___\n" + //
                 "yyY\n" + //
                 "___\n").setLength("Y", 4).setHealth("Y", Snake.getMaxHealth()).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveDown);
 
@@ -257,7 +236,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_side() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "______y_\n" + //
                 "___bbBy_\n" + //
                 "___ccCy_\n" + //
@@ -265,7 +244,6 @@ class GameStateAdvancerTest {
                 "___eeEy_\n" + //
                 "_____AYa\n" + //
                 "_____aaa\n").setStartSnakeLength(1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
@@ -280,7 +258,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_snake_elimination_winner() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "______y_\n" + //
                 "___bbBy_\n" + //
                 "___ccCy_\n" + //
@@ -288,7 +266,6 @@ class GameStateAdvancerTest {
                 "___eeEy_\n" + //
                 "___ffFY_\n" + //
                 "___aaA__\n").setStartSnakeLength(1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
@@ -304,11 +281,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_hazard_damage_non_fatal() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 40).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -319,11 +295,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_hazard_damage_fatal() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 5).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -332,11 +307,10 @@ class GameStateAdvancerTest {
 
     @Test
     void test_food_and_hazard_order() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
                 "_Y0\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, moveRight);
 
@@ -348,7 +322,7 @@ class GameStateAdvancerTest {
 
     @Test
     void test_elimination_and_hazard_order() {
-        HazardPredictor entity1 = new AsciiToGameState("" + //
+        GameState from = new AsciiToGameState("" + //
                 "______y_\n" + //
                 "___bbBy_\n" + //
                 "___ccCy_\n" + //
@@ -363,7 +337,6 @@ class GameStateAdvancerTest {
                         "________\n" + //
                         "________\n" + //
                         "HHHHHHHH\n").setStartSnakeLength(1).build();
-        GameState from = entity1.getGameState();
 
         GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {

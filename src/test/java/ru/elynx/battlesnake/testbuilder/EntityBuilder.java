@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.testbuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
 
 public class EntityBuilder {
@@ -16,20 +15,20 @@ public class EntityBuilder {
     private EntityBuilder() {
     }
 
-    public static HazardPredictor hazardPredictor() {
-        return hazardPredictorWithYouSnake(buildSnake(DEFAULT_SNAKE_HEAD_X, DEFAULT_SNAKE_HEAD_Y, DEFAULT_SNAKE_ID,
+    public static GameState gameState() {
+        return gameStateWithYouSnake(buildSnake(DEFAULT_SNAKE_HEAD_X, DEFAULT_SNAKE_HEAD_Y, DEFAULT_SNAKE_ID,
                 DEFAULT_SNAKE_NAME, DEFAULT_SNAKE_LATENCY));
     }
 
-    public static HazardPredictor hazardPredictorWithHeadPosition(int x, int y) {
-        return hazardPredictorWithYouSnake(snakeWithHead(x, y));
+    public static GameState gameStateWithHeadPosition(int x, int y) {
+        return gameStateWithYouSnake(snakeWithHead(x, y));
     }
 
-    public static HazardPredictor hazardPredictorWithName(String name) {
-        return hazardPredictorWithYouSnake(snakeWithName(name));
+    public static GameState gameStateWithName(String name) {
+        return gameStateWithYouSnake(snakeWithName(name));
     }
 
-    private static HazardPredictor hazardPredictorWithYouSnake(Snake you) {
+    private static GameState gameStateWithYouSnake(Snake you) {
         List<Snake> snakes = new ArrayList<>();
         snakes.add(you);
 
@@ -42,8 +41,7 @@ public class EntityBuilder {
         List<Coordinates> hazards = Collections.emptyList();
         Board board = new Board(dimensions, food, hazards, snakes);
 
-        GameState gameState = new GameState(gameId, turn, rules, board, snakes.get(0));
-        return new HazardPredictor(gameState, 0);
+        return new GameState(gameId, turn, rules, board, snakes.get(0));
     }
 
     public static Rules rulesWithName(String name) {

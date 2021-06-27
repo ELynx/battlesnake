@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.strategy.SnakeNotFoundException;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 import ru.elynx.battlesnake.entity.GameState;
@@ -35,8 +34,7 @@ class SnakeStateManagerTest {
     void test_start_does_not_throw() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("My Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
         assertDoesNotThrow(() -> tested.start(gameState));
     }
@@ -45,8 +43,7 @@ class SnakeStateManagerTest {
     void test_start_throws_when_not_found() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("No Such Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 
         assertThrows(SnakeNotFoundException.class, () -> tested.start(gameState));
     }
@@ -55,8 +52,7 @@ class SnakeStateManagerTest {
     void test_move_does_not_throw() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("My Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
         Move move = tested.move(gameState);
         assertEquals(MoveCommand.UP, move.getMoveCommand());
@@ -66,8 +62,7 @@ class SnakeStateManagerTest {
     void test_move_throws_when_not_found() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("No Such Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 
         assertThrows(SnakeNotFoundException.class, () -> tested.move(gameState));
     }
@@ -76,8 +71,7 @@ class SnakeStateManagerTest {
     void test_end_does_not_throw_when_prepared() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("My Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
         tested.start(gameState);
 
@@ -88,8 +82,7 @@ class SnakeStateManagerTest {
     void test_end_throws_when_not_prepared() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("My Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
         assertThrows(SnakeNotFoundException.class, () -> tested.end(gameState));
     }
@@ -98,8 +91,7 @@ class SnakeStateManagerTest {
     void test_end_throws_when_not_found() {
         SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictorWithName("No Such Snake");
-        GameState gameState = entity1.getGameState();
+        GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 
         assertThrows(SnakeNotFoundException.class, () -> tested.end(gameState));
     }

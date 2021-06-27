@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.math.DoubleMatrix;
 import ru.elynx.battlesnake.engine.math.FreeSpaceMatrix;
 import ru.elynx.battlesnake.engine.math.Util;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.strategy.Common;
@@ -40,8 +39,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private WeightedSearchStrategy() {
     }
 
-    private void applyFood(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
+    private void applyFood(GameState gameState) {
         final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
                 HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
@@ -53,10 +51,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    private void applySnakes(HazardPredictor hazardPredictor) {
+    private void applySnakes(GameState gameState) {
         // mark body as impassable
         // apply early for predictor
-        GameState gameState = hazardPredictor.getGameState();
         Common.forAllSnakeBodies(gameState, coordinates -> {
             weightMatrix.addValue(coordinates, SNAKE_BODY_WEIGHT);
             freeSpaceMatrix.setOccupied(coordinates);
@@ -64,11 +61,11 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
         final List<Pair<Coordinates, Double>> blockedByNotWalkable = new LinkedList<>();
 
-        final String ownId = hazardPredictor.getGameState().getYou().getId();
-        final Coordinates ownHead = hazardPredictor.getGameState().getYou().getHead();
-        final int ownSize = hazardPredictor.getGameState().getYou().getLength();
+        final String ownId = gameState.getYou().getId();
+        final Coordinates ownHead = gameState.getYou().getHead();
+        final int ownSize = gameState.getYou().getLength();
 
-        for (Snake snake : hazardPredictor.getGameState().getBoard().getSnakes()) {
+        for (Snake snake : gameState.getBoard().getSnakes()) {
             final String id = snake.getId();
 
             // manage head
@@ -132,27 +129,13 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    private void applyHazards(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
+    private void applyHazards(GameState gameState) {
         Coordinates center = gameState.getBoard().getDimensions().center();
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             double w = hazardPositionWeight(center, hazard);
             double ww = DETERRENT_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
-        }
-
-        if (experiment) {
-            return;
-        }
-
-        for (Map.Entry<Coordinates, Double> prediction : hazardPredictor.getPredictedHazards().entrySet()) {
-            Coordinates pc = prediction.getKey();
-            double pv = prediction.getValue();
-            double w = hazardPositionWeight(center, pc);
-            double pw = DETERRENT_WEIGHT * pv * w;
-
-            weightMatrix.addValue(pc, pw);
         }
     }
 
@@ -163,7 +146,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return Util.scale(0.95, distanceInSteps, distanceInStepsFromCorner, 1.0d);
     }
 
-    private void applyGameState(HazardPredictor gameState) {
+    private void applyGameState(GameState gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
@@ -252,9 +235,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 
-    public Optional<MoveCommand> bestMove(HazardPredictor hazardPredictor) {
-        GameState gameState = hazardPredictor.getGameState();
-
+    public Optional<MoveCommand> bestMove(GameState gameState) {
         Collection<CoordinatesWithDirection> ranked = gameState.getYou().getHead().sideNeighbours();
         int length = gameState.getYou().getLength();
         return rank(ranked, length);
@@ -266,14 +247,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public void init(HazardPredictor hazardPredictor) {
-        Dimensions dimensions = hazardPredictor.getGameState().getBoard().getDimensions();
+    public void init(GameState gameState) {
+        Dimensions dimensions = gameState.getBoard().getDimensions();
 
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
 
-        if (hazardPredictor.getGameState().getRules().isRoyale()) {
+        if (gameState.getRules().isRoyale()) {
             experiment = new Random().nextBoolean();
         } else {
             experiment = false;
@@ -281,14 +262,14 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processStart(HazardPredictor hazardPredictor) {
+    public Void processStart(GameState gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(HazardPredictor hazardPredictor) {
-        applyGameState(hazardPredictor);
-        Optional<MoveCommand> move = bestMove(hazardPredictor);
+    public Move processMove(GameState gameState) {
+        applyGameState(gameState);
+        Optional<MoveCommand> move = bestMove(gameState);
 
         if (move.isEmpty()) {
             return new Move(MoveCommand.REPEAT_LAST); // would repeat last turn
@@ -298,9 +279,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processEnd(HazardPredictor hazardPredictor) {
-        if (hazardPredictor.getGameState().getRules().isRoyale()) {
-            NewRelic.addCustomParameter("hazardPredictionDisabled", experiment);
+    public Void processEnd(GameState gameState) {
+        if (gameState.getRules().isRoyale()) {
+            NewRelic.addCustomParameter("twoStepHazardEnabled", experiment);
         }
 
         return null;
