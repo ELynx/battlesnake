@@ -1,19 +1,19 @@
 package ru.elynx.battlesnake.engine.math;
 
-public class Util {
-    private Util() {
-    }
+import lombok.experimental.UtilityClass;
 
-    public static double scale(double from, double value, double max, double to) {
+@UtilityClass
+public class Util {
+    public double scale(double from, double value, double max, double to) {
         double clamped = clamp(0.0d, value / max, 1.0d);
         return scale(from, clamped, to);
     }
 
-    public static double clamp(double min, double value, double max) {
+    public double clamp(double min, double value, double max) {
         return Math.max(min, Math.min(value, max));
     }
 
-    public static double scale(double from, double proportion, double to) {
+    public double scale(double from, double proportion, double to) {
         return from + (to - from) * proportion;
     }
 }

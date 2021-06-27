@@ -3,24 +3,23 @@ package ru.elynx.battlesnake.engine.advancer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import lombok.experimental.UtilityClass;
 import ru.elynx.battlesnake.entity.*;
 
+@UtilityClass
 public class GameStateAdvancer {
-    private GameStateAdvancer() {
-    }
-
-    public static GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
+    public GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
         int turn = makeTurn(gameState);
         List<Snake> snakes = makeSnakes(gameState, moveDecider);
 
         return assemble(gameState, turn, snakes);
     }
 
-    private static int makeTurn(GameState gameState) {
+    private int makeTurn(GameState gameState) {
         return gameState.getTurn() + 1;
     }
 
-    private static List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
+    private List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
         List<Snake> snakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
         for (Snake current : gameState.getBoard().getSnakes()) {
@@ -34,7 +33,7 @@ public class GameStateAdvancer {
         return snakes;
     }
 
-    private static Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
+    private Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
         Coordinates head = makeHead(snake, moveCommand);
         if (gameState.getBoard().getDimensions().outOfBounds(head)) {
             return null; // eliminate by out of bounds
@@ -51,7 +50,7 @@ public class GameStateAdvancer {
                 snake.getShout(), snake.getSquad());
     }
 
-    private static Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
+    private Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
         Coordinates nextHead = snake.getHead().sideNeighbours().stream()
                 .filter((CoordinatesWithDirection coordinates) -> moveCommand.equals(coordinates.getDirection()))
                 .findAny().orElse(null);
@@ -64,7 +63,7 @@ public class GameStateAdvancer {
         return nextHead;
     }
 
-    private static int makeStandardHealth(GameState gameState, Snake snake, Coordinates head) {
+    private int makeStandardHealth(GameState gameState, Snake snake, Coordinates head) {
         if (isFood(gameState, head)) {
             return Snake.getMaxHealth();
         }
@@ -72,11 +71,11 @@ public class GameStateAdvancer {
         return snake.getHealth() - 1;
     }
 
-    private static boolean isFood(GameState gameState, Coordinates coordinates) {
+    private boolean isFood(GameState gameState, Coordinates coordinates) {
         return gameState.getBoard().getFood().contains(coordinates);
     }
 
-    private static List<Coordinates> makeBody(Snake snake, Coordinates head, int health) {
+    private List<Coordinates> makeBody(Snake snake, Coordinates head, int health) {
         boolean isGrowing = health == Snake.getMaxHealth();
 
         int bodyCapacity = snake.getBody().size() + (isGrowing ? 1 : 0);
@@ -96,7 +95,7 @@ public class GameStateAdvancer {
         return body;
     }
 
-    private static GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
+    private GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
         // TODO improve checking, consumed food is actually known
         List<Coordinates> food = filterConsumedFood(gameState, snakes);
         snakes = eliminateSnakesByCollision(snakes);
@@ -111,7 +110,7 @@ public class GameStateAdvancer {
         return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
     }
 
-    private static List<Coordinates> filterConsumedFood(GameState gameState, List<Snake> snakes) {
+    private List<Coordinates> filterConsumedFood(GameState gameState, List<Snake> snakes) {
         List<Coordinates> food = new ArrayList<>(gameState.getBoard().getFood().size());
 
         for (Coordinates potentialFood : gameState.getBoard().getFood()) {
@@ -131,7 +130,7 @@ public class GameStateAdvancer {
         return food;
     }
 
-    private static List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
+    private List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
         List<Snake> result = new ArrayList<>(snakes.size());
 
         // TODO speed up by using snake lengths
@@ -152,7 +151,7 @@ public class GameStateAdvancer {
         return result;
     }
 
-    private static boolean isCollisionLoss(Snake checked, Snake other) {
+    private boolean isCollisionLoss(Snake checked, Snake other) {
         List<Coordinates> body = other.getBody();
 
         for (int i = 0; i < body.size(); ++i) {
@@ -172,7 +171,7 @@ public class GameStateAdvancer {
         return false;
     }
 
-    private static List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
+    private List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
         List<Snake> result = new ArrayList<>(snakes.size());
 
         for (Snake potentialSnake : snakes) {
@@ -185,7 +184,7 @@ public class GameStateAdvancer {
         return result;
     }
 
-    private static Snake applyHazards(GameState gameState, Snake snake) {
+    private Snake applyHazards(GameState gameState, Snake snake) {
         int health = makeRoyaleHealth(gameState, snake);
         if (health <= 0) {
             return null;
@@ -194,7 +193,7 @@ public class GameStateAdvancer {
         return snake.withHealth(health);
     }
 
-    private static int makeRoyaleHealth(GameState gameState, Snake snake) {
+    private int makeRoyaleHealth(GameState gameState, Snake snake) {
         // head is already updated
         if (gameState.getBoard().getHazards().contains(snake.getHead())) {
             return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
@@ -203,7 +202,7 @@ public class GameStateAdvancer {
         return snake.getHealth();
     }
 
-    private static Snake findYouSnake(GameState gameState, List<Snake> snakes) {
+    private Snake findYouSnake(GameState gameState, List<Snake> snakes) {
         // this is what API actually does
         // losing end `game state` has `you` defined, but absent from `board.snakes`
         return snakes.stream().filter(someSnake -> someSnake.getId().equals(gameState.getYou().getId())).findAny()
