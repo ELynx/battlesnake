@@ -15,4 +15,14 @@ public class Board {
     List<Coordinates> hazards;
     @NonNull
     List<Snake> snakes;
+
+    /**
+     * Due to quirk of implementation, hazards do not damage snake health on turn
+     * they appear.
+     *
+     * @return hazards that currently damage snake health.
+     */
+    List<Coordinates> getActiveHazards() {
+        return hazards;
+    }
 }
