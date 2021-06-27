@@ -31,7 +31,7 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        HazardPredictor entity1 = tested.setTurn(123).setRulesetName(ApiExampleBuilder.standardRulesetName())
+        HazardPredictor entity1 = tested.setTurn(123).setRulesetName(ApiExampleBuilder.royaleRulesetName())
                 .setStartSnakeLength(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
                         "HHHHHHHHHHH\n" + //
                         "H_________H\n" + //
@@ -180,6 +180,7 @@ class AsciiToGameStateTest {
         GameState entity = entity1.getGameState();
 
         assertEquals(55, entity.getBoard().getHazards().size());
+        assertEquals(ApiExampleBuilder.royaleRulesetName(), entity.getRules().getName());
 
         entity1 = tested.setHazards("" + //
                 "HHHHHHHHHHH\n" + //
@@ -190,6 +191,7 @@ class AsciiToGameStateTest {
         entity = entity1.getGameState();
 
         assertEquals(28, entity.getBoard().getHazards().size());
+        assertEquals(ApiExampleBuilder.royaleRulesetName(), entity.getRules().getName());
     }
 
     @Test

@@ -35,11 +35,9 @@ class HazardPredictorTest {
 
     @Test
     void test_predict_hazard_already_full() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
-        HazardPredictor tested;
-
-        tested = generator.setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH").setHazardStep(25).build();
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setTurn(24)
+                .setHazardStep(25).setHazards("HHHHH\nHHHHH\nHHHHH\nHHHHH\nHHHHH");
+        HazardPredictor tested = generator.build();
 
         assertEquals(25, tested.getGameState().getBoard().getHazards().size());
         assertEquals(0, tested.getPredictedHazards().size());
@@ -47,11 +45,9 @@ class HazardPredictorTest {
 
     @Test
     void test_predict_hazard_last_cell_is_one() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
-        HazardPredictor tested;
-
-        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setTurn(24)
+                .setHazardStep(25).setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH");
+        HazardPredictor tested = generator.build();
 
         assertEquals(24, tested.getGameState().getBoard().getHazards().size());
         assertEquals(1, tested.getPredictedHazards().size());
@@ -59,11 +55,9 @@ class HazardPredictorTest {
 
     @Test
     void test_predict_hazard_not_that_turn() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(23);
-        HazardPredictor tested;
-
-        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setTurn(23)
+                .setHazardStep(25).setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH");
+        HazardPredictor tested = generator.build();
 
         assertEquals(24, tested.getGameState().getBoard().getHazards().size());
         assertEquals(0, tested.getPredictedHazards().size());
@@ -71,22 +65,22 @@ class HazardPredictorTest {
 
     @Test
     void test_predict_hazard() {
-        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____")
-                .setRulesetName(ApiExampleBuilder.royaleRulesetName()).setTurn(24);
+        AsciiToGameState generator = new AsciiToGameState("_____\n_____\n__Y__\n_____\n_____").setTurn(24)
+                .setHazardStep(25);
         HazardPredictor tested;
 
-        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").setHazardStep(25).build();
+        tested = generator.setHazards("HHHHH\nHHHHH\nHH_HH\nHHHHH\nHHHHH").build();
 
         assertEquals(24, tested.getGameState().getBoard().getHazards().size());
         assertEquals(1, tested.getPredictedHazards().size());
         assertThat(tested.getPredictedHazards().get(new Coordinates(2, 2)), is(closeTo(1.0d, fuzz)));
 
-        tested = generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").setHazardStep(25).build();
+        tested = generator.setHazards("HHHHH\n_____\n_____\n_____\n_____").build();
 
         assertEquals(5, tested.getGameState().getBoard().getHazards().size());
         assertEquals(14, tested.getPredictedHazards().size());
 
-        tested = generator.setHazards("HHHHH\nH___H\nH___H\nH___H\nHHHHH").setHazardStep(25).build();
+        tested = generator.setHazards("HHHHH\nH___H\nH___H\nH___H\nHHHHH").build();
 
         assertEquals(16, tested.getGameState().getBoard().getHazards().size());
         assertEquals(8, tested.getPredictedHazards().size());

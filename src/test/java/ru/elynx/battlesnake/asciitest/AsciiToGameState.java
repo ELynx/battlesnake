@@ -46,12 +46,19 @@ public class AsciiToGameState {
         return this;
     }
 
+    /**
+     * Set hazards field. Also set ruleset name to Royale to avoid extra step.
+     *
+     * @param hazards
+     *            field
+     * @return Builder with hazards field and ruleset name altered
+     */
     public AsciiToGameState setHazards(String hazards) {
         if (ascii.length() != hazards.length())
             throw new IllegalArgumentException("Hazards must be size of main ascii field");
 
         this.hazards = hazards;
-        return this;
+        return setRulesetName(ApiExampleBuilder.royaleRulesetName());
     }
 
     public AsciiToGameState setHazardStep(int hazardStep) {
