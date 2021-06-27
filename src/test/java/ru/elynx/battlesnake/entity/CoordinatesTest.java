@@ -25,7 +25,7 @@ class CoordinatesTest {
         assertEquals(0, Coordinates.ZERO.getY());
 
         // test that constant is equals to created
-        assertEquals(new Coordinates(0, 0), Coordinates.ZERO);
+        assertEquals(Coordinates.ZERO, new Coordinates(0, 0));
     }
 
     @Test

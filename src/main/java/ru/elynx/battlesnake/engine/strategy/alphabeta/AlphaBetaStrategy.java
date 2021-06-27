@@ -87,10 +87,8 @@ public class AlphaBetaStrategy extends OmegaStrategy {
      * @return true if `you` won
      */
     private boolean isWonBetweenStates(GameState gameState0, GameState gameState1) {
-        if (gameState0.getBoard().getSnakes().size() == 2) {
-            if (gameState1.getBoard().getSnakes().size() == 1) {
-                return !gameState1.isYouEliminated();
-            }
+        if (gameState0.getBoard().getSnakes().size() == 2 && gameState1.getBoard().getSnakes().size() == 1) {
+            return !gameState1.isYouEliminated();
         }
 
         return false;
