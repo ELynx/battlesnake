@@ -11,7 +11,7 @@ import lombok.experimental.NonFinal;
 @Value
 @NonFinal
 public class Coordinates {
-    public static Coordinates ZERO = new Coordinates(0, 0);
+    public static final Coordinates ZERO = new Coordinates(0, 0);
 
     @With
     int x;
