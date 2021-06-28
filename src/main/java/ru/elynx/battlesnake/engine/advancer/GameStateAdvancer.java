@@ -195,7 +195,7 @@ public class GameStateAdvancer {
 
     private int makeRoyaleHealth(GameState gameState, Snake snake) {
         // head is already updated
-        if (gameState.getBoard().getHazards().contains(snake.getHead())) {
+        if (gameState.getBoard().getActiveHazards().contains(snake.getHead())) {
             return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
         }
 

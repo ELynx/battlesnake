@@ -5,14 +5,13 @@ import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
 import java.time.Instant;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
-import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.Move;
-import ru.elynx.battlesnake.entity.MoveCommand;
+import ru.elynx.battlesnake.entity.*;
 
 public class SnakeState {
     private final IGameStrategy gameStrategy;
     private boolean initialized;
 
+    private Board lastBoard;
     private MoveCommand lastMove;
 
     private Instant accessTime;
@@ -21,6 +20,7 @@ public class SnakeState {
         this.gameStrategy = gameStrategy;
         this.initialized = false;
 
+        this.lastBoard = null;
         this.lastMove = UP;
 
         updateAccessTime();
@@ -36,7 +36,21 @@ public class SnakeState {
 
     public Void processStart(GameState gameState) {
         updateAccessTime();
+        gameState = addMetaInformation(gameState);
         return initializeAndProcessStart(gameState);
+    }
+
+    private GameState addMetaInformation(GameState gameState) {
+        if (gameState.getRules().isRoyale()) {
+            Board board = BoardWithActiveHazards.fromAdjacentTurns(lastBoard, gameState.getBoard());
+            // recompose the game state only if there is need to do so
+            if (board instanceof BoardWithActiveHazards) {
+                return new GameState(gameState.getGameId(), gameState.getTurn(), gameState.getRules(), board,
+                        gameState.getYou());
+            }
+        }
+
+        return gameState;
     }
 
     private Void initializeAndProcessStart(GameState gameState) {
@@ -57,6 +71,7 @@ public class SnakeState {
 
     public Move processMove(GameState gameState) {
         updateAccessTime();
+        gameState = addMetaInformation(gameState);
         Move move = initializeAndProcessMove(gameState);
         return handleRepeatLastMove(move);
     }
@@ -87,6 +102,7 @@ public class SnakeState {
             return null;
         }
 
+        gameState = addMetaInformation(gameState);
         return processEndImpl(gameState);
     }
 

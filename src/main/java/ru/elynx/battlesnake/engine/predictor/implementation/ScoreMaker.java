@@ -102,6 +102,7 @@ public class ScoreMaker {
     }
 
     private int getHazardScore() {
+        // TODO decide if active hazards
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             if (hazard.equals(coordinates)) {
                 return HAZARD_SCORE;
