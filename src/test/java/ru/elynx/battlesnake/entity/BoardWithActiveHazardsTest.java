@@ -42,6 +42,17 @@ class BoardWithActiveHazardsTest {
     }
 
     @Test
+    void test_null_create_board() {
+        GameState gameState1 = CaseBuilder.eat_in_hazard();
+        Board board1 = gameState1.getBoard();
+
+        Board board1Same = BoardWithActiveHazards.fromAdjacentTurns(null, board1);
+
+        assertThat(board1Same, is(instanceOf(Board.class)));
+        assertEquals(board1, board1Same);
+    }
+
+    @Test
     void test_equal_create_board() {
         GameState gameState0 = CaseBuilder.eat_in_hazard();
         Board board0 = gameState0.getBoard();

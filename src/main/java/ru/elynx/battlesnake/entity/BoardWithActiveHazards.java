@@ -2,6 +2,8 @@ package ru.elynx.battlesnake.entity;
 
 import java.util.List;
 import lombok.Getter;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 public class BoardWithActiveHazards extends Board {
     @Getter(onMethod_ = {@Override})
@@ -12,7 +14,13 @@ public class BoardWithActiveHazards extends Board {
         this.activeHazards = activeHazards;
     }
 
-    public static Board fromAdjacentTurns(Board board0, Board board1) {
+    public static Board fromAdjacentTurns(@Nullable Board board0, @NonNull Board board1) {
+        // for first iteration, previous state can be null
+        // then current state is only known state
+        if (board0 == null) {
+            return board1;
+        }
+
         // if entities have equal number of hazards overall active are the same
         if (board0.getHazards().size() == board1.getHazards().size()) {
             return board1;
