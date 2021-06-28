@@ -2,8 +2,7 @@ package ru.elynx.battlesnake.entity;
 
 import java.util.List;
 import lombok.Getter;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import lombok.NonNull;
 
 public class BoardWithActiveHazards extends Board {
     @Getter(onMethod_ = {@Override})
@@ -14,7 +13,7 @@ public class BoardWithActiveHazards extends Board {
         this.activeHazards = activeHazards;
     }
 
-    public static Board fromAdjacentTurns(@Nullable Board board0, @NonNull Board board1) {
+    public static Board fromAdjacentTurns(Board board0, @NonNull Board board1) {
         // for first iteration, previous state can be null
         // then current state is only known state
         if (board0 == null) {
