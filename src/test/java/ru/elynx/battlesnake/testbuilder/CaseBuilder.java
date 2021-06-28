@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.testbuilder;
 
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
+import ru.elynx.battlesnake.entity.Board;
+import ru.elynx.battlesnake.entity.BoardWithActiveHazards;
 import ru.elynx.battlesnake.entity.GameState;
 
 public class CaseBuilder {
@@ -359,5 +361,71 @@ public class CaseBuilder {
                 "yyy________\n");
 
         return generator.build();
+    }
+
+    public static GameState can_handle_meta_information() {
+        AsciiToGameState generator0 = new AsciiToGameState("" + //
+                "___________\n" + //
+                "______Y____\n" + //
+                "______y____\n" + //
+                "______y____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 99).setTurn(49);
+
+        generator0.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        GameState gameState0 = generator0.build();
+
+        AsciiToGameState generator1 = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_____Yy____\n" + //
+                "______y____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 98).setTurn(50);
+
+        generator1.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        GameState gameState1 = generator1.build();
+
+        Board boardWithMeta = BoardWithActiveHazards.fromAdjacentTurns(gameState0.getBoard(), gameState1.getBoard());
+        assert (boardWithMeta instanceof BoardWithActiveHazards);
+        assert (boardWithMeta.getHazards().size() == 22);
+        assert (boardWithMeta.getActiveHazards().size() == 11);
+
+        return new GameState(gameState1.getGameId(), gameState1.getTurn(), gameState1.getRules(), boardWithMeta,
+                gameState1.getYou());
     }
 }

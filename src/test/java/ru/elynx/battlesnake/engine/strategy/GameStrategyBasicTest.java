@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRATEGY_NAMES;
+import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import org.junit.jupiter.api.Tag;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.entity.*;
+import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 @SpringBootTest
@@ -168,5 +170,20 @@ class GameStrategyBasicTest {
             Move move = gameStrategy.processMove(entity1);
             assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_can_handle_meta_information(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        assertDoesNotThrow(() -> {
+            gameStrategy.init(gameState);
+            gameStrategy.processStart(gameState);
+            Move move = gameStrategy.processMove(gameState);
+            assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+            gameStrategy.processEnd(gameState);
+        });
     }
 }

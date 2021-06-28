@@ -227,4 +227,17 @@ class SnakeMovePredictorTest {
 
         assertEquals(new Coordinates(0, 2), predictions.get(0).getValue0());
     }
+
+    @Test
+    void test_can_handle_meta_information() {
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(5, 8), predictions.get(0).getValue0());
+    }
 }

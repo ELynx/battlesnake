@@ -9,6 +9,7 @@ import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
 import ru.elynx.battlesnake.entity.Snake;
+import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 class GameStateAdvancerTest {
@@ -347,5 +348,15 @@ class GameStateAdvancerTest {
         });
 
         assertEquals(0, to.getBoard().getSnakes().size());
+    }
+
+    @Test
+    void test_active_hazards() {
+        GameState from = CaseBuilder.can_handle_meta_information();
+
+        GameState to = GameStateAdvancer.advance(from, moveDown);
+
+        assertEquals(1, to.getBoard().getSnakes().size());
+        assertEquals(from.getYou().getHealth() - 1, to.getYou().getHealth());
     }
 }

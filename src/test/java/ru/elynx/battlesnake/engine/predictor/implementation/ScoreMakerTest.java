@@ -268,4 +268,20 @@ class ScoreMakerTest {
         assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(1, tested.scoreMove(head.move(UP)));
     }
+
+    @Test
+    void test_can_handle_meta_information() {
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-3, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-3, tested.scoreMove(head.move(UP)));
+    }
 }
