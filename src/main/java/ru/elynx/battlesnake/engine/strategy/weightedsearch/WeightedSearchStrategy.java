@@ -1,6 +1,5 @@
 package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
-import com.newrelic.api.agent.NewRelic;
 import java.util.*;
 import java.util.function.Supplier;
 import org.javatuples.Pair;
@@ -33,8 +32,6 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private DoubleMatrix weightMatrix;
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
-
-    private boolean experiment;
 
     private WeightedSearchStrategy() {
     }
@@ -132,11 +129,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private void applyHazards(GameState gameState) {
         Coordinates center = gameState.getBoard().getDimensions().center();
 
-        List<Coordinates> hazards = experiment
-                ? gameState.getBoard().getHazards()
-                : gameState.getBoard().getActiveHazards();
-
-        for (Coordinates hazard : hazards) {
+        for (Coordinates hazard : gameState.getBoard().getHazards()) {
             double w = hazardPositionWeight(center, hazard);
             double ww = DETERRENT_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
@@ -257,12 +250,6 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
-
-        if (gameState.getRules().isRoyale()) {
-            experiment = new Random().nextBoolean();
-        } else {
-            experiment = false;
-        }
     }
 
     @Override
@@ -284,10 +271,6 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
     @Override
     public Void processEnd(GameState gameState) {
-        if (gameState.getRules().isRoyale()) {
-            NewRelic.addCustomParameter("getHazardsEnabled", experiment);
-        }
-
         return null;
     }
 
