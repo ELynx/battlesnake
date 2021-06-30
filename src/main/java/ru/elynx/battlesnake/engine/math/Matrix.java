@@ -19,7 +19,7 @@ public class Matrix {
     }
 
     protected int calculateBoundIndex(int x, int y) {
-        if (dimensions.outOfBounds(x, y)) {
+        if (dimensions.isOutOfBounds(x, y)) {
             return -1;
         }
 

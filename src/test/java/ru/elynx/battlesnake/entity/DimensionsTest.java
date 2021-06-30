@@ -40,8 +40,8 @@ class DimensionsTest {
 
         for (int x = -1; x <= width; ++x) {
             for (int y = -1; y <= height; ++y) {
-                boolean byCoordinates = tested.outOfBounds(new Coordinates(x, y));
-                boolean byXY = tested.outOfBounds(x, y);
+                boolean byCoordinates = tested.isOutOfBounds(new Coordinates(x, y));
+                boolean byXY = tested.isOutOfBounds(x, y);
 
                 assertThat(byXY, equalTo(byCoordinates));
 

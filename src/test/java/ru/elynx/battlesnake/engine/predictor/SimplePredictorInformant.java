@@ -13,7 +13,7 @@ public class SimplePredictorInformant implements IPredictorInformant {
 
     @Override
     public boolean isWalkable(Coordinates tested) {
-        if (gameState.getBoard().getDimensions().outOfBounds(tested)) {
+        if (gameState.getBoard().getDimensions().isOutOfBounds(tested)) {
             return false;
         }
 

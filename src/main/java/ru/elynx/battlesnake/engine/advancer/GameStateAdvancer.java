@@ -35,13 +35,13 @@ public class GameStateAdvancer {
 
     private Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
         Coordinates head = makeHead(snake, moveCommand);
-        if (gameState.getBoard().getDimensions().outOfBounds(head)) {
-            return null; // eliminate by out of bounds
+        if (gameState.getBoard().getDimensions().isOutOfBounds(head)) {
+            return null;
         }
 
         int health = makeStandardHealth(gameState, snake, head);
         if (health <= 0) {
-            return null; // eliminate by health
+            return null;
         }
 
         List<Coordinates> body = makeBody(snake, head, health);
@@ -51,16 +51,7 @@ public class GameStateAdvancer {
     }
 
     private Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
-        Coordinates nextHead = snake.getHead().sideNeighbours().stream()
-                .filter((CoordinatesWithDirection coordinates) -> moveCommand.equals(coordinates.getDirection()))
-                .findAny().orElse(null);
-
-        if (nextHead == null) {
-            throw new IllegalStateException("Could not find next head position for [" + snake.getId()
-                    + "] and move command [" + moveCommand + ']');
-        }
-
-        return nextHead;
+        return snake.getHead().move(moveCommand);
     }
 
     private int makeStandardHealth(GameState gameState, Snake snake, Coordinates head) {
@@ -96,8 +87,8 @@ public class GameStateAdvancer {
     }
 
     private GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
-        // TODO improve checking, consumed food is actually known
-        List<Coordinates> food = filterConsumedFood(gameState, snakes);
+        // at this point `snakes` have all of heads moved
+        List<Coordinates> food = findRemainingFood(gameState.getBoard().getFood(), snakes);
         snakes = eliminateSnakesByCollision(snakes);
 
         if (gameState.getRules().isRoyale()) {
@@ -110,10 +101,10 @@ public class GameStateAdvancer {
         return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
     }
 
-    private List<Coordinates> filterConsumedFood(GameState gameState, List<Snake> snakes) {
-        List<Coordinates> food = new ArrayList<>(gameState.getBoard().getFood().size());
+    private List<Coordinates> findRemainingFood(List<Coordinates> foodBefore, List<Snake> snakes) {
+        List<Coordinates> foodAfter = new ArrayList<>(foodBefore.size());
 
-        for (Coordinates potentialFood : gameState.getBoard().getFood()) {
+        for (Coordinates potentialFood : foodBefore) {
             boolean consumed = false;
             for (Snake snake : snakes) {
                 if (potentialFood.equals(snake.getHead())) {
@@ -123,11 +114,11 @@ public class GameStateAdvancer {
             }
 
             if (!consumed) {
-                food.add(potentialFood);
+                foodAfter.add(potentialFood);
             }
         }
 
-        return food;
+        return foodAfter;
     }
 
     private List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
@@ -194,7 +185,6 @@ public class GameStateAdvancer {
     }
 
     private int makeRoyaleHealth(GameState gameState, Snake snake) {
-        // head is already updated
         if (gameState.getBoard().getActiveHazards().contains(snake.getHead())) {
             return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
         }
