@@ -104,17 +104,17 @@ public class GameStateAdvancer {
     private List<Coordinates> findRemainingFood(List<Coordinates> foodBefore, List<Snake> snakes) {
         List<Coordinates> foodAfter = new ArrayList<>(foodBefore.size());
 
-        for (Coordinates potentialFood : foodBefore) {
+        for (Coordinates food : foodBefore) {
             boolean consumed = false;
             for (Snake snake : snakes) {
-                if (potentialFood.equals(snake.getHead())) {
+                if (food.equals(snake.getHead())) {
                     consumed = true;
                     break;
                 }
             }
 
             if (!consumed) {
-                foodAfter.add(potentialFood);
+                foodAfter.add(food);
             }
         }
 
@@ -124,7 +124,6 @@ public class GameStateAdvancer {
     private List<Snake> eliminateSnakesByCollision(List<Snake> snakes) {
         List<Snake> result = new ArrayList<>(snakes.size());
 
-        // TODO speed up by using snake lengths
         for (Snake checked : snakes) {
             boolean survived = true;
             for (Snake other : snakes) {
@@ -143,14 +142,11 @@ public class GameStateAdvancer {
     }
 
     private boolean isCollisionLoss(Snake checked, Snake other) {
-        List<Coordinates> body = other.getBody();
-
-        for (int i = 0; i < body.size(); ++i) {
-            Coordinates coordinates = body.get(i);
-
-            if (coordinates.equals(checked.getHead())) {
+        List<Coordinates> otherBody = other.getBody();
+        for (int i = 0; i < otherBody.size(); ++i) {
+            if (otherBody.get(i).equals(checked.getHead())) {
                 if (i == 0) {
-                    if (!other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength()) {
+                    if (isHeadToHeadLoss(checked, other)) {
                         return true;
                     }
                 } else {
@@ -162,13 +158,17 @@ public class GameStateAdvancer {
         return false;
     }
 
+    private boolean isHeadToHeadLoss(Snake checked, Snake other) {
+        return !other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength();
+    }
+
     private List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
         List<Snake> result = new ArrayList<>(snakes.size());
 
-        for (Snake potentialSnake : snakes) {
-            Snake snake = applyHazards(gameState, potentialSnake);
-            if (snake != null) {
-                result.add(snake);
+        for (Snake current : snakes) {
+            Snake future = applyHazards(gameState, current);
+            if (future != null) {
+                result.add(future);
             }
         }
 
