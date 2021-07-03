@@ -37,7 +37,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     private void applyFood(GameState gameState) {
-        final double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
                 HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
         if (foodWeight <= 0.0d)
@@ -56,19 +56,19 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
             freeSpaceMatrix.setOccupied(coordinates);
         });
 
-        final List<Pair<Coordinates, Double>> blockedByNotWalkable = new LinkedList<>();
+        List<Pair<Coordinates, Double>> blockedByNotWalkable = new LinkedList<>();
 
-        final String ownId = gameState.getYou().getId();
-        final Coordinates ownHead = gameState.getYou().getHead();
-        final int ownSize = gameState.getYou().getLength();
+        String ownId = gameState.getYou().getId();
+        Coordinates ownHead = gameState.getYou().getHead();
+        int ownSize = gameState.getYou().getLength();
 
         for (Snake snake : gameState.getBoard().getSnakes()) {
-            final String id = snake.getId();
+            String id = snake.getId();
 
             // manage head
             if (!id.equals(ownId)) {
-                final Coordinates head = snake.getHead();
-                final int size = snake.getLength();
+                Coordinates head = snake.getHead();
+                int size = snake.getLength();
 
                 double baseWeight;
                 boolean edible;
