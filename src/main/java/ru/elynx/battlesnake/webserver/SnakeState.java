@@ -1,9 +1,9 @@
 package ru.elynx.battlesnake.webserver;
 
-import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
 import java.time.Instant;
+import java.util.Optional;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
@@ -43,6 +43,7 @@ public class SnakeState {
     private GameState addMetaInformation(GameState gameState) {
         if (gameState.getRules().isRoyale()) {
             Board board = BoardWithActiveHazards.fromAdjacentTurns(lastBoard, gameState.getBoard());
+            lastBoard = board;
             // recompose the game state only if there is need to do so
             if (board instanceof BoardWithActiveHazards) {
                 return new GameState(gameState.getGameId(), gameState.getTurn(), gameState.getRules(), board,
@@ -72,8 +73,7 @@ public class SnakeState {
     public Move processMove(GameState gameState) {
         updateAccessTime();
         gameState = addMetaInformation(gameState);
-        Move move = initializeAndProcessMove(gameState);
-        return handleRepeatLastMove(move);
+        return initializeAndProcessMove(gameState);
     }
 
     private Move initializeAndProcessMove(GameState gameState) {
@@ -82,17 +82,9 @@ public class SnakeState {
     }
 
     private Move processMoveImpl(GameState gameState) {
-        return gameStrategy.processMove(gameState);
-    }
-
-    private Move handleRepeatLastMove(Move move) {
-        if (REPEAT_LAST.equals(move.getMoveCommand())) {
-            return new Move(lastMove, move.getShout());
-        }
-
-        lastMove = move.getMoveCommand();
-
-        return move;
+        Optional<MoveCommand> currentMove = gameStrategy.processMove(gameState);
+        currentMove.ifPresent(moveCommand -> lastMove = moveCommand);
+        return new Move(lastMove);
     }
 
     public Void processEnd(GameState gameState) {

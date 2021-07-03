@@ -7,6 +7,7 @@ import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRAT
 import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,7 +52,7 @@ class GameStrategyBasicTest {
     void test_strategy_produce_Move(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
         gameStrategy.init(EntityBuilder.gameState());
-        Move move = gameStrategy.processMove(EntityBuilder.gameState());
+        Optional<MoveCommand> move = gameStrategy.processMove(EntityBuilder.gameState());
         assertNotNull(move);
     }
 
@@ -76,19 +77,19 @@ class GameStrategyBasicTest {
         int h = dimensions.getHeight();
 
         for (int x = 0; x < w; ++x) {
-            Move move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, 0));
-            assertNotEquals(DOWN, move1.getMoveCommand());
+            Optional<MoveCommand> move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, 0));
+            assertNotEquals(DOWN, move1.orElseThrow());
 
-            Move move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, h - 1));
-            assertNotEquals(UP, move2.getMoveCommand());
+            Optional<MoveCommand> move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, h - 1));
+            assertNotEquals(UP, move2.orElseThrow());
         }
 
         for (int y = 0; y < h; ++y) {
-            Move move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(0, y));
-            assertNotEquals(LEFT, move1.getMoveCommand());
+            Optional<MoveCommand> move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(0, y));
+            assertNotEquals(LEFT, move1.orElseThrow());
 
-            Move move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(w - 1, y));
-            assertNotEquals(RIGHT, move2.getMoveCommand());
+            Optional<MoveCommand> move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(w - 1, y));
+            assertNotEquals(RIGHT, move2.orElseThrow());
         }
     }
 
@@ -109,9 +110,9 @@ class GameStrategyBasicTest {
 
             GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), not(equalTo(notTo[j])));
-            assertThat("Step " + i, move.getMoveCommand(), not(equalTo(notTo[k])));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), not(equalTo(notTo[j])));
+            assertThat("Step " + i, move.orElseThrow(), not(equalTo(notTo[k])));
         }
     }
 
@@ -129,8 +130,8 @@ class GameStrategyBasicTest {
 
             GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
     }
 
@@ -148,8 +149,8 @@ class GameStrategyBasicTest {
 
             GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
     }
 
@@ -167,8 +168,8 @@ class GameStrategyBasicTest {
 
             GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
     }
 
@@ -181,8 +182,8 @@ class GameStrategyBasicTest {
         assertDoesNotThrow(() -> {
             gameStrategy.init(gameState);
             gameStrategy.processStart(gameState);
-            Move move = gameStrategy.processMove(gameState);
-            assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+            Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+            assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
             gameStrategy.processEnd(gameState);
         });
     }

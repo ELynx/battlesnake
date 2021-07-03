@@ -6,13 +6,14 @@ import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRAT
 import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.MoveCommand;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
 @SpringBootTest
@@ -29,8 +30,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.empty_space_better_than_snake();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -41,8 +42,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(UP))).failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(UP))).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -53,8 +54,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -65,8 +66,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -77,8 +78,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.dont_die_for_food();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -89,8 +90,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.dont_die_for_food_and_hunt();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), not(equalTo(DOWN))).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).validate(name);
     }
 
     @ParameterizedTest
@@ -101,8 +102,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.dont_give_up();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(LEFT)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).validate(name);
     }
 
     @ParameterizedTest
@@ -113,8 +114,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.eat_in_hazard();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(LEFT)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).validate(name);
     }
 
     @ParameterizedTest
@@ -125,8 +126,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.sees_the_inevitable();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(RIGHT)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(RIGHT)).validate(name);
     }
 
     @ParameterizedTest
@@ -137,8 +138,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.does_not_go_into_hazard_lake();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(RIGHT)).failing("Ahaetulla").failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(RIGHT)).failing("Ahaetulla").failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -149,8 +150,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.sees_escape_route();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -161,8 +162,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.sees_escape_route_plus();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -173,8 +174,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.hazard_better_than_lose();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
     }
 
     @ParameterizedTest
@@ -185,8 +186,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.does_not_corner_self();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(UP)).failing("Pixel").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").validate(name);
     }
 
     @ParameterizedTest
@@ -197,8 +198,8 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.avoid_lock_1();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
     }
 
     @ParameterizedTest
@@ -209,7 +210,7 @@ class GameStrategyCaseTest {
         GameState gameState = CaseBuilder.avoid_lock_2();
         gameStrategy.init(gameState);
 
-        Move move = gameStrategy.processMove(gameState);
-        assertMove(move.getMoveCommand(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
     }
 }

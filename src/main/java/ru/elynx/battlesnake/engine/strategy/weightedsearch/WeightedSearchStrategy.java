@@ -258,15 +258,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Move processMove(GameState gameState) {
+    public Optional<MoveCommand> processMove(GameState gameState) {
         applyGameState(gameState);
-        Optional<MoveCommand> move = bestMove(gameState);
-
-        if (move.isEmpty()) {
-            return new Move(MoveCommand.REPEAT_LAST); // would repeat last turn
-        }
-
-        return new Move(move.get());
+        return bestMove(gameState);
     }
 
     @Override

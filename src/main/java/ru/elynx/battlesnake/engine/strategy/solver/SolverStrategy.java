@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.engine.strategy.solver;
 
-import static ru.elynx.battlesnake.entity.MoveCommand.REPEAT_LAST;
-
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +22,8 @@ public class SolverStrategy implements IGameStrategy {
     }
 
     @Override
-    public Move processMove(GameState gameState) {
-        return new Move(makeMove(gameState));
-    }
-
-    private MoveCommand makeMove(GameState gameState) {
+    public Optional<MoveCommand> processMove(GameState gameState) {
         processStage(gameState);
-
         return getMoveCommand(gameState);
     }
 
@@ -68,13 +62,13 @@ public class SolverStrategy implements IGameStrategy {
         return null;
     }
 
-    private MoveCommand getMoveCommand(GameState gameState) {
+    private Optional<MoveCommand> getMoveCommand(GameState gameState) {
         if (whereToGo != null) {
             Coordinates head = gameState.getYou().getHead();
-            return whereToGo.getMoveCommand(head);
-        } else {
-            return REPEAT_LAST;
+            return Optional.of(whereToGo.getMoveCommand(head));
         }
+
+        return Optional.empty();
     }
 
     @Override

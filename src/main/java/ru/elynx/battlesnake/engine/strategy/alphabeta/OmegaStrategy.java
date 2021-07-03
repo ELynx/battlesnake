@@ -34,13 +34,11 @@ public class OmegaStrategy implements IGameStrategy, IPredictorInformant {
     }
 
     @Override
-    public Move processMove(GameState gameState) {
-        Optional<MoveCommand> moveCommand = bestMoveForSnake(gameState.getYou(), gameState);
-
-        return new Move(moveCommand.orElse(REPEAT_LAST));
+    public Optional<MoveCommand> processMove(GameState gameState) {
+        return bestMove(gameState.getYou(), gameState);
     }
 
-    protected Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
+    protected Optional<MoveCommand> bestMove(Snake snake, GameState gameState) {
         ScoreMaker scoreMaker = makeScoreMaker(snake, gameState);
 
         Collection<CoordinatesWithDirection> moves = snake.getHead().sideNeighbours();

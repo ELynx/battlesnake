@@ -21,12 +21,9 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     }
 
     @Override
-    public Move processMove(GameState state0) {
+    public Optional<MoveCommand> processMove(GameState state0) {
         Stream<MoveCommand> moves = Stream.of(DOWN, LEFT, RIGHT, UP);
-
-        Optional<MoveCommand> moveCommand = moves
-                .max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move)));
-        return new Move(moveCommand.orElse(REPEAT_LAST));
+        return moves.max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move)));
     }
 
     private int forMoveCommand(GameState step0, MoveCommand moveCommand) {
@@ -35,12 +32,12 @@ public class AlphaBetaStrategy extends OmegaStrategy {
                 return moveCommand;
             }
 
-            return bestMoveForSnake(snake, gameState).orElse(UP);
+            return bestMove(snake, gameState).orElse(UP);
         };
 
         GameState step1 = GameStateAdvancer.advance(step0, step1MoveFunction);
 
-        if (isEliminatedBetweenStates(step0, step1)) {
+        if (isEliminated(step1)) {
             return -100;
         }
 
@@ -67,13 +64,11 @@ public class AlphaBetaStrategy extends OmegaStrategy {
     /**
      * Test if `you` lost between two game states
      *
-     * @param gameState0
-     *            passed for consistency of interface
      * @param gameState1
      *            tested to see if `you` lost
      * @return true if `you` lost
      */
-    private boolean isEliminatedBetweenStates(GameState gameState0, GameState gameState1) {
+    private boolean isEliminated(GameState gameState1) {
         return gameState1.isYouEliminated();
     }
 

@@ -1,8 +1,9 @@
 package ru.elynx.battlesnake.engine.strategy;
 
+import java.util.Optional;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.MoveCommand;
 
 public interface IGameStrategy {
     BattlesnakeInfo getBattesnakeInfo();
@@ -12,7 +13,7 @@ public interface IGameStrategy {
 
     Void processStart(GameState gameState);
 
-    Move processMove(GameState gameState);
+    Optional<MoveCommand> processMove(GameState gameState);
 
     Void processEnd(GameState gameState);
 

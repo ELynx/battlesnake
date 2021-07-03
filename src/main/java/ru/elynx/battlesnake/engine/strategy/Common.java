@@ -12,15 +12,8 @@ public class Common {
 
     public static void forAllSnakeBodies(GameState gameState, Consumer<Coordinates> what) {
         for (Snake snake : gameState.getBoard().getSnakes()) {
-            if (willSurvive(snake, gameState)) {
-                forSnakeBody(snake, what);
-            }
+            forSnakeBody(snake, what);
         }
-    }
-
-    private static boolean willSurvive(Snake snake, GameState gameState) {
-        // TODO implement or reject idea
-        return true;
     }
 
     private static void forSnakeBody(Snake snake, Consumer<Coordinates> what) {
