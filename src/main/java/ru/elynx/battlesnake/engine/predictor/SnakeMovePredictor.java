@@ -31,9 +31,13 @@ public class SnakeMovePredictor {
 
     private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
         Collection<? extends Coordinates> directions = possibleDirections(snake);
-        ScoreMaker scoreMaker = new ScoreMaker(snake, gameState, predictorInformant);
+        ScoreMaker scoreMaker = createScoreMaker(snake, gameState);
 
         return getProbabilitiesOf(directions, scoreMaker);
+    }
+
+    private ScoreMaker createScoreMaker(Snake snake, GameState gameState) {
+        return new ScoreMaker(snake, gameState, predictorInformant);
     }
 
     private Collection<? extends Coordinates> possibleDirections(Snake snake) {
