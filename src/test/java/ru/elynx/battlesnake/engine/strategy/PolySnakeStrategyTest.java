@@ -3,8 +3,9 @@ package ru.elynx.battlesnake.engine.strategy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Tag;
@@ -30,7 +31,17 @@ class PolySnakeStrategyTest {
     }
 
     public static Stream<GameState> provideGameStates() {
-        return Stream.of(CaseBuilder.dont_die_for_food_and_hunt());
+        return Arrays.stream(CaseBuilder.class.getMethods()).filter((Method method) -> {
+            return method.getGenericParameterTypes().length == 0
+                    && method.getGenericReturnType().getTypeName().equals(GameState.class.getTypeName());
+        }).map(method -> {
+            try {
+                return method.invoke(null);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                fail();
+            }
+            return null;
+        }).map(GameState.class::cast);
     }
 
     public static Stream<Object[]> provideCartesianProduct() {
