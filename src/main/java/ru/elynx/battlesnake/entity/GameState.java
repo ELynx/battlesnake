@@ -2,8 +2,10 @@ package ru.elynx.battlesnake.entity;
 
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal // for testing purposes
 public class GameState {
     @NonNull
     String gameId;
