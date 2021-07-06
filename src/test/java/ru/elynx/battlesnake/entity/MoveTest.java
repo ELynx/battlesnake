@@ -2,8 +2,10 @@ package ru.elynx.battlesnake.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("Internals")
 class MoveTest {
     @Test
     void test_ctor_throws_on_null_move() {

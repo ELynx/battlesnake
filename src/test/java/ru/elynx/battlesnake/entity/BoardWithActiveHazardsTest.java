@@ -5,9 +5,11 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
+@Tag("Internals")
 class BoardWithActiveHazardsTest {
     @Test
     void test_equals_and_hash_code_same() {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.GameState;
@@ -13,6 +14,7 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 import ru.elynx.battlesnake.testsnake.MySnake;
 
 // TODO more thorough testing
+@Tag("Internals")
 class SnakeStateTest {
     IGameStrategy mySnakeStrategy = new MySnake();
 

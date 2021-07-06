@@ -4,9 +4,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
+@Tag("Internals")
 class BoardTest {
     @Test
     void test_base_class_does_not_predict() {

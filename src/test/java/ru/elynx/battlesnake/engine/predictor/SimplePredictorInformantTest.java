@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.predictor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
@@ -9,6 +10,7 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
+@Tag("Internals")
 class SimplePredictorInformantTest {
     @Test
     void test_out_of_bounds_is_not() {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.entity.GameState;
@@ -12,6 +13,7 @@ import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
+@Tag("Internals")
 class GameStateAdvancerTest {
     BiFunction<Snake, GameState, MoveCommand> moveRight = (Snake snake, GameState gameState) -> MoveCommand.RIGHT;
     BiFunction<Snake, GameState, MoveCommand> moveDown = (Snake snake, GameState gameState) -> MoveCommand.DOWN;

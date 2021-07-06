@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("Internals")
 class CoordinatesWithDirectionTest {
     private static final int x0 = -1;
     private static final int x1 = 11;
