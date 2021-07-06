@@ -11,11 +11,15 @@ public interface IGameStrategy {
     default void init(GameState gameState) {
     }
 
-    Void processStart(GameState gameState);
+    default Void processStart(GameState gameState) {
+        return null;
+    }
 
     Optional<MoveCommand> processMove(GameState gameState);
 
-    Void processEnd(GameState gameState);
+    default Void processEnd(GameState gameState) {
+        return null;
+    }
 
     default boolean isCombatant() {
         return true;

@@ -17,11 +17,6 @@ public class SolverStrategy implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(GameState gameState) {
-        return null;
-    }
-
-    @Override
     public Optional<MoveCommand> processMove(GameState gameState) {
         processStage(gameState);
         return getMoveCommand(gameState);
@@ -69,11 +64,6 @@ public class SolverStrategy implements IGameStrategy {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public Void processEnd(GameState gameState) {
-        return null;
     }
 
     @Override

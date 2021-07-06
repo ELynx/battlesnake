@@ -253,19 +253,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Void processStart(GameState gameState) {
-        return null;
-    }
-
-    @Override
     public Optional<MoveCommand> processMove(GameState gameState) {
         applyGameState(gameState);
         return bestMove(gameState);
-    }
-
-    @Override
-    public Void processEnd(GameState gameState) {
-        return null;
     }
 
     @Override
