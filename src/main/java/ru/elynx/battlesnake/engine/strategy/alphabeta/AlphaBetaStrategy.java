@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
@@ -34,7 +35,8 @@ public class AlphaBetaStrategy implements IGameStrategy {
     public Optional<MoveCommand> processMove(GameState state0) {
         Stream<MoveCommand> moves = state0.getYou().getAdvancingMoves().stream()
                 .map(CoordinatesWithDirection::getDirection);
-        return moves.max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move, 0)));
+        Stream<Pair<MoveCommand, Integer>> scoredMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 0)));
+        return scoredMoves.max(Comparator.comparingInt(Pair::getValue1)).map(Pair::getValue0);
     }
 
     private int forMoveCommand(GameState step0, MoveCommand moveCommand, int depth) {
@@ -81,8 +83,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
             }
         }
 
-        // score for going worst path and best path
-        return minScore + maxScore + 2 * score1;
+        return score1 + 3 * maxScore / 4 + minScore / 4;
     }
 
     private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand) {
