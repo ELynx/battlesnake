@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -16,6 +15,8 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
+    private static int MAX_DEPTH_FOR_ADVANCE = 2;
+
     IPolySnakeGameStrategy polySnakeGameStrategy;
 
     @Override
@@ -31,25 +32,57 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Override
     public Optional<MoveCommand> processMove(GameState state0) {
-        Stream<MoveCommand> moves = Arrays.stream(values());
-        return moves.max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move)));
+        Stream<MoveCommand> moves = state0.getYou().getAdvancingMoves().stream()
+                .map(CoordinatesWithDirection::getDirection);
+        return moves.max(Comparator.comparingInt((MoveCommand move) -> forMoveCommand(state0, move, 0)));
     }
 
-    private int forMoveCommand(GameState step0, MoveCommand moveCommand) {
+    private int forMoveCommand(GameState step0, MoveCommand moveCommand, int depth) {
         var stepFunction = makeStepFunction(moveCommand);
         GameState step1 = GameStateAdvancer.advance(step0, stepFunction);
+        ++depth;
 
+        int score1 = 1;
+
+        // simulation termination cases <<
+
+        // loss
         if (isEliminated(step1)) {
-            return -100;
+            score1 = -100; // TODO score from method
+            return score1;
         }
 
-        // if one snake left and not eliminated then victory
+        // victory
         if (oneSnakeLeft(step0, step1)) {
-            return 100;
+            score1 = 100; // TODO score from method
+            return score1;
         }
 
-        // TODO score state, preferably with predictions
-        return 0;
+        // depth exceeded
+        if (depth > MAX_DEPTH_FOR_ADVANCE) {
+            return score1;
+        }
+
+        // >>
+
+        // will always be initiated, at least 3 iterations are guaranteed in loop
+        int minScore = Integer.MAX_VALUE;
+        int maxScore = Integer.MIN_VALUE;
+
+        for (CoordinatesWithDirection coordinates : step1.getYou().getAdvancingMoves()) {
+            int score2i = forMoveCommand(step1, coordinates.getDirection(), depth);
+
+            if (score2i < minScore) {
+                minScore = score2i;
+            }
+
+            if (score2i > maxScore) {
+                maxScore = score2i;
+            }
+        }
+
+        // score for going worst path and best path
+        return minScore + maxScore + 2 * score1;
     }
 
     private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand) {
