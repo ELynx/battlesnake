@@ -49,6 +49,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
         // simulation termination cases <<
 
         // loss
+        // TODO bugs here. on depth 2 report eliminated
         if (isEliminated(step1)) {
             score1 = -100; // TODO score from method
             return score1;
@@ -68,22 +69,17 @@ public class AlphaBetaStrategy implements IGameStrategy {
         // >>
 
         // will always be initiated, at least 3 iterations are guaranteed in loop
-        int minScore = Integer.MAX_VALUE;
         int maxScore = Integer.MIN_VALUE;
 
         for (CoordinatesWithDirection coordinates : step1.getYou().getAdvancingMoves()) {
             int score2i = forMoveCommand(step1, coordinates.getDirection(), depth);
-
-            if (score2i < minScore) {
-                minScore = score2i;
-            }
 
             if (score2i > maxScore) {
                 maxScore = score2i;
             }
         }
 
-        return score1 + 3 * maxScore / 4 + minScore / 4;
+        return score1 + maxScore;
     }
 
     private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand) {
