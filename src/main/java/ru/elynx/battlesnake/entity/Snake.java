@@ -1,6 +1,8 @@
 package ru.elynx.battlesnake.entity;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
@@ -60,5 +62,19 @@ public class Snake {
 
     public static int getMaxHealth() {
         return MAX_HEALTH;
+    }
+
+    public Coordinates getNeck() {
+        // check for caution, edge cases, etc
+        if (length == 1) {
+            return head;
+        } else {
+            return body.get(1);
+        }
+    }
+
+    public Collection<CoordinatesWithDirection> getAdvancingMoves() {
+        Coordinates neck = getNeck();
+        return head.sideNeighbours().stream().filter(x -> !x.equals(neck)).collect(Collectors.toList());
     }
 }

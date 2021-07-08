@@ -64,28 +64,13 @@ public class SnakeMovePredictor {
         // head position this turn
         Coordinates head = snake.getHead();
         // head position last turn
-        Coordinates neck = getNeck(snake);
+        Coordinates neck = snake.getNeck();
 
         return new Coordinates(head.getX() - neck.getX(), head.getY() - neck.getY());
     }
 
-    private Coordinates getNeck(Snake snake) {
-        // check for caution, edge cases, etc
-        if (snake.getLength().equals(1)) {
-            return snake.getHead();
-        } else {
-            return snake.getBody().get(1);
-        }
-    }
-
     private List<? extends Coordinates> getWalkableMoves(Snake snake) {
-        // this is shorter than dxdy -> triplet -> check
-        // if profiling ever shows that doing this is slow
-        // then use matrix multiplication for forward-left-right triplet
-        // then individually check each direction
-        // this relies on isWalkable returning false on backward movement
-        return snake.getHead().sideNeighbours().stream().filter(predictorInformant::isWalkable)
-                .collect(Collectors.toList());
+        return snake.getAdvancingMoves().stream().filter(predictorInformant::isWalkable).collect(Collectors.toList());
     }
 
     private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<? extends Coordinates> directions,

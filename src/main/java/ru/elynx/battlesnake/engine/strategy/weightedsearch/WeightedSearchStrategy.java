@@ -233,7 +233,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     public Optional<MoveCommand> bestMove(GameState gameState) {
-        Collection<CoordinatesWithDirection> ranked = gameState.getYou().getHead().sideNeighbours();
+        Collection<CoordinatesWithDirection> ranked = gameState.getYou().getAdvancingMoves();
         int length = gameState.getYou().getLength();
         return rank(ranked, length);
     }
