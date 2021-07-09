@@ -7,21 +7,26 @@ import ru.elynx.battlesnake.entity.Snake;
 
 @UtilityClass
 public class GameStateScoreMaker {
+    private static final Boolean TERMINATE = Boolean.TRUE;
+    private static final Boolean CONTINUE = Boolean.FALSE;
+
+    private static final int LOSE_SCORE = -100;
+    private static final int WIN_SCORE = 100;
+
     public static Pair<Boolean, Integer> makeYouScore(GameState state0, GameState state1) {
         return makeScore(state0.getYou(), state0, state1);
     }
 
     public static Pair<Boolean, Integer> makeScore(Snake snake, GameState state0, GameState state1) {
         if (state1.isEliminated(snake)) {
-            return new Pair<>(true, -100);
+            return new Pair<>(TERMINATE, LOSE_SCORE);
         }
 
-        // victory
         if (oneSnakeLeft(state0, state1)) {
-            return new Pair<>(true, 100);
+            return new Pair<>(TERMINATE, WIN_SCORE);
         }
 
-        return new Pair<>(false, 1);
+        return new Pair<>(CONTINUE, 1);
     }
 
     private static boolean oneSnakeLeft(GameState gameState0, GameState gameState1) {
