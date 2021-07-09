@@ -39,11 +39,17 @@ class GameStrategyCaseTest {
     void test_avoid_fruit_surrounded_by_snake(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_2_hp();
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(UP))).failing("Pixel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(UP))).failing("Pixel").different("Voxel").validate(name);
+
+        gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_10_hp();
+        gameStrategy.init(gameState);
+
+        move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(UP))).validate(name);
     }
 
     @ParameterizedTest

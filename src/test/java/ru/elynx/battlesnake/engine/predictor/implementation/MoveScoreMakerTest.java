@@ -30,8 +30,24 @@ class MoveScoreMakerTest {
     }
 
     @Test
-    void test_avoid_fruit_surrounded_by_snake() {
-        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
+    void test_avoid_fruit_surrounded_by_snake_2_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_2_hp();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        MoveScoreMaker tested = new MoveScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(4, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_avoid_fruit_surrounded_by_snake_10_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_10_hp();
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 

@@ -26,7 +26,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_surrounded_by_snake() {
+    public static GameState avoid_fruit_surrounded_by_snake_2_hp() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -39,6 +39,23 @@ public class CaseBuilder {
                 "___________\n" + //
                 "___________\n" + //
                 "___________\n").setHealth("Y", 2);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_fruit_surrounded_by_snake_10_hp() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "yyyv<______\n" + //
+                "y0^<^______\n" + //
+                "yY__y______\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 10);
 
         return generator.build();
     }

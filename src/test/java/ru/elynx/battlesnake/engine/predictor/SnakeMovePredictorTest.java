@@ -28,8 +28,21 @@ class SnakeMovePredictorTest {
     }
 
     @Test
-    void test_avoid_fruit_surrounded_by_snake() {
-        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake();
+    void test_avoid_fruit_surrounded_by_snake_2_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_2_hp();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(1, 9), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_surrounded_by_snake_10_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_10_hp();
         Snake snake = gameState.getYou();
 
         SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
