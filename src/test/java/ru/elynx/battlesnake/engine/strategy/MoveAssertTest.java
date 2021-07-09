@@ -12,38 +12,58 @@ import ru.elynx.battlesnake.entity.MoveCommand;
 @Tag("Internals")
 class MoveAssertTest {
     @Test
-    void test_assert_move_valid() {
+    void test_assert_move_equal() {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP));
         assertDoesNotThrow(() -> tested.validate("Foo"));
     }
 
     @Test
-    void test_assert_move_invalid() {
+    void test_assert_move_not_equal() {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN));
         assertThrows(AssertionError.class, () -> tested.validate("Foo"));
     }
 
     @Test
-    void test_assert_move_failing_valid() {
-        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).failing("Foo");
-        assertThrows(TestAbortedException.class, () -> tested.validate("Foo"));
-    }
-
-    @Test
-    void test_assert_move_failing_invalid() {
+    void test_assert_move_failing_equal() {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP)).failing("Foo");
         assertThrows(AssertionError.class, () -> tested.validate("Foo"));
+        assertDoesNotThrow(() -> tested.validate("Bar"));
     }
 
     @Test
-    void test_assert_move_different_valid() {
-        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).different("Foo");
+    void test_assert_move_failing_not_equal() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).failing("Foo");
         assertThrows(TestAbortedException.class, () -> tested.validate("Foo"));
+        assertThrows(AssertionError.class, () -> tested.validate("Bar"));
     }
 
     @Test
-    void test_assert_move_different_invalid() {
+    void test_assert_move_different_equal() {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP)).different("Foo");
         assertThrows(AssertionError.class, () -> tested.validate("Foo"));
+        assertDoesNotThrow(() -> tested.validate("Bar"));
+    }
+
+    @Test
+    void test_assert_move_different_not_equal() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).different("Foo");
+        assertDoesNotThrow(() -> tested.validate("Foo"));
+        assertThrows(AssertionError.class, () -> tested.validate("Bar"));
+    }
+
+    @Test
+    void test_failing_and_different_throws_eq() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP)).failing("Foo")
+                .different("Foo");
+        assertThrows(AssertionError.class, () -> tested.validate("Foo"));
+        assertThrows(AssertionError.class, () -> tested.validate("Bar"));
+    }
+
+    @Test
+    void test_failing_and_different_throws_not_equal() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).failing("Foo")
+                .different("Foo");
+        assertThrows(AssertionError.class, () -> tested.validate("Foo"));
+        assertThrows(AssertionError.class, () -> tested.validate("Bar"));
     }
 }
