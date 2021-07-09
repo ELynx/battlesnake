@@ -25,7 +25,7 @@ public class GameStateScoreMaker {
             return new Pair<>(TERMINATE, scoreLimit);
         }
 
-        int score = stateScore(snake, state1) - stateScore(snake, state0);
+        int score = stateScore(snake, state1);
         return new Pair<>(CONTINUE, score);
     }
 
