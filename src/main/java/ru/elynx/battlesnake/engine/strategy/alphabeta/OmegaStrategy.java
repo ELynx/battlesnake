@@ -45,7 +45,7 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     private void setupPredictorInformant(GameState gameState) {
         if (lastSeenTurn != gameState.getTurn()) {
             occupiedPositions.unsetAll();
-            Common.forAllSnakeBodies(gameState, coordinates -> occupiedPositions.set(coordinates));
+            Common.forAllSnakeBodies(gameState, occupiedPositions::set);
             lastSeenTurn = gameState.getTurn();
         }
     }
