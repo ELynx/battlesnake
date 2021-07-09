@@ -366,6 +366,13 @@ public class CaseBuilder {
     }
 
     public static GameState avoid_lock_1() {
+        // original configuration had ambiguity for B
+        // if B moved downwards, it would lock Y as well
+        // this depended on what choice `other` component would make
+        // current case is modified to cut off B from going down
+        // original B
+        // ___bb_bB___
+        // ____bbb____
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -375,8 +382,8 @@ public class CaseBuilder {
                 "_________>v\n" + //
                 "_________^v\n" + //
                 "__________A\n" + //
-                "___bb_bB___\n" + //
-                "____bbb_>>Y\n" + //
+                "___bb__B___\n" + //
+                "____bbbb>>Y\n" + //
                 "________^<_\n");
 
         return generator.build();
