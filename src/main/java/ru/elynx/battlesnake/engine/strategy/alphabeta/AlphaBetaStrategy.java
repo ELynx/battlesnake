@@ -44,41 +44,28 @@ public class AlphaBetaStrategy implements IGameStrategy {
         GameState step1 = GameStateAdvancer.advance(step0, stepFunction);
         ++depth;
 
-        int score1 = 1;
+        var step1Score = GameStateScoreMaker.makeScore(step0.getYou(), step0, step1);
 
-        // simulation termination cases <<
-
-        // loss
-        if (isEliminated(step1)) {
-            score1 = -100; // TODO score from method
-            return score1;
+        if (step1Score.getValue0()) {
+            return step1Score.getValue1();
         }
 
-        // victory
-        if (oneSnakeLeft(step0, step1)) {
-            score1 = 100; // TODO score from method
-            return score1;
-        }
-
-        // depth exceeded
         if (depth > MAX_DEPTH_FOR_ADVANCE) {
-            return score1;
+            return step1Score.getValue1();
         }
-
-        // >>
 
         // will always be initiated, at least 3 iterations are guaranteed in loop
-        int maxScore = Integer.MIN_VALUE;
+        int step2ScoreMax = Integer.MIN_VALUE;
 
         for (CoordinatesWithDirection coordinates : step1.getYou().getAdvancingMoves()) {
-            int score2i = forMoveCommand(step1, coordinates.getDirection(), depth);
+            int step2Score = forMoveCommand(step1, coordinates.getDirection(), depth);
 
-            if (score2i > maxScore) {
-                maxScore = score2i;
+            if (step2Score > step2ScoreMax) {
+                step2ScoreMax = step2Score;
             }
         }
 
-        return score1 + maxScore;
+        return step1Score.getValue1() + step2ScoreMax;
     }
 
     private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand) {
@@ -89,30 +76,6 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
             return polySnakeGameStrategy.processMove(snake, gameState).orElse(UP);
         };
-    }
-
-    /**
-     * Test if `you` lost between two game states
-     *
-     * @param gameState1
-     *            tested to see if `you` lost
-     * @return true if `you` lost
-     */
-    private boolean isEliminated(GameState gameState1) {
-        return gameState1.isYouEliminated();
-    }
-
-    /**
-     * Test if `you` became last snake between turns
-     *
-     * @param gameState0
-     *            to check how many snakes there were before
-     * @param gameState1
-     *            to check how many snakes left
-     * @return true if there is one snake left
-     */
-    private boolean oneSnakeLeft(GameState gameState0, GameState gameState1) {
-        return gameState0.getBoard().getSnakes().size() > 1 && gameState1.getBoard().getSnakes().size() == 1;
     }
 
     @Configuration
