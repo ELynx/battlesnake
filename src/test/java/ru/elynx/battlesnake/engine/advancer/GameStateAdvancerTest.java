@@ -366,10 +366,16 @@ class GameStateAdvancerTest {
 
     @Test
     void test_you_found_repeatedly() {
-        GameState step0 = CaseBuilder.avoid_fruit_in_corner_easy();
+        GameState step0 = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         GameState step1 = GameStateAdvancer.advance(step0, moveUp);
         assertFalse(step1.isYouEliminated());
         GameState step2 = GameStateAdvancer.advance(step1, moveLeft);
+        assertTrue(step2.isYouEliminated());
+
+        step0 = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        step1 = GameStateAdvancer.advance(step0, moveUp);
+        assertFalse(step1.isYouEliminated());
+        step2 = GameStateAdvancer.advance(step1, moveLeft);
         assertFalse(step2.isYouEliminated());
     }
 }

@@ -43,7 +43,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_easy() {
+    public static GameState avoid_fruit_in_corner_easy_2_health() {
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -61,7 +61,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_hard() {
+    public static GameState avoid_fruit_in_corner_hard_2_health() {
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -75,6 +75,42 @@ public class CaseBuilder {
                 "___________\n" + //
                 "_________yY\n" + //
                 "________yy0\n").setHealth("Y", 2);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_fruit_in_corner_easy_10_health() {
+        // easy because there is no way out if entering fruit corner
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "____yyyyyy0\n").setHealth("Y", 10);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_fruit_in_corner_hard_10_health() {
+        // hard because it is necessary to predict that growth would close the exit
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "________yy0\n").setHealth("Y", 10);
 
         return generator.build();
     }

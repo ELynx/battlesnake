@@ -34,4 +34,16 @@ class MoveAssertTest {
         MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP)).failing("Foo");
         assertThrows(AssertionError.class, () -> tested.validate("Foo"));
     }
+
+    @Test
+    void test_assert_move_different_valid() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.DOWN)).different("Foo");
+        assertThrows(TestAbortedException.class, () -> tested.validate("Foo"));
+    }
+
+    @Test
+    void test_assert_move_different_invalid() {
+        MoveAssert tested = MoveAssert.assertMove(MoveCommand.UP, equalTo(MoveCommand.UP)).different("Foo");
+        assertThrows(AssertionError.class, () -> tested.validate("Foo"));
+    }
 }

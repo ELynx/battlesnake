@@ -82,7 +82,7 @@ class SnakeTest {
         assertThat(actual, containsInAnyOrder(head.move(MoveCommand.LEFT), head.move(MoveCommand.DOWN),
                 head.move(MoveCommand.RIGHT)));
 
-        gameState = CaseBuilder.avoid_fruit_in_corner_easy();
+        gameState = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         actual = gameState.getYou().getAdvancingMoves();
         head = gameState.getYou().getHead();
 

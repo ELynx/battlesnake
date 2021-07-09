@@ -46,8 +46,8 @@ class ScoreMakerTest {
     }
 
     @Test
-    void test_avoid_fruit_in_corner_easy() {
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy();
+    void test_avoid_fruit_in_corner_easy_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
@@ -62,8 +62,40 @@ class ScoreMakerTest {
     }
 
     @Test
-    void test_avoid_fruit_in_corner_hard() {
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard();
+    void test_avoid_fruit_in_corner_hard_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_2_health();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(4, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_easy_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        ScoreMaker tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(4, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_hard_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 

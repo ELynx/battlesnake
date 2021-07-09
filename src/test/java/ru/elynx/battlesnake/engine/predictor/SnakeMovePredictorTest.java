@@ -41,8 +41,8 @@ class SnakeMovePredictorTest {
     }
 
     @Test
-    void test_avoid_fruit_in_corner_easy() {
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy();
+    void test_avoid_fruit_in_corner_easy_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         Snake snake = gameState.getYou();
 
         SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
@@ -54,8 +54,34 @@ class SnakeMovePredictorTest {
     }
 
     @Test
-    void test_avoid_fruit_in_corner_hard() {
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard();
+    void test_avoid_fruit_in_corner_hard_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_2_health();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_easy_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_hard_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
         Snake snake = gameState.getYou();
 
         SimplePredictorInformant informant = new SimplePredictorInformant(gameState);

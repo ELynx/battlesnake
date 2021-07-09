@@ -29,6 +29,11 @@ public class MoveAssert {
         return this;
     }
 
+    public MoveAssert different(String name) {
+        failingStrategies.add(name);
+        return this;
+    }
+
     public void validate(String name) throws AssertionError {
         if (failingStrategies.contains(name)) {
             assumeTrue(matcher.matches(moveCommand));

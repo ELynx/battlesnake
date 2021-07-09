@@ -49,7 +49,6 @@ public class AlphaBetaStrategy implements IGameStrategy {
         // simulation termination cases <<
 
         // loss
-        // TODO bugs here. on depth 2 report eliminated
         if (isEliminated(step1)) {
             score1 = -100; // TODO score from method
             return score1;
