@@ -16,7 +16,7 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
-    private static final int MAX_DEPTH_FOR_ADVANCE = 4;
+    private static final int MAX_DEPTH_FOR_ADVANCE = 5;
 
     IPolySnakeGameStrategy polySnakeGameStrategy;
 
@@ -51,10 +51,10 @@ public class AlphaBetaStrategy implements IGameStrategy {
         var step1Score = GameStateScoreMaker.makeYouScore(step0, step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
-            return step1Score.getValue1();
+            return (MAX_DEPTH_FOR_ADVANCE - depth + 1) * step1Score.getValue1();
         }
 
-        if (depth > MAX_DEPTH_FOR_ADVANCE) {
+        if (depth >= MAX_DEPTH_FOR_ADVANCE) {
             return step1Score.getValue1();
         }
 
