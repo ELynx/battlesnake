@@ -103,6 +103,16 @@ class SnakeMovePredictorTest {
         predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
         assertEquals(new Coordinates(4, 3), predictions.get(0).getValue0());
+
+        gameState = CaseBuilder.dont_die_for_food_flip();
+        snake = gameState.getYou();
+
+        informant = new SimplePredictorInformant(gameState);
+        tested = new SnakeMovePredictor(informant);
+        predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(1, 2), predictions.get(0).getValue0());
     }
 
     @Test
@@ -122,6 +132,22 @@ class SnakeMovePredictorTest {
 
         assertEquals(new Coordinates(3, 4), predictions.get(0).getValue0());
         assertEquals(new Coordinates(5, 4), predictions.get(1).getValue0());
+
+        gameState = CaseBuilder.dont_die_for_food_and_hunt_flip();
+        snake = gameState.getYou();
+
+        informant = new SimplePredictorInformant(gameState);
+        tested = new SnakeMovePredictor(informant);
+        predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed()
+                .thenComparingInt(pair -> pair.getValue0().getX()));
+
+        // both with equal probability
+        assertEquals(0.5d, predictions.get(0).getValue1());
+        assertEquals(0.5d, predictions.get(1).getValue1());
+
+        assertEquals(new Coordinates(3, 2), predictions.get(0).getValue0());
+        assertEquals(new Coordinates(5, 2), predictions.get(1).getValue0());
     }
 
     @Test

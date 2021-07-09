@@ -131,6 +131,22 @@ public class CaseBuilder {
         return generator.build();
     }
 
+    public static GameState dont_die_for_food_flip() {
+        // head to head even with snake of same length is lose
+        // health is left at max to avoid starvation rage
+        // more of way to prevent greedy grab from under the train
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "a____\n" + //
+                "a____\n" + //
+                "A____\n" + //
+                "0____\n" + //
+                "Y____\n" + //
+                "y____\n" + //
+                "y____\n");
+
+        return generator.build();
+    }
+
     public static GameState dont_die_for_food_and_hunt() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y____\n" + //
@@ -139,7 +155,20 @@ public class CaseBuilder {
                 "__bB0Cc__\n" + //
                 "____A____\n" + //
                 "____a____\n" + //
-                "____a____\n").setHealth("Y", 2);
+                "____a____\n");
+
+        return generator.build();
+    }
+
+    public static GameState dont_die_for_food_and_hunt_flip() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____a____\n" + //
+                "____a____\n" + //
+                "____A____\n" + //
+                "__cC0Bb__\n" + //
+                "____Y____\n" + //
+                "____y____\n" + //
+                "____y____\n");
 
         return generator.build();
     }

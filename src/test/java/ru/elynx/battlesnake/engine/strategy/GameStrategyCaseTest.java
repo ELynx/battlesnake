@@ -103,6 +103,15 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").different("Voxel").validate(name);
+
+        // special case - use flipped version of board to avoid "deterministic
+        // adversary" effect
+
+        gameState = CaseBuilder.dont_die_for_food_flip();
+        gameStrategy.init(gameState);
+
+        move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").validate(name);
     }
 
@@ -115,6 +124,15 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).different("Voxel").validate(name);
+
+        // special case - use flipped version of board to avoid "deterministic
+        // adversary" effect
+
+        gameState = CaseBuilder.dont_die_for_food_flip();
+        gameStrategy.init(gameState);
+
+        move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), not(equalTo(DOWN))).validate(name);
     }
 

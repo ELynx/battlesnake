@@ -123,6 +123,19 @@ class ScoreMakerTest {
         assertEquals(1, tested.scoreMove(head.move(LEFT)));
         assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
         assertEquals(-10, tested.scoreMove(head.move(UP)));
+
+        gameState = CaseBuilder.dont_die_for_food_flip();
+        snake = gameState.getYou();
+        head = snake.getHead();
+
+        informant = new SimplePredictorInformant(gameState);
+
+        tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-10, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
     }
 
     @Test
@@ -139,6 +152,19 @@ class ScoreMakerTest {
         assertEquals(-2, tested.scoreMove(head.move(LEFT)));
         assertEquals(-2, tested.scoreMove(head.move(RIGHT)));
         assertEquals(-10, tested.scoreMove(head.move(UP)));
+
+        gameState = CaseBuilder.dont_die_for_food_and_hunt_flip();
+        snake = gameState.getYou();
+        head = snake.getHead();
+
+        informant = new SimplePredictorInformant(gameState);
+
+        tested = new ScoreMaker(snake, gameState, informant);
+
+        assertEquals(-5, tested.scoreMove(head.move(UP)));
+        assertEquals(-2, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-2, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
     }
 
     @Test
