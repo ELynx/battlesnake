@@ -48,50 +48,38 @@ class GameStrategyCaseTest {
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_easy_2_health(String name) {
+    void test_avoid_fruit_in_corner_easy(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).different("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").validate(name);
+
+        gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        gameStrategy.init(gameState);
+
+        move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_hard_2_health(String name) {
+    void test_avoid_fruit_in_corner_hard(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
         GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_2_health();
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).different("Pixel").different("Voxel").validate(name);
-    }
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").validate(name);
 
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_easy_10_health(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
         gameStrategy.init(gameState);
 
-        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).different("Pixel").validate(name);
-    }
-
-    @ParameterizedTest
-    @MethodSource(STRATEGY_NAMES)
-    void test_avoid_fruit_in_corner_hard_10_health(String name) {
-        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-
-        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
-        gameStrategy.init(gameState);
-
-        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).different("Pixel").validate(name);
+        move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
     }
 
     @ParameterizedTest
@@ -112,7 +100,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).validate(name);
     }
 
     @ParameterizedTest
