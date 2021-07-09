@@ -15,8 +15,10 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 @Tag("Internals")
 class GameStateAdvancerTest {
-    BiFunction<Snake, GameState, MoveCommand> moveRight = (Snake snake, GameState gameState) -> MoveCommand.RIGHT;
     BiFunction<Snake, GameState, MoveCommand> moveDown = (Snake snake, GameState gameState) -> MoveCommand.DOWN;
+    BiFunction<Snake, GameState, MoveCommand> moveLeft = (Snake snake, GameState gameState) -> MoveCommand.LEFT;
+    BiFunction<Snake, GameState, MoveCommand> moveRight = (Snake snake, GameState gameState) -> MoveCommand.RIGHT;
+    BiFunction<Snake, GameState, MoveCommand> moveUp = (Snake snake, GameState gameState) -> MoveCommand.UP;
 
     @Test
     void test_constants() {
@@ -360,5 +362,14 @@ class GameStateAdvancerTest {
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(from.getYou().getHealth() - 1, to.getYou().getHealth());
+    }
+
+    @Test
+    void test_you_found_repeatedly() {
+        GameState step0 = CaseBuilder.avoid_fruit_in_corner_easy();
+        GameState step1 = GameStateAdvancer.advance(step0, moveUp);
+        assertFalse(step1.isYouEliminated());
+        GameState step2 = GameStateAdvancer.advance(step1, moveLeft);
+        assertFalse(step2.isYouEliminated());
     }
 }
