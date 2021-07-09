@@ -33,16 +33,20 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Override
     public Optional<MoveCommand> processMove(GameState state0) {
-        Stream<MoveCommand> moves = state0.getYou().getAdvancingMoves().stream()
-                .map(CoordinatesWithDirection::getDirection);
-        Stream<Pair<MoveCommand, Integer>> scoredMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 0)));
+        Stream<MoveCommand> moves = sensibleYouMoves(state0);
+        Stream<Pair<MoveCommand, Integer>> scoredMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 1)));
         return scoredMoves.max(Comparator.comparingInt(Pair::getValue1)).map(Pair::getValue0);
+    }
+
+    private Stream<MoveCommand> sensibleYouMoves(GameState gameState) {
+        return gameState.getYou().getAdvancingMoves().stream()
+                .filter(x -> !gameState.getBoard().getDimensions().isOutOfBounds(x))
+                .map(CoordinatesWithDirection::getDirection);
     }
 
     private int forMoveCommand(GameState step0, MoveCommand moveCommand, int depth) {
         var stepFunction = makeStepFunction(moveCommand);
         GameState step1 = GameStateAdvancer.advance(step0, stepFunction);
-        ++depth;
 
         var step1Score = GameStateScoreMaker.makeYouScore(step0, step1);
 
@@ -54,16 +58,8 @@ public class AlphaBetaStrategy implements IGameStrategy {
             return step1Score.getValue1();
         }
 
-        // will always be initiated, at least 3 iterations are guaranteed in loop
-        int step2ScoreMax = Integer.MIN_VALUE;
-
-        for (CoordinatesWithDirection coordinates : step1.getYou().getAdvancingMoves()) {
-            int step2Score = forMoveCommand(step1, coordinates.getDirection(), depth);
-
-            if (step2Score > step2ScoreMax) {
-                step2ScoreMax = step2Score;
-            }
-        }
+        int step2ScoreMax = sensibleYouMoves(step1).mapToInt(x -> forMoveCommand(step1, x, depth + 1)).max()
+                .orElse(Integer.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }
