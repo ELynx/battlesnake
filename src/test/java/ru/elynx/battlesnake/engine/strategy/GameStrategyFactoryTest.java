@@ -22,7 +22,7 @@ class GameStrategyFactoryTest {
     IGameStrategyFactory gameStrategyFactory;
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Ahaetulla", "Pixel", "Voxel");
+        return Stream.of("Ahaetulla", "Pixel", "Voxel", "Unkindness");
     }
 
     @Test

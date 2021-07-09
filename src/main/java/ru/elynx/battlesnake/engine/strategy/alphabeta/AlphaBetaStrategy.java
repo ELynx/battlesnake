@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
+import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
@@ -80,8 +81,13 @@ public class AlphaBetaStrategy implements IGameStrategy {
     @Configuration
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
-        public Supplier<IGameStrategy> alphaBeta() {
+        public Supplier<IGameStrategy> alphaBeta0() {
             return () -> new AlphaBetaStrategy(new OmegaStrategy());
+        }
+
+        @Bean("Unkindness")
+        public Supplier<IGameStrategy> alphaBeta1() {
+            return () -> new AlphaBetaStrategy(new WeightedSearchStrategy());
         }
     }
 }

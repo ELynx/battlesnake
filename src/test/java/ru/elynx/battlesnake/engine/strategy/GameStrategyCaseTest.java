@@ -43,7 +43,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(UP))).failing("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(UP))).failing("Pixel").different("Voxel").different("Unkindness")
+                .validate(name);
 
         gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_10_hp();
         gameStrategy.init(gameState);
@@ -61,7 +62,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").different("Unkindness")
+                .validate(name);
 
         gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
         gameStrategy.init(gameState);
@@ -79,7 +81,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), equalTo(UP)).failing("Pixel").different("Voxel").different("Unkindness")
+                .validate(name);
 
         gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
         gameStrategy.init(gameState);
@@ -97,7 +100,8 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").different("Voxel").different("Unkindness")
+                .validate(name);
 
         // special case - use flipped version of board to avoid "deterministic
         // adversary" effect
@@ -118,7 +122,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(DOWN))).different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).different("Voxel").different("Unkindness").validate(name);
 
         // special case - use flipped version of board to avoid "deterministic
         // adversary" effect
