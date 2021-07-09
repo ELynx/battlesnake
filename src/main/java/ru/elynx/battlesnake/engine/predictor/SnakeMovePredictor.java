@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.javatuples.Pair;
+import ru.elynx.battlesnake.engine.predictor.implementation.MoveScoreMaker;
 import ru.elynx.battlesnake.engine.predictor.implementation.ProbabilityMaker;
-import ru.elynx.battlesnake.engine.predictor.implementation.ScoreMaker;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
@@ -31,13 +31,13 @@ public class SnakeMovePredictor {
 
     private List<Pair<Coordinates, Double>> predictImpl(Snake snake, GameState gameState) {
         Collection<? extends Coordinates> directions = possibleDirections(snake);
-        ScoreMaker scoreMaker = createScoreMaker(snake, gameState);
+        MoveScoreMaker moveScoreMaker = createScoreMaker(snake, gameState);
 
-        return getProbabilitiesOf(directions, scoreMaker);
+        return getProbabilitiesOf(directions, moveScoreMaker);
     }
 
-    private ScoreMaker createScoreMaker(Snake snake, GameState gameState) {
-        return new ScoreMaker(snake, gameState, predictorInformant);
+    private MoveScoreMaker createScoreMaker(Snake snake, GameState gameState) {
+        return new MoveScoreMaker(snake, gameState, predictorInformant);
     }
 
     private Collection<? extends Coordinates> possibleDirections(Snake snake) {
@@ -74,12 +74,12 @@ public class SnakeMovePredictor {
     }
 
     private List<Pair<Coordinates, Double>> getProbabilitiesOf(Collection<? extends Coordinates> directions,
-            ScoreMaker scoreMaker) {
+            MoveScoreMaker moveScoreMaker) {
         List<Pair<Coordinates, Integer>> scoredDirections = new ArrayList<>(directions.size());
         int maxScore = Integer.MIN_VALUE;
 
         for (Coordinates direction : directions) {
-            int score = scoreMaker.scoreMove(direction);
+            int score = moveScoreMaker.scoreMove(direction);
             if (score > maxScore) {
                 maxScore = score;
             }

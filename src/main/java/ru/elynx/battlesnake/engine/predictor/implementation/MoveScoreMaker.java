@@ -5,7 +5,7 @@ import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
-public class ScoreMaker {
+public class MoveScoreMaker {
     // delivering h2h win is best
     // eating food is good
     // staying alive is OK
@@ -27,7 +27,7 @@ public class ScoreMaker {
 
     private Coordinates coordinates;
 
-    public ScoreMaker(Snake snake, GameState gameState, IPredictorInformant predictorInformant) {
+    public MoveScoreMaker(Snake snake, GameState gameState, IPredictorInformant predictorInformant) {
         this.snake = snake;
         this.gameState = gameState;
         this.predictorInformant = predictorInformant;
