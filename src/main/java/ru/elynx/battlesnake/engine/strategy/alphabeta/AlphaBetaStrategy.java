@@ -16,7 +16,7 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
-    private static int MAX_DEPTH_FOR_ADVANCE = 2;
+    private static final int MAX_DEPTH_FOR_ADVANCE = 2;
 
     IPolySnakeGameStrategy polySnakeGameStrategy;
 
