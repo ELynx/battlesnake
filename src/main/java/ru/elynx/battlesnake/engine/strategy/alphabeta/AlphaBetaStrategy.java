@@ -20,6 +20,10 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     IPolySnakeGameStrategy polySnakeGameStrategy;
 
+    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy) {
+        this.polySnakeGameStrategy = polySnakeGameStrategy;
+    }
+
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
         return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2");
@@ -27,7 +31,6 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Override
     public void init(GameState gameState) {
-        polySnakeGameStrategy = new OmegaStrategy();
         polySnakeGameStrategy.init(gameState);
     }
 
@@ -78,7 +81,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta() {
-            return AlphaBetaStrategy::new;
+            return () -> new AlphaBetaStrategy(new OmegaStrategy());
         }
     }
 }
