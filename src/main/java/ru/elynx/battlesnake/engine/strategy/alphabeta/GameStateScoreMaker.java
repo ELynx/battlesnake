@@ -7,6 +7,10 @@ import ru.elynx.battlesnake.entity.Snake;
 
 @UtilityClass
 public class GameStateScoreMaker {
+    public static Pair<Boolean, Integer> makeYouScore(GameState state0, GameState state1) {
+        return makeScore(state0.getYou(), state0, state1);
+    }
+
     public static Pair<Boolean, Integer> makeScore(Snake snake, GameState state0, GameState state1) {
         if (state1.isEliminated(snake)) {
             return new Pair<>(true, -100);

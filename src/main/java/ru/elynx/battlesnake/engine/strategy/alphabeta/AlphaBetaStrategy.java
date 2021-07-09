@@ -44,9 +44,9 @@ public class AlphaBetaStrategy implements IGameStrategy {
         GameState step1 = GameStateAdvancer.advance(step0, stepFunction);
         ++depth;
 
-        var step1Score = GameStateScoreMaker.makeScore(step0.getYou(), step0, step1);
+        var step1Score = GameStateScoreMaker.makeYouScore(step0, step1);
 
-        if (step1Score.getValue0()) {
+        if (Boolean.TRUE.equals(step1Score.getValue0())) {
             return step1Score.getValue1();
         }
 
