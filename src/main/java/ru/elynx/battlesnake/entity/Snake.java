@@ -26,8 +26,7 @@ public class Snake {
 
     @NonNull
     Coordinates head;
-    @NonNull
-    Integer length;
+    int length;
 
     String shout;
 
