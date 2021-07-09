@@ -27,21 +27,21 @@ class PolySnakeStrategyTest {
     IGameStrategyFactory gameStrategyFactory;
 
     public static Stream<String> providePolyStrategyNames() {
-        return Stream.of("Pixel");
+        return Stream.of("Ahaetulla", "Pixel");
     }
 
     public static Stream<GameState> provideGameStates() {
-        return Arrays.stream(CaseBuilder.class.getMethods()).filter((Method method) -> {
-            return method.getGenericParameterTypes().length == 0
-                    && method.getGenericReturnType().getTypeName().equals(GameState.class.getTypeName());
-        }).map(method -> {
-            try {
-                return method.invoke(null);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                fail();
-            }
-            return null;
-        }).map(GameState.class::cast);
+        return Arrays.stream(CaseBuilder.class.getMethods())
+                .filter((Method method) -> method.getGenericParameterTypes().length == 0
+                        && method.getGenericReturnType().getTypeName().equals(GameState.class.getTypeName()))
+                .map(method -> {
+                    try {
+                        return method.invoke(null);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        fail();
+                    }
+                    return null;
+                }).map(GameState.class::cast);
     }
 
     public static Stream<Object[]> provideCartesianProduct() {

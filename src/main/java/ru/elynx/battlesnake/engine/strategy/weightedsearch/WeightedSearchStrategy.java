@@ -12,9 +12,10 @@ import ru.elynx.battlesnake.engine.predictor.IPredictorInformant;
 import ru.elynx.battlesnake.engine.predictor.SnakeMovePredictor;
 import ru.elynx.battlesnake.engine.strategy.Common;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
+import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
-public class WeightedSearchStrategy implements IGameStrategy, IPredictorInformant {
+public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
     private static final double MIN_FOOD_WEIGHT = 0.1d;
@@ -33,11 +34,8 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
 
-    private WeightedSearchStrategy() {
-    }
-
-    private void applyFood(GameState gameState) {
-        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - gameState.getYou().getHealth(),
+    private void applyFood(Snake snake, GameState gameState) {
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - snake.getHealth(),
                 HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
 
         if (foodWeight <= 0.0d)
@@ -48,7 +46,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         }
     }
 
-    private void applySnakes(GameState gameState) {
+    private void applySnakes(Snake snake, GameState gameState) {
         // mark body as impassable
         // apply early for predictor
         Common.forAllSnakeBodies(gameState, coordinates -> {
@@ -58,23 +56,23 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
 
         List<Pair<Coordinates, Double>> blockedByNotWalkable = new LinkedList<>();
 
-        String ownId = gameState.getYou().getId();
-        Coordinates ownHead = gameState.getYou().getHead();
-        int ownSize = gameState.getYou().getLength();
+        String ownId = snake.getId();
+        Coordinates ownHead = snake.getHead();
+        int ownSize = snake.getLength();
 
-        for (Snake snake : gameState.getBoard().getSnakes()) {
-            String id = snake.getId();
+        for (Snake someSnake : gameState.getBoard().getSnakes()) {
+            String id = someSnake.getId();
 
             // manage head
             if (!id.equals(ownId)) {
-                Coordinates head = snake.getHead();
-                int size = snake.getLength();
+                Coordinates head = someSnake.getHead();
+                int size = someSnake.getLength();
 
                 double baseWeight;
                 boolean edible;
 
                 if (size < ownSize) {
-                    baseWeight = snake.isTimedOut() ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
+                    baseWeight = someSnake.isTimedOut() ? TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT : LESSER_SNAKE_HEAD_WEIGHT;
                     edible = true;
                 } else {
                     baseWeight = INEDIBLE_SNAKE_HEAD_WEIGHT;
@@ -87,7 +85,7 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
                         // spread hunt/danger weights
-                        List<Pair<Coordinates, Double>> predictions = snakeMovePredictor.predict(snake, gameState);
+                        List<Pair<Coordinates, Double>> predictions = snakeMovePredictor.predict(someSnake, gameState);
 
                         predictions.forEach(prediction -> {
                             Coordinates pc = prediction.getValue0();
@@ -143,12 +141,12 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
         return Util.scale(0.95, distanceInSteps, distanceInStepsFromCorner, 1.0d);
     }
 
-    private void applyGameState(GameState gameState) {
+    private void applyGameState(Snake snake, GameState gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
 
-        applyFood(gameState);
-        applySnakes(gameState);
+        applyFood(snake, gameState);
+        applySnakes(snake, gameState);
         applyHazards(gameState);
     }
 
@@ -232,9 +230,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
                 .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 
-    public Optional<MoveCommand> bestMove(GameState gameState) {
-        Collection<CoordinatesWithDirection> ranked = gameState.getYou().getAdvancingMoves();
-        int length = gameState.getYou().getLength();
+    private Optional<MoveCommand> bestMove(Snake snake) {
+        Collection<CoordinatesWithDirection> ranked = snake.getAdvancingMoves();
+        int length = snake.getLength();
         return rank(ranked, length);
     }
 
@@ -253,9 +251,9 @@ public class WeightedSearchStrategy implements IGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Optional<MoveCommand> processMove(GameState gameState) {
-        applyGameState(gameState);
-        return bestMove(gameState);
+    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+        applyGameState(snake, gameState);
+        return bestMove(snake);
     }
 
     @Override

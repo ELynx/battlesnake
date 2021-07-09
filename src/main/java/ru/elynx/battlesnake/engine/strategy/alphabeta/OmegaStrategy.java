@@ -32,11 +32,6 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Optional<MoveCommand> processMove(GameState gameState) {
-        return processMove(gameState.getYou(), gameState);
-    }
-
-    @Override
     public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
         return bestMoveForSnake(snake, gameState);
