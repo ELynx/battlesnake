@@ -15,7 +15,6 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.entity.*;
 
 public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInformant {
-    int lastSeenTurn;
     private FlagMatrix occupiedPositions;
     private SnakeMovePredictor snakeMovePredictor;
 
@@ -26,7 +25,6 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
 
     @Override
     public void init(GameState gameState) {
-        lastSeenTurn = -1;
         occupiedPositions = FlagMatrix.uninitializedMatrix(gameState.getBoard().getDimensions(), true);
         snakeMovePredictor = new SnakeMovePredictor(this);
     }
@@ -38,11 +36,8 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     private void setupPredictorInformant(GameState gameState) {
-        if (lastSeenTurn != gameState.getTurn()) {
-            occupiedPositions.unsetAll();
-            Common.forAllSnakeBodies(gameState, occupiedPositions::set);
-            lastSeenTurn = gameState.getTurn();
-        }
+        occupiedPositions.unsetAll();
+        Common.forAllSnakeBodies(gameState, occupiedPositions::set);
     }
 
     private Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
