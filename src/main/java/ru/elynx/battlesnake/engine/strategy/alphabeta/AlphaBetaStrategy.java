@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
@@ -39,7 +40,10 @@ public class AlphaBetaStrategy implements IGameStrategy {
     public Optional<MoveCommand> processMove(GameState state0) {
         Stream<MoveCommand> moves = sensibleYouMoves(state0);
         Stream<Pair<MoveCommand, Integer>> scoredMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 1)));
-        return scoredMoves.max(Comparator.comparingInt(Pair::getValue1)).map(Pair::getValue0);
+        Stream<Triplet<MoveCommand, Integer, Integer>> nudgedMoves = scoredMoves
+                .map(x -> new Triplet<>(x.getValue0(), x.getValue1(), nudge(x.getValue0(), state0)));
+        return nudgedMoves.max(Comparator.<Triplet<MoveCommand, Integer, Integer>>comparingInt(Triplet::getValue1)
+                .thenComparingInt(Triplet::getValue2)).map(Triplet::getValue0);
     }
 
     private Stream<MoveCommand> sensibleYouMoves(GameState gameState) {
@@ -76,6 +80,25 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
             return polySnakeGameStrategy.processMove(snake, gameState).orElse(UP);
         };
+    }
+
+    private int nudge(MoveCommand moveCommand, GameState gameState) {
+        Coordinates center = gameState.getBoard().getDimensions().center();
+        Coordinates head = gameState.getYou().getHead();
+
+        if (head.getY() < center.getY()) {
+            if (head.getX() < center.getX()) {
+                return moveCommand == UP ? 1 : 0;
+            } else {
+                return moveCommand == LEFT ? 1 : 0;
+            }
+        } else {
+            if (head.getX() < center.getX()) {
+                return moveCommand == RIGHT ? 1 : 0;
+            } else {
+                return moveCommand == DOWN ? 1 : 0;
+            }
+        }
     }
 
     @Configuration
