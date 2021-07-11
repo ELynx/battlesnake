@@ -116,10 +116,6 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
         for (Pair<Coordinates, Double> blocked : blockedByNotWalkable) {
             Coordinates bc = blocked.getValue0();
-            double bv = blocked.getValue1();
-            double bw = SNAKE_BODY_WEIGHT * bv;
-
-            weightMatrix.addValue(bc, bw);
             freeSpaceMatrix.setOccupied(bc);
         }
     }
@@ -230,6 +226,12 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 .map(CoordinatesWithDirection::getDirection).findFirst();
     }
 
+    Optional<MoveCommand> backupMove(Snake snake) {
+        return snake.getAdvancingMoves().stream().filter(x -> !weightMatrix.getDimensions().isOutOfBounds(x))
+                .max(Comparator.comparingDouble(x -> weightMatrix.getValue(x)))
+                .map(CoordinatesWithDirection::getDirection);
+    }
+
     private Optional<MoveCommand> bestMove(Snake snake) {
         Collection<CoordinatesWithDirection> ranked = snake.getAdvancingMoves();
         int length = snake.getLength();
@@ -253,7 +255,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     @Override
     public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
-        return bestMove(snake);
+        return bestMove(snake).or(() -> backupMove(snake));
     }
 
     @Override
