@@ -23,6 +23,7 @@ public interface GameStateMapper {
     GameState toEntity(GameStateDto dto);
 
     @Mapping(target = "withHealth", ignore = true)
+    @Mapping(target = "advancingMoves", ignore = true)
     Snake toEntity(SnakeDto dto);
 
     @Mapping(target = "move", ignore = true)
