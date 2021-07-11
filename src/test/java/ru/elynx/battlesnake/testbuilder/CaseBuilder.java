@@ -517,4 +517,105 @@ public class CaseBuilder {
         return new GameState(gameState1.getGameId(), gameState1.getTurn(), gameState1.getRules(), boardWithMeta,
                 gameState1.getYou());
     }
+
+    public static GameState eat_food_immediately() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_____rrrrr_\n" + //
+                "__y______R_\n" + //
+                "__>>v_Skkk_\n" + //
+                "__0Y<_s__K_\n" + //
+                "______s____\n" + //
+                "_____ss____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setRulesetName(ApiExampleBuilder.royaleRulesetName());
+
+        generator.setTurn(18);
+        generator.setHealth("K", 84);
+        generator.setHealth("R", 99);
+        generator.setHealth("S", 94);
+        generator.setHealth("Y", 93);
+        generator.setLatency("K", 144);
+        generator.setLatency("R", 93);
+        generator.setLatency("S", 4);
+        generator.setLatency("Y", 79);
+
+        return generator.build();
+    }
+
+    public static GameState eat_food_and_conquer_in_two_turns() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_s_________\n" + //
+                "_ss_r______\n" + //
+                "__ssr______\n" + //
+                "_0_Sr______\n" + //
+                "____rrR___0\n" + //
+                "_Y_____K___\n" + //
+                "_y_____k___\n" + //
+                "_y_____k___\n" + //
+                "_^vy___k___\n" + //
+                "_^<____k___\n").setHazards("" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n");
+
+        generator.setTurn(39);
+        generator.setHealth("K", 84);
+        generator.setHealth("R", 78);
+        generator.setHealth("S", 94);
+        generator.setHealth("Y", 96);
+        generator.setLatency("K", 122);
+        generator.setLatency("R", 90);
+        generator.setLatency("S", 4);
+        generator.setLatency("Y", 78);
+
+        return generator.build();
+    }
+
+    public static GameState attempt_on_enemy_life() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "____v<_____\n" + //
+                "__S<v^<____\n" + //
+                "0_>^>v_____\n" + //
+                "__s__r_____\n" + //
+                "0_ss_R_____\n" + //
+                "_0_s__Y____\n" + //
+                "___syyy____\n" + //
+                "___sy______\n" + //
+                "___sy_y____\n" + //
+                "____yyy____\n").setHazards("" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n");
+
+        generator.setTurn(96);
+        generator.setHealth("R", 47);
+        generator.setHealth("S", 72);
+        generator.setHealth("Y", 76);
+        generator.setLatency("R", 92);
+        generator.setLatency("S", 5);
+        generator.setLatency("Y", 77);
+
+        return generator.build();
+    }
 }
