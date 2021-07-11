@@ -7,13 +7,16 @@ import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Optional;
+import java.util.function.BiFunction;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.elynx.battlesnake.engine.advancer.GameStateAdvancer;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
+import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
 @SpringBootTest
@@ -253,5 +256,60 @@ class GameStrategyCaseTest {
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), equalTo(DOWN)).failing("Ahaetulla").failing("Voxel").failing("Unkindness")
                 .validate(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_eat_food_immediately(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.eat_food_immediately();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).validate(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_eat_food_and_conquer_in_two_turns(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState0 = CaseBuilder.eat_food_and_conquer_in_two_turns();
+        gameStrategy.init(gameState0);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState0);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
+
+        BiFunction<Snake, GameState, MoveCommand> whoDidWhat = (Snake snake, GameState gameState) -> {
+            switch (snake.getId()) {
+                case "S" :
+                    return LEFT;
+                case "R" :
+                case "K" :
+                    return RIGHT;
+                case "Y" :
+                    return UP;
+                default :
+                    throw new IllegalArgumentException("Snake [" + snake.getId() + "] did not participate");
+            }
+        };
+
+        GameState gameState1 = GameStateAdvancer.advance(gameState0, whoDidWhat);
+
+        move = gameStrategy.processMove(gameState1);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_attempt_on_enemy_life(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.attempt_on_enemy_life();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
     }
 }
