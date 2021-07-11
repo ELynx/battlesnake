@@ -310,6 +310,6 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(RIGHT))).validate(name);
     }
 }
