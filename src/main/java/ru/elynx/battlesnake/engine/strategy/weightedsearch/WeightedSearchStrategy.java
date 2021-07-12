@@ -162,6 +162,10 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return Math.min(length + 1, freeSpaceMatrix.getFreeSpace(coordinates));
     }
 
+    private double getImmediateWeight(Coordinates coordinates) {
+        return weightMatrix.getValue(coordinates);
+    }
+
     private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
         for (Coordinates neighbour : coordinates.sideNeighbours()) {
@@ -231,11 +235,10 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         // sort by weight of following actions
         // sort by weight of opportunities
         // sort by reversed comparator, since bigger weight means better solution
-        return toRank.stream().filter(this::isWalkable).sorted(Comparator
+        return toRank.stream().filter(this::isWalkable).max(Comparator
                 .comparingInt((CoordinatesWithDirection coordinates) -> getBoundedFreeSpace(length, coordinates))
-                .thenComparingDouble(coordinates -> weightMatrix.getValue(coordinates))
-                .thenComparingDouble(this::getCrossWeight).thenComparingDouble(this::getOpportunitiesWeight).reversed())
-                .map(CoordinatesWithDirection::getDirection).findFirst();
+                .thenComparingDouble(this::getImmediateWeight).thenComparingDouble(this::getCrossWeight)
+                .thenComparingDouble(this::getOpportunitiesWeight)).map(CoordinatesWithDirection::getDirection);
     }
 
     Optional<MoveCommand> backupMove(Snake snake) {
