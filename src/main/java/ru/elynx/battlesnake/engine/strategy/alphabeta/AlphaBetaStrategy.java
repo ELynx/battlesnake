@@ -17,7 +17,7 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrategy;
 import ru.elynx.battlesnake.entity.*;
 
-public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
+public class AlphaBetaStrategy implements IGameStrategy {
     private final IPolySnakeGameStrategy polySnakeGameStrategy;
     private final int maxAdvanceDepth;
 
@@ -37,7 +37,9 @@ public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+    public Optional<MoveCommand> processMove(GameState gameState) {
+        Snake snake = gameState.getYou();
+
         Stream<MoveCommand> moves = sensibleMoves(snake, gameState);
 
         Stream<Pair<MoveCommand, Integer>> alphaBetaMoves = moves
