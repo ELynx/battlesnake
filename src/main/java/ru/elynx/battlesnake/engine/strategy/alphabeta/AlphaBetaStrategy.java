@@ -39,10 +39,15 @@ public class AlphaBetaStrategy implements IGameStrategy {
     @Override
     public Optional<MoveCommand> processMove(GameState state0) {
         Stream<MoveCommand> moves = sensibleYouMoves(state0);
-        Stream<Pair<MoveCommand, Integer>> scoredMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 1)));
-        Stream<Triplet<MoveCommand, Integer, Integer>> nudgedMoves = scoredMoves
-                .map(x -> new Triplet<>(x.getValue0(), x.getValue1(), nudge(x.getValue0(), state0)));
-        return nudgedMoves.max(Comparator.<Triplet<MoveCommand, Integer, Integer>>comparingInt(Triplet::getValue1)
+
+        Stream<Pair<MoveCommand, Integer>> alphaBetaMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 1)));
+
+        Optional<MoveCommand> tieResolveMove = polySnakeGameStrategy.processMove(state0);
+        Stream<Triplet<MoveCommand, Integer, Integer>> scoredMoves = alphaBetaMoves
+                .map(x -> new Triplet<>(x.getValue0(), x.getValue1(),
+                        tieResolveMove.map(y -> y.equals(x.getValue0()) ? 1 : 0).orElse(0)));
+
+        return scoredMoves.max(Comparator.<Triplet<MoveCommand, Integer, Integer>>comparingInt(Triplet::getValue1)
                 .thenComparingInt(Triplet::getValue2)).map(Triplet::getValue0);
     }
 
@@ -80,25 +85,6 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
             return polySnakeGameStrategy.processMove(snake, gameState).orElse(UP);
         };
-    }
-
-    private int nudge(MoveCommand moveCommand, GameState gameState) {
-        Coordinates center = gameState.getBoard().getDimensions().center();
-        Coordinates head = gameState.getYou().getHead();
-
-        if (head.getY() < center.getY()) {
-            if (head.getX() < center.getX()) {
-                return moveCommand == UP ? 1 : 0;
-            } else {
-                return moveCommand == LEFT ? 1 : 0;
-            }
-        } else {
-            if (head.getX() < center.getX()) {
-                return moveCommand == RIGHT ? 1 : 0;
-            } else {
-                return moveCommand == DOWN ? 1 : 0;
-            }
-        }
     }
 
     @Configuration
