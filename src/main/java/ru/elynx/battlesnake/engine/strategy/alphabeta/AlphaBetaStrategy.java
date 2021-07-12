@@ -57,11 +57,11 @@ public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
                 .map(CoordinatesWithDirection::getDirection);
     }
 
-    private int forMoveCommand(int depth, MoveCommand moveCommand, Snake snake, GameState step0) {
-        var stepFunction = makeStepFunction(moveCommand, snake);
-        GameState step1 = GameStateAdvancer.advance(step0, stepFunction, snake);
+    private int forMoveCommand(int depth, MoveCommand moveCommand, Snake snake0, GameState step0) {
+        var stepFunction = makeStepFunction(moveCommand, snake0);
+        GameState step1 = GameStateAdvancer.advance(step0, stepFunction, snake0);
 
-        var step1Score = GameStateScoreMaker.makeScore(snake, step0, step1);
+        var step1Score = GameStateScoreMaker.makeScore(snake0, step0, step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
             return (maxAdvanceDepth - depth + 1) * step1Score.getValue1();
@@ -71,8 +71,15 @@ public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
             return step1Score.getValue1();
         }
 
-        int step2ScoreMax = sensibleMoves(snake, step1).mapToInt(x -> forMoveCommand(depth + 1, x, snake, step1)).max()
-                .orElse(Integer.MIN_VALUE);
+        Optional<Snake> snake1 = step1.getBoard().getSnakes().stream().filter(x -> x.getId().equals(snake0.getId()))
+                .findAny();
+
+        if (snake1.isEmpty()) {
+            return step1Score.getValue1() + Integer.MIN_VALUE;
+        }
+
+        int step2ScoreMax = sensibleMoves(snake1.get(), step1)
+                .mapToInt(x -> forMoveCommand(depth + 1, x, snake1.get(), step1)).max().orElse(Integer.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }

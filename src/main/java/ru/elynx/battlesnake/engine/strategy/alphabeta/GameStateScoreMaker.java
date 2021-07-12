@@ -10,10 +10,6 @@ public class GameStateScoreMaker {
     private static final Boolean TERMINATE = Boolean.TRUE;
     private static final Boolean CONTINUE = Boolean.FALSE;
 
-    public static Pair<Boolean, Integer> makeYouScore(GameState state0, GameState state1) {
-        return makeScore(state0.getYou(), state0, state1);
-    }
-
     public static Pair<Boolean, Integer> makeScore(Snake snake, GameState state0, GameState state1) {
         int scoreLimit = calculateScoreLimit(state0);
 
