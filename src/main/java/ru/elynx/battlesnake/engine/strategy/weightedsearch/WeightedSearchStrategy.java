@@ -37,11 +37,24 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         int healthGainedFromFood = Snake.getMaxHealth() - snake.getHealth();
         double foodWeight = Util.scale(MIN_FOOD_WEIGHT, healthGainedFromFood, Snake.getMaxHealth(), MAX_FOOD_WEIGHT);
 
-        if (foodWeight <= 0.0d)
-            return;
+        List<Coordinates> hazards = gameState.getBoard().getHazards();
+        boolean headInHazard = hazards.contains(snake.getHead());
 
-        for (Coordinates food : gameState.getBoard().getFood()) {
-            weightMatrix.splash2ndOrder(food, foodWeight);
+        List<Coordinates> foods = gameState.getBoard().getFood();
+
+        if (headInHazard) {
+            for (Coordinates food : foods) {
+                weightMatrix.splash2ndOrder(food, foodWeight);
+            }
+        } else {
+            // if not in hazard, do not smell from hazard
+            for (Coordinates food : foods) {
+                if (hazards.contains(food)) {
+                    weightMatrix.addValue(food, foodWeight);
+                } else {
+                    weightMatrix.splash2ndOrder(food, foodWeight);
+                }
+            }
         }
     }
 
