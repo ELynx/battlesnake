@@ -18,7 +18,7 @@ import ru.elynx.battlesnake.entity.*;
 public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredictorInformant {
     private static final double WALL_WEIGHT = 0.0d;
 
-    private static final double MIN_FOOD_WEIGHT = 0.1d;
+    private static final double MIN_FOOD_WEIGHT = 0.2d;
     private static final double MAX_FOOD_WEIGHT = 1.0d;
 
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
