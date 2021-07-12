@@ -18,12 +18,12 @@ import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrateg
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
-    private static final int MAX_DEPTH_FOR_ADVANCE = 5;
+    private final IPolySnakeGameStrategy polySnakeGameStrategy;
+    private final int maxAdvanceDepth;
 
-    IPolySnakeGameStrategy polySnakeGameStrategy;
-
-    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy) {
+    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy, int maxAdvanceDepth) {
         this.polySnakeGameStrategy = polySnakeGameStrategy;
+        this.maxAdvanceDepth = maxAdvanceDepth;
     }
 
     @Override
@@ -64,10 +64,10 @@ public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
         var step1Score = GameStateScoreMaker.makeScore(snake, step0, step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
-            return (MAX_DEPTH_FOR_ADVANCE - depth + 1) * step1Score.getValue1();
+            return (maxAdvanceDepth - depth + 1) * step1Score.getValue1();
         }
 
-        if (depth >= MAX_DEPTH_FOR_ADVANCE) {
+        if (depth >= maxAdvanceDepth) {
             return step1Score.getValue1();
         }
 
@@ -91,7 +91,7 @@ public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta0() {
-            return () -> new AlphaBetaStrategy(new WeightedSearchStrategy());
+            return () -> new AlphaBetaStrategy(new WeightedSearchStrategy(), 5);
         }
     }
 }
