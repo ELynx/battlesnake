@@ -105,11 +105,6 @@ public class AlphaBetaStrategy implements IGameStrategy {
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta0() {
-            return () -> new AlphaBetaStrategy(new OmegaStrategy());
-        }
-
-        @Bean("Unkindness")
-        public Supplier<IGameStrategy> alphaBeta1() {
             return () -> new AlphaBetaStrategy(new WeightedSearchStrategy());
         }
     }
