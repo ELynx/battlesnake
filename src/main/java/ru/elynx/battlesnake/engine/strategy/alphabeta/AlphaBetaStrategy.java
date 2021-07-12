@@ -17,7 +17,7 @@ import ru.elynx.battlesnake.engine.strategy.IPolySnakeGameStrategy;
 import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrategy;
 import ru.elynx.battlesnake.entity.*;
 
-public class AlphaBetaStrategy implements IGameStrategy {
+public class AlphaBetaStrategy implements IPolySnakeGameStrategy {
     private static final int MAX_DEPTH_FOR_ADVANCE = 5;
 
     IPolySnakeGameStrategy polySnakeGameStrategy;
@@ -37,12 +37,13 @@ public class AlphaBetaStrategy implements IGameStrategy {
     }
 
     @Override
-    public Optional<MoveCommand> processMove(GameState state0) {
-        Stream<MoveCommand> moves = sensibleYouMoves(state0);
+    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+        Stream<MoveCommand> moves = sensibleMoves(snake, gameState);
 
-        Stream<Pair<MoveCommand, Integer>> alphaBetaMoves = moves.map(x -> new Pair<>(x, forMoveCommand(state0, x, 1)));
+        Stream<Pair<MoveCommand, Integer>> alphaBetaMoves = moves
+                .map(x -> new Pair<>(x, forMoveCommand(1, x, snake, gameState)));
 
-        Optional<MoveCommand> tieResolveMove = polySnakeGameStrategy.processMove(state0);
+        Optional<MoveCommand> tieResolveMove = polySnakeGameStrategy.processMove(snake, gameState);
         Stream<Triplet<MoveCommand, Integer, Integer>> scoredMoves = alphaBetaMoves
                 .map(x -> new Triplet<>(x.getValue0(), x.getValue1(),
                         tieResolveMove.map(y -> y.equals(x.getValue0()) ? 1 : 0).orElse(0)));
@@ -51,17 +52,16 @@ public class AlphaBetaStrategy implements IGameStrategy {
                 .thenComparingInt(Triplet::getValue2)).map(Triplet::getValue0);
     }
 
-    private Stream<MoveCommand> sensibleYouMoves(GameState gameState) {
-        return gameState.getYou().getAdvancingMoves().stream()
-                .filter(x -> !gameState.getBoard().getDimensions().isOutOfBounds(x))
+    private Stream<MoveCommand> sensibleMoves(Snake snake, GameState gameState) {
+        return snake.getAdvancingMoves().stream().filter(x -> !gameState.getBoard().getDimensions().isOutOfBounds(x))
                 .map(CoordinatesWithDirection::getDirection);
     }
 
-    private int forMoveCommand(GameState step0, MoveCommand moveCommand, int depth) {
-        var stepFunction = makeStepFunction(moveCommand);
-        GameState step1 = GameStateAdvancer.advance(step0, stepFunction);
+    private int forMoveCommand(int depth, MoveCommand moveCommand, Snake snake, GameState step0) {
+        var stepFunction = makeStepFunction(moveCommand, snake);
+        GameState step1 = GameStateAdvancer.advance(step0, stepFunction, snake);
 
-        var step1Score = GameStateScoreMaker.makeYouScore(step0, step1);
+        var step1Score = GameStateScoreMaker.makeScore(snake, step0, step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
             return (MAX_DEPTH_FOR_ADVANCE - depth + 1) * step1Score.getValue1();
@@ -71,19 +71,19 @@ public class AlphaBetaStrategy implements IGameStrategy {
             return step1Score.getValue1();
         }
 
-        int step2ScoreMax = sensibleYouMoves(step1).mapToInt(x -> forMoveCommand(step1, x, depth + 1)).max()
+        int step2ScoreMax = sensibleMoves(snake, step1).mapToInt(x -> forMoveCommand(depth + 1, x, snake, step1)).max()
                 .orElse(Integer.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }
 
-    private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand) {
-        return (Snake snake, GameState gameState) -> {
-            if (gameState.getYou().getId().equals(snake.getId())) {
+    private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand, Snake snake) {
+        return (Snake someSnake, GameState gameState) -> {
+            if (someSnake.getId().equals(snake.getId())) {
                 return moveCommand;
             }
 
-            return polySnakeGameStrategy.processMove(snake, gameState).orElse(UP);
+            return polySnakeGameStrategy.processMove(someSnake, gameState).orElse(UP);
         };
     }
 

@@ -9,10 +9,14 @@ import ru.elynx.battlesnake.entity.*;
 @UtilityClass
 public class GameStateAdvancer {
     public GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
+        return advance(gameState, moveDecider, gameState.getYou());
+    }
+
+    public GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider, Snake you) {
         int turn = makeTurn(gameState);
         List<Snake> snakes = makeSnakes(gameState, moveDecider);
 
-        return assemble(gameState, turn, snakes);
+        return assemble(gameState, turn, snakes, you);
     }
 
     private int makeTurn(GameState gameState) {
@@ -86,7 +90,7 @@ public class GameStateAdvancer {
         return body;
     }
 
-    private GameState assemble(GameState gameState, int turn, List<Snake> snakes) {
+    private GameState assemble(GameState gameState, int turn, List<Snake> snakes, Snake you) {
         // at this point `snakes` have all of heads moved
         List<Coordinates> food = findRemainingFood(gameState.getBoard().getFood(), snakes);
         snakes = eliminateSnakesByCollision(snakes);
@@ -97,8 +101,8 @@ public class GameStateAdvancer {
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
 
-        Snake you = findYouSnake(gameState, snakes);
-        return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, you);
+        Snake nextYou = findYouSnake(you, snakes);
+        return new GameState(gameState.getGameId(), turn, gameState.getRules(), board, nextYou);
     }
 
     private List<Coordinates> findRemainingFood(List<Coordinates> foodBefore, List<Snake> snakes) {
@@ -192,10 +196,9 @@ public class GameStateAdvancer {
         return snake.getHealth();
     }
 
-    private Snake findYouSnake(GameState gameState, List<Snake> snakes) {
+    private Snake findYouSnake(Snake target, List<Snake> snakes) {
         // this is what API actually does
         // losing end `game state` has `you` defined, but absent from `board.snakes`
-        return snakes.stream().filter(someSnake -> someSnake.getId().equals(gameState.getYou().getId())).findAny()
-                .orElse(gameState.getYou());
+        return snakes.stream().filter(someSnake -> someSnake.getId().equals(target.getId())).findAny().orElse(target);
     }
 }

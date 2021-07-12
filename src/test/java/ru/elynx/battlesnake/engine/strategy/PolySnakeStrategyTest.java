@@ -27,7 +27,7 @@ class PolySnakeStrategyTest {
     IGameStrategyFactory gameStrategyFactory;
 
     public static Stream<String> providePolyStrategyNames() {
-        return Stream.of("Ahaetulla", "Pixel");
+        return Stream.of("Ahaetulla", "Pixel", "Voxel");
     }
 
     public static Stream<GameState> provideGameStates() {
