@@ -20,7 +20,6 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     private static final double MIN_FOOD_WEIGHT = 0.1d;
     private static final double MAX_FOOD_WEIGHT = 1.0d;
-    private static final double HUNGER_HEALTH_THRESHOLD = 100.0d;
 
     private static final double LESSER_SNAKE_HEAD_WEIGHT = 0.75d;
     private static final double TIMED_OUT_LESSER_SNAKE_HEAD_WEIGHT = 0.0d;
@@ -35,8 +34,8 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private SnakeMovePredictor snakeMovePredictor;
 
     private void applyFood(Snake snake, GameState gameState) {
-        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, HUNGER_HEALTH_THRESHOLD - snake.getHealth(),
-                HUNGER_HEALTH_THRESHOLD, MAX_FOOD_WEIGHT);
+        int healthGainedFromFood = Snake.getMaxHealth() - snake.getHealth();
+        double foodWeight = Util.scale(MIN_FOOD_WEIGHT, healthGainedFromFood, Snake.getMaxHealth(), MAX_FOOD_WEIGHT);
 
         if (foodWeight <= 0.0d)
             return;
