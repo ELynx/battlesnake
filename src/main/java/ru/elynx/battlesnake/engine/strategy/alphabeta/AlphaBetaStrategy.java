@@ -2,8 +2,6 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -74,19 +72,17 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Data
     private static class GameStateIteration {
-        private final Reference<GameStateIteration> parent;
-
         private final int depth;
         private final MoveCommand moveCommand;
         private final Snake snake;
         private final GameState gameState;
 
         public static GameStateIteration rootIteration(MoveCommand moveCommand, Snake snake, GameState gameState) {
-            return new GameStateIteration(new WeakReference<>(null), 1, moveCommand, snake, gameState);
+            return new GameStateIteration(1, moveCommand, snake, gameState);
         }
 
         public GameStateIteration nextIteration(MoveCommand moveCommand, Snake snake, GameState gameState) {
-            return new GameStateIteration(new WeakReference<>(this), depth + 1, moveCommand, snake, gameState);
+            return new GameStateIteration(depth + 1, moveCommand, snake, gameState);
         }
     }
 
@@ -105,16 +101,18 @@ public class AlphaBetaStrategy implements IGameStrategy {
             return step1Score.getValue1();
         }
 
-        Optional<Snake> snake1 = step1.getBoard().getSnakes().stream()
+        Optional<Snake> snake1Optional = step1.getBoard().getSnakes().stream()
                 .filter(x -> x.getId().equals(iteration.getSnake().getId())).findAny();
 
-        if (snake1.isEmpty()) {
+        if (snake1Optional.isEmpty()) {
             return step1Score.getValue1() + Integer.MIN_VALUE;
         }
 
-        int step2ScoreMax = sensibleMoves(snake1.get(), step1)
-                .mapToInt(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1.get(), step1)))
-                .max().orElse(Integer.MIN_VALUE);
+        Snake snake1 = snake1Optional.get();
+
+        int step2ScoreMax = sensibleMoves(snake1, step1)
+                .mapToInt(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1, step1))).max()
+                .orElse(Integer.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }
