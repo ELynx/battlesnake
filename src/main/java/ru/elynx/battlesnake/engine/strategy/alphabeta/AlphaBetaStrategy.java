@@ -71,7 +71,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
     private int forMoveCommand(int depth0, MoveCommand moveCommand0, Snake snake0, GameState step0) {
         var stepFunction0 = makeStepFunction(moveCommand0, snake0);
 
-        GameState step1 = GameStateAdvancer.advance(step0, stepFunction0, snake0);
+        GameState step1 = GameStateAdvancer.advance(stepFunction0, snake0, step0);
 
         var step1Score = GameStateScoreMaker.makeScore(snake0, step0, step1);
 

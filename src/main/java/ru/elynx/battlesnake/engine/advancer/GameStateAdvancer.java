@@ -8,13 +8,14 @@ import ru.elynx.battlesnake.entity.*;
 
 @UtilityClass
 public class GameStateAdvancer {
-    public GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
-        return advance(gameState, moveDecider, gameState.getYou());
+    public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, GameState gameState) {
+        return advance(moveDecisionMaker, gameState.getYou(), gameState);
     }
 
-    public GameState advance(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider, Snake you) {
+    public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, Snake you,
+            GameState gameState) {
         int turn = makeTurn(gameState);
-        List<Snake> snakes = makeSnakes(gameState, moveDecider);
+        List<Snake> snakes = makeSnakes(gameState, moveDecisionMaker);
 
         return assemble(gameState, turn, snakes, you);
     }
@@ -23,11 +24,11 @@ public class GameStateAdvancer {
         return gameState.getTurn() + 1;
     }
 
-    private List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecider) {
+    private List<Snake> makeSnakes(GameState gameState, BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker) {
         List<Snake> snakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
         for (Snake current : gameState.getBoard().getSnakes()) {
-            MoveCommand moveCommand = moveDecider.apply(current, gameState);
+            MoveCommand moveCommand = moveDecisionMaker.apply(current, gameState);
             Snake future = makeSnake(gameState, current, moveCommand);
             if (future != null) {
                 snakes.add(future);

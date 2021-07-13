@@ -23,7 +23,7 @@ class GameStateAdvancerTest {
     @Test
     void test_constants() {
         GameState from = EntityBuilder.gameState();
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(from.getGameId(), to.getGameId());
         assertEquals(from.getRules(), to.getRules());
@@ -32,7 +32,7 @@ class GameStateAdvancerTest {
     @Test
     void test_turn_increment() {
         GameState from = EntityBuilder.gameState();
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(from.getTurn() + 1, to.getTurn());
     }
@@ -40,7 +40,7 @@ class GameStateAdvancerTest {
     @Test
     void test_consistency() {
         GameState from = EntityBuilder.gameState();
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         Function<Snake, Void> testSnake = (Snake snake) -> {
             assertEquals(snake.getHead(), snake.getBody().get(0));
@@ -66,7 +66,7 @@ class GameStateAdvancerTest {
                 "_yY\n" + //
                 "___\n").setHealth("Y", 24).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(expected.getBoard(), to.getBoard());
     }
@@ -83,7 +83,7 @@ class GameStateAdvancerTest {
                 "_yY\n" + //
                 "0__\n").setHealth("Y", 24).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(expected.getBoard(), to.getBoard());
     }
@@ -91,7 +91,7 @@ class GameStateAdvancerTest {
     @Test
     void test_snake_health_decrease() {
         GameState from = EntityBuilder.gameState();
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(from.getYou().getHealth() - 1, to.getYou().getHealth());
     }
@@ -113,10 +113,10 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_yY\n").setTurn(3).setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState advance2 = GameStateAdvancer.advance(turn1, moveDown);
+        GameState advance2 = GameStateAdvancer.advance(moveDown, turn1);
 
-        GameState advance3fromAdvance2 = GameStateAdvancer.advance(advance2, moveRight);
-        GameState advance3fromTurn2 = GameStateAdvancer.advance(turn2, moveRight);
+        GameState advance3fromAdvance2 = GameStateAdvancer.advance(moveRight, advance2);
+        GameState advance3fromTurn2 = GameStateAdvancer.advance(moveRight, turn2);
 
         assertEquals(turn2, advance2);
         assertEquals(turn3, advance3fromAdvance2);
@@ -130,13 +130,13 @@ class GameStateAdvancerTest {
                 "_Y_\n" + //
                 "A0_\n").setStartSnakeLength(1).build();
 
-        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+        GameState to = GameStateAdvancer.advance((Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
                 return moveDown.apply(snake, gameState);
             } else {
                 return moveRight.apply(snake, gameState);
             }
-        });
+        }, from);
 
         assertEquals(0, to.getBoard().getFood().size());
         assertEquals(0, to.getBoard().getSnakes().size());
@@ -149,7 +149,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y_\n").setHealth("Y", 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -161,7 +161,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y0\n").setHealth("Y", 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(4, to.getBoard().getSnakes().get(0).getLength());
@@ -174,7 +174,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y_\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveDown);
+        GameState to = GameStateAdvancer.advance(moveDown, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -186,7 +186,7 @@ class GameStateAdvancerTest {
                 "_Y<\n" + //
                 ">>^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveDown);
+        GameState to = GameStateAdvancer.advance(moveDown, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -198,7 +198,7 @@ class GameStateAdvancerTest {
                 "_v<\n" + //
                 "_Y^\n").setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
     }
@@ -210,7 +210,7 @@ class GameStateAdvancerTest {
                 "Y__\n" + //
                 "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
     }
@@ -222,7 +222,7 @@ class GameStateAdvancerTest {
                 "yY_\n" + //
                 "___\n").setLength("Y", 3).setHealth("Y", Snake.getMaxHealth() - 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
     }
@@ -234,7 +234,7 @@ class GameStateAdvancerTest {
                 "yyY\n" + //
                 "___\n").setLength("Y", 4).setHealth("Y", Snake.getMaxHealth()).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveDown);
+        GameState to = GameStateAdvancer.advance(moveDown, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
     }
@@ -250,13 +250,13 @@ class GameStateAdvancerTest {
                 "_____AYa\n" + //
                 "_____aaa\n").setStartSnakeLength(1).build();
 
-        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+        GameState to = GameStateAdvancer.advance((Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
                 return moveDown.apply(snake, gameState);
             } else {
                 return moveRight.apply(snake, gameState);
             }
-        });
+        }, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -272,13 +272,13 @@ class GameStateAdvancerTest {
                 "___ffFY_\n" + //
                 "___aaA__\n").setStartSnakeLength(1).build();
 
-        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+        GameState to = GameStateAdvancer.advance((Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
                 return moveDown.apply(snake, gameState);
             } else {
                 return moveRight.apply(snake, gameState);
             }
-        });
+        }, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals("Y", to.getBoard().getSnakes().get(0).getId());
@@ -291,7 +291,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 40).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(3, to.getBoard().getSnakes().get(0).getLength());
@@ -305,7 +305,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 5).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -317,7 +317,7 @@ class GameStateAdvancerTest {
                 "_y_\n" + //
                 "_Y0\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 1).build();
 
-        GameState to = GameStateAdvancer.advance(from, moveRight);
+        GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(4, to.getBoard().getSnakes().get(0).getLength());
@@ -343,13 +343,13 @@ class GameStateAdvancerTest {
                         "________\n" + //
                         "HHHHHHHH\n").setStartSnakeLength(1).build();
 
-        GameState to = GameStateAdvancer.advance(from, (Snake snake, GameState gameState) -> {
+        GameState to = GameStateAdvancer.advance((Snake snake, GameState gameState) -> {
             if ("Y".equals(snake.getId())) {
                 return moveDown.apply(snake, gameState);
             } else {
                 return moveRight.apply(snake, gameState);
             }
-        });
+        }, from);
 
         assertEquals(0, to.getBoard().getSnakes().size());
     }
@@ -358,7 +358,7 @@ class GameStateAdvancerTest {
     void test_active_hazards() {
         GameState from = CaseBuilder.can_handle_meta_information();
 
-        GameState to = GameStateAdvancer.advance(from, moveDown);
+        GameState to = GameStateAdvancer.advance(moveDown, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(from.getYou().getHealth() - 1, to.getYou().getHealth());
@@ -367,15 +367,15 @@ class GameStateAdvancerTest {
     @Test
     void test_you_found_repeatedly() {
         GameState step0 = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
-        GameState step1 = GameStateAdvancer.advance(step0, moveUp);
+        GameState step1 = GameStateAdvancer.advance(moveUp, step0);
         assertFalse(step1.isYouEliminated());
-        GameState step2 = GameStateAdvancer.advance(step1, moveLeft);
+        GameState step2 = GameStateAdvancer.advance(moveLeft, step1);
         assertTrue(step2.isYouEliminated());
 
         step0 = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
-        step1 = GameStateAdvancer.advance(step0, moveUp);
+        step1 = GameStateAdvancer.advance(moveUp, step0);
         assertFalse(step1.isYouEliminated());
-        step2 = GameStateAdvancer.advance(step1, moveLeft);
+        step2 = GameStateAdvancer.advance(moveLeft, step1);
         assertFalse(step2.isYouEliminated());
     }
 }

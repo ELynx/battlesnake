@@ -290,7 +290,7 @@ class GameStrategyCaseTest {
             }
         };
 
-        GameState gameState1 = GameStateAdvancer.advance(gameState0, whoDidWhat);
+        GameState gameState1 = GameStateAdvancer.advance(whoDidWhat, gameState0);
 
         move = gameStrategy.processMove(gameState1);
         assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
