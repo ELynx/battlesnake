@@ -1,13 +1,15 @@
 package ru.elynx.battlesnake.testbuilder;
 
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import ru.elynx.battlesnake.entity.Board;
+import ru.elynx.battlesnake.entity.BoardWithActiveHazards;
+import ru.elynx.battlesnake.entity.GameState;
 
 public class CaseBuilder {
     private CaseBuilder() {
     }
 
-    public static HazardPredictor empty_space_better_than_snake() {
+    public static GameState empty_space_better_than_snake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___A_______\n" + //
                 "___aaa_yyy_\n" + //
@@ -24,7 +26,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor avoid_fruit_surrounded_by_snake() {
+    public static GameState avoid_fruit_surrounded_by_snake_2_hp() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -41,7 +43,24 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor avoid_fruit_in_corner_easy() {
+    public static GameState avoid_fruit_surrounded_by_snake_10_hp() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "yyyv<______\n" + //
+                "y0^<^______\n" + //
+                "yY__y______\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 10);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_fruit_in_corner_easy_2_health() {
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -59,7 +78,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor avoid_fruit_in_corner_hard() {
+    public static GameState avoid_fruit_in_corner_hard_2_health() {
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -72,12 +91,48 @@ public class CaseBuilder {
                 "___________\n" + //
                 "___________\n" + //
                 "_________yY\n" + //
-                "_________y0\n").setHealth("Y", 2);
+                "________yy0\n").setHealth("Y", 2);
 
         return generator.build();
     }
 
-    public static HazardPredictor dont_die_for_food() {
+    public static GameState avoid_fruit_in_corner_easy_10_health() {
+        // easy because there is no way out if entering fruit corner
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "____yyyyyy0\n").setHealth("Y", 10);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_fruit_in_corner_hard_10_health() {
+        // hard because it is necessary to predict that growth would close the exit
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________yY\n" + //
+                "________yy0\n").setHealth("Y", 10);
+
+        return generator.build();
+    }
+
+    public static GameState dont_die_for_food() {
         // head to head even with snake of same length is lose
         // health is left at max to avoid starvation rage
         // more of way to prevent greedy grab from under the train
@@ -93,7 +148,23 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor dont_die_for_food_and_hunt() {
+    public static GameState dont_die_for_food_flip() {
+        // head to head even with snake of same length is lose
+        // health is left at max to avoid starvation rage
+        // more of way to prevent greedy grab from under the train
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "a____\n" + //
+                "a____\n" + //
+                "A____\n" + //
+                "0____\n" + //
+                "Y____\n" + //
+                "y____\n" + //
+                "y____\n");
+
+        return generator.build();
+    }
+
+    public static GameState dont_die_for_food_and_hunt() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y____\n" + //
                 "____y____\n" + //
@@ -101,12 +172,25 @@ public class CaseBuilder {
                 "__bB0Cc__\n" + //
                 "____A____\n" + //
                 "____a____\n" + //
-                "____a____\n").setHealth("Y", 2);
+                "____a____\n");
 
         return generator.build();
     }
 
-    public static HazardPredictor dont_give_up() {
+    public static GameState dont_die_for_food_and_hunt_flip() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____a____\n" + //
+                "____a____\n" + //
+                "____A____\n" + //
+                "__cC0Bb__\n" + //
+                "____Y____\n" + //
+                "____y____\n" + //
+                "____y____\n");
+
+        return generator.build();
+    }
+
+    public static GameState dont_give_up() {
         // given no food spawns, tail will clear out the passage out in 5 turns
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____Y\n" + //
@@ -117,7 +201,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor eat_in_hazard() {
+    public static GameState eat_in_hazard() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "___A_____0_\n" + //
@@ -131,7 +215,6 @@ public class CaseBuilder {
                 "_____0__y_y\n" + //
                 "__0_____yyy\n");
 
-        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(122);
         generator.setHealth("A", 64);
         generator.setHealth("B", 52);
@@ -155,7 +238,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor sees_the_inevitable() {
+    public static GameState sees_the_inevitable() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -180,7 +263,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor does_not_go_into_hazard_lake() {
+    public static GameState does_not_go_into_hazard_lake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -194,7 +277,6 @@ public class CaseBuilder {
                 "_>>>>xX____\n" + //
                 "0______0___\n");
 
-        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(55);
         generator.setHealth("Y", 90);
         generator.setHealth("W", 99);
@@ -218,7 +300,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor sees_escape_route() {
+    public static GameState sees_escape_route() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -244,7 +326,7 @@ public class CaseBuilder {
     }
 
     // same as above but with added fantasy about other snake's options
-    public static HazardPredictor sees_escape_route_plus() {
+    public static GameState sees_escape_route_plus() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -269,7 +351,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor hazard_better_than_lose() {
+    public static GameState hazard_better_than_lose() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "__0____y___\n" + //
@@ -283,7 +365,6 @@ public class CaseBuilder {
                 "0___aaaa_a_\n" + //
                 "_______aaa_\n");
 
-        generator.setRulesetName(ApiExampleBuilder.royaleRulesetName());
         generator.setTurn(174);
         generator.setHealth("A", 89);
         generator.setHealth("Y", 97);
@@ -305,7 +386,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static HazardPredictor does_not_corner_self() {
+    public static GameState does_not_corner_self() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "________00_\n" + //
                 "________aa_\n" + //
@@ -326,6 +407,214 @@ public class CaseBuilder {
         generator.setLatency("A", 22);
         generator.setLatency("B", 85);
         generator.setLatency("Y", 87);
+
+        return generator.build();
+    }
+
+    public static GameState avoid_lock_1() {
+        // original configuration had ambiguity for B
+        // if B moved downwards, it would lock Y as well
+        // this depended on what choice `other` component would make
+        // current case is modified to cut off B from going down
+        // original B
+        // ___bb_bB___
+        // ____bbb____
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_________>v\n" + //
+                "_________^v\n" + //
+                "__________A\n" + //
+                "___bb__B___\n" + //
+                "____bbbb>>Y\n" + //
+                "________^<_\n");
+
+        return generator.build();
+    }
+
+    public static GameState avoid_lock_2() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "__________a\n" + //
+                "__________a\n" + //
+                "__________a\n" + //
+                "__Aaaaaaaaa\n" + //
+                "___________\n" + //
+                "Yyyy_______\n" + //
+                "___y_______\n" + //
+                "__yy_______\n" + //
+                "yyy________\n");
+
+        return generator.build();
+    }
+
+    public static GameState can_handle_meta_information() {
+        AsciiToGameState generator0 = new AsciiToGameState("" + //
+                "___________\n" + //
+                "______Y____\n" + //
+                "______y____\n" + //
+                "______y____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 99).setTurn(49);
+
+        generator0.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        GameState gameState0 = generator0.build();
+
+        AsciiToGameState generator1 = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_____Yy____\n" + //
+                "______y____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setHealth("Y", 98).setTurn(50);
+
+        generator1.setHazards("" + //
+                "HHHHHHHHHHH\n" + //
+                "HHHHHHHHHHH\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n");
+
+        GameState gameState1 = generator1.build();
+
+        Board boardWithMeta = BoardWithActiveHazards.fromAdjacentTurns(gameState0.getBoard(), gameState1.getBoard());
+        assert (boardWithMeta instanceof BoardWithActiveHazards);
+        assert (boardWithMeta.getHazards().size() == 22);
+        assert (boardWithMeta.getActiveHazards().size() == 11);
+
+        return new GameState(gameState1.getGameId(), gameState1.getTurn(), gameState1.getRules(), boardWithMeta,
+                gameState1.getYou());
+    }
+
+    public static GameState eat_food_immediately() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_____rrrrr_\n" + //
+                "__y______R_\n" + //
+                "__>>v_Skkk_\n" + //
+                "__0Y<_s__K_\n" + //
+                "______s____\n" + //
+                "_____ss____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n").setRulesetName(ApiExampleBuilder.royaleRulesetName());
+
+        generator.setTurn(18);
+        generator.setHealth("K", 84);
+        generator.setHealth("R", 99);
+        generator.setHealth("S", 94);
+        generator.setHealth("Y", 93);
+        generator.setLatency("K", 144);
+        generator.setLatency("R", 93);
+        generator.setLatency("S", 4);
+        generator.setLatency("Y", 79);
+
+        return generator.build();
+    }
+
+    public static GameState eat_food_and_conquer_in_two_turns() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "_s_________\n" + //
+                "_ss_r______\n" + //
+                "__ssr______\n" + //
+                "_0_Sr______\n" + //
+                "____rrR___0\n" + //
+                "_Y_____K___\n" + //
+                "_y_____k___\n" + //
+                "_y_____k___\n" + //
+                "_^vy___k___\n" + //
+                "_^<____k___\n").setHazards("" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n" + //
+                        "H__________\n");
+
+        generator.setTurn(39);
+        generator.setHealth("K", 84);
+        generator.setHealth("R", 78);
+        generator.setHealth("S", 94);
+        generator.setHealth("Y", 96);
+        generator.setLatency("K", 122);
+        generator.setLatency("R", 90);
+        generator.setLatency("S", 4);
+        generator.setLatency("Y", 78);
+
+        return generator.build();
+    }
+
+    public static GameState attempt_on_enemy_life() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "____v<_____\n" + //
+                "__S<v^<____\n" + //
+                "0_>^>v_____\n" + //
+                "__s__r_____\n" + //
+                "0_ss_R_____\n" + //
+                "_0_s__Y____\n" + //
+                "___syyy____\n" + //
+                "___sy______\n" + //
+                "___sy_y____\n" + //
+                "____yyy____\n").setHazards("" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n" + //
+                        "HH_______HH\n");
+
+        generator.setTurn(96);
+        generator.setHealth("R", 47);
+        generator.setHealth("S", 72);
+        generator.setHealth("Y", 76);
+        generator.setLatency("R", 92);
+        generator.setLatency("S", 5);
+        generator.setLatency("Y", 77);
 
         return generator.build();
     }

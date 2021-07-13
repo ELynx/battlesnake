@@ -22,17 +22,17 @@ class StatisticsTrackerTest {
 
     @Test
     void test_start(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.trackStart(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackStart(EntityBuilder.gameState()));
     }
 
     @Test
     void test_move(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.trackMove(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackMove(EntityBuilder.gameState()));
     }
 
     @Test
     void test_end(@Autowired StatisticsTracker tested) {
-        assertDoesNotThrow(() -> tested.trackEnd(EntityBuilder.hazardPredictor().getGameState()));
+        assertDoesNotThrow(() -> tested.trackEnd(EntityBuilder.gameState()));
     }
 
     @Test

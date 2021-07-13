@@ -6,17 +6,17 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 
+@Tag("Internals")
 class CommonTest {
     @Test
     void test_for_all_snake_bodies() {
-        HazardPredictor entity1 = new AsciiToGameState("y___Y\nyyyyy").build();
-        GameState entity = entity1.getGameState();
+        GameState entity = new AsciiToGameState("y___Y\nyyyyy").build();
 
         List<Coordinates> visited = new ArrayList<>();
         Consumer<Coordinates> what = visited::add;

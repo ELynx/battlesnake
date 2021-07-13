@@ -3,10 +3,12 @@ package ru.elynx.battlesnake.engine.math;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.Dimensions;
 
+@Tag("Internals")
 class FlagMatrixTest {
     @Test
     void test_uninitialized_matrix() {

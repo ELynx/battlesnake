@@ -4,19 +4,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRATEGY_NAMES;
+import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
-import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Dimensions;
-import ru.elynx.battlesnake.entity.Move;
-import ru.elynx.battlesnake.entity.MoveCommand;
+import ru.elynx.battlesnake.entity.*;
+import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 @SpringBootTest
@@ -37,23 +36,23 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_init(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        assertDoesNotThrow(() -> gameStrategy.init(EntityBuilder.hazardPredictor()));
+        assertDoesNotThrow(() -> gameStrategy.init(EntityBuilder.gameState()));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_start(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(EntityBuilder.hazardPredictor());
-        assertDoesNotThrow(() -> gameStrategy.processStart(EntityBuilder.hazardPredictor()));
+        gameStrategy.init(EntityBuilder.gameState());
+        assertDoesNotThrow(() -> gameStrategy.processStart(EntityBuilder.gameState()));
     }
 
     @ParameterizedTest
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_produce_Move(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(EntityBuilder.hazardPredictor());
-        Move move = gameStrategy.processMove(EntityBuilder.hazardPredictor());
+        gameStrategy.init(EntityBuilder.gameState());
+        Optional<MoveCommand> move = gameStrategy.processMove(EntityBuilder.gameState());
         assertNotNull(move);
     }
 
@@ -61,8 +60,8 @@ class GameStrategyBasicTest {
     @MethodSource(STRATEGY_NAMES)
     void test_strategy_does_not_throw_on_end(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
-        gameStrategy.init(EntityBuilder.hazardPredictor());
-        assertDoesNotThrow(() -> gameStrategy.processEnd(EntityBuilder.hazardPredictor()));
+        gameStrategy.init(EntityBuilder.gameState());
+        assertDoesNotThrow(() -> gameStrategy.processEnd(EntityBuilder.gameState()));
     }
 
     @ParameterizedTest
@@ -70,27 +69,27 @@ class GameStrategyBasicTest {
     void test_strategy_does_not_move_into_wall(String name) {
         IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
 
-        HazardPredictor entity1 = EntityBuilder.hazardPredictor();
+        GameState entity1 = EntityBuilder.gameState();
         gameStrategy.init(entity1);
 
-        Dimensions dimensions = entity1.getGameState().getBoard().getDimensions();
+        Dimensions dimensions = entity1.getBoard().getDimensions();
         int w = dimensions.getWidth();
         int h = dimensions.getHeight();
 
         for (int x = 0; x < w; ++x) {
-            Move move1 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(x, 0));
-            assertNotEquals(DOWN, move1.getMoveCommand());
+            Optional<MoveCommand> move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, 0));
+            assertNotEquals(DOWN, move1.orElseThrow());
 
-            Move move2 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(x, h - 1));
-            assertNotEquals(UP, move2.getMoveCommand());
+            Optional<MoveCommand> move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(x, h - 1));
+            assertNotEquals(UP, move2.orElseThrow());
         }
 
         for (int y = 0; y < h; ++y) {
-            Move move1 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(0, y));
-            assertNotEquals(LEFT, move1.getMoveCommand());
+            Optional<MoveCommand> move1 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(0, y));
+            assertNotEquals(LEFT, move1.orElseThrow());
 
-            Move move2 = gameStrategy.processMove(EntityBuilder.hazardPredictorWithHeadPosition(w - 1, y));
-            assertNotEquals(RIGHT, move2.getMoveCommand());
+            Optional<MoveCommand> move2 = gameStrategy.processMove(EntityBuilder.gameStateWithHeadPosition(w - 1, y));
+            assertNotEquals(RIGHT, move2.orElseThrow());
         }
     }
 
@@ -109,11 +108,11 @@ class GameStrategyBasicTest {
 
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            HazardPredictor entity1 = generator.build();
+            GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), not(equalTo(notTo[j])));
-            assertThat("Step " + i, move.getMoveCommand(), not(equalTo(notTo[k])));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), not(equalTo(notTo[j])));
+            assertThat("Step " + i, move.orElseThrow(), not(equalTo(notTo[k])));
         }
     }
 
@@ -129,10 +128,10 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            HazardPredictor entity1 = generator.build();
+            GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
     }
 
@@ -148,10 +147,10 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            HazardPredictor entity1 = generator.build();
+            GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
     }
 
@@ -167,10 +166,25 @@ class GameStrategyBasicTest {
         for (int i = 0; i < circles.length; ++i) {
             AsciiToGameState generator = new AsciiToGameState(circles[i]);
 
-            HazardPredictor entity1 = generator.build();
+            GameState entity1 = generator.build();
             gameStrategy.init(entity1);
-            Move move = gameStrategy.processMove(entity1);
-            assertThat("Step " + i, move.getMoveCommand(), equalTo(to[i]));
+            Optional<MoveCommand> move = gameStrategy.processMove(entity1);
+            assertThat("Step " + i, move.orElseThrow(), equalTo(to[i]));
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_can_handle_meta_information(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        assertDoesNotThrow(() -> {
+            gameStrategy.init(gameState);
+            gameStrategy.processStart(gameState);
+            Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+            assertMove(move.orElseThrow(), equalTo(DOWN)).validate(name);
+            gameStrategy.processEnd(gameState);
+        });
     }
 }

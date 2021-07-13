@@ -1,10 +1,12 @@
+import org.apache.tools.ant.filters.TokenFilter
+
 plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'org.springframework.boot' version '2.5.1'
+    id 'org.springframework.boot' version '2.5.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
-    id 'com.diffplug.spotless' version '5.14.0'
-    id 'de.undercouch.download' version '4.1.1'
+    id 'com.diffplug.spotless' version '5.14.1'
+    id 'de.undercouch.download' version '4.1.2'
     id 'io.freefair.lombok' version '6.0.0-m2'
 }
 
@@ -36,21 +38,26 @@ dependencies {
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 }
 
+String newrelicStagingDir = "$buildDir/newrelicStaging"
+String newrelicDestinationDir = "$buildDir/libs"
+String newrelicJars = '**/newrelic*jar'
+String newrelicYamls = '**/newrelic*yml'
+
 task downloadNewrelic(type: Download) {
-    mkdir 'newrelic-staging'
+    mkdir newrelicStagingDir
 
     src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
-    dest file('newrelic-staging')
+    dest new File(newrelicStagingDir + '/download', 'newrelic-java.zip')
 
-    overwrite false
+    onlyIfModified true
 }
 
 task unzipNewrelic(type: Copy) {
-    from (zipTree(file('newrelic-staging/newrelic-java.zip'))) {
-        include '**/newrelic*jar'
-        include '**/newrelic*yml'
+    from (zipTree(downloadNewrelic.dest)) {
+        include newrelicJars
+        include newrelicYamls
     }
-    into "$buildDir/libs"
+    into newrelicStagingDir + '/extracted'
 
     eachFile { fcp ->
         fcp.path = fcp.path.replaceFirst('newrelic', '')
@@ -59,30 +66,49 @@ task unzipNewrelic(type: Copy) {
     includeEmptyDirs false
 }
 
-task configureNewrelicAppName {
-    doLast {
-        String appName = System.getenv('HEROKU_APP_NAME')
-        if (appName == null || appName.isEmpty()) {
-            appName = rootProject.name
-        }
-
-        ant.replace(
-                file: "$buildDir/libs/newrelic.yml",
-                token: 'My Application',
-                value: appName
-                )
+task copyNewrelicJars(type: Copy) {
+    from (unzipNewrelic.destinationDir) {
+        include newrelicJars
     }
+    into newrelicDestinationDir
+}
+
+task copyNewrelicYmls(type: Copy) {
+    from (unzipNewrelic.destinationDir) {
+        include newrelicYamls
+    }
+    into newrelicDestinationDir
+
+    String appName = System.getenv('HEROKU_APP_NAME')
+    if (appName == null || appName.isEmpty()) {
+        appName = rootProject.name
+    }
+
+    TokenFilter.ReplaceString replaceString = new TokenFilter.ReplaceString()
+    replaceString.setFrom('My Application')
+    replaceString.setTo(appName)
+
+    filter(TokenFilter, add: replaceString)
 }
 
 task cleanNewrelic(type: Delete) {
-    delete 'newrelic-staging'
+    delete newrelicStagingDir
+    delete fileTree(newrelicDestinationDir).matching {
+        include newrelicJars
+        include newrelicYamls
+    }
 }
 
 tasks.unzipNewrelic.dependsOn downloadNewrelic
-tasks.unzipNewrelic.finalizedBy configureNewrelicAppName
-tasks.build.dependsOn unzipNewrelic
+tasks.copyNewrelicJars.dependsOn unzipNewrelic
+tasks.copyNewrelicYmls.dependsOn unzipNewrelic
+tasks.build.dependsOn copyNewrelicJars
+tasks.build.dependsOn copyNewrelicYmls
+
+tasks.compileJava.dependsOn copyNewrelicJars
+tasks.compileJava.dependsOn copyNewrelicYmls
+
 tasks.clean.dependsOn cleanNewrelic
-tasks.compileJava.dependsOn unzipNewrelic
 
 spotless {
     java {

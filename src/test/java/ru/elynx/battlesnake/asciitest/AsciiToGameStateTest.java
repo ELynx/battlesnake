@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
@@ -31,8 +30,8 @@ class AsciiToGameStateTest {
                 "____^^>>v__\n" + //
                 "___>^^<<<__\n");
 
-        HazardPredictor entity1 = tested.setTurn(123).setRulesetName(ApiExampleBuilder.standardRulesetName())
-                .setStartSnakeSize(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
+        GameState entity = tested.setTurn(123).setRulesetName(ApiExampleBuilder.royaleRulesetName())
+                .setStartSnakeLength(4).setHealth("Y", 99).setLatency("A", 0).setHazards("" + //
                         "HHHHHHHHHHH\n" + //
                         "H_________H\n" + //
                         "H_________H\n" + //
@@ -45,8 +44,6 @@ class AsciiToGameStateTest {
                         "H_________H\n" + //
                         "HHHHHHHHHHH\n")
                 .build();
-
-        GameState entity = entity1.getGameState();
 
         assertNotNull(entity.getGameId());
         assertNotNull(entity.getRules());
@@ -99,8 +96,7 @@ class AsciiToGameStateTest {
                 "___________0_\n" + //
                 "0____________\n");
 
-        HazardPredictor entity1 = tested.build();
-        GameState entity = entity1.getGameState();
+        GameState entity = tested.build();
         assertEquals(13, entity.getBoard().getDimensions().getWidth());
         assertEquals(3, entity.getBoard().getDimensions().getHeight());
 
@@ -112,8 +108,7 @@ class AsciiToGameStateTest {
     void test_turn() {
         AsciiToGameState tested = new AsciiToGameState("Y");
 
-        HazardPredictor entity1 = tested.setTurn(234).build();
-        GameState entity = entity1.getGameState();
+        GameState entity = tested.setTurn(234).build();
 
         assertEquals(234, entity.getTurn());
     }
@@ -122,8 +117,7 @@ class AsciiToGameStateTest {
     void test_ruleset_name() {
         AsciiToGameState tested = new AsciiToGameState("Y");
 
-        HazardPredictor entity1 = tested.setRulesetName("qwerty").build();
-        GameState entity = entity1.getGameState();
+        GameState entity = tested.setRulesetName("qwerty").build();
 
         assertEquals("qwerty", entity.getRules().getName());
     }
@@ -134,11 +128,23 @@ class AsciiToGameStateTest {
     }
 
     @Test
-    void test_start_snake_size() {
+    void test_start_snake_length() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
 
-        HazardPredictor entity1 = tested.setStartSnakeSize(11).build();
-        GameState entity = entity1.getGameState();
+        GameState entity = tested.setStartSnakeLength(11).build();
+
+        assertEquals(4, entity.getBoard().getSnakes().size());
+
+        for (Snake snake : entity.getBoard().getSnakes()) {
+            assertEquals(11, snake.getLength());
+        }
+    }
+
+    @Test
+    void test_snake_length() {
+        AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        GameState entity = tested.setLength("Y", 11).setLength("A", 11).setLength("B", 11).setLength("C", 11).build();
 
         assertEquals(4, entity.getBoard().getSnakes().size());
 
@@ -156,32 +162,32 @@ class AsciiToGameStateTest {
                 "___________\n" + //
                 "___________\n");
 
-        HazardPredictor entity1 = tested.setHazards("" + //
+        GameState entity = tested.setHazards("" + //
                 "HHHHHHHHHHH\n" + //
                 "HHHHHHHHHHH\n" + //
                 "HHHHHHHHHHH\n" + //
                 "HHHHHHHHHHH\n" + //
                 "HHHHHHHHHHH\n").build();
-        GameState entity = entity1.getGameState();
 
         assertEquals(55, entity.getBoard().getHazards().size());
+        assertEquals(ApiExampleBuilder.royaleRulesetName(), entity.getRules().getName());
 
-        entity1 = tested.setHazards("" + //
+        entity = tested.setHazards("" + //
                 "HHHHHHHHHHH\n" + //
                 "H_________H\n" + //
                 "H_________H\n" + //
                 "H_________H\n" + //
                 "HHHHHHHHHHH\n").build();
-        entity = entity1.getGameState();
 
         assertEquals(28, entity.getBoard().getHazards().size());
+        assertEquals(ApiExampleBuilder.royaleRulesetName(), entity.getRules().getName());
     }
 
     @Test
     void test_health_and_latency() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
 
-        HazardPredictor entity1 = tested //
+        GameState entity = tested //
                 .setHealth("Y", 99) //
                 .setHealth("A", 10) //
                 .setHealth("B", 15) //
@@ -189,7 +195,6 @@ class AsciiToGameStateTest {
                 .setLatency("A", 99) //
                 .setLatency("C", 0) //
                 .build();
-        GameState entity = entity1.getGameState();
 
         assertEquals(4, entity.getBoard().getSnakes().size());
 
@@ -206,7 +211,7 @@ class AsciiToGameStateTest {
         assertThat(b.getLatency(), greaterThanOrEqualTo(0));
 
         Snake c = getSnakeOrNull(entity, "C");
-        assertThat(c.getHealth(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(100))));
+        assertThat(c.getHealth(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(Snake.getMaxHealth()))));
         assertEquals(0, c.getLatency());
     }
 
@@ -222,8 +227,7 @@ class AsciiToGameStateTest {
                 "v<<<<<<<<<^\n" + //
                 ">>>>>>>>>>^\n");
 
-        HazardPredictor entity1 = tested.build();
-        GameState entity = entity1.getGameState();
+        GameState entity = tested.build();
 
         assertEquals(4, entity.getBoard().getSnakes().size());
 

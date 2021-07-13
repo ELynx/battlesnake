@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.Snake;
 
 @Service
 @Scope("singleton")
@@ -62,14 +61,7 @@ public class StatisticsTracker {
     }
 
     private void trackVictory(GameState gameState) {
-        boolean victory = false;
-        for (Snake someSnake : gameState.getBoard().getSnakes()) {
-            if (someSnake.getId().equals(gameState.getYou().getId())) {
-                victory = true;
-                break;
-            }
-        }
-
+        boolean victory = !gameState.isYouEliminated();
         NewRelic.addCustomParameter(VICTORY_PARAMETER, victory);
     }
 

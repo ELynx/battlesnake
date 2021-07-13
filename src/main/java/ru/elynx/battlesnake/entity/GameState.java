@@ -2,12 +2,11 @@ package ru.elynx.battlesnake.entity;
 
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal // for testing purposes
 public class GameState {
-    private static final int INITIAL_LENGTH = 3;
-    private static final int MAX_HEALTH = 100;
-
     @NonNull
     String gameId;
     int turn;
@@ -20,20 +19,17 @@ public class GameState {
     @NonNull
     Snake you;
 
-    /**
-     * Predict if snake will grow on it's tail this turn
-     *
-     * @param snake
-     *            Snake to be checked
-     * @return True if snake will not empty it's tail cell.
-     */
-    public boolean isSnakeGrowing(Snake snake) {
-        // initial expansion
-        if (getTurn() < INITIAL_LENGTH) {
-            return true;
+    public boolean isYouEliminated() {
+        return isEliminated(you);
+    }
+
+    public boolean isEliminated(Snake snake) {
+        for (Snake someSnake : board.getSnakes()) {
+            if (someSnake.getId().equals(snake.getId())) {
+                return false;
+            }
         }
 
-        // just ate food
-        return snake.getHealth() == MAX_HEALTH;
+        return true;
     }
 }

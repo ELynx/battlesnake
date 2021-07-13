@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.asciitest;
 import java.util.*;
 import java.util.function.Function;
 import org.javatuples.KeyValue;
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
 import ru.elynx.battlesnake.entity.*;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 
@@ -13,12 +12,12 @@ public class AsciiToGameState {
     // has some defaults, thus added by "builder" pattern
     private int turn = 42;
     private String rulesetName = ApiExampleBuilder.standardRulesetName();
-    private int startSnakeSize = 3;
+    private int startSnakeLength = 3;
     private String hazards = null;
-    private int hazardStep = 25;
     // per-snakes
     private final Map<String, Integer> healths = new HashMap<>();
     private final Map<String, Integer> latencies = new HashMap<>();
+    private final Map<String, Integer> lengths = new HashMap<>();
 
     public AsciiToGameState(String ascii) {
         this.ascii = ascii;
@@ -37,28 +36,27 @@ public class AsciiToGameState {
         return this;
     }
 
-    public AsciiToGameState setStartSnakeSize(int startSnakeSize) {
-        if (startSnakeSize <= 0)
+    public AsciiToGameState setStartSnakeLength(int startSnakeLength) {
+        if (startSnakeLength <= 0)
             throw new IllegalArgumentException("Snake size must be greater than 0");
 
-        this.startSnakeSize = startSnakeSize;
+        this.startSnakeLength = startSnakeLength;
         return this;
     }
 
+    /**
+     * Set hazards field. Also set ruleset name to Royale to avoid extra step.
+     *
+     * @param hazards
+     *            field
+     * @return Builder with hazards field and ruleset name altered
+     */
     public AsciiToGameState setHazards(String hazards) {
         if (ascii.length() != hazards.length())
             throw new IllegalArgumentException("Hazards must be size of main ascii field");
 
         this.hazards = hazards;
-        return this;
-    }
-
-    public AsciiToGameState setHazardStep(int hazardStep) {
-        if (hazardStep < 0)
-            throw new IllegalArgumentException("Hazard step is greater or equal to zero");
-
-        this.hazardStep = hazardStep;
-        return this;
+        return setRulesetName(ApiExampleBuilder.royaleRulesetName());
     }
 
     public AsciiToGameState setHealth(String name, int health) {
@@ -74,6 +72,14 @@ public class AsciiToGameState {
             throw new IllegalArgumentException("Latency must be greater or equal to 0");
 
         latencies.put(name, latency);
+        return this;
+    }
+
+    public AsciiToGameState setLength(String name, int length) {
+        if (length < 1)
+            throw new IllegalArgumentException("Length must be greater than 0");
+
+        lengths.put(name, length);
         return this;
     }
 
@@ -144,7 +150,7 @@ public class AsciiToGameState {
         return neighbours.get(0).getKey();
     }
 
-    public HazardPredictor build() {
+    public GameState build() {
         if (ascii.indexOf('V') >= 0) {
             throw new IllegalStateException("V is not allowed in ascii");
         }
@@ -187,7 +193,7 @@ public class AsciiToGameState {
                     String squad = "Test squad " + id;
                     String shout = "Test snake " + id;
                     Coordinates head = coordinates;
-                    int health = healths.getOrDefault(id, 99);
+                    int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
                     int latency = latencies.getOrDefault(id, 100);
 
                     char lowercaseC = (char) (c + 'a' - 'A');
@@ -204,7 +210,8 @@ public class AsciiToGameState {
                     }
 
                     // fill in snake up to start size, simulate starting conditions
-                    for (int i = body.size(); i < startSnakeSize; ++i) {
+                    int snakeLength = lengths.getOrDefault(id, startSnakeLength);
+                    for (int i = body.size(); i < snakeLength; ++i) {
                         body.add(body.get(i - 1));
                     }
 
@@ -255,8 +262,7 @@ public class AsciiToGameState {
         Board board = new Board(dimensions, food, generatedHazards, snakes);
 
         Rules rules = new Rules(rulesetName, "1.0.0", 500);
-        GameState game = new GameState("test-game-id", turn, rules, board, you);
 
-        return new HazardPredictor(game, hazardStep);
+        return new GameState("test-game-id", turn, rules, board, you);
     }
 }

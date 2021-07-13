@@ -3,8 +3,10 @@ package ru.elynx.battlesnake.entity;
 import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal
 public class Board {
     @NonNull
     Dimensions dimensions;
@@ -15,4 +17,14 @@ public class Board {
     List<Coordinates> hazards;
     @NonNull
     List<Snake> snakes;
+
+    /**
+     * Due to quirk of implementation, hazards do not damage snake health on turn
+     * they appear.
+     *
+     * @return hazards that currently damage snake health.
+     */
+    public List<Coordinates> getActiveHazards() {
+        return hazards;
+    }
 }

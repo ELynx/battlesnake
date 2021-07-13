@@ -20,6 +20,15 @@ class CoordinatesTest {
     private static final Coordinates p3 = new Coordinates(100, 100);
 
     @Test
+    void test_zero_constant() {
+        assertEquals(0, Coordinates.ZERO.getX());
+        assertEquals(0, Coordinates.ZERO.getY());
+
+        // test that constant is equals to created
+        assertEquals(Coordinates.ZERO, new Coordinates(0, 0));
+    }
+
+    @Test
     void test_move() {
         for (int x = x0; x <= x1; ++x) {
             for (int y = y0; y <= y1; ++y) {

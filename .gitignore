@@ -29,6 +29,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### New Relic agent deploy ###
-/newrelic-staging

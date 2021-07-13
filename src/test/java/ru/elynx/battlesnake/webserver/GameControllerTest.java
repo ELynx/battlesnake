@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +20,6 @@ import ru.elynx.battlesnake.engine.strategy.IGameStrategyFactory;
 import ru.elynx.battlesnake.entity.mapping.BattlesnakeInfoMapper;
 import ru.elynx.battlesnake.entity.mapping.GameStateMapper;
 import ru.elynx.battlesnake.entity.mapping.MoveMapper;
-import ru.elynx.battlesnake.entity.mapping.MoveValidator;
 import ru.elynx.battlesnake.testbuilder.ApiExampleBuilder;
 import ru.elynx.battlesnake.testsnake.MySnakeGameStrategyFactory;
 
@@ -32,8 +30,7 @@ class GameControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void prepareMockMvc()
-            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    void prepareMockMvc() {
         IGameStrategyFactory gameStrategyFactory = new MySnakeGameStrategyFactory();
         SnakeStateManager snakeStateManager = new SnakeStateManager(gameStrategyFactory);
 
@@ -41,10 +38,7 @@ class GameControllerTest {
 
         BattlesnakeInfoMapper battlesnakeInfoMapper = Mappers.getMapper(BattlesnakeInfoMapper.class);
         GameStateMapper gameStateMapper = Mappers.getMapper(GameStateMapper.class);
-
-        MoveValidator moveValidator = new MoveValidator();
-        MoveMapper moveMapper = Mappers.getMapperClass(MoveMapper.class).getConstructor(MoveValidator.class)
-                .newInstance(moveValidator);
+        MoveMapper moveMapper = Mappers.getMapper(MoveMapper.class);
 
         GameController gameController = new GameController(snakeStateManager, statisticsTracker, battlesnakeInfoMapper,
                 gameStateMapper, moveMapper);

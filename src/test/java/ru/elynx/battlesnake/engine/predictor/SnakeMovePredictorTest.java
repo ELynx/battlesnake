@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.predictor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Comparator;
 import java.util.List;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Tag;
@@ -13,215 +14,334 @@ import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
 @Tag("Internals")
 class SnakeMovePredictorTest {
-    static class TestIsWalkable implements IPredictorInformant {
-        private final GameState gameState;
+    @Test
+    void test_can_handle_meta_information() {
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        Snake snake = gameState.getYou();
 
-        TestIsWalkable(GameState gameState) {
-            this.gameState = gameState;
-        }
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        @Override
-        public boolean isWalkable(Coordinates tested) {
-            if (tested.getX() < 0)
-                return false;
-            if (tested.getY() < 0)
-                return false;
-            if (tested.getX() >= gameState.getBoard().getDimensions().getWidth())
-                return false;
-            if (tested.getX() >= gameState.getBoard().getDimensions().getHeight())
-                return false;
-
-            for (Snake snake : gameState.getBoard().getSnakes()) {
-                for (Coordinates body : snake.getBody()) {
-                    if (body.equals(tested)) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
+        assertEquals(new Coordinates(5, 8), predictions.get(0).getValue0());
     }
 
     @Test
     void test_empty_space_better_than_snake() {
-        HazardPredictor entity1 = CaseBuilder.empty_space_better_than_snake();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.empty_space_better_than_snake();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(7, 7), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(7, 7), predictions.get(0).getValue0());
     }
 
     @Test
-    void test_avoid_fruit_surrounded_by_snake() {
-        HazardPredictor entity1 = CaseBuilder.avoid_fruit_surrounded_by_snake();
-        GameState gameState = entity1.getGameState();
+    void test_avoid_fruit_surrounded_by_snake_2_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_2_hp();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(2, 8), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(1, 9), predictions.get(0).getValue0());
     }
 
     @Test
-    void test_avoid_fruit_in_corner_easy() {
-        HazardPredictor entity1 = CaseBuilder.avoid_fruit_in_corner_easy();
-        GameState gameState = entity1.getGameState();
+    void test_avoid_fruit_surrounded_by_snake_10_hp() {
+        GameState gameState = CaseBuilder.avoid_fruit_surrounded_by_snake_10_hp();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(10, 2), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(1, 9), predictions.get(0).getValue0());
     }
 
     @Test
-    void test_avoid_fruit_in_corner_hard() {
-        HazardPredictor entity1 = CaseBuilder.avoid_fruit_in_corner_hard();
-        GameState gameState = entity1.getGameState();
+    void test_avoid_fruit_in_corner_easy_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_2_health();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(10, 2), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_hard_2_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_2_health();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_easy_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_easy_10_health();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_fruit_in_corner_hard_10_health() {
+        GameState gameState = CaseBuilder.avoid_fruit_in_corner_hard_10_health();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
     }
 
     @Test
     void test_dont_die_for_food() {
-        HazardPredictor entity1 = CaseBuilder.dont_die_for_food();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.dont_die_for_food();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(4, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(4, 3), predictions.get(0).getValue0());
+
+        gameState = CaseBuilder.dont_die_for_food_flip();
+        snake = gameState.getYou();
+
+        informant = new SimplePredictorInformant(gameState);
+        tested = new SnakeMovePredictor(informant);
+        predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(1, 2), predictions.get(0).getValue0());
     }
 
     @Test
     void test_dont_die_for_food_and_hunt() {
-        HazardPredictor entity1 = CaseBuilder.dont_die_for_food_and_hunt();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.dont_die_for_food_and_hunt();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed()
+                .thenComparingInt(pair -> pair.getValue0().getX()));
 
-        assertEquals(new Coordinates(5, 4), predictions.iterator().next().getValue0());
+        // both with equal probability
+        assertEquals(0.5d, predictions.get(0).getValue1());
+        assertEquals(0.5d, predictions.get(1).getValue1());
+
+        assertEquals(new Coordinates(3, 4), predictions.get(0).getValue0());
+        assertEquals(new Coordinates(5, 4), predictions.get(1).getValue0());
+
+        gameState = CaseBuilder.dont_die_for_food_and_hunt_flip();
+        snake = gameState.getYou();
+
+        informant = new SimplePredictorInformant(gameState);
+        tested = new SnakeMovePredictor(informant);
+        predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed()
+                .thenComparingInt(pair -> pair.getValue0().getX()));
+
+        // both with equal probability
+        assertEquals(0.5d, predictions.get(0).getValue1());
+        assertEquals(0.5d, predictions.get(1).getValue1());
+
+        assertEquals(new Coordinates(3, 2), predictions.get(0).getValue0());
+        assertEquals(new Coordinates(5, 2), predictions.get(1).getValue0());
     }
 
     @Test
     void test_dont_give_up() {
-        HazardPredictor entity1 = CaseBuilder.dont_give_up();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.dont_give_up();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(3, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(3, 3), predictions.get(0).getValue0());
     }
 
     @Test
     void test_eat_in_hazard() {
-        HazardPredictor entity1 = CaseBuilder.eat_in_hazard();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.eat_in_hazard();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(9, 4), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(9, 4), predictions.get(0).getValue0());
     }
 
     @Test
     void test_sees_the_inevitable() {
-        HazardPredictor entity1 = CaseBuilder.sees_the_inevitable();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.sees_the_inevitable();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(10, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(10, 3), predictions.get(0).getValue0());
     }
 
     @Test
     void test_does_not_go_into_hazard_lake() {
-        HazardPredictor entity1 = CaseBuilder.does_not_go_into_hazard_lake();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.does_not_go_into_hazard_lake();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(0, 2), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(0, 2), predictions.get(0).getValue0());
     }
 
     @Test
     void test_sees_escape_route() {
-        HazardPredictor entity1 = CaseBuilder.sees_escape_route();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.sees_escape_route();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(2, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(2, 3), predictions.get(0).getValue0());
     }
 
     @Test
     void test_sees_escape_route_plus() {
-        HazardPredictor entity1 = CaseBuilder.sees_escape_route_plus();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.sees_escape_route_plus();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(2, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(2, 3), predictions.get(0).getValue0());
     }
 
     @Test
     void test_hazard_better_than_lose() {
-        HazardPredictor entity1 = CaseBuilder.hazard_better_than_lose();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.hazard_better_than_lose();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(0, 3), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(0, 3), predictions.get(0).getValue0());
     }
 
     @Test
     void test_does_not_corner_self() {
-        HazardPredictor entity1 = CaseBuilder.does_not_corner_self();
-        GameState gameState = entity1.getGameState();
+        GameState gameState = CaseBuilder.does_not_corner_self();
         Snake snake = gameState.getYou();
 
-        TestIsWalkable informant = new TestIsWalkable(gameState);
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
         SnakeMovePredictor tested = new SnakeMovePredictor(informant);
         List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
 
-        assertEquals(new Coordinates(9, 0), predictions.iterator().next().getValue0());
+        assertEquals(new Coordinates(9, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_lock_1() {
+        GameState gameState = CaseBuilder.avoid_lock_1();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(10, 0), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_avoid_lock_2() {
+        GameState gameState = CaseBuilder.avoid_lock_2();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(0, 2), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_eat_food_immediately() {
+        GameState gameState = CaseBuilder.eat_food_immediately();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(2, 6), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_eat_food_and_conquer_in_two_turns() {
+        GameState gameState = CaseBuilder.eat_food_and_conquer_in_two_turns();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(2, 4), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_attempt_on_enemy_life() {
+        GameState gameState = CaseBuilder.attempt_on_enemy_life();
+        Snake snake = gameState.getYou();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        predictions.sort(Comparator.<Pair<Coordinates, Double>>comparingDouble(Pair::getValue1).reversed());
+
+        assertEquals(new Coordinates(5, 4), predictions.get(0).getValue0());
     }
 }

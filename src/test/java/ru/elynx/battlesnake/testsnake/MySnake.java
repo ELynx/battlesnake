@@ -2,10 +2,11 @@ package ru.elynx.battlesnake.testsnake;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.UP;
 
-import ru.elynx.battlesnake.engine.predictor.HazardPredictor;
+import java.util.Optional;
 import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
-import ru.elynx.battlesnake.entity.Move;
+import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.MoveCommand;
 
 public class MySnake implements IGameStrategy {
     @Override
@@ -14,17 +15,17 @@ public class MySnake implements IGameStrategy {
     }
 
     @Override
-    public Void processStart(HazardPredictor gameState) {
+    public Void processStart(GameState gameState) {
         return null;
     }
 
     @Override
-    public Move processMove(HazardPredictor gameState) {
-        return new Move(UP, "Test Sh|out");
+    public Optional<MoveCommand> processMove(GameState gameState) {
+        return Optional.of(UP);
     }
 
     @Override
-    public Void processEnd(HazardPredictor gameState) {
+    public Void processEnd(GameState gameState) {
         return null;
     }
 }
