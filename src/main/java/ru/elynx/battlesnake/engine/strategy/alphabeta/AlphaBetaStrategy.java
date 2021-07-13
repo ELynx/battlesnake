@@ -2,11 +2,14 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import lombok.Data;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.springframework.context.annotation.Bean;
@@ -59,7 +62,8 @@ public class AlphaBetaStrategy implements IGameStrategy {
     }
 
     private Stream<Pair<MoveCommand, Integer>> getAlphaBetaMoves(Snake snake, GameState gameState) {
-        return sensibleMoves(snake, gameState).map(x -> new Pair<>(x, forMoveCommand(1, x, snake, gameState)));
+        return sensibleMoves(snake, gameState).map(moveCommand -> new Pair<>(moveCommand,
+                forMoveCommand(GameStateIteration.rootIteration(moveCommand, snake, gameState))));
     }
 
     private Stream<MoveCommand> sensibleMoves(Snake snake, GameState gameState) {
@@ -68,31 +72,49 @@ public class AlphaBetaStrategy implements IGameStrategy {
                 .map(CoordinatesWithDirection::getDirection);
     }
 
-    private int forMoveCommand(int depth0, MoveCommand moveCommand0, Snake snake0, GameState step0) {
-        var stepFunction0 = makeStepFunction(moveCommand0, snake0);
+    @Data
+    private static class GameStateIteration {
+        private final Reference<GameStateIteration> parent;
 
-        GameState step1 = GameStateAdvancer.advance(stepFunction0, snake0, step0);
+        private final int depth;
+        private final MoveCommand moveCommand;
+        private final Snake snake;
+        private final GameState gameState;
 
-        var step1Score = GameStateScoreMaker.makeScore(snake0, step0, step1);
-
-        if (Boolean.TRUE.equals(step1Score.getValue0())) {
-            return (maxAdvanceDepth - depth0 + 1) * step1Score.getValue1();
+        public static GameStateIteration rootIteration(MoveCommand moveCommand, Snake snake, GameState gameState) {
+            return new GameStateIteration(new WeakReference<>(null), 1, moveCommand, snake, gameState);
         }
 
-        if (depth0 >= maxAdvanceDepth) {
+        public GameStateIteration nextIteration(MoveCommand moveCommand, Snake snake, GameState gameState) {
+            return new GameStateIteration(new WeakReference<>(this), depth + 1, moveCommand, snake, gameState);
+        }
+    }
+
+    private int forMoveCommand(GameStateIteration iteration) {
+        var stepFunction0 = makeStepFunction(iteration.getMoveCommand(), iteration.getSnake());
+
+        GameState step1 = GameStateAdvancer.advance(stepFunction0, iteration.getSnake(), iteration.getGameState());
+
+        var step1Score = GameStateScoreMaker.makeScore(iteration.getSnake(), iteration.getGameState(), step1);
+
+        if (Boolean.TRUE.equals(step1Score.getValue0())) {
+            return (maxAdvanceDepth - iteration.getDepth() + 1) * step1Score.getValue1();
+        }
+
+        if (iteration.getDepth() >= maxAdvanceDepth) {
             return step1Score.getValue1();
         }
 
-        Optional<Snake> snake1 = step1.getBoard().getSnakes().stream().filter(x -> x.getId().equals(snake0.getId()))
-                .findAny();
+        Optional<Snake> snake1 = step1.getBoard().getSnakes().stream()
+                .filter(x -> x.getId().equals(iteration.getSnake().getId())).findAny();
 
         if (snake1.isEmpty()) {
             return step1Score.getValue1() + Integer.MIN_VALUE;
         }
 
         int step2ScoreMax = sensibleMoves(snake1.get(), step1)
-                .mapToInt(moveCommand1 -> forMoveCommand(depth0 + 1, moveCommand1, snake1.get(), step1)).max()
-                .orElse(Integer.MIN_VALUE);
+                .mapToInt(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1.get(), step1)))
+                .max().orElse(Integer.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }
