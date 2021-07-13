@@ -14,6 +14,22 @@ import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 @Tag("Internals")
 class MoveScoreMakerTest {
     @Test
+    void test_can_handle_meta_information() {
+        GameState gameState = CaseBuilder.can_handle_meta_information();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        MoveScoreMaker tested = new MoveScoreMaker(snake, gameState, informant);
+
+        assertEquals(1, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-3, tested.scoreMove(head.move(LEFT)));
+        assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(-3, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
     void test_empty_space_better_than_snake() {
         GameState gameState = CaseBuilder.empty_space_better_than_snake();
         Snake snake = gameState.getYou();
@@ -344,8 +360,8 @@ class MoveScoreMakerTest {
     }
 
     @Test
-    void test_can_handle_meta_information() {
-        GameState gameState = CaseBuilder.can_handle_meta_information();
+    void test_eat_food_immediately() {
+        GameState gameState = CaseBuilder.eat_food_immediately();
         Snake snake = gameState.getYou();
         Coordinates head = snake.getHead();
 
@@ -354,8 +370,40 @@ class MoveScoreMakerTest {
         MoveScoreMaker tested = new MoveScoreMaker(snake, gameState, informant);
 
         assertEquals(1, tested.scoreMove(head.move(DOWN)));
-        assertEquals(-3, tested.scoreMove(head.move(LEFT)));
+        assertEquals(4, tested.scoreMove(head.move(LEFT)));
         assertEquals(-10, tested.scoreMove(head.move(RIGHT)));
-        assertEquals(-3, tested.scoreMove(head.move(UP)));
+        assertEquals(-10, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_eat_food_and_conquer_in_two_turns() {
+        GameState gameState = CaseBuilder.eat_food_and_conquer_in_two_turns();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        MoveScoreMaker tested = new MoveScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
+        assertEquals(-3, tested.scoreMove(head.move(LEFT)));
+        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(1, tested.scoreMove(head.move(UP)));
+    }
+
+    @Test
+    void test_attempt_on_enemy_life() {
+        GameState gameState = CaseBuilder.attempt_on_enemy_life();
+        Snake snake = gameState.getYou();
+        Coordinates head = snake.getHead();
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+
+        MoveScoreMaker tested = new MoveScoreMaker(snake, gameState, informant);
+
+        assertEquals(-10, tested.scoreMove(head.move(DOWN)));
+        assertEquals(6, tested.scoreMove(head.move(LEFT)));
+        assertEquals(1, tested.scoreMove(head.move(RIGHT)));
+        assertEquals(6, tested.scoreMove(head.move(UP)));
     }
 }
