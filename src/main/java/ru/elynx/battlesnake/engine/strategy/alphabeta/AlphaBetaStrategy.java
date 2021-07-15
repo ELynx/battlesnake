@@ -88,9 +88,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     private long forMoveCommand(GameStateIteration step0) {
         var stepFunction0 = makeStepFunction(step0.getMoveCommand(), step0.getSnake());
-
         var steps1 = GameStateAdvancer.advance(stepFunction0, step0.getSnake(), step0.getGameState());
-
         return steps1.mapToLong(x -> calculatePossibleStateScore(step0, x)).sum();
     }
 
@@ -100,19 +98,19 @@ public class AlphaBetaStrategy implements IGameStrategy {
         return Math.round(possibleStep1.getValue1() * stateScore);
     }
 
-    private long calculateStateScore(GameStateIteration iteration, GameState step1) {
-        var step1Score = GameStateScoreMaker.makeScore(iteration.getSnake(), iteration.getGameState(), step1);
+    private long calculateStateScore(GameStateIteration step0, GameState step1) {
+        var step1Score = GameStateScoreMaker.makeScore(step0.getSnake(), step0.getGameState(), step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
-            return (maxAdvanceDepth - iteration.getDepth() + 1) * step1Score.getValue1();
+            return (maxAdvanceDepth - step0.getDepth() + 1) * step1Score.getValue1();
         }
 
-        if (iteration.getDepth() >= maxAdvanceDepth) {
+        if (step0.getDepth() >= maxAdvanceDepth) {
             return step1Score.getValue1();
         }
 
         Optional<Snake> snake1Optional = step1.getBoard().getSnakes().stream()
-                .filter(x -> x.getId().equals(iteration.getSnake().getId())).findAny();
+                .filter(x -> x.getId().equals(step0.getSnake().getId())).findAny();
 
         if (snake1Optional.isEmpty()) {
             return step1Score.getValue1() + Long.MIN_VALUE;
@@ -121,7 +119,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
         Snake snake1 = snake1Optional.get();
 
         long step2ScoreMax = sensibleMoves(snake1, step1)
-                .mapToLong(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1, step1))).max()
+                .mapToLong(moveCommand1 -> forMoveCommand(step0.nextIteration(moveCommand1, snake1, step1))).max()
                 .orElse(Long.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
