@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -14,23 +15,23 @@ public class GameStateAdvancer {
         BiFunction<Snake, GameState, List<MoveCommandWithProbability>> adapter = (Snake snake1,
                 GameState gameState1) -> List
                         .of(new MoveCommandWithProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
-        return advance(adapter, gameState.getYou(), gameState).findAny().orElseThrow().getValue0();
+        return advance(adapter, gameState.getYou(), gameState).map(Pair::getValue0).findAny().orElseThrow();
     }
 
     public Stream<Pair<GameState, Double>> advance(
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
         int turn = makeTurn(gameState);
-        Stream<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
+        List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
 
-        return snakes.map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
+        return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
     }
 
     private int makeTurn(GameState gameState) {
         return gameState.getTurn() + 1;
     }
 
-    private Stream<Pair<List<Snake>, Double>> makeSnakes(
+    private List<Pair<List<Snake>, Double>> makeSnakes(
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, GameState gameState) {
         List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
@@ -53,8 +54,43 @@ public class GameStateAdvancer {
         return cartesianProduct(allSnakes);
     }
 
-    private Stream<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
-        return Stream.empty();
+    private List<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
+        if (allSnakes.isEmpty()) {
+            // there is 100% chance no snake is found
+            return List.of(new Pair<>(Collections.emptyList(), 1.0d));
+        }
+
+        List<Pair<List<Snake>, Double>> result = new ArrayList<>();
+
+        // start copy from stack overflow
+        // https://stackoverflow.com/a/9591777/15529473
+        int solutions = 1;
+
+        for (List<Pair<Snake, Double>> singleSnake : allSnakes) {
+            solutions *= singleSnake.size();
+        }
+
+        for (int i = 0; i < solutions; i++) {
+            int j = 1;
+
+            List<Snake> solution = new ArrayList<>(allSnakes.size());
+            double probability = 1.0d;
+
+            for (var singleSnake : allSnakes) {
+                int index = (i / j) % singleSnake.size();
+                var snake = singleSnake.get(index);
+
+                solution.add(snake.getValue0());
+                probability *= snake.getValue1();
+
+                j *= singleSnake.size();
+            }
+
+            result.add(new Pair<>(solution, probability));
+        }
+        // end copy from stack overflow
+
+        return result;
     }
 
     private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
