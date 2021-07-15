@@ -90,10 +90,7 @@ public class AlphaBetaStrategy implements IGameStrategy {
     private long forMoveCommand(GameStateIteration step0) {
         var stepFunction0 = makeStepFunction(step0.getMoveCommand(), step0.getSnake());
         var steps1 = GameStateAdvancer.advance(stepFunction0, step0.getSnake(), step0.getGameState());
-        if (steps1.size() == 1) {
-            return calculateStateScore(step0, steps1.get(0).getValue0());
-        }
-        return steps1.stream().mapToLong(x -> calculatePossibleStateScore(step0, x)).sum();
+        return steps1.mapToLong(x -> calculatePossibleStateScore(step0, x)).sum();
     }
 
     private long calculatePossibleStateScore(GameStateIteration step0, Pair<GameState, Double> possibleStep1) {

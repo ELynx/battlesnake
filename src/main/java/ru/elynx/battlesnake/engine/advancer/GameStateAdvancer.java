@@ -1,9 +1,10 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.javatuples.Pair;
 import ru.elynx.battlesnake.entity.*;
@@ -14,17 +15,16 @@ public class GameStateAdvancer {
         BiFunction<Snake, GameState, List<MoveCommandWithProbability>> adapter = (Snake snake1,
                 GameState gameState1) -> List
                         .of(new MoveCommandWithProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
-        return advance(adapter, gameState.getYou(), gameState).get(0).getValue0();
+        return advance(adapter, gameState.getYou(), gameState).findAny().orElseThrow().getValue0();
     }
 
-    public List<Pair<GameState, Double>> advance(
+    public Stream<Pair<GameState, Double>> advance(
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
         int turn = makeTurn(gameState);
         List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
 
-        return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()))
-                .collect(Collectors.toList());
+        return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
     }
 
     private int makeTurn(GameState gameState) {
@@ -33,17 +33,29 @@ public class GameStateAdvancer {
 
     private List<Pair<List<Snake>, Double>> makeSnakes(
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, GameState gameState) {
-        List<Snake> snakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
+        List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
         for (Snake current : gameState.getBoard().getSnakes()) {
-            var moveCommand = moveDecisionMaker.apply(current, gameState);
-            Snake future = makeSnake(gameState, current, moveCommand.get(0).getMoveCommand());
-            if (future != null) {
-                snakes.add(future);
+            var moveCommands = moveDecisionMaker.apply(current, gameState);
+            List<Pair<Snake, Double>> singleSnake = new ArrayList<>(moveCommands.size());
+
+            for (MoveCommandWithProbability moveCommand : moveCommands) {
+                Snake future = makeSnake(gameState, current, moveCommand.getMoveCommand());
+                if (future != null) {
+                    singleSnake.add(new Pair<>(future, moveCommand.getProbability()));
+                }
+            }
+
+            if (!singleSnake.isEmpty()) {
+                allSnakes.add(singleSnake);
             }
         }
 
-        return List.of(new Pair<>(snakes, 1.0d));
+        return cortesianProduct(allSnakes);
+    }
+
+    private List<Pair<List<Snake>, Double>> cortesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
+        return Collections.emptyList();
     }
 
     private Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
