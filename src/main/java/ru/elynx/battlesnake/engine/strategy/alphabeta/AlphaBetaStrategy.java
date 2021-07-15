@@ -3,6 +3,7 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -128,13 +129,15 @@ public class AlphaBetaStrategy implements IGameStrategy {
         return step1Score.getValue1() + step2ScoreMax;
     }
 
-    private BiFunction<Snake, GameState, MoveCommand> makeStepFunction(MoveCommand moveCommand, Snake snake) {
+    private BiFunction<Snake, GameState, List<MoveCommandWithProbability>> makeStepFunction(MoveCommand moveCommand,
+            Snake snake) {
         return (Snake someSnake, GameState gameState) -> {
             if (someSnake.getId().equals(snake.getId())) {
-                return moveCommand;
+                return List.of(new MoveCommandWithProbability(moveCommand, 1.0d));
             }
 
-            return polySnakeGameStrategy.processMove(someSnake, gameState).orElse(UP);
+            return List.of(new MoveCommandWithProbability(
+                    polySnakeGameStrategy.processMove(someSnake, gameState).orElse(UP), 1.0d));
         };
     }
 
