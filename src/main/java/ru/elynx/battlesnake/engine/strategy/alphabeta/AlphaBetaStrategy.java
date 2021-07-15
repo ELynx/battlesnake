@@ -133,8 +133,12 @@ public class AlphaBetaStrategy implements IGameStrategy {
                 return MoveCommandWithProbability.onlyFrom(moveCommand);
             }
 
-            return MoveCommandWithProbability
-                    .onlyFrom(polySnakeGameStrategy.processMove(someSnake, gameState).orElse(UP));
+            var fromPoly = polySnakeGameStrategy.evaluateMoves(someSnake, gameState);
+            if (fromPoly.isEmpty()) {
+                return MoveCommandWithProbability.onlyFrom(UP);
+            } else {
+                return fromPoly;
+            }
         };
     }
 

@@ -1,8 +1,10 @@
 package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +32,7 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
         return bestMoveForSnake(snake, gameState);
     }
@@ -40,16 +42,16 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
         Common.forAllSnakeBodies(gameState, occupiedPositions::set);
     }
 
-    private Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
+    private List<MoveCommandWithProbability> bestMoveForSnake(Snake snake, GameState gameState) {
         var rankedMoves = snakeMovePredictor.predict(snake, gameState);
         var bestMove = rankedMoves.stream().max(Comparator.comparingDouble(Pair::getValue1));
         if (bestMove.isEmpty()) {
-            return Optional.empty();
+            return Collections.emptyList();
         }
 
         Coordinates coordinates = bestMove.get().getValue0();
-        return snake.getHead().sideNeighbours().stream().filter(x -> x.equals(coordinates))
-                .map(CoordinatesWithDirection::getDirection).findAny();
+        return snake.getHead().sideNeighbours().stream().filter(x -> x.equals(coordinates)).findAny()
+                .map(x -> MoveCommandWithProbability.from(x.getDirection())).stream().collect(Collectors.toList());
     }
 
     @Override

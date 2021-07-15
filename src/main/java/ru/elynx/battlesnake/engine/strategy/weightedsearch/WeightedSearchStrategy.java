@@ -268,9 +268,13 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
-        return bestMove(snake).or(() -> backupMove(snake));
+        var best = bestMove(snake).or(() -> backupMove(snake)).map(MoveCommandWithProbability::from);
+        if (best.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return List.of(best.get());
     }
 
     @Override
