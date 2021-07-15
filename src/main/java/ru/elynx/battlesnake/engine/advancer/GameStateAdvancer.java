@@ -3,7 +3,6 @@ package ru.elynx.battlesnake.engine.advancer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.javatuples.Pair;
 import ru.elynx.battlesnake.entity.*;
@@ -11,15 +10,15 @@ import ru.elynx.battlesnake.entity.*;
 @UtilityClass
 public class GameStateAdvancer {
     public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, GameState gameState) {
-        return advance(moveDecisionMaker, gameState.getYou(), gameState).findAny().orElseThrow().getValue0();
+        return advance(moveDecisionMaker, gameState.getYou(), gameState).get(0).getValue0();
     }
 
-    public Stream<Pair<GameState, Double>> advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker,
-            Snake you, GameState gameState) {
+    public List<Pair<GameState, Double>> advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, Snake you,
+            GameState gameState) {
         int turn = makeTurn(gameState);
         List<Snake> snakes = makeSnakes(gameState, moveDecisionMaker);
 
-        return Stream.of(new Pair<>(assemble(gameState, turn, snakes, you), 1.0));
+        return List.of(new Pair<>(assemble(gameState, turn, snakes, you), 1.0));
     }
 
     private int makeTurn(GameState gameState) {
