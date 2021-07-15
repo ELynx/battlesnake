@@ -1,7 +1,6 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -22,16 +21,16 @@ public class GameStateAdvancer {
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
         int turn = makeTurn(gameState);
-        List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
+        Stream<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
 
-        return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
+        return snakes.map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
     }
 
     private int makeTurn(GameState gameState) {
         return gameState.getTurn() + 1;
     }
 
-    private List<Pair<List<Snake>, Double>> makeSnakes(
+    private Stream<Pair<List<Snake>, Double>> makeSnakes(
             BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, GameState gameState) {
         List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
@@ -54,8 +53,8 @@ public class GameStateAdvancer {
         return cartesianProduct(allSnakes);
     }
 
-    private List<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
-        return Collections.emptyList();
+    private Stream<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
+        return Stream.empty();
     }
 
     private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
