@@ -10,8 +10,8 @@ public class GameStateScoreMaker {
     private static final Boolean TERMINATE = Boolean.TRUE;
     private static final Boolean CONTINUE = Boolean.FALSE;
 
-    public static Pair<Boolean, Integer> makeScore(Snake snake, GameState state0, GameState state1) {
-        int scoreLimit = calculateScoreLimit(state0);
+    public static Pair<Boolean, Long> makeScore(Snake snake, GameState state0, GameState state1) {
+        long scoreLimit = calculateScoreLimit(state0);
 
         if (state1.isEliminated(snake)) {
             return new Pair<>(TERMINATE, -scoreLimit);
@@ -21,23 +21,23 @@ public class GameStateScoreMaker {
             return new Pair<>(TERMINATE, scoreLimit);
         }
 
-        int score = stateScore(snake, state1);
+        long score = stateScore(snake, state1);
         return new Pair<>(CONTINUE, score);
     }
 
-    private static int calculateScoreLimit(GameState gameState) {
-        return gameState.getBoard().getDimensions().area() * Snake.getMaxHealth();
+    private static long calculateScoreLimit(GameState gameState) {
+        return (long) gameState.getBoard().getDimensions().area() * Snake.getMaxHealth();
     }
 
     private static boolean oneSnakeLeft(GameState gameState0, GameState gameState1) {
         return gameState0.getBoard().getSnakes().size() > 1 && gameState1.getBoard().getSnakes().size() == 1;
     }
 
-    private int stateScore(Snake snake, GameState gameState) {
-        int score = 0;
+    private long stateScore(Snake snake, GameState gameState) {
+        long score = 0;
 
         for (Snake someSnake : gameState.getBoard().getSnakes()) {
-            int power = snakePower(someSnake);
+            long power = snakePower(someSnake);
 
             if (someSnake.getId().equals(snake.getId())) {
                 score += power;
@@ -49,7 +49,7 @@ public class GameStateScoreMaker {
         return score;
     }
 
-    private int snakePower(Snake snake) {
-        return snake.getLength() * snake.getHealth();
+    private long snakePower(Snake snake) {
+        return (long) snake.getLength() * snake.getHealth();
     }
 }

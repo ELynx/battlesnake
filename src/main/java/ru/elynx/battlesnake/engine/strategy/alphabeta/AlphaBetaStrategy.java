@@ -48,18 +48,18 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     private Optional<MoveCommand> bestMove(Snake snake, GameState gameState) {
         return getScoredMoves(snake, gameState)
-                .max(Comparator.<Triplet<MoveCommand, Integer, Integer>>comparingInt(Triplet::getValue1)
-                        .thenComparingInt(Triplet::getValue2))
+                .max(Comparator.<Triplet<MoveCommand, Long, Long>>comparingLong(Triplet::getValue1)
+                        .thenComparingLong(Triplet::getValue2))
                 .map(Triplet::getValue0);
     }
 
-    private Stream<Triplet<MoveCommand, Integer, Integer>> getScoredMoves(Snake snake, GameState gameState) {
+    private Stream<Triplet<MoveCommand, Long, Long>> getScoredMoves(Snake snake, GameState gameState) {
         Optional<MoveCommand> tieResolveMove = polySnakeGameStrategy.processMove(snake, gameState);
         return getAlphaBetaMoves(snake, gameState).map(x -> new Triplet<>(x.getValue0(), x.getValue1(),
-                tieResolveMove.map(y -> y.equals(x.getValue0()) ? 1 : 0).orElse(0)));
+                tieResolveMove.map(y -> y.equals(x.getValue0()) ? 1L : 0L).orElse(0L)));
     }
 
-    private Stream<Pair<MoveCommand, Integer>> getAlphaBetaMoves(Snake snake, GameState gameState) {
+    private Stream<Pair<MoveCommand, Long>> getAlphaBetaMoves(Snake snake, GameState gameState) {
         return sensibleMoves(snake, gameState).map(moveCommand -> new Pair<>(moveCommand,
                 forMoveCommand(GameStateIteration.rootIteration(moveCommand, snake, gameState))));
     }
@@ -86,20 +86,21 @@ public class AlphaBetaStrategy implements IGameStrategy {
         }
     }
 
-    private int forMoveCommand(GameStateIteration step0) {
+    private long forMoveCommand(GameStateIteration step0) {
         var stepFunction0 = makeStepFunction(step0.getMoveCommand(), step0.getSnake());
 
         var steps1 = GameStateAdvancer.advance(stepFunction0, step0.getSnake(), step0.getGameState());
 
-        return steps1.mapToInt(x -> calculatePossibleStateScore(step0, x)).sum();
+        return steps1.mapToLong(x -> calculatePossibleStateScore(step0, x)).sum();
     }
 
-    private int calculatePossibleStateScore(GameStateIteration step0, Pair<GameState, Double> possibleStep1) {
+    private long calculatePossibleStateScore(GameStateIteration step0, Pair<GameState, Double> possibleStep1) {
         GameState step1 = possibleStep1.getValue0();
-        return calculateStateScore(step0, step1);
+        long stateScore = calculateStateScore(step0, step1);
+        return Math.round(possibleStep1.getValue1() * stateScore);
     }
 
-    private int calculateStateScore(GameStateIteration iteration, GameState step1) {
+    private long calculateStateScore(GameStateIteration iteration, GameState step1) {
         var step1Score = GameStateScoreMaker.makeScore(iteration.getSnake(), iteration.getGameState(), step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
@@ -114,14 +115,14 @@ public class AlphaBetaStrategy implements IGameStrategy {
                 .filter(x -> x.getId().equals(iteration.getSnake().getId())).findAny();
 
         if (snake1Optional.isEmpty()) {
-            return step1Score.getValue1() + Integer.MIN_VALUE;
+            return step1Score.getValue1() + Long.MIN_VALUE;
         }
 
         Snake snake1 = snake1Optional.get();
 
-        int step2ScoreMax = sensibleMoves(snake1, step1)
-                .mapToInt(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1, step1))).max()
-                .orElse(Integer.MIN_VALUE);
+        long step2ScoreMax = sensibleMoves(snake1, step1)
+                .mapToLong(moveCommand1 -> forMoveCommand(iteration.nextIteration(moveCommand1, snake1, step1))).max()
+                .orElse(Long.MIN_VALUE);
 
         return step1Score.getValue1() + step2ScoreMax;
     }
