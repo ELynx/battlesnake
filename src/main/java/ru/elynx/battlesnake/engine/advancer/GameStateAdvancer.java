@@ -40,7 +40,7 @@ public class GameStateAdvancer {
             List<Pair<Snake, Double>> singleSnake = new ArrayList<>(moveCommands.size());
 
             for (MoveCommandWithProbability moveCommand : moveCommands) {
-                Snake future = makeSnake(gameState, current, moveCommand.getMoveCommand());
+                Snake future = makeSnake(moveCommand.getMoveCommand(), current, gameState);
                 if (future != null) {
                     singleSnake.add(new Pair<>(future, moveCommand.getProbability()));
                 }
@@ -51,47 +51,47 @@ public class GameStateAdvancer {
             }
         }
 
-        return cortesianProduct(allSnakes);
+        return cartesianProduct(allSnakes);
     }
 
-    private List<Pair<List<Snake>, Double>> cortesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
+    private List<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
         return Collections.emptyList();
     }
 
-    private Snake makeSnake(GameState gameState, Snake snake, MoveCommand moveCommand) {
-        Coordinates head = makeHead(snake, moveCommand);
+    private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
+        Coordinates head = makeHead(moveCommand, snake);
         if (gameState.getBoard().getDimensions().isOutOfBounds(head)) {
             return null;
         }
 
-        int health = makeStandardHealth(gameState, snake, head);
+        int health = makeStandardHealth(head, snake, gameState);
         if (health <= 0) {
             return null;
         }
 
-        List<Coordinates> body = makeBody(snake, head, health);
+        List<Coordinates> body = makeBody(health, head, snake);
 
         return new Snake(snake.getId(), snake.getName(), health, body, snake.getLatency(), head, body.size(),
                 snake.getShout(), snake.getSquad());
     }
 
-    private Coordinates makeHead(Snake snake, MoveCommand moveCommand) {
+    private Coordinates makeHead(MoveCommand moveCommand, Snake snake) {
         return snake.getHead().move(moveCommand);
     }
 
-    private int makeStandardHealth(GameState gameState, Snake snake, Coordinates head) {
-        if (isFood(gameState, head)) {
+    private int makeStandardHealth(Coordinates head, Snake snake, GameState gameState) {
+        if (isFood(head, gameState)) {
             return Snake.getMaxHealth();
         }
 
         return snake.getHealth() - 1;
     }
 
-    private boolean isFood(GameState gameState, Coordinates coordinates) {
+    private boolean isFood(Coordinates coordinates, GameState gameState) {
         return gameState.getBoard().getFood().contains(coordinates);
     }
 
-    private List<Coordinates> makeBody(Snake snake, Coordinates head, int health) {
+    private List<Coordinates> makeBody(int health, Coordinates head, Snake snake) {
         boolean isGrowing = health == Snake.getMaxHealth();
 
         int bodyCapacity = snake.getBody().size() + (isGrowing ? 1 : 0);
@@ -117,7 +117,7 @@ public class GameStateAdvancer {
         snakes = eliminateSnakesByCollision(snakes);
 
         if (gameState.getRules().isRoyale()) {
-            snakes = applyHazards(gameState, snakes);
+            snakes = applyHazards(snakes, gameState);
         }
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
@@ -187,11 +187,11 @@ public class GameStateAdvancer {
         return !other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength();
     }
 
-    private List<Snake> applyHazards(GameState gameState, List<Snake> snakes) {
+    private List<Snake> applyHazards(List<Snake> snakes, GameState gameState) {
         List<Snake> result = new ArrayList<>(snakes.size());
 
         for (Snake current : snakes) {
-            Snake future = applyHazards(gameState, current);
+            Snake future = applyHazards(current, gameState);
             if (future != null) {
                 result.add(future);
             }
@@ -200,8 +200,8 @@ public class GameStateAdvancer {
         return result;
     }
 
-    private Snake applyHazards(GameState gameState, Snake snake) {
-        int health = makeRoyaleHealth(gameState, snake);
+    private Snake applyHazards(Snake snake, GameState gameState) {
+        int health = makeRoyaleHealth(snake, gameState);
         if (health <= 0) {
             return null;
         }
@@ -209,7 +209,7 @@ public class GameStateAdvancer {
         return snake.withHealth(health);
     }
 
-    private int makeRoyaleHealth(GameState gameState, Snake snake) {
+    private int makeRoyaleHealth(Snake snake, GameState gameState) {
         if (gameState.getBoard().getActiveHazards().contains(snake.getHead())) {
             return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
         }
