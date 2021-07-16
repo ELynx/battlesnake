@@ -238,7 +238,6 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
-        // sort by reversed comparator, since bigger weight means better solution
         return toRank.stream().filter(this::isWalkable).max(Comparator
                 .comparingInt((CoordinatesWithDirection coordinates) -> getBoundedFreeSpace(length, coordinates))
                 .thenComparingDouble(this::getImmediateWeight).thenComparingDouble(this::getCrossWeight)
@@ -277,13 +276,46 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
+    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+        return processMoveImpl(snake, gameState);
+    }
+
+    private Optional<MoveCommand> processMoveImpl(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
-        var best = bestMove(snake).or(() -> backupMove(snake)).map(MoveCommandWithProbability::from);
-        if (best.isEmpty()) {
+        return bestMove(snake).or(() -> backupMove(snake));
+    }
+
+    @Override
+    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
+        // on first turn all snakes have 4 moves, this will lead to explosion of options
+        // since first move is important, use safe option
+        if (gameState.getTurn() == 1) {
+            return fromProcessMoveImpl(snake, gameState);
+        }
+
+        Optional<Snake> primarySnake = gameState.getBoard().getSnakes().stream()
+                .filter(x -> x.getId().equals(primarySnakeId)).findAny();
+        if (primarySnake.isPresent()) {
+            if (snake.getHead().manhattanDistance(primarySnake.get().getHead()) <= 2) {
+                return fromWeights(snake, gameState);
+            }
+        }
+
+        // default to zero or single answer
+        return fromProcessMoveImpl(snake, gameState);
+    }
+
+    private List<MoveCommandWithProbability> fromProcessMoveImpl(Snake snake, GameState gameState) {
+        Optional<MoveCommand> move = processMoveImpl(snake, gameState);
+        if (move.isEmpty()) {
             return Collections.emptyList();
         }
-        return List.of(best.get());
+
+        return MoveCommandWithProbability.onlyFrom(move.get());
+    }
+
+    private List<MoveCommandWithProbability> fromWeights(Snake snake, GameState gameState) {
+        return fromProcessMoveImpl(snake, gameState); // TODO
     }
 
     @Override
