@@ -618,4 +618,60 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static GameState dont_step_under_adversary_1() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "__e________\n" + //
+                "__e__o_____\n" + //
+                "__eE_o_____\n" + //
+                "_____o_____\n" + //
+                "_____O___R_\n" + //
+                "____Y____r_\n" + //
+                "____y_0__r_\n" + //
+                "____y____r_\n" + //
+                "____y______\n" + //
+                "___________\n").setRulesetName(ApiExampleBuilder.royaleRulesetName());
+
+        generator.setTurn(8);
+        generator.setLength("O", 5);
+        generator.setHealth("O", 100);
+        generator.setHealth("R", 94);
+        generator.setHealth("E", 94);
+        generator.setHealth("Y", 94);
+        generator.setLatency("O", 257);
+        generator.setLatency("R", 98);
+        generator.setLatency("E", 79);
+        generator.setLatency("Y", 91);
+
+        return generator.build();
+    }
+
+    public static GameState dont_step_under_adversary_2() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_____ggg___\n" + //
+                "_____G_____\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                "_____0_____\n" + //
+                "___yyy__Rr_\n" + //
+                "_____Y__rr_\n" + //
+                "______A____\n" + //
+                "______aa___\n" + //
+                "_______a___\n").setRulesetName(ApiExampleBuilder.royaleRulesetName());
+
+        generator.setTurn(8);
+        generator.setLength("A", 5);
+        generator.setHealth("A", 100);
+        generator.setHealth("R", 96);
+        generator.setHealth("G", 96);
+        generator.setHealth("Y", 96);
+        generator.setLatency("A", 68);
+        generator.setLatency("R", 416);
+        generator.setLatency("G", 262);
+        generator.setLatency("Y", 78);
+
+        return generator.build();
+    }
 }

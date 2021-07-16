@@ -307,4 +307,28 @@ class GameStrategyCaseTest {
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), not(equalTo(RIGHT))).failing("Ahaetulla").validate(name);
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_dont_step_under_adversary_1(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.dont_step_under_adversary_1();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).failing("Voxel").validate(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_dont_step_under_adversary_2(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.dont_step_under_adversary_2();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).failing("Voxel").validate(name);
+    }
 }
