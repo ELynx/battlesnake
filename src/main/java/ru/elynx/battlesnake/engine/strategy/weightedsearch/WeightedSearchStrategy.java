@@ -33,6 +33,8 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
 
+    private String primarySnakeId = null;
+
     private void applyFood(Snake snake, GameState gameState) {
         int healthGainedFromFood = Snake.getMaxHealth() - snake.getHealth();
         double foodWeight = Util.scale(MIN_FOOD_WEIGHT, healthGainedFromFood, Snake.getMaxHealth(), MAX_FOOD_WEIGHT);
@@ -92,7 +94,9 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 }
 
                 if (baseWeight != 0.0d) {
-                    if (head.manhattanDistance(ownHead) > 4) {
+                    boolean isPrimarySnake = id.equals(primarySnakeId);
+
+                    if (head.manhattanDistance(ownHead) > 4 || isPrimarySnake) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
@@ -265,6 +269,11 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
+    }
+
+    @Override
+    public void setPrimarySnake(Snake snake) {
+        primarySnakeId = snake.getId();
     }
 
     @Override

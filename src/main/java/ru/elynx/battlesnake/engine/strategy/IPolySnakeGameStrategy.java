@@ -19,5 +19,7 @@ public interface IPolySnakeGameStrategy extends IGameStrategy {
                 .map(MoveCommandWithProbability::getMoveCommand);
     }
 
+    void setPrimarySnake(Snake snake);
+
     List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState);
 }

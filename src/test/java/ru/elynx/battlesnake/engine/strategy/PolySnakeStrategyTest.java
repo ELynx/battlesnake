@@ -86,10 +86,23 @@ class PolySnakeStrategyTest {
 
     @ParameterizedTest
     @MethodSource(CARTESIAN)
+    void test_no_throw_on_primary(String name, GameState gameState) {
+        IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
+
+        assertDoesNotThrow(() -> {
+            gameStrategy.setPrimarySnake(gameState.getYou());
+            gameStrategy.init(gameState);
+            gameStrategy.setPrimarySnake(gameState.getYou());
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource(CARTESIAN)
     void test_consistent_with_game_strategy(String name, GameState gameState) {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
         assertEquals(gameStrategy.processMove(gameState), gameStrategy.processMove(gameState.getYou(), gameState));
     }
 
@@ -99,6 +112,7 @@ class PolySnakeStrategyTest {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
         assertEquals(gameStrategy.processMove(gameState),
                 gameStrategy.evaluateMoves(gameState.getYou(), gameState).stream()
                         .max(Comparator.comparingDouble(MoveCommandWithProbability::getProbability))
@@ -111,6 +125,7 @@ class PolySnakeStrategyTest {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
         for (Snake snake : gameState.getBoard().getSnakes())
             assertDoesNotThrow(() -> gameStrategy.processMove(snake, gameState));
     }
@@ -123,6 +138,7 @@ class PolySnakeStrategyTest {
         GameState spy = spy(gameState);
 
         gameStrategy.init(spy);
+        gameStrategy.setPrimarySnake(gameState.getYou()); // not via spy
         for (Snake snake : gameState.getBoard().getSnakes()) {
             assertDoesNotThrow(() -> gameStrategy.processMove(snake, spy));
         }

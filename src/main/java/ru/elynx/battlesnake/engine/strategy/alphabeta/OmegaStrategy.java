@@ -32,6 +32,11 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
+    public void setPrimarySnake(Snake snake) {
+        // OmegaStrategy has nothing different for primary snake
+    }
+
+    @Override
     public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
         return bestMoveForSnake(snake, gameState);

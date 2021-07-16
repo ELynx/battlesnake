@@ -35,7 +35,12 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Override
     public void init(GameState gameState) {
+        init(gameState.getYou(), gameState);
+    }
+
+    private void init(Snake snake, GameState gameState) {
         polySnakeGameStrategy.init(gameState);
+        polySnakeGameStrategy.setPrimarySnake(snake);
     }
 
     @Override
