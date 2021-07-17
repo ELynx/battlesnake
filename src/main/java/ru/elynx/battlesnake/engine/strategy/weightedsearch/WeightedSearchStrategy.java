@@ -232,13 +232,13 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return opportunities;
     }
 
-    private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length) {
+    private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length, MoveCommand toIgnore) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
-        return toRank.stream().filter(this::isWalkable).max(Comparator
+        return toRank.stream().filter(x -> !x.getDirection().equals(toIgnore)).filter(this::isWalkable).max(Comparator
                 .comparingInt((CoordinatesWithDirection coordinates) -> getBoundedFreeSpace(length, coordinates))
                 .thenComparingDouble(this::getImmediateWeight).thenComparingDouble(this::getCrossWeight)
                 .thenComparingDouble(this::getOpportunitiesWeight)).map(CoordinatesWithDirection::getDirection);
@@ -250,10 +250,10 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 .map(CoordinatesWithDirection::getDirection);
     }
 
-    private Optional<MoveCommand> bestMove(Snake snake) {
+    private Optional<MoveCommand> bestMove(Snake snake, MoveCommand toIgnore) {
         Collection<CoordinatesWithDirection> ranked = snake.getAdvancingMoves();
         int length = snake.getLength();
-        return rank(ranked, length);
+        return rank(ranked, length, toIgnore);
     }
 
     @Override
@@ -282,13 +282,13 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     private Optional<MoveCommand> processMoveImpl(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
-        return bestMove(snake).or(() -> backupMove(snake));
+        return bestMove(snake, null).or(() -> backupMove(snake));
     }
 
     @Override
     public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
         if (needSpecialHandling(snake, gameState)) {
-            return detailedEvaluation(snake);
+            return detailedEvaluation(snake, gameState);
         }
 
         return singleBestMove(snake, gameState);
@@ -304,9 +304,10 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         if (primarySnakeId != null) {
             Optional<Snake> primarySnakeOptional = gameState.getBoard().getSnakes().stream()
                     .filter(x -> x.getId().equals(primarySnakeId)).findAny();
+
             if (primarySnakeOptional.isPresent()) {
                 Snake primarySnake = primarySnakeOptional.get();
-                return snake.getHead().manhattanDistance(primarySnake.getHead()) <= 2;
+                return snake.getHead().manhattanDistance(primarySnake.getHead()) == 2;
             }
         }
 
@@ -322,98 +323,56 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return MoveCommandWithProbability.onlyFrom(move.get());
     }
 
-    private List<MoveCommandWithProbability> detailedEvaluation(Snake snake) {
-        Collection<CoordinatesWithDirection> moves = snake.getAdvancingMoves();
-        moves.removeIf(x -> !isWalkable(x));
+    private List<MoveCommandWithProbability> detailedEvaluation(Snake snake, GameState gameState) {
+        double sigma = Math.nextUp(0.0d);
+        double countersink = 0.05d;
 
-        if (moves.isEmpty()) {
-            moves = snake.getAdvancingMoves();
-            moves.removeIf(x -> weightMatrix.getDimensions().isOutOfBounds(x));
-            return ofCoordinates(moves);
-        }
+        applyGameState(snake, gameState);
 
-        int length = snake.getLength();
-
-        int[] boundSpace = new int[moves.size()];
-        int maxBoundSpace = Integer.MIN_VALUE;
-
-        int i = 0;
-        for (CoordinatesWithDirection x : moves) {
-            int xBoundSpace = getBoundedFreeSpace(length, x);
-            boundSpace[i] = xBoundSpace;
-            if (xBoundSpace > maxBoundSpace) {
-                maxBoundSpace = xBoundSpace;
+        Optional<MoveCommand> move1 = bestMove(snake, null);
+        if (move1.isEmpty()) {
+            Optional<MoveCommand> backupMove = backupMove(snake);
+            if (backupMove.isEmpty()) {
+                return Collections.emptyList();
             }
-            ++i;
+            return MoveCommandWithProbability.onlyFrom(backupMove.get());
         }
 
-        List<CoordinatesWithDirection> longEnough = new ArrayList<>(1);
-
-        i = 0;
-        for (CoordinatesWithDirection x : moves) {
-            if (boundSpace[i] >= maxBoundSpace) {
-                longEnough.add(x);
-            }
-            ++i;
+        Optional<MoveCommand> move2 = bestMove(snake, move1.get());
+        if (move2.isEmpty()) {
+            return MoveCommandWithProbability.onlyFrom(move1.get());
         }
 
-        return ofCoordinates(longEnough);
-    }
+        CoordinatesWithDirection c1 = snake.getHead().move(move1.get());
+        CoordinatesWithDirection c2 = snake.getHead().move(move2.get());
 
-    private List<MoveCommandWithProbability> ofCoordinates(Collection<CoordinatesWithDirection> from) {
-        if (from.isEmpty()) {
-            return Collections.emptyList();
-        }
+        double w1 = getImmediateWeight(c1);
+        double w2 = getImmediateWeight(c2);
 
-        if (from.size() == 1) {
-            for (CoordinatesWithDirection x : from) {
-                return MoveCommandWithProbability.onlyFrom(x.getDirection());
+        if (Math.abs(w1 - w2) <= sigma) {
+            double wHead = getImmediateWeight(snake.getHead());
+            w1 = getCrossWeight(c1) - wHead;
+            w2 = getCrossWeight(c2) - wHead;
+
+            if (Math.abs(w1 - w2) <= sigma) {
+                w1 = getOpportunitiesWeight(c1);
+                w2 = getOpportunitiesWeight(c2);
             }
         }
 
-        double[] weights = new double[from.size()];
-        double sum = 0.0d;
-        double minWeight = Double.MAX_VALUE;
-        int minIndex = 0;
-
-        int i = 0;
-        for (CoordinatesWithDirection x : from) {
-            double xWeight = weightMatrix.getValue(x);
-
-            weights[i] = xWeight;
-            sum += xWeight;
-
-            if (xWeight < minWeight) {
-                minWeight = xWeight;
-                minIndex = i;
-            }
-
-            ++i;
+        if (w1 <= 0.0d) {
+            w2 = w2 - w1 + countersink;
+            w1 = countersink;
         }
 
-        sum -= minWeight;
-
-        // TODO weights can be less than zero
-        if (sum <= 0.0d) {
-            sum = 1.0d;
-            double single = sum / (from.size() - 1);
-            Arrays.fill(weights, single);
+        if (w2 <= 0.0d) {
+            w1 = w1 - w2 + countersink;
+            w2 = countersink;
         }
 
-        List<MoveCommandWithProbability> result = new ArrayList<>(from.size() - 1);
-
-        i = 0;
-        for (CoordinatesWithDirection x : from) {
-            if (i == minIndex) {
-                ++i;
-                continue;
-            }
-
-            result.add(new MoveCommandWithProbability(x.getDirection(), weights[i] / sum));
-            ++i;
-        }
-
-        return result;
+        double wSum = w1 + w2;
+        return List.of(new MoveCommandWithProbability(move1.get(), w1 / wSum),
+                new MoveCommandWithProbability(move2.get(), w2 / wSum));
     }
 
     @Override

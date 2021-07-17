@@ -100,7 +100,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").different("Voxel").validate(name);
+        assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Pixel").validate(name);
 
         // special case - use flipped version of board to avoid "deterministic
         // adversary" effect
@@ -250,7 +250,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(DOWN)).failing("Ahaetulla").failing("Voxel").validate(name);
+        assertMove(move.orElseThrow(), equalTo(DOWN)).failing("Ahaetulla").validate(name);
     }
 
     @ParameterizedTest
