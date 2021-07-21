@@ -21,11 +21,11 @@ import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
     private final IPolySnakeGameStrategy polySnakeGameStrategy;
-    private final int maxAdvanceDepth;
+    private final int maxSearchDepth;
 
-    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy, int maxAdvanceDepth) {
+    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy, int maxSearchDepth) {
         this.polySnakeGameStrategy = polySnakeGameStrategy;
-        this.maxAdvanceDepth = maxAdvanceDepth;
+        this.maxSearchDepth = maxSearchDepth;
     }
 
     @Override
@@ -108,10 +108,10 @@ public class AlphaBetaStrategy implements IGameStrategy {
         var step1Score = GameStateScoreMaker.makeScore(step0.getSnake(), step0.getGameState(), step1);
 
         if (Boolean.TRUE.equals(step1Score.getValue0())) {
-            return (maxAdvanceDepth - step0.getDepth() + 1) * step1Score.getValue1();
+            return (maxSearchDepth - step0.getDepth() + 1) * step1Score.getValue1();
         }
 
-        if (step0.getDepth() >= maxAdvanceDepth) {
+        if (step0.getDepth() >= maxSearchDepth) {
             return step1Score.getValue1();
         }
 
