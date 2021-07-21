@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import lombok.experimental.UtilityClass;
 import org.javatuples.Pair;
+import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 
@@ -37,7 +38,7 @@ public class GameStateScoreMaker {
         long score = 0;
 
         for (Snake someSnake : gameState.getBoard().getSnakes()) {
-            long power = snakePower(someSnake);
+            long power = snakePower(someSnake, gameState);
 
             if (someSnake.getId().equals(snake.getId())) {
                 score += power;
@@ -49,7 +50,23 @@ public class GameStateScoreMaker {
         return score;
     }
 
-    private long snakePower(Snake snake) {
+    private long snakePower(Snake snake, GameState gameState) {
+        long score = snakeVitalityScore(snake);
+        score += snakePositioningScore(snake, gameState);
+        return score;
+    }
+
+    private long snakeVitalityScore(Snake snake) {
         return (long) snake.getLength() * snake.getHealth();
+    }
+
+    private long snakePositioningScore(Snake snake, GameState gameState) {
+        Coordinates center = gameState.getBoard().getDimensions().center();
+        long score = 0L;
+        for (Coordinates segment : snake.getBody()) {
+            score -= center.manhattanDistance(segment);
+        }
+
+        return score;
     }
 }
