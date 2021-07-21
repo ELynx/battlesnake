@@ -674,4 +674,38 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static GameState dont_go_into_hazard() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_00________\n" + //
+                "00_________\n" + //
+                "___________\n" + //
+                "______Yy___\n" + //
+                "___G<<<yy_0\n" + //
+                "__>>>>^0^<<\n" + //
+                ">>^_____>>^\n" + //
+                "^<_____yy__\n" + //
+                "___v>yyy___\n" + //
+                "___v^_____0\n" + //
+                "___>^____0_\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HHHHHHHHHHH\n");
+
+        generator.setTurn(155);
+        generator.setHealth("G", 92);
+        generator.setHealth("Y", 63);
+        generator.setLatency("G", 235);
+        generator.setLatency("Y", 85);
+
+        return generator.build();
+    }
 }

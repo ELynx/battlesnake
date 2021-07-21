@@ -331,4 +331,16 @@ class GameStrategyCaseTest {
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), equalTo(LEFT)).validate(name);
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_dont_go_into_hazard(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.dont_go_into_hazard();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(LEFT)).validate(name);
+    }
 }
