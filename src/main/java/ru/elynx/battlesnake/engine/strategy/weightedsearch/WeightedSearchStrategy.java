@@ -32,6 +32,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private DoubleMatrix weightMatrix;
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
+    private Map<Coordinates, Integer> lesserSnakeHeads;
 
     private String primarySnakeId = null;
 
@@ -123,6 +124,10 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                                 if (!walkable) {
                                     blockedByNotWalkable.add(prediction);
                                 }
+
+                                if (edible && walkable) {
+                                    lesserSnakeHeads.put(pc, someSnake.getLength());
+                                }
                             }
                         });
                     }
@@ -156,6 +161,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private void applyGameState(Snake snake, GameState gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
+        lesserSnakeHeads.clear();
 
         applyFood(snake, gameState);
         applySnakes(snake, gameState);
@@ -163,7 +169,13 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private int getBoundedFreeSpace(int length, Coordinates coordinates) {
-        return Math.min(length + 1, freeSpaceMatrix.getFreeSpace(coordinates));
+        int fromEating = lesserSnakeHeads.getOrDefault(coordinates, 0);
+        int fromMatrix = freeSpaceMatrix.getFreeSpace(coordinates);
+        int freeSpace = fromEating + fromMatrix;
+
+        int bound = length + 1;
+
+        return Math.min(bound, freeSpace);
     }
 
     private double getImmediateWeight(Coordinates coordinates) {
@@ -293,6 +305,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
+        lesserSnakeHeads = new HashMap<>(gameState.getBoard().getSnakes().size());
     }
 
     @Override
