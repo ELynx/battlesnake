@@ -95,21 +95,27 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 }
 
                 if (baseWeight != 0.0d) {
-                    boolean isPrimarySnake = id.equals(primarySnakeId);
-
-                    if (head.manhattanDistance(ownHead) > 4 || isPrimarySnake) {
+                    if (head.manhattanDistance(ownHead) > 4) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
+                        boolean isPrimarySnake = id.equals(primarySnakeId);
+
+                        if (isPrimarySnake) {
+                            weightMatrix.splash1stOrder(head, baseWeight);
+                        }
+
                         // spread hunt/danger weights
                         List<Pair<Coordinates, Double>> predictions = snakeMovePredictor.predict(someSnake, gameState);
 
                         predictions.forEach(prediction -> {
                             Coordinates pc = prediction.getValue0();
                             double pv = prediction.getValue1();
-                            double pw = baseWeight * pv;
 
-                            weightMatrix.splash2ndOrder(pc, pw, 4.0d);
+                            if (!isPrimarySnake) {
+                                double pw = baseWeight * pv;
+                                weightMatrix.splash2ndOrder(pc, pw, 4.0d);
+                            }
 
                             if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
                                 // edible means preliminary walkable
@@ -121,7 +127,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                                     walkable = pc.manhattanDistance(ownHead) == 1;
                                 }
 
-                                if (!walkable) {
+                                if (!walkable && !isPrimarySnake) {
                                     blockedByNotWalkable.add(prediction);
                                 }
 
