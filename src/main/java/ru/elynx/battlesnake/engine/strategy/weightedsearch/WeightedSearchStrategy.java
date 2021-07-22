@@ -174,7 +174,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         double result = weightMatrix.getValue(coordinates);
         int items = 0;
         for (Coordinates neighbour : coordinates.sideNeighbours()) {
-            if (!weightMatrix.getDimensions().isOutOfBounds(neighbour)) {
+            if (isInsideBounds(neighbour)) {
                 result += weightMatrix.getValue(neighbour);
                 ++items;
             }
@@ -231,7 +231,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
-                if (!weightMatrix.getDimensions().isOutOfBounds(xi, yi)) {
+                if (isInsideBounds(xi, yi)) {
                     double weight = weightMatrix.getValue(xi, yi);
                     // decrease penalties, they will be handled on approach
                     if (weight < 0.0d) {
@@ -263,9 +263,16 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     Optional<MoveCommand> backupMove(Snake snake) {
-        return snake.getAdvancingMoves().stream().filter(x -> !weightMatrix.getDimensions().isOutOfBounds(x))
-                .max(Comparator.comparingDouble(x -> weightMatrix.getValue(x)))
-                .map(CoordinatesWithDirection::getDirection);
+        return snake.getAdvancingMoves().stream().filter(this::isInsideBounds)
+                .max(Comparator.comparingDouble(this::getImmediateWeight)).map(CoordinatesWithDirection::getDirection);
+    }
+
+    private boolean isInsideBounds(Coordinates x) {
+        return !weightMatrix.getDimensions().isOutOfBounds(x);
+    }
+
+    private boolean isInsideBounds(int x, int y) {
+        return !weightMatrix.getDimensions().isOutOfBounds(x, y);
     }
 
     private Optional<MoveCommand> bestMove(Snake snake, MoveCommand toIgnore) {
