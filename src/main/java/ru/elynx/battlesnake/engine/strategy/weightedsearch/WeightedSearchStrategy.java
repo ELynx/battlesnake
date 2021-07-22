@@ -172,10 +172,19 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
+        int items = 0;
         for (Coordinates neighbour : coordinates.sideNeighbours()) {
-            result += weightMatrix.getValue(neighbour);
+            if (!weightMatrix.getDimensions().isOutOfBounds(neighbour)) {
+                result += weightMatrix.getValue(neighbour);
+                ++items;
+            }
         }
-        return result;
+
+        if (items == 0) {
+            return 0.0d;
+        }
+
+        return result / items;
     }
 
     private double getOpportunitiesWeight(CoordinatesWithDirection coordinates) {
@@ -217,19 +226,28 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         }
 
         double opportunities = 0.0d;
+        int items = 0;
+
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
-                double weight = weightMatrix.getValue(xi, yi);
-                // decrease penalties, they will be handled on approach
-                if (weight < 0.0d) {
-                    weight = weight / 10.0d;
+                if (!weightMatrix.getDimensions().isOutOfBounds(xi, yi)) {
+                    double weight = weightMatrix.getValue(xi, yi);
+                    // decrease penalties, they will be handled on approach
+                    if (weight < 0.0d) {
+                        weight = weight / 10.0d;
+                    }
+                    opportunities += weight;
+                    ++items;
                 }
-                opportunities += weight;
             }
         }
 
-        return opportunities;
+        if (items == 0) {
+            return 0.0d;
+        }
+
+        return opportunities / items;
     }
 
     private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length, MoveCommand toIgnore) {
