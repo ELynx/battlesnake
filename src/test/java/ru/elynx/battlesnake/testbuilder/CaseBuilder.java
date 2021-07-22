@@ -783,17 +783,17 @@ public class CaseBuilder {
 
     public static GameState attack_two_adversaries() {
         AsciiToGameState generator = new AsciiToGameState("" + //
-                "___v<<___0_\n" + //
+                "___v<____0_\n" + //
                 "___>>v_____\n" + //
-                "v<___v_____\n" + //
-                ">>H_Y<_____\n" + //
-                "_A_aa______\n" + //
-                "_aaa_______\n" + //
+                "v_H__v_____\n" + //
+                ">>^_v<_____\n" + //
+                "_>AvY______\n" + //
+                "_^<<_______\n" + //
                 "___________\n" + //
                 "___>v______\n" + //
-                "___^>N_____\n" + //
-                "___n_______\n" + //
-                "___n_____0_\n").setHazards("" + //
+                "___^>v_____\n" + //
+                "___n_N_____\n" + //
+                "_________0_\n").setHazards("" + //
                         "_________HH\n" + //
                         "_________HH\n" + //
                         "_________HH\n" + //
