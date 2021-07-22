@@ -742,4 +742,42 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static GameState do_not_lock_two_adversaries() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___v<<___0_\n" + //
+                "___>>v_____\n" + //
+                "v<___v_____\n" + //
+                ">>H_G<_____\n" + //
+                "_Y_yy______\n" + //
+                "_yyy_______\n" + //
+                "___________\n" + //
+                "___>v______\n" + //
+                "___^>N_____\n" + //
+                "___n_______\n" + //
+                "___n_____0_\n").setHazards("" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n");
+
+        generator.setTurn(51);
+        generator.setHealth("G", 96);
+        generator.setHealth("H", 82);
+        generator.setHealth("N", 89);
+        generator.setHealth("Y", 82);
+        generator.setLatency("G", 96);
+        generator.setLatency("H", 366);
+        generator.setLatency("N", 400);
+        generator.setLatency("Y", 79);
+
+        return generator.build();
+    }
 }
