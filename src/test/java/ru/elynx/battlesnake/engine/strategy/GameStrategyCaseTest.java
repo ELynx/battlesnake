@@ -403,4 +403,16 @@ class GameStrategyCaseTest {
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
         assertMove(move.orElseThrow(), not(equalTo(DOWN))).failing("Voxel").validate(name);
     }
+
+    @ParameterizedTest
+    @MethodSource(STRATEGY_NAMES)
+    void test_hunting_case(String name) {
+        IGameStrategy gameStrategy = gameStrategyFactory.getGameStrategy(name);
+
+        GameState gameState = CaseBuilder.hunting_case();
+        gameStrategy.init(gameState);
+
+        Optional<MoveCommand> move = gameStrategy.processMove(gameState);
+        assertMove(move.orElseThrow(), equalTo(UP)).validate(name);
+    }
 }
