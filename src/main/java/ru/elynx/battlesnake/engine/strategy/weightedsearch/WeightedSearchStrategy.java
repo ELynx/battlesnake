@@ -27,7 +27,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
     private static final double BLOCK_NOT_WALKABLE_HEAD_PROBABILITY = Math.nextDown(0.75d);
 
-    private static final double DETERRENT_WEIGHT = -100.0d;
+    private static final double HAZARD_WEIGHT = -1.0d;
 
     private DoubleMatrix weightMatrix;
     private FreeSpaceMatrix freeSpaceMatrix;
@@ -152,7 +152,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             double w = hazardPositionWeight(center, hazard);
-            double ww = DETERRENT_WEIGHT * w;
+            double ww = HAZARD_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
         }
     }
@@ -240,7 +240,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 y1 = y + 3;
                 break;
             default :
-                return DETERRENT_WEIGHT; // don't throw in the middle of the move
+                return Double.MIN_VALUE; // don't throw in the middle of the move
         }
 
         double opportunities = 0.0d;
