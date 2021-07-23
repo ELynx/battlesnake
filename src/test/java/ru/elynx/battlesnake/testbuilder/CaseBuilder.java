@@ -818,4 +818,76 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static GameState self_lock_1() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_______Gg__\n" + //
+                "____0_Y_gg_\n" + //
+                "0_>v__yy_g_\n" + //
+                "__^>H__^<g_\n" + //
+                "__h____>^__\n" + //
+                "__h____y___\n" + //
+                "__h________\n" + //
+                "__h___0____\n" + //
+                "__hh_______\n" + //
+                "___________\n" + //
+                "___________\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n");
+
+        generator.setTurn(63);
+        generator.setHealth("Y", 94);
+        generator.setHealth("H", 95);
+        generator.setHealth("G", 85);
+        generator.setLatency("Y", 78);
+        generator.setLatency("H", 370);
+        generator.setLatency("G", 217);
+
+        return generator.build();
+    }
+
+    public static GameState self_lock_2() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                ">>Y________\n" + //
+                "^<_A_____M0\n" + //
+                "_^<a_mmmmm_\n" + //
+                "0aaa_______\n" + //
+                "_a_________\n" + //
+                "_a_________\n" + //
+                "_a_________\n" + //
+                "_a_________\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n");
+
+        generator.setTurn(47);
+        generator.setHealth("Y", 93);
+        generator.setHealth("A", 94);
+        generator.setHealth("M", 85);
+        generator.setLatency("Y", 79);
+        generator.setLatency("A", 202);
+        generator.setLatency("M", 187);
+
+        return generator.build();
+    }
 }
