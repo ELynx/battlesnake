@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -339,12 +340,15 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private boolean needSpecialHandling(Snake snake, GameState gameState) {
+        int canHandle = 2;
+
         // on first turn all snakes have 4 moves, this will lead to explosion of options
         // since first move is important, use safe option
         if (gameState.getTurn() == 1) {
             return false;
         }
 
+        // << sanity checks
         if (primarySnakeId == null) {
             return false;
         }
@@ -354,9 +358,36 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         if (primarySnakeOptional.isEmpty()) {
             return false;
         }
+        // >>
 
+        // check is snake a concern at all
         Snake primarySnake = primarySnakeOptional.get();
-        return snake.getHead().getManhattanDistance(primarySnake.getHead()) == 2;
+        if (snake.getHead().getManhattanDistance(primarySnake.getHead()) != 2) {
+            return false;
+        }
+
+        // primary + others
+        if (gameState.getBoard().getSnakes().size() <= 1 + canHandle) {
+            return true;
+        }
+
+        // all snakes that are in proximity
+        List<Snake> proximity = gameState.getBoard().getSnakes().stream()
+                .filter(x -> primarySnake.getHead().getManhattanDistance(x.getHead()) == 2)
+                .sorted(Comparator.comparingInt(Snake::getLength).reversed()).collect(Collectors.toList());
+
+        if (proximity.size() <= canHandle) {
+            return true;
+        }
+
+        // longest in proximity get special treatment
+        for (int i = 0; i < canHandle; ++i) {
+            if (proximity.get(i).getId().equals(snake.getId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<MoveCommandWithProbability> singleBestMove(Snake snake, GameState gameState) {
