@@ -1,5 +1,7 @@
 package ru.elynx.battlesnake.engine.strategy;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -98,7 +100,7 @@ class PolySnakeStrategyTest {
 
     @ParameterizedTest
     @MethodSource(CARTESIAN)
-    void test_consistent_with_game_strategy(String name, GameState gameState) {
+    void test_consistent_1(String name, GameState gameState) {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
@@ -108,13 +110,13 @@ class PolySnakeStrategyTest {
 
     @ParameterizedTest
     @MethodSource(CARTESIAN)
-    void test_consistent_with_evaluation(String name, GameState gameState) {
+    void test_consistent_2(String name, GameState gameState) {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
         gameStrategy.setPrimarySnake(gameState.getYou());
         assertEquals(gameStrategy.processMove(gameState),
-                gameStrategy.evaluateMoves(gameState.getYou(), gameState).stream()
+                gameStrategy.processMove(gameState.getYou(), gameState, 4).stream()
                         .max(Comparator.comparingDouble(MoveCommandWithProbability::getProbability))
                         .map(MoveCommandWithProbability::getMoveCommand));
     }
@@ -126,8 +128,9 @@ class PolySnakeStrategyTest {
 
         gameStrategy.init(gameState);
         gameStrategy.setPrimarySnake(gameState.getYou());
-        for (Snake snake : gameState.getBoard().getSnakes())
+        for (Snake snake : gameState.getBoard().getSnakes()) {
             assertDoesNotThrow(() -> gameStrategy.processMove(snake, gameState));
+        }
     }
 
     @ParameterizedTest
@@ -141,8 +144,24 @@ class PolySnakeStrategyTest {
         gameStrategy.setPrimarySnake(gameState.getYou()); // not via spy
         for (Snake snake : gameState.getBoard().getSnakes()) {
             assertDoesNotThrow(() -> gameStrategy.processMove(snake, spy));
+            assertDoesNotThrow(() -> gameStrategy.processMove(snake, spy, 4));
         }
 
         verify(spy, never()).getYou();
+    }
+
+    @ParameterizedTest
+    @MethodSource(CARTESIAN)
+    void test_observe_max_moves(String name, GameState gameState) {
+        IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
+
+        gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
+        for (Snake snake : gameState.getBoard().getSnakes()) {
+            for (int maxMoves = 1; maxMoves <= 4; ++maxMoves) {
+                var moves = gameStrategy.processMove(snake, gameState, maxMoves);
+                assertThat(moves.size(), is(lessThanOrEqualTo(maxMoves)));
+            }
+        }
     }
 }

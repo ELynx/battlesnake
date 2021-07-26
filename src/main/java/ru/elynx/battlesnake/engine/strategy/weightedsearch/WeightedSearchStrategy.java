@@ -330,7 +330,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
+    public List<MoveCommandWithProbability> processMove(Snake snake, GameState gameState, int maxMoves) {
         if (needSpecialHandling(snake, gameState)) {
             return detailedEvaluation(snake, gameState);
         }

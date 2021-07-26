@@ -1,10 +1,8 @@
 package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +35,7 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
-    public List<MoveCommandWithProbability> evaluateMoves(Snake snake, GameState gameState) {
+    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
         return bestMoveForSnake(snake, gameState);
     }
@@ -47,16 +45,21 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
         Common.forAllSnakeBodies(gameState, occupiedPositions::set);
     }
 
-    private List<MoveCommandWithProbability> bestMoveForSnake(Snake snake, GameState gameState) {
+    private Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
         var rankedMoves = snakeMovePredictor.predict(snake, gameState);
         var bestMove = rankedMoves.stream().max(Comparator.comparingDouble(Pair::getValue1));
         if (bestMove.isEmpty()) {
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         Coordinates coordinates = bestMove.get().getValue0();
-        return snake.getHead().getSideNeighbours().stream().filter(x -> x.equals(coordinates)).findAny()
-                .map(x -> MoveCommandWithProbability.from(x.getDirection())).stream().collect(Collectors.toList());
+        for (CoordinatesWithDirection neighbour : snake.getHead().getSideNeighbours()) {
+            if (neighbour.equals(coordinates)) {
+                return Optional.of(neighbour.getDirection());
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
