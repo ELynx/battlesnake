@@ -74,6 +74,6 @@ public class Snake {
 
     public Collection<CoordinatesWithDirection> getAdvancingMoves() {
         Coordinates neck = getNeck();
-        return head.sideNeighbours().stream().filter(x -> !x.equals(neck)).collect(Collectors.toList());
+        return head.getSideNeighbours().stream().filter(x -> !x.equals(neck)).collect(Collectors.toList());
     }
 }

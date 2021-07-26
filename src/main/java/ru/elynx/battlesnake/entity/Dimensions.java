@@ -7,7 +7,7 @@ public class Dimensions {
     int width;
     int height;
 
-    public int area() {
+    public int getArea() {
         return getWidth() * getHeight();
     }
 
@@ -19,7 +19,7 @@ public class Dimensions {
         return x < 0 || y < 0 || x >= width || y >= height;
     }
 
-    public Coordinates center() {
+    public Coordinates getCenter() {
         return new Coordinates(width / 2, height / 2);
     }
 }

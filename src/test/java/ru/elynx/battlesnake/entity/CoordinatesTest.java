@@ -65,7 +65,7 @@ class CoordinatesTest {
                 Coordinates right = tested.move(RIGHT);
                 Coordinates up = tested.move(UP);
 
-                assertThat(tested.sideNeighbours(), containsInAnyOrder(down, left, right, up));
+                assertThat(tested.getSideNeighbours(), containsInAnyOrder(down, left, right, up));
             }
         }
     }
@@ -82,23 +82,23 @@ class CoordinatesTest {
                 Coordinates three = tested.move(UP).move(LEFT);
                 Coordinates four = tested.move(UP).move(RIGHT);
 
-                assertThat(tested.cornerNeighbours(), containsInAnyOrder(one, two, three, four));
+                assertThat(tested.getCornerNeighbours(), containsInAnyOrder(one, two, three, four));
             }
         }
     }
 
     @Test
     void test_manhattan_of_coordinate() {
-        assertEquals(0, p1.manhattanDistance(p1));
-        assertEquals(0, p2.manhattanDistance(p2));
-        assertEquals(0, p3.manhattanDistance(p3));
+        assertEquals(0, p1.getManhattanDistance(p1));
+        assertEquals(0, p2.getManhattanDistance(p2));
+        assertEquals(0, p3.getManhattanDistance(p3));
 
-        assertEquals(p1.manhattanDistance(p2), p2.manhattanDistance(p1));
-        assertEquals(p1.manhattanDistance(p3), p3.manhattanDistance(p1));
-        assertEquals(p2.manhattanDistance(p3), p3.manhattanDistance(p2));
+        assertEquals(p1.getManhattanDistance(p2), p2.getManhattanDistance(p1));
+        assertEquals(p1.getManhattanDistance(p3), p3.getManhattanDistance(p1));
+        assertEquals(p2.getManhattanDistance(p3), p3.getManhattanDistance(p2));
 
-        assertEquals(1, p1.manhattanDistance(p2));
-        assertEquals(99 + 99, p1.manhattanDistance(p3));
-        assertEquals(99 + 98, p2.manhattanDistance(p3));
+        assertEquals(1, p1.getManhattanDistance(p2));
+        assertEquals(99 + 99, p1.getManhattanDistance(p3));
+        assertEquals(99 + 98, p2.getManhattanDistance(p3));
     }
 }

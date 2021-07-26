@@ -59,7 +59,7 @@ public class SoloLengthChallengeStrategy extends SolverStrategy {
      * @return Instructions on how to run in circles.
      */
     private MoveCommandField makeStage0(Dimensions dimensions) {
-        if (dimensions.area() != 49) {
+        if (dimensions.getArea() != 49) {
             return null;
         }
 
@@ -90,7 +90,7 @@ public class SoloLengthChallengeStrategy extends SolverStrategy {
      * @return Instructions on how to cover the field.
      */
     private MoveCommandField makeStage1(Dimensions dimensions) {
-        if (dimensions.area() != 49) {
+        if (dimensions.getArea() != 49) {
             return null;
         }
 
@@ -121,7 +121,7 @@ public class SoloLengthChallengeStrategy extends SolverStrategy {
      * @return Instructions on how to cover the field.
      */
     private MoveCommandField makeStage2(Dimensions dimensions) {
-        if (dimensions.area() != 49) {
+        if (dimensions.getArea() != 49) {
             return null;
         }
 

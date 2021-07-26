@@ -27,7 +27,7 @@ public class GameStateScoreMaker {
     }
 
     private static long calculateScoreLimit(GameState gameState) {
-        return (long) gameState.getBoard().getDimensions().area() * Snake.getMaxHealth();
+        return (long) gameState.getBoard().getDimensions().getArea() * Snake.getMaxHealth();
     }
 
     private static boolean oneSnakeLeft(GameState gameState0, GameState gameState1) {
@@ -61,10 +61,10 @@ public class GameStateScoreMaker {
     }
 
     private long snakePositioningScore(Snake snake, GameState gameState) {
-        Coordinates center = gameState.getBoard().getDimensions().center();
+        Coordinates center = gameState.getBoard().getDimensions().getCenter();
         long score = 0L;
         for (Coordinates segment : snake.getBody()) {
-            score -= center.manhattanDistance(segment);
+            score -= center.getManhattanDistance(segment);
         }
 
         return score;

@@ -15,7 +15,7 @@ public class MoveCommandField extends Matrix {
     }
 
     public static MoveCommandField of(Dimensions dimensions, MoveCommand[] values) throws IllegalArgumentException {
-        if (dimensions.area() != values.length)
+        if (dimensions.getArea() != values.length)
             throw new IllegalArgumentException("Dimensions do not match provided number of arguments");
 
         return new MoveCommandField(dimensions, values);

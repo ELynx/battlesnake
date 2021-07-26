@@ -21,7 +21,7 @@ public class FreeSpaceMatrix extends Matrix {
     private FreeSpaceMatrix(Dimensions dimensions) {
         super(dimensions);
 
-        this.spaceValues = new int[dimensions.area()];
+        this.spaceValues = new int[dimensions.getArea()];
         this.floodFillStack = new int[this.spaceValues.length * 2];
     }
 

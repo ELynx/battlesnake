@@ -31,7 +31,7 @@ class FreeSpaceMatrixTest {
                 Dimensions dimensions = new Dimensions(width, height);
                 FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
                 int freeSpaceInEmptyMatrix = tested.getFreeSpace(new Coordinates(0, 0));
-                assertEquals(dimensions.area(), freeSpaceInEmptyMatrix);
+                assertEquals(dimensions.getArea(), freeSpaceInEmptyMatrix);
             }
         }
     }

@@ -55,7 +55,7 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
         }
 
         Coordinates coordinates = bestMove.get().getValue0();
-        return snake.getHead().sideNeighbours().stream().filter(x -> x.equals(coordinates)).findAny()
+        return snake.getHead().getSideNeighbours().stream().filter(x -> x.equals(coordinates)).findAny()
                 .map(x -> MoveCommandWithProbability.from(x.getDirection())).stream().collect(Collectors.toList());
     }
 

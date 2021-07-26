@@ -13,7 +13,7 @@ public class DoubleMatrix extends Matrix {
     private DoubleMatrix(Dimensions dimensions, double outsideValue) {
         super(dimensions);
 
-        this.values = new double[dimensions.area()];
+        this.values = new double[dimensions.getArea()];
         this.outsideValue = outsideValue;
     }
 
@@ -82,7 +82,7 @@ public class DoubleMatrix extends Matrix {
         if (addValue(coordinates, valueAtImpact)) {
             valueAtImpact = valueAtImpact / denominator;
 
-            for (Coordinates neighbour : coordinates.sideNeighbours()) {
+            for (Coordinates neighbour : coordinates.getSideNeighbours()) {
                 addValue(neighbour, valueAtImpact);
             }
 
@@ -101,7 +101,7 @@ public class DoubleMatrix extends Matrix {
         if (splash1stOrder(coordinates, valueAtImpact, denominator)) {
             valueAtImpact = valueAtImpact / denominator / denominator;
 
-            for (Coordinates neighbour : coordinates.cornerNeighbours()) {
+            for (Coordinates neighbour : coordinates.getCornerNeighbours()) {
                 addValue(neighbour, valueAtImpact);
             }
 

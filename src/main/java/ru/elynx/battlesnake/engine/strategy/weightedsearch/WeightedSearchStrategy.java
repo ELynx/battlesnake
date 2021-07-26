@@ -95,7 +95,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 }
 
                 if (baseWeight != 0.0d) {
-                    if (head.manhattanDistance(ownHead) > 4) {
+                    if (head.getManhattanDistance(ownHead) > 4) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
@@ -124,7 +124,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                                 // if walkable by edibility, see if reachable in single move
                                 if (walkable) {
                                     // keep walkable only if next move can eat
-                                    walkable = pc.manhattanDistance(ownHead) == 1;
+                                    walkable = pc.getManhattanDistance(ownHead) == 1;
                                 }
 
                                 if (!walkable && !isPrimarySnake) {
@@ -148,7 +148,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private void applyHazards(GameState gameState) {
-        Coordinates center = gameState.getBoard().getDimensions().center();
+        Coordinates center = gameState.getBoard().getDimensions().getCenter();
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             double w = hazardPositionWeight(center, hazard);
@@ -158,7 +158,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private double hazardPositionWeight(Coordinates center, Coordinates hazard) {
-        int distanceInSteps = center.manhattanDistance(hazard);
+        int distanceInSteps = center.getManhattanDistance(hazard);
         int distanceInStepsFromCorner = center.getX() + center.getY(); // from (0, 0)
         // small gradient will still be detected
         return Util.scale(0.95, distanceInSteps, distanceInStepsFromCorner, 1.0d);
@@ -191,7 +191,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
         int items = 0;
-        for (Coordinates neighbour : coordinates.sideNeighbours()) {
+        for (Coordinates neighbour : coordinates.getSideNeighbours()) {
             if (isInsideBounds(neighbour)) {
                 result += weightMatrix.getValue(neighbour);
                 ++items;
@@ -351,7 +351,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
             if (primarySnakeOptional.isPresent()) {
                 Snake primarySnake = primarySnakeOptional.get();
-                return snake.getHead().manhattanDistance(primarySnake.getHead()) == 2;
+                return snake.getHead().getManhattanDistance(primarySnake.getHead()) == 2;
             }
         }
 
