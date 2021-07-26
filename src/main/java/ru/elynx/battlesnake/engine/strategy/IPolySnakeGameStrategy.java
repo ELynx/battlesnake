@@ -1,6 +1,6 @@
 package ru.elynx.battlesnake.engine.strategy;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import ru.elynx.battlesnake.entity.GameState;
@@ -15,10 +15,11 @@ public interface IPolySnakeGameStrategy extends IGameStrategy {
         return processMove(gameState.getYou(), gameState);
     }
 
-    Optional<MoveCommand> processMove(Snake snake, GameState gameState);
-
-    default List<MoveCommandWithProbability> processMove(Snake snake, GameState gameState, int maxMoves) {
-        Optional<MoveCommand> bestMove = processMove(snake, gameState);
-        return bestMove.map(MoveCommandWithProbability::onlyFrom).orElse(Collections.emptyList());
+    default Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+        return processMoveWithProbabilities(snake, gameState).stream()
+                .max(Comparator.comparingDouble(MoveCommandWithProbability::getProbability))
+                .map(MoveCommandWithProbability::getMoveCommand);
     }
+
+    List<MoveCommandWithProbability> processMoveWithProbabilities(Snake snake, GameState gameState);
 }

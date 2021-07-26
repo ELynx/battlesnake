@@ -320,8 +320,8 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
-        return processMoveImpl(snake, gameState);
+    public Optional<MoveCommand> processMove(GameState gameState) {
+        return processMoveImpl(gameState.getYou(), gameState);
     }
 
     private Optional<MoveCommand> processMoveImpl(Snake snake, GameState gameState) {
@@ -330,7 +330,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public List<MoveCommandWithProbability> processMove(Snake snake, GameState gameState, int maxMoves) {
+    public List<MoveCommandWithProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
         if (needSpecialHandling(snake, gameState)) {
             return detailedEvaluation(snake, gameState);
         }

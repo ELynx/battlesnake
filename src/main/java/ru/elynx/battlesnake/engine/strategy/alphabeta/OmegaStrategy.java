@@ -1,9 +1,8 @@
 package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
-import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.elynx.battlesnake.engine.math.FlagMatrix;
@@ -35,9 +34,9 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+    public List<MoveCommandWithProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
-        return bestMoveForSnake(snake, gameState);
+        return snakeMoveProbabilities(snake, gameState);
     }
 
     private void setupPredictorInformant(GameState gameState) {
@@ -45,21 +44,18 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
         Common.forAllSnakeBodies(gameState, occupiedPositions::set);
     }
 
-    private Optional<MoveCommand> bestMoveForSnake(Snake snake, GameState gameState) {
+    private List<MoveCommandWithProbability> snakeMoveProbabilities(Snake snake, GameState gameState) {
         var rankedMoves = snakeMovePredictor.predict(snake, gameState);
-        var bestMove = rankedMoves.stream().max(Comparator.comparingDouble(Pair::getValue1));
-        if (bestMove.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Coordinates coordinates = bestMove.get().getValue0();
-        for (CoordinatesWithDirection neighbour : snake.getHead().getSideNeighbours()) {
-            if (neighbour.equals(coordinates)) {
-                return Optional.of(neighbour.getDirection());
+        List<MoveCommandWithProbability> result = new ArrayList<>(rankedMoves.size());
+        for (CoordinatesWithDirection direction : snake.getHead().getSideNeighbours()) {
+            for (var rankedMove : rankedMoves) {
+                if (direction.equals(rankedMove.getValue0())) {
+                    result.add(new MoveCommandWithProbability(direction.getDirection(), rankedMove.getValue1()));
+                }
             }
         }
 
-        return Optional.empty();
+        return result;
     }
 
     @Override
