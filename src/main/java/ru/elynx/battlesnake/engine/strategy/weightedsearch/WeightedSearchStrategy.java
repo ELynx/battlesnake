@@ -345,17 +345,18 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
             return false;
         }
 
-        if (primarySnakeId != null) {
-            Optional<Snake> primarySnakeOptional = gameState.getBoard().getSnakes().stream()
-                    .filter(x -> x.getId().equals(primarySnakeId)).findAny();
-
-            if (primarySnakeOptional.isPresent()) {
-                Snake primarySnake = primarySnakeOptional.get();
-                return snake.getHead().getManhattanDistance(primarySnake.getHead()) == 2;
-            }
+        if (primarySnakeId == null) {
+            return false;
         }
 
-        return false;
+        Optional<Snake> primarySnakeOptional = gameState.getBoard().getSnakes().stream()
+                .filter(x -> x.getId().equals(primarySnakeId)).findAny();
+        if (primarySnakeOptional.isEmpty()) {
+            return false;
+        }
+
+        Snake primarySnake = primarySnakeOptional.get();
+        return snake.getHead().getManhattanDistance(primarySnake.getHead()) == 2;
     }
 
     private List<MoveCommandWithProbability> singleBestMove(Snake snake, GameState gameState) {
