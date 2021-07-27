@@ -674,4 +674,254 @@ public class CaseBuilder {
 
         return generator.build();
     }
+
+    public static GameState dont_go_into_hazard() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_00________\n" + //
+                "00_________\n" + //
+                "___________\n" + //
+                "______Yy___\n" + //
+                "___G<<<yy_0\n" + //
+                "__>>>>^0^<<\n" + //
+                ">>^_____>>^\n" + //
+                "^<_____yy__\n" + //
+                "___v>yyy___\n" + //
+                "___v^_____0\n" + //
+                "___>^____0_\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HH________H\n" + //
+                        "HHHHHHHHHHH\n");
+
+        generator.setTurn(155);
+        generator.setHealth("G", 92);
+        generator.setHealth("Y", 63);
+        generator.setLatency("G", 235);
+        generator.setLatency("Y", 85);
+
+        return generator.build();
+    }
+
+    public static GameState go_out_of_hazard_fast() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___Y<<<<___\n" + //
+                "0_>>>>v^___\n" + //
+                "__^v__>^___\n" + //
+                "__^<_______\n" + //
+                "_______>v__\n" + //
+                "_____v<^G_0\n" + //
+                "_____>>^___\n" + //
+                "__________0\n" + //
+                "___________\n" + //
+                "___________\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "H_______HHH\n" + //
+                        "HHHHHHHHHHH\n");
+
+        generator.setTurn(152);
+        generator.setHealth("G", 27);
+        generator.setHealth("Y", 85);
+        generator.setLatency("G", 421);
+        generator.setLatency("Y", 83);
+
+        return generator.build();
+    }
+
+    public static GameState do_not_lock_two_adversaries() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___v<<___0_\n" + //
+                "___>>v_____\n" + //
+                "v<___v_____\n" + //
+                ">>H_G<_____\n" + //
+                "_Y_yy______\n" + //
+                "_yyy_______\n" + //
+                "___________\n" + //
+                "___>v______\n" + //
+                "___^>N_____\n" + //
+                "___n_______\n" + //
+                "___n_____0_\n").setHazards("" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n");
+
+        generator.setTurn(51);
+        generator.setHealth("G", 96);
+        generator.setHealth("H", 82);
+        generator.setHealth("N", 89);
+        generator.setHealth("Y", 82);
+        generator.setLatency("G", 96);
+        generator.setLatency("H", 366);
+        generator.setLatency("N", 400);
+        generator.setLatency("Y", 79);
+
+        return generator.build();
+    }
+
+    public static GameState attack_two_adversaries() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___v<____0_\n" + //
+                "___>>v_____\n" + //
+                "v_H__v_____\n" + //
+                ">>^_v<_____\n" + //
+                "_>AvY______\n" + //
+                "_^<<_______\n" + //
+                "___________\n" + //
+                "___>v______\n" + //
+                "___^>v_____\n" + //
+                "___n_N_____\n" + //
+                "_________0_\n").setHazards("" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n");
+
+        generator.setTurn(51);
+        generator.setHealth("Y", 96);
+        generator.setHealth("H", 82);
+        generator.setHealth("N", 89);
+        generator.setHealth("A", 82);
+        generator.setLatency("Y", 96);
+        generator.setLatency("H", 366);
+        generator.setLatency("N", 400);
+        generator.setLatency("A", 79);
+
+        return generator.build();
+    }
+
+    public static GameState self_lock_1() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "_______Gg__\n" + //
+                "____0_Y_gg_\n" + //
+                "0_>v__yy_g_\n" + //
+                "__^>H__^<g_\n" + //
+                "__h____>^__\n" + //
+                "__h____y___\n" + //
+                "__h________\n" + //
+                "__h___0____\n" + //
+                "__hh_______\n" + //
+                "___________\n" + //
+                "___________\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n" + //
+                        "_________HH\n");
+
+        generator.setTurn(63);
+        generator.setHealth("Y", 94);
+        generator.setHealth("H", 95);
+        generator.setHealth("G", 85);
+        generator.setLatency("Y", 78);
+        generator.setLatency("H", 370);
+        generator.setLatency("G", 217);
+
+        return generator.build();
+    }
+
+    public static GameState self_lock_2() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "___________\n" + //
+                "___________\n" + //
+                "___________\n" + //
+                ">>Y________\n" + //
+                "^<_A_____M0\n" + //
+                "_^<a_mmmmm_\n" + //
+                "0aaa_______\n" + //
+                "_a_________\n" + //
+                "_a_________\n" + //
+                "_a_________\n" + //
+                "_a_________\n").setHazards("" + //
+                        "HHHHHHHHHHH\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n" + //
+                        "__________H\n");
+
+        generator.setTurn(47);
+        generator.setHealth("Y", 93);
+        generator.setHealth("A", 94);
+        generator.setHealth("M", 85);
+        generator.setLatency("Y", 79);
+        generator.setLatency("A", 202);
+        generator.setLatency("M", 187);
+
+        return generator.build();
+    }
+
+    public static GameState hunting_case() {
+        AsciiToGameState generator = new AsciiToGameState("" + //
+                "____eee____\n" + //
+                "____E_e_e_0\n" + //
+                "___Y__eee__\n" + //
+                "___yy<<<___\n" + //
+                "_____>>^___\n" + //
+                "_____y_____\n" + //
+                "___________\n" + //
+                "0__________\n" + //
+                "___________\n" + //
+                "0__________\n" + //
+                "___0_______\n").setHazards("" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "H_________H\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n" + //
+                        "HHHHHHHHHHH\n");
+
+        generator.setTurn(107);
+        generator.setHealth("Y", 85);
+        generator.setHealth("E", 78);
+        generator.setLatency("Y", 77);
+        generator.setLatency("E", 188);
+
+        return generator.build();
+    }
 }

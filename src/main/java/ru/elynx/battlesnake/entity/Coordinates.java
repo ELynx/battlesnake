@@ -22,16 +22,16 @@ public class Coordinates {
         return CoordinatesWithDirection.fromCoordinates(this, direction);
     }
 
-    public Collection<CoordinatesWithDirection> sideNeighbours() {
+    public Collection<CoordinatesWithDirection> getSideNeighbours() {
         return List.of(move(DOWN), move(LEFT), move(RIGHT), move(UP));
     }
 
-    public Collection<Coordinates> cornerNeighbours() {
+    public Collection<Coordinates> getCornerNeighbours() {
         return List.of(new Coordinates(getX() - 1, getY() - 1), new Coordinates(getX() + 1, getY() - 1),
                 new Coordinates(getX() - 1, getY() + 1), new Coordinates(getX() + 1, getY() + 1));
     }
 
-    public int manhattanDistance(Coordinates other) {
+    public int getManhattanDistance(Coordinates other) {
         return Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY());
     }
 }

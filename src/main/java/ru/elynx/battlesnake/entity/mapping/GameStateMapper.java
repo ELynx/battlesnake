@@ -29,5 +29,7 @@ public interface GameStateMapper {
     @Mapping(target = "move", ignore = true)
     @Mapping(target = "withX", ignore = true)
     @Mapping(target = "withY", ignore = true)
+    @Mapping(target = "sideNeighbours", ignore = true)
+    @Mapping(target = "cornerNeighbours", ignore = true)
     Coordinates toEntity(CoordsDto dto);
 }

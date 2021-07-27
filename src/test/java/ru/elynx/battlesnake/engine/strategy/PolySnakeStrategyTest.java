@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.entity.GameState;
+import ru.elynx.battlesnake.entity.MoveCommandWithProbability;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
@@ -85,11 +86,37 @@ class PolySnakeStrategyTest {
 
     @ParameterizedTest
     @MethodSource(CARTESIAN)
-    void test_consistent_with_game_strategy(String name, GameState gameState) {
+    void test_no_throw_on_primary(String name, GameState gameState) {
+        IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
+
+        assertDoesNotThrow(() -> {
+            gameStrategy.setPrimarySnake(gameState.getYou());
+            gameStrategy.init(gameState);
+            gameStrategy.setPrimarySnake(gameState.getYou());
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource(CARTESIAN)
+    void test_consistent_1(String name, GameState gameState) {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
         assertEquals(gameStrategy.processMove(gameState), gameStrategy.processMove(gameState.getYou(), gameState));
+    }
+
+    @ParameterizedTest
+    @MethodSource(CARTESIAN)
+    void test_consistent_2(String name, GameState gameState) {
+        IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
+
+        gameStrategy.init(gameState);
+        gameStrategy.setPrimarySnake(gameState.getYou());
+        assertEquals(gameStrategy.processMove(gameState),
+                gameStrategy.processMoveWithProbabilities(gameState.getYou(), gameState).stream()
+                        .max(Comparator.comparingDouble(MoveCommandWithProbability::getProbability))
+                        .map(MoveCommandWithProbability::getMoveCommand));
     }
 
     @ParameterizedTest
@@ -98,8 +125,10 @@ class PolySnakeStrategyTest {
         IPolySnakeGameStrategy gameStrategy = (IPolySnakeGameStrategy) gameStrategyFactory.getGameStrategy(name);
 
         gameStrategy.init(gameState);
-        for (Snake snake : gameState.getBoard().getSnakes())
-            assertDoesNotThrow(() -> gameStrategy.processMove(snake, gameState));
+        gameStrategy.setPrimarySnake(gameState.getYou());
+        for (Snake snake : gameState.getBoard().getSnakes()) {
+            assertDoesNotThrow(() -> gameStrategy.processMoveWithProbabilities(snake, gameState));
+        }
     }
 
     @ParameterizedTest
@@ -110,7 +139,9 @@ class PolySnakeStrategyTest {
         GameState spy = spy(gameState);
 
         gameStrategy.init(spy);
+        gameStrategy.setPrimarySnake(gameState.getYou()); // not via spy
         for (Snake snake : gameState.getBoard().getSnakes()) {
+            assertDoesNotThrow(() -> gameStrategy.processMoveWithProbabilities(snake, spy));
             assertDoesNotThrow(() -> gameStrategy.processMove(snake, spy));
         }
 

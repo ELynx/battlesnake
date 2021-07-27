@@ -2,6 +2,7 @@ package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +28,14 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private static final double SNAKE_BODY_WEIGHT = -1.0d;
     private static final double BLOCK_NOT_WALKABLE_HEAD_PROBABILITY = Math.nextDown(0.75d);
 
-    private static final double DETERRENT_WEIGHT = -100.0d;
+    private static final double HAZARD_WEIGHT = -1.0d;
 
     private DoubleMatrix weightMatrix;
     private FreeSpaceMatrix freeSpaceMatrix;
     private SnakeMovePredictor snakeMovePredictor;
+    private Map<Coordinates, Integer> lesserSnakeHeads;
+
+    private String primarySnakeId = null;
 
     private void applyFood(Snake snake, GameState gameState) {
         int healthGainedFromFood = Snake.getMaxHealth() - snake.getHealth();
@@ -92,19 +96,27 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 }
 
                 if (baseWeight != 0.0d) {
-                    if (head.manhattanDistance(ownHead) > 4) {
+                    if (head.getManhattanDistance(ownHead) > 4) {
                         // cheap and easy on faraway snakes
                         weightMatrix.splash1stOrder(head, baseWeight);
                     } else {
+                        boolean isPrimarySnake = id.equals(primarySnakeId);
+
+                        if (isPrimarySnake) {
+                            weightMatrix.splash1stOrder(head, baseWeight);
+                        }
+
                         // spread hunt/danger weights
                         List<Pair<Coordinates, Double>> predictions = snakeMovePredictor.predict(someSnake, gameState);
 
                         predictions.forEach(prediction -> {
                             Coordinates pc = prediction.getValue0();
                             double pv = prediction.getValue1();
-                            double pw = baseWeight * pv;
 
-                            weightMatrix.splash2ndOrder(pc, pw, 4.0d);
+                            if (!isPrimarySnake) {
+                                double pw = baseWeight * pv;
+                                weightMatrix.splash2ndOrder(pc, pw, 4.0d);
+                            }
 
                             if (pv >= BLOCK_NOT_WALKABLE_HEAD_PROBABILITY) {
                                 // edible means preliminary walkable
@@ -113,11 +125,15 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                                 // if walkable by edibility, see if reachable in single move
                                 if (walkable) {
                                     // keep walkable only if next move can eat
-                                    walkable = pc.manhattanDistance(ownHead) == 1;
+                                    walkable = pc.getManhattanDistance(ownHead) == 1;
                                 }
 
-                                if (!walkable) {
+                                if (!walkable && !isPrimarySnake) {
                                     blockedByNotWalkable.add(prediction);
+                                }
+
+                                if (edible && walkable) {
+                                    lesserSnakeHeads.put(pc, someSnake.getLength());
                                 }
                             }
                         });
@@ -133,17 +149,17 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private void applyHazards(GameState gameState) {
-        Coordinates center = gameState.getBoard().getDimensions().center();
+        Coordinates center = gameState.getBoard().getDimensions().getCenter();
 
         for (Coordinates hazard : gameState.getBoard().getHazards()) {
             double w = hazardPositionWeight(center, hazard);
-            double ww = DETERRENT_WEIGHT * w;
+            double ww = HAZARD_WEIGHT * w;
             weightMatrix.addValue(hazard, ww);
         }
     }
 
     private double hazardPositionWeight(Coordinates center, Coordinates hazard) {
-        int distanceInSteps = center.manhattanDistance(hazard);
+        int distanceInSteps = center.getManhattanDistance(hazard);
         int distanceInStepsFromCorner = center.getX() + center.getY(); // from (0, 0)
         // small gradient will still be detected
         return Util.scale(0.95, distanceInSteps, distanceInStepsFromCorner, 1.0d);
@@ -152,6 +168,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     private void applyGameState(Snake snake, GameState gameState) {
         weightMatrix.zero();
         freeSpaceMatrix.empty();
+        lesserSnakeHeads.clear();
 
         applyFood(snake, gameState);
         applySnakes(snake, gameState);
@@ -159,7 +176,13 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private int getBoundedFreeSpace(int length, Coordinates coordinates) {
-        return Math.min(length + 1, freeSpaceMatrix.getFreeSpace(coordinates));
+        int fromEating = lesserSnakeHeads.getOrDefault(coordinates, 0);
+        int fromMatrix = freeSpaceMatrix.getFreeSpace(coordinates);
+        int freeSpace = fromEating + fromMatrix;
+
+        int bound = length + 1;
+
+        return Math.min(bound, freeSpace);
     }
 
     private double getImmediateWeight(Coordinates coordinates) {
@@ -168,10 +191,19 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
-        for (Coordinates neighbour : coordinates.sideNeighbours()) {
-            result += weightMatrix.getValue(neighbour);
+        int items = 0;
+        for (Coordinates neighbour : coordinates.getSideNeighbours()) {
+            if (isInsideBounds(neighbour)) {
+                result += weightMatrix.getValue(neighbour);
+                ++items;
+            }
         }
-        return result;
+
+        if (items == 0) {
+            return 0.0d;
+        }
+
+        return result / items;
     }
 
     private double getOpportunitiesWeight(CoordinatesWithDirection coordinates) {
@@ -209,48 +241,63 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
                 y1 = y + 3;
                 break;
             default :
-                return DETERRENT_WEIGHT; // don't throw in the middle of the move
+                return Double.MIN_VALUE; // don't throw in the middle of the move
         }
 
         double opportunities = 0.0d;
+        int items = 0;
+
         // in array access friendly order
         for (int yi = y0; yi <= y1; ++yi) {
             for (int xi = x0; xi <= x1; ++xi) {
-                double weight = weightMatrix.getValue(xi, yi);
-                // decrease penalties, they will be handled on approach
-                if (weight < 0.0d) {
-                    weight = weight / 10.0d;
+                if (isInsideBounds(xi, yi)) {
+                    double weight = weightMatrix.getValue(xi, yi);
+                    // decrease penalties, they will be handled on approach
+                    if (weight < 0.0d) {
+                        weight = weight / 10.0d;
+                    }
+                    opportunities += weight;
+                    ++items;
                 }
-                opportunities += weight;
             }
         }
 
-        return opportunities;
+        if (items == 0) {
+            return 0.0d;
+        }
+
+        return opportunities / items;
     }
 
-    private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length) {
+    private Optional<MoveCommand> rank(Collection<CoordinatesWithDirection> toRank, int length, MoveCommand toIgnore) {
         // filter all that go outside of map or step on occupied cell
         // sort by provided freedom of movement, capped at length + 1 for more options
         // sort by weight of immediate action
         // sort by weight of following actions
         // sort by weight of opportunities
-        // sort by reversed comparator, since bigger weight means better solution
-        return toRank.stream().filter(this::isWalkable).max(Comparator
+        return toRank.stream().filter(x -> !x.getDirection().equals(toIgnore)).filter(this::isWalkable).max(Comparator
                 .comparingInt((CoordinatesWithDirection coordinates) -> getBoundedFreeSpace(length, coordinates))
                 .thenComparingDouble(this::getImmediateWeight).thenComparingDouble(this::getCrossWeight)
                 .thenComparingDouble(this::getOpportunitiesWeight)).map(CoordinatesWithDirection::getDirection);
     }
 
     Optional<MoveCommand> backupMove(Snake snake) {
-        return snake.getAdvancingMoves().stream().filter(x -> !weightMatrix.getDimensions().isOutOfBounds(x))
-                .max(Comparator.comparingDouble(x -> weightMatrix.getValue(x)))
-                .map(CoordinatesWithDirection::getDirection);
+        return snake.getAdvancingMoves().stream().filter(this::isInsideBounds)
+                .max(Comparator.comparingDouble(this::getImmediateWeight)).map(CoordinatesWithDirection::getDirection);
     }
 
-    private Optional<MoveCommand> bestMove(Snake snake) {
+    private boolean isInsideBounds(Coordinates x) {
+        return !weightMatrix.getDimensions().isOutOfBounds(x);
+    }
+
+    private boolean isInsideBounds(int x, int y) {
+        return !weightMatrix.getDimensions().isOutOfBounds(x, y);
+    }
+
+    private Optional<MoveCommand> bestMove(Snake snake, MoveCommand toIgnore) {
         Collection<CoordinatesWithDirection> ranked = snake.getAdvancingMoves();
         int length = snake.getLength();
-        return rank(ranked, length);
+        return rank(ranked, length, toIgnore);
     }
 
     @Override
@@ -265,12 +312,143 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         weightMatrix = DoubleMatrix.uninitializedMatrix(dimensions, WALL_WEIGHT);
         freeSpaceMatrix = FreeSpaceMatrix.uninitializedMatrix(dimensions);
         snakeMovePredictor = new SnakeMovePredictor(this);
+        lesserSnakeHeads = new HashMap<>(gameState.getBoard().getSnakes().size());
     }
 
     @Override
-    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+    public void setPrimarySnake(Snake snake) {
+        primarySnakeId = snake.getId();
+    }
+
+    @Override
+    public Optional<MoveCommand> processMove(GameState gameState) {
+        return processMoveImpl(gameState.getYou(), gameState);
+    }
+
+    private Optional<MoveCommand> processMoveImpl(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
-        return bestMove(snake).or(() -> backupMove(snake));
+        return bestMove(snake, null).or(() -> backupMove(snake));
+    }
+
+    @Override
+    public List<MoveCommandWithProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
+        if (needSpecialHandling(snake, gameState)) {
+            return detailedEvaluation(snake, gameState);
+        }
+
+        return singleBestMove(snake, gameState);
+    }
+
+    private boolean needSpecialHandling(Snake snake, GameState gameState) {
+        int canHandle = 2;
+
+        // on first turn all snakes have 4 moves, this will lead to explosion of options
+        // since first move is important, use safe option
+        if (gameState.getTurn() == 1) {
+            return false;
+        }
+
+        // << sanity checks
+        if (primarySnakeId == null) {
+            return false;
+        }
+
+        Optional<Snake> primarySnakeOptional = gameState.getBoard().getSnakes().stream()
+                .filter(x -> x.getId().equals(primarySnakeId)).findAny();
+        if (primarySnakeOptional.isEmpty()) {
+            return false;
+        }
+        // >>
+
+        // check is snake a concern at all
+        Snake primarySnake = primarySnakeOptional.get();
+        if (snake.getHead().getManhattanDistance(primarySnake.getHead()) != 2) {
+            return false;
+        }
+
+        // primary + others
+        if (gameState.getBoard().getSnakes().size() <= 1 + canHandle) {
+            return true;
+        }
+
+        // all snakes that are in proximity
+        List<Snake> proximity = gameState.getBoard().getSnakes().stream()
+                .filter(x -> primarySnake.getHead().getManhattanDistance(x.getHead()) == 2)
+                .sorted(Comparator.comparingInt(Snake::getLength).reversed()).collect(Collectors.toList());
+
+        if (proximity.size() <= canHandle) {
+            return true;
+        }
+
+        // longest in proximity get special treatment
+        for (int i = 0; i < canHandle; ++i) {
+            if (proximity.get(i).getId().equals(snake.getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<MoveCommandWithProbability> singleBestMove(Snake snake, GameState gameState) {
+        Optional<MoveCommand> move = processMoveImpl(snake, gameState);
+        if (move.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return MoveCommandWithProbability.onlyFrom(move.get());
+    }
+
+    private List<MoveCommandWithProbability> detailedEvaluation(Snake snake, GameState gameState) {
+        double sigma = Math.nextUp(0.0d);
+        double countersink = 0.05d;
+
+        applyGameState(snake, gameState);
+
+        Optional<MoveCommand> move1 = bestMove(snake, null);
+        if (move1.isEmpty()) {
+            Optional<MoveCommand> backupMove = backupMove(snake);
+            if (backupMove.isEmpty()) {
+                return Collections.emptyList();
+            }
+            return MoveCommandWithProbability.onlyFrom(backupMove.get());
+        }
+
+        Optional<MoveCommand> move2 = bestMove(snake, move1.get());
+        if (move2.isEmpty()) {
+            return MoveCommandWithProbability.onlyFrom(move1.get());
+        }
+
+        CoordinatesWithDirection c1 = snake.getHead().move(move1.get());
+        CoordinatesWithDirection c2 = snake.getHead().move(move2.get());
+
+        double w1 = getImmediateWeight(c1);
+        double w2 = getImmediateWeight(c2);
+
+        if (Math.abs(w1 - w2) <= sigma) {
+            double wHead = getImmediateWeight(snake.getHead());
+            w1 = getCrossWeight(c1) - wHead;
+            w2 = getCrossWeight(c2) - wHead;
+
+            if (Math.abs(w1 - w2) <= sigma) {
+                w1 = getOpportunitiesWeight(c1);
+                w2 = getOpportunitiesWeight(c2);
+            }
+        }
+
+        if (w1 <= 0.0d) {
+            w2 = w2 - w1 + countersink;
+            w1 = countersink;
+        }
+
+        if (w2 <= 0.0d) {
+            w1 = w1 - w2 + countersink;
+            w2 = countersink;
+        }
+
+        double wSum = w1 + w2;
+        return List.of(new MoveCommandWithProbability(move1.get(), w1 / wSum),
+                new MoveCommandWithProbability(move2.get(), w2 / wSum));
     }
 
     @Override

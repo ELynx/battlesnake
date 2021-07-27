@@ -43,8 +43,8 @@ class MatrixTest {
                     assertEquals(-1, byXY);
                     assertEquals(-1, byCoordinates);
                 } else {
-                    assertThat(byXY, is(both(greaterThanOrEqualTo(0)).and(lessThan(dimensions.area()))));
-                    assertThat(byCoordinates, is(both(greaterThanOrEqualTo(0)).and(lessThan(dimensions.area()))));
+                    assertThat(byXY, is(both(greaterThanOrEqualTo(0)).and(lessThan(dimensions.getArea()))));
+                    assertThat(byCoordinates, is(both(greaterThanOrEqualTo(0)).and(lessThan(dimensions.getArea()))));
                 }
             }
         }

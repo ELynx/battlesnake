@@ -39,7 +39,7 @@ public class SnakeStateManager {
         int sizeBefore = activeSnakes.size();
 
         Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_STATE_AGE);
-        activeSnakes.values().removeIf(meta -> meta.isLastAccessedBefore(staleSnakeTime));
+        activeSnakes.entrySet().removeIf(x -> x.getValue().isLastAccessedBefore(staleSnakeTime));
 
         int sizeAfter = activeSnakes.size();
 

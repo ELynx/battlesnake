@@ -98,7 +98,7 @@ public class MoveScoreMaker {
     }
 
     private boolean isNextMove(Snake otherSnake) {
-        return otherSnake.getHead().manhattanDistance(coordinates) == 1;
+        return otherSnake.getHead().getManhattanDistance(coordinates) == 1;
     }
 
     private int getHazardScore() {

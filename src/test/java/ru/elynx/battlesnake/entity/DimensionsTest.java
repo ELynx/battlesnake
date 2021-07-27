@@ -27,7 +27,7 @@ class DimensionsTest {
             for (int height = 1; height < 100; ++height) {
                 Dimensions tested = new Dimensions(width, height);
 
-                assertEquals(width * height, tested.area());
+                assertEquals(width * height, tested.getArea());
             }
         }
     }
@@ -62,7 +62,7 @@ class DimensionsTest {
             for (int height = 1; height < 100; ++height) {
                 Dimensions tested = new Dimensions(width, height);
 
-                Coordinates center = tested.center();
+                Coordinates center = tested.getCenter();
 
                 assertEquals(width / 2, center.getX());
                 assertEquals(height / 2, center.getY());

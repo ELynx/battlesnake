@@ -11,7 +11,7 @@ public class FlagMatrix extends Matrix {
     private FlagMatrix(Dimensions dimensions, boolean outsideValue) {
         super(dimensions);
 
-        this.values = new boolean[dimensions.area()];
+        this.values = new boolean[dimensions.getArea()];
         this.outsideValue = outsideValue;
     }
 
