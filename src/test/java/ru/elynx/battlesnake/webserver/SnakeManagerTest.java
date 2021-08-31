@@ -77,6 +77,19 @@ class SnakeManagerTest {
     }
 
     @Test
+    void test_move_does_not_throw_repeatedly() {
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
+
+        GameState gameState = EntityBuilder.gameStateWithName("My Snake");
+
+        Move move = tested.move(gameState);
+        assertEquals(MoveCommand.UP, move.getMoveCommand());
+
+        move = tested.move(gameState);
+        assertEquals(MoveCommand.UP, move.getMoveCommand());
+    }
+
+    @Test
     void test_move_throws_when_not_found() {
         SnakeManager tested = new SnakeManager(mySnakeFactory);
 
