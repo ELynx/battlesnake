@@ -79,6 +79,7 @@ class BoardWithActiveHazardsTest {
 
         Board board1Extra = BoardWithActiveHazards.fromAdjacentTurns(board0, board1);
         assertThat(board1Extra, is(instanceOf(BoardWithActiveHazards.class)));
+        assertTrue(board1Extra.hasInactiveHazards());
 
         assertThat(board1Extra.getActiveHazards(), containsInAnyOrder(board0.getHazards().toArray()));
     }

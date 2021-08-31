@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategy;
+package ru.elynx.battlesnake.engine.strategy.moveassert;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import ru.elynx.battlesnake.entity.MoveCommand;
 
-@Tag("Internals")
+@Tag("TestComponent")
 class MoveAssertTest {
     @Test
     void test_assert_move_equal() {

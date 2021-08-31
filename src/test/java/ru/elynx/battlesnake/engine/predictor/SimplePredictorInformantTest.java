@@ -10,7 +10,7 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
-@Tag("Internals")
+@Tag("TestComponent")
 class SimplePredictorInformantTest {
     @Test
     void test_out_of_bounds_is_not() {

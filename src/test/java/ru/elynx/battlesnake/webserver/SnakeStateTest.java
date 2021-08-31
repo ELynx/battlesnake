@@ -16,11 +16,11 @@ import ru.elynx.battlesnake.testsnake.MySnake;
 // TODO more thorough testing
 @Tag("Internals")
 class SnakeStateTest {
-    IGameStrategy mySnakeStrategy = new MySnake();
+    IGameStrategy gameStrategy = new MySnake();
 
     @Test
-    void test_i_las_accessed_before() {
-        SnakeState tested = new SnakeState(mySnakeStrategy);
+    void test_is_last_accessed_before() {
+        SnakeState tested = new SnakeState(gameStrategy);
         Instant compareTo = Instant.now();
 
         assertFalse(tested.isLastAccessedBefore(compareTo.minus(1, ChronoUnit.HOURS)));
@@ -31,26 +31,26 @@ class SnakeStateTest {
     void test_process_start() {
         GameState gameState = EntityBuilder.gameState();
 
-        SnakeState tested = new SnakeState(mySnakeStrategy);
+        SnakeState tested = new SnakeState(gameStrategy);
 
         assertDoesNotThrow(() -> tested.processStart(gameState));
     }
 
     @Test
-    void test_move_start() {
+    void test_process_move() {
         GameState gameState = EntityBuilder.gameState();
 
-        SnakeState tested = new SnakeState(mySnakeStrategy);
+        SnakeState tested = new SnakeState(gameStrategy);
 
         Move move = tested.processMove(gameState);
         assertEquals(MoveCommand.UP, move.getMoveCommand());
     }
 
     @Test
-    void test_end_start() {
+    void test_process_end() {
         GameState gameState = EntityBuilder.gameState();
 
-        SnakeState tested = new SnakeState(mySnakeStrategy);
+        SnakeState tested = new SnakeState(gameStrategy);
 
         assertDoesNotThrow(() -> tested.processEnd(gameState));
     }

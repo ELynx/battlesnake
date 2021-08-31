@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategy;
+package ru.elynx.battlesnake.engine.strategy.moveassert;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -22,7 +22,7 @@ public class MoveAssert {
         this.matcher = matcher;
     }
 
-    static MoveAssert assertMove(MoveCommand moveCommand, Matcher<MoveCommand> matcher) {
+    public static MoveAssert assertMove(MoveCommand moveCommand, Matcher<MoveCommand> matcher) {
         return new MoveAssert(moveCommand, matcher);
     }
 
