@@ -19,6 +19,16 @@ public class EntityBuilder {
                 DEFAULT_SNAKE_NAME, DEFAULT_SNAKE_LATENCY));
     }
 
+    public GameState gameStateLoss() {
+        Snake you = buildSnake(0, 0, "you", "You Snake", DEFAULT_SNAKE_LATENCY);
+        Snake winner = buildSnake(1, 1, "winner", "Winner Snake", DEFAULT_SNAKE_LATENCY);
+
+        List<Snake> snakes = new ArrayList<>();
+        snakes.add(winner);
+
+        return gameStateWithYouAndAll(you, snakes);
+    }
+
     public GameState gameStateWithHeadPosition(int x, int y) {
         return gameStateWithYouSnake(snakeWithHead(x, y));
     }
@@ -31,6 +41,10 @@ public class EntityBuilder {
         List<Snake> snakes = new ArrayList<>();
         snakes.add(you);
 
+        return gameStateWithYouAndAll(you, snakes);
+    }
+
+    private GameState gameStateWithYouAndAll(Snake you, List<Snake> all) {
         String gameId = "Test Ga|me I|d";
         int turn = 0;
         Rules rules = new Rules(ApiExampleBuilder.standardRulesetName(), "1.234", 500, 15);
@@ -38,9 +52,9 @@ public class EntityBuilder {
         Dimensions dimensions = new Dimensions(15, 11);
         List<Coordinates> food = Collections.emptyList();
         List<Coordinates> hazards = Collections.emptyList();
-        Board board = new Board(dimensions, food, hazards, snakes);
+        Board board = new Board(dimensions, food, hazards, all);
 
-        return new GameState(gameId, turn, rules, board, snakes.get(0));
+        return new GameState(gameId, turn, rules, board, you);
     }
 
     public Rules rulesWithName(String name) {

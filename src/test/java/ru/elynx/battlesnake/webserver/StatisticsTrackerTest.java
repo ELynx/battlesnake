@@ -33,6 +33,7 @@ class StatisticsTrackerTest {
     @Test
     void test_end(@Autowired StatisticsTracker tested) {
         assertDoesNotThrow(() -> tested.trackEnd(EntityBuilder.gameState()));
+        assertDoesNotThrow(() -> tested.trackEnd(EntityBuilder.gameStateLoss()));
     }
 
     @Test
