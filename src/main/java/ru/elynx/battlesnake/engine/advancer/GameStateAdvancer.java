@@ -1,6 +1,7 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -12,14 +13,14 @@ import ru.elynx.battlesnake.entity.*;
 @UtilityClass
 public class GameStateAdvancer {
     public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, GameState gameState) {
-        BiFunction<Snake, GameState, List<MoveCommandAndProbability>> adapter = (Snake snake1,
+        BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> adapter = (Snake snake1,
                 GameState gameState1) -> List
                         .of(new MoveCommandAndProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
         return advance(adapter, gameState.getYou(), gameState).map(Pair::getValue0).findAny().orElseThrow();
     }
 
     public Stream<Pair<GameState, Double>> advance(
-            BiFunction<Snake, GameState, List<MoveCommandAndProbability>> moveDecisionMaker, Snake you,
+            BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
         int turn = makeTurn(gameState);
         List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
@@ -32,7 +33,8 @@ public class GameStateAdvancer {
     }
 
     private List<Pair<List<Snake>, Double>> makeSnakes(
-            BiFunction<Snake, GameState, List<MoveCommandAndProbability>> moveDecisionMaker, GameState gameState) {
+            BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker,
+            GameState gameState) {
         List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
         for (Snake current : gameState.getBoard().getSnakes()) {

@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.strategy;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.MoveCommand;
@@ -21,5 +21,5 @@ public interface IPolySnakeGameStrategy extends IGameStrategy {
                 .map(MoveCommandAndProbability::getMoveCommand);
     }
 
-    List<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState);
+    Collection<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState);
 }

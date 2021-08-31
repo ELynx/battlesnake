@@ -331,7 +331,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     @Override
-    public List<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
+    public Collection<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
         if (needSpecialHandling(snake, gameState)) {
             return detailedEvaluation(snake, gameState);
         }
@@ -390,7 +390,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return false;
     }
 
-    private List<MoveCommandAndProbability> singleBestMove(Snake snake, GameState gameState) {
+    private Collection<MoveCommandAndProbability> singleBestMove(Snake snake, GameState gameState) {
         Optional<MoveCommand> move = processMoveImpl(snake, gameState);
         if (move.isEmpty()) {
             return Collections.emptyList();
@@ -399,7 +399,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return MoveCommandAndProbability.onlyFrom(move.get());
     }
 
-    private List<MoveCommandAndProbability> detailedEvaluation(Snake snake, GameState gameState) {
+    private Collection<MoveCommandAndProbability> detailedEvaluation(Snake snake, GameState gameState) {
         double sigma = Math.nextUp(0.0d);
         double countersink = 0.05d;
 

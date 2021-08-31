@@ -1,5 +1,6 @@
 package ru.elynx.battlesnake.entity;
 
+import java.util.Collection;
 import java.util.List;
 import lombok.Value;
 
@@ -14,7 +15,7 @@ public class MoveCommandAndProbability {
         return new MoveCommandAndProbability(moveCommand, PROBABILITY_1);
     }
 
-    public static List<MoveCommandAndProbability> onlyFrom(MoveCommand moveCommand) {
+    public static Collection<MoveCommandAndProbability> onlyFrom(MoveCommand moveCommand) {
         return List.of(from(moveCommand));
     }
 }
