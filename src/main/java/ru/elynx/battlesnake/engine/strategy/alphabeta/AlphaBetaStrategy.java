@@ -131,16 +131,16 @@ public class AlphaBetaStrategy implements IGameStrategy {
         return step1Score.getValue1() + step2ScoreMax;
     }
 
-    private BiFunction<Snake, GameState, List<MoveCommandWithProbability>> makeStepFunction(MoveCommand moveCommand,
+    private BiFunction<Snake, GameState, List<MoveCommandAndProbability>> makeStepFunction(MoveCommand moveCommand,
             Snake snake) {
         return (Snake someSnake, GameState gameState) -> {
             if (someSnake.getId().equals(snake.getId())) {
-                return MoveCommandWithProbability.onlyFrom(moveCommand);
+                return MoveCommandAndProbability.onlyFrom(moveCommand);
             }
 
             var fromPoly = polySnakeGameStrategy.processMoveWithProbabilities(someSnake, gameState);
             if (fromPoly.isEmpty()) {
-                return MoveCommandWithProbability.onlyFrom(UP);
+                return MoveCommandAndProbability.onlyFrom(UP);
             } else {
                 return fromPoly;
             }

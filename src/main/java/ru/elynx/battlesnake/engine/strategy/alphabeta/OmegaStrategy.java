@@ -34,7 +34,7 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
     }
 
     @Override
-    public List<MoveCommandWithProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
+    public List<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
         setupPredictorInformant(gameState);
         return snakeMoveProbabilities(snake, gameState);
     }
@@ -44,13 +44,13 @@ public class OmegaStrategy implements IPolySnakeGameStrategy, IPredictorInforman
         Common.forAllSnakeBodies(gameState, occupiedPositions::set);
     }
 
-    private List<MoveCommandWithProbability> snakeMoveProbabilities(Snake snake, GameState gameState) {
+    private List<MoveCommandAndProbability> snakeMoveProbabilities(Snake snake, GameState gameState) {
         var rankedMoves = snakeMovePredictor.predict(snake, gameState);
-        List<MoveCommandWithProbability> result = new ArrayList<>(rankedMoves.size());
+        List<MoveCommandAndProbability> result = new ArrayList<>(rankedMoves.size());
         for (CoordinatesWithDirection direction : snake.getHead().getSideNeighbours()) {
             for (var rankedMove : rankedMoves) {
                 if (direction.equals(rankedMove.getValue0())) {
-                    result.add(new MoveCommandWithProbability(direction.getDirection(), rankedMove.getValue1()));
+                    result.add(new MoveCommandAndProbability(direction.getDirection(), rankedMove.getValue1()));
                 }
             }
         }

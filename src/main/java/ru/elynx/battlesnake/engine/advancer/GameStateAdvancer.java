@@ -12,14 +12,14 @@ import ru.elynx.battlesnake.entity.*;
 @UtilityClass
 public class GameStateAdvancer {
     public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, GameState gameState) {
-        BiFunction<Snake, GameState, List<MoveCommandWithProbability>> adapter = (Snake snake1,
+        BiFunction<Snake, GameState, List<MoveCommandAndProbability>> adapter = (Snake snake1,
                 GameState gameState1) -> List
-                        .of(new MoveCommandWithProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
+                        .of(new MoveCommandAndProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
         return advance(adapter, gameState.getYou(), gameState).map(Pair::getValue0).findAny().orElseThrow();
     }
 
     public Stream<Pair<GameState, Double>> advance(
-            BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, Snake you,
+            BiFunction<Snake, GameState, List<MoveCommandAndProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
         int turn = makeTurn(gameState);
         List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
@@ -32,14 +32,14 @@ public class GameStateAdvancer {
     }
 
     private List<Pair<List<Snake>, Double>> makeSnakes(
-            BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, GameState gameState) {
+            BiFunction<Snake, GameState, List<MoveCommandAndProbability>> moveDecisionMaker, GameState gameState) {
         List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
 
         for (Snake current : gameState.getBoard().getSnakes()) {
             var moveCommands = moveDecisionMaker.apply(current, gameState);
             List<Pair<Snake, Double>> singleSnake = new ArrayList<>(moveCommands.size());
 
-            for (MoveCommandWithProbability moveCommand : moveCommands) {
+            for (MoveCommandAndProbability moveCommand : moveCommands) {
                 Snake future = makeSnake(moveCommand.getMoveCommand(), current, gameState);
                 if (future != null) {
                     singleSnake.add(new Pair<>(future, moveCommand.getProbability()));
