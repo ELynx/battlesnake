@@ -42,8 +42,8 @@ class GameStateMapperTest {
         assertEquals(6, entity.getBoard().getFood().get(2).getY());
 
         assertEquals(1, entity.getBoard().getHazards().size());
-        assertEquals(0, entity.getBoard().getHazards().get(0).getX());
-        assertEquals(0, entity.getBoard().getHazards().get(0).getY());
+        assertEquals(3, entity.getBoard().getHazards().get(0).getX());
+        assertEquals(2, entity.getBoard().getHazards().get(0).getY());
 
         assertEquals(2, entity.getBoard().getSnakes().size());
 
@@ -57,12 +57,12 @@ class GameStateMapperTest {
         assertEquals(0, entity.getBoard().getSnakes().get(0).getBody().get(1).getY());
         assertEquals(2, entity.getBoard().getSnakes().get(0).getBody().get(2).getX());
         assertEquals(0, entity.getBoard().getSnakes().get(0).getBody().get(2).getY());
-        assertEquals(111, entity.getBoard().getSnakes().get(0).getLatency());
+        assertNull(entity.getBoard().getSnakes().get(0).getLatency());
         assertEquals(0, entity.getBoard().getSnakes().get(0).getHead().getX());
         assertEquals(0, entity.getBoard().getSnakes().get(0).getHead().getY());
         assertEquals(3, entity.getBoard().getSnakes().get(0).getLength());
         assertEquals("why are we shouting??", entity.getBoard().getSnakes().get(0).getShout());
-        assertEquals("", entity.getBoard().getSnakes().get(0).getSquad());
+        assertNull(entity.getBoard().getSnakes().get(0).getSquad());
 
         assertEquals("snake-b67f4906-94ae-11ea-bb37", entity.getBoard().getSnakes().get(1).getId());
         assertEquals("Another Snake", entity.getBoard().getSnakes().get(1).getName());

@@ -8,11 +8,17 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class RulesetDto {
+public class SettingsDto {
     @NonNull
-    String name;
+    Integer foodSpawnChance;
     @NonNull
-    String version;
+    Integer minimumFood;
     @NonNull
-    SettingsDto settings;
+    Integer hazardDamagePerTurn;
+
+    @NonNull
+    RoyaleDto royale;
+
+    @NonNull
+    SquadDto squad;
 }

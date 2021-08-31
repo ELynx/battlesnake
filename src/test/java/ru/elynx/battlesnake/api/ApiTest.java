@@ -22,6 +22,15 @@ class ApiTest {
         assertEquals("standard", gameStateDto.getGame().getRuleset().getName());
         assertEquals("v.1.2.3", gameStateDto.getGame().getRuleset().getVersion());
 
+        assertEquals(25, gameStateDto.getGame().getRuleset().getSettings().getFoodSpawnChance());
+        assertEquals(1, gameStateDto.getGame().getRuleset().getSettings().getMinimumFood());
+        assertEquals(14, gameStateDto.getGame().getRuleset().getSettings().getHazardDamagePerTurn());
+        assertEquals(5, gameStateDto.getGame().getRuleset().getSettings().getRoyale().getShrinkEveryNTurns());
+        assertEquals(true, gameStateDto.getGame().getRuleset().getSettings().getSquad().getAllowBodyCollisions());
+        assertEquals(true, gameStateDto.getGame().getRuleset().getSettings().getSquad().getSharedElimination());
+        assertEquals(true, gameStateDto.getGame().getRuleset().getSettings().getSquad().getSharedHealth());
+        assertEquals(true, gameStateDto.getGame().getRuleset().getSettings().getSquad().getSharedLength());
+
         assertEquals(500, gameStateDto.getGame().getTimeout());
 
         assertEquals(14, gameStateDto.getTurn());
@@ -37,8 +46,8 @@ class ApiTest {
         assertEquals(6, gameStateDto.getBoard().getFood().get(2).getY());
 
         assertEquals(1, gameStateDto.getBoard().getHazards().size());
-        assertEquals(0, gameStateDto.getBoard().getHazards().get(0).getX());
-        assertEquals(0, gameStateDto.getBoard().getHazards().get(0).getY());
+        assertEquals(3, gameStateDto.getBoard().getHazards().get(0).getX());
+        assertEquals(2, gameStateDto.getBoard().getHazards().get(0).getY());
 
         assertEquals(2, gameStateDto.getBoard().getSnakes().size());
 
@@ -52,12 +61,12 @@ class ApiTest {
         assertEquals(0, gameStateDto.getBoard().getSnakes().get(0).getBody().get(1).getY());
         assertEquals(2, gameStateDto.getBoard().getSnakes().get(0).getBody().get(2).getX());
         assertEquals(0, gameStateDto.getBoard().getSnakes().get(0).getBody().get(2).getY());
-        assertEquals(111, gameStateDto.getBoard().getSnakes().get(0).getLatency());
+        assertNull(gameStateDto.getBoard().getSnakes().get(0).getLatency());
         assertEquals(0, gameStateDto.getBoard().getSnakes().get(0).getHead().getX());
         assertEquals(0, gameStateDto.getBoard().getSnakes().get(0).getHead().getY());
         assertEquals(3, gameStateDto.getBoard().getSnakes().get(0).getLength());
         assertEquals("why are we shouting??", gameStateDto.getBoard().getSnakes().get(0).getShout());
-        assertEquals("", gameStateDto.getBoard().getSnakes().get(0).getSquad());
+        assertNull(gameStateDto.getBoard().getSnakes().get(0).getSquad());
 
         assertEquals("snake-b67f4906-94ae-11ea-bb37", gameStateDto.getBoard().getSnakes().get(1).getId());
         assertEquals("Another Snake", gameStateDto.getBoard().getSnakes().get(1).getName());

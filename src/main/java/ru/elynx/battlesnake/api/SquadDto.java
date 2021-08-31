@@ -8,11 +8,13 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class RulesetDto {
+public class SquadDto {
     @NonNull
-    String name;
+    Boolean allowBodyCollisions;
     @NonNull
-    String version;
+    Boolean sharedElimination;
     @NonNull
-    SettingsDto settings;
+    Boolean sharedHealth;
+    @NonNull
+    Boolean sharedLength;
 }
