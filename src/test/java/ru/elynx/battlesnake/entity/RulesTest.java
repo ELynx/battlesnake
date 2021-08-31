@@ -24,6 +24,6 @@ class RulesTest {
     @Test
     void test_royale_hazard_damage() {
         Rules tested = EntityBuilder.rulesWithName(ApiExampleBuilder.royaleRulesetName());
-        assertEquals(15, tested.getRoyaleHazardDamage());
+        assertEquals(15, tested.getHazardDamage());
     }
 }

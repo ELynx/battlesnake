@@ -13,7 +13,7 @@ public class Rules {
     String version;
     int timeout;
 
-    int royaleHazardDamage;
+    int hazardDamage;
 
     public boolean isRoyale() {
         return ROYALE_RULES_NAME.equals(name);

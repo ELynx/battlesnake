@@ -49,7 +49,7 @@ public class StatisticsTracker {
         NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getRules().getName());
         NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getRules().getVersion());
         NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getRules().getTimeout());
-        NewRelic.addCustomParameter(RULESET_HAZARD_DAMAGE_PARAMETER, gameState.getRules().getRoyaleHazardDamage());
+        NewRelic.addCustomParameter(RULESET_HAZARD_DAMAGE_PARAMETER, gameState.getRules().getHazardDamage());
     }
 
     public void trackMove(GameState gameState) {

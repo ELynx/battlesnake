@@ -17,7 +17,7 @@ public interface GameStateMapper {
     @Mapping(target = "rules.version", source = "game.ruleset.version")
     @Mapping(target = "rules.timeout", source = "game.timeout")
 
-    @Mapping(target = "rules.royaleHazardDamage", source = "game.ruleset.settings.hazardDamagePerTurn")
+    @Mapping(target = "rules.hazardDamage", source = "game.ruleset.settings.hazardDamagePerTurn")
 
     @Mapping(target = "board.dimensions.width", source = "board.width")
     @Mapping(target = "board.dimensions.height", source = "board.height")

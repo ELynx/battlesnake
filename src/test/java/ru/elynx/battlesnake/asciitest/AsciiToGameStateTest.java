@@ -49,7 +49,7 @@ class AsciiToGameStateTest {
         assertNotNull(entity.getRules());
         assertNotNull(entity.getRules().getName());
         assertNotNull(entity.getRules().getVersion());
-        assertTrue(0 <= entity.getRules().getRoyaleHazardDamage(), "Non-negative hazard damage");
+        assertTrue(0 <= entity.getRules().getHazardDamage(), "Non-negative hazard damage");
 
         assertNotNull(entity.getBoard());
         assertNotNull(entity.getBoard().getDimensions());
@@ -190,7 +190,7 @@ class AsciiToGameStateTest {
 
         GameState entity = tested.setHazardDamage(345).build();
 
-        assertEquals(345, entity.getRules().getRoyaleHazardDamage());
+        assertEquals(345, entity.getRules().getHazardDamage());
     }
 
     @Test

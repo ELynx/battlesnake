@@ -295,7 +295,7 @@ class GameStateAdvancerTest {
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(3, to.getBoard().getSnakes().get(0).getLength());
-        assertEquals(40 - 1 - from.getRules().getRoyaleHazardDamage(), to.getBoard().getSnakes().get(0).getHealth());
+        assertEquals(40 - 1 - from.getRules().getHazardDamage(), to.getBoard().getSnakes().get(0).getHealth());
     }
 
     @Test
@@ -321,7 +321,7 @@ class GameStateAdvancerTest {
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(4, to.getBoard().getSnakes().get(0).getLength());
-        assertEquals(Snake.getMaxHealth() - from.getRules().getRoyaleHazardDamage(),
+        assertEquals(Snake.getMaxHealth() - from.getRules().getHazardDamage(),
                 to.getBoard().getSnakes().get(0).getHealth());
     }
 
