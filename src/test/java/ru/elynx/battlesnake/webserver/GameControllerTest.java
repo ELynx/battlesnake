@@ -47,6 +47,12 @@ class GameControllerTest {
     }
 
     @Test
+    void get_gives_info() {
+        assertDoesNotThrow(() -> mockMvc.perform(get(API_ENDPOINT_BASE)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("author"))));
+    }
+
+    @Test
     void test_start_is_ok() {
         assertDoesNotThrow(
                 () -> mockMvc.perform(post(API_ENDPOINT_BASE + "/start").content(ApiExampleBuilder.gameState())
