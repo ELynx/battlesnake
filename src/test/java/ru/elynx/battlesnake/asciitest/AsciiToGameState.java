@@ -60,6 +60,13 @@ public class AsciiToGameState {
         return setRulesetName(ApiExampleBuilder.royaleRulesetName());
     }
 
+    /**
+     * Set damage done by hazard to snake.
+     *
+     * @param hazardDamage
+     *            value
+     * @return Builder with hazard damage set
+     */
     public AsciiToGameState setHazardDamage(int hazardDamage) {
         if (hazardDamage < 0)
             throw new IllegalArgumentException("Hazard Damage must be greater or equal to 0");
