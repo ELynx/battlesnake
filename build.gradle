@@ -8,6 +8,7 @@ plugins {
     id 'com.diffplug.spotless' version '5.14.3'
     id 'de.undercouch.download' version '4.1.2'
     id 'io.freefair.lombok' version '6.1.0'
+    id 'jacoco'
 }
 
 group = 'ru.elynx'
@@ -129,6 +130,16 @@ application {
 
 test {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = false
+        csv.required = false
+        html.required = true
+    }
 }
 
 var disabledTasks = [
