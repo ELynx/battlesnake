@@ -20,7 +20,7 @@ public class BoardWithActiveHazards extends Board {
             return board1;
         }
 
-        // if entities have equal number of hazards overall active are the same
+        // if entities have equal number of hazards overall then active are the same
         if (board0.getHazards().size() == board1.getHazards().size()) {
             return board1;
         }
