@@ -27,4 +27,14 @@ public class Board {
     public List<Coordinates> getActiveHazards() {
         return hazards;
     }
+
+    /**
+     * Due to quirk of implementation, hazards do not damage snake health on turn
+     * they appear.
+     *
+     * @return If there are hazards that currently do not do damage.
+     */
+    public boolean hasInactiveHazards() {
+        return false;
+    }
 }

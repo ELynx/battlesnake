@@ -30,6 +30,11 @@ public class BoardWithActiveHazards extends Board {
     }
 
     @Override
+    public boolean hasInactiveHazards() {
+        return getHazards().size() != getActiveHazards().size();
+    }
+
+    @Override
     public boolean equals(Object to) {
         return super.equals(to);
     }
