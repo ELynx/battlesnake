@@ -17,7 +17,7 @@ import ru.elynx.battlesnake.entity.Move;
 
 @Service
 public class SnakeManager {
-    private static final long STALE_SNAKE_STATE_ROUTINE_DELAY = 60000; // milliseconds
+    private static final long STALE_SNAKE_STATE_ROUTINE_INTERVAL = 60000; // milliseconds
     private static final long STALE_SNAKE_STATE_AGE = 5000; // milliseconds
 
     private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
@@ -29,7 +29,7 @@ public class SnakeManager {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
-    @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_STATE_ROUTINE_DELAY)
+    @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL, fixedDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL)
     private void cleanStaleSnakes() {
         if (activeSnakes.isEmpty()) {
             logger.debug("Cleaning stale snakes, nothing to clean");
