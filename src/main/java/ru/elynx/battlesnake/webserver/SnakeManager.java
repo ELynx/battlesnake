@@ -31,6 +31,15 @@ public class SnakeManager {
 
     @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL, fixedDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL)
     private void cleanStaleSnakes() {
+        cleanStaleSnakesImpl(Instant.now());
+    }
+
+    // visible for testing
+    void cleanStaleSnakeTest(Instant referenceTime) {
+        cleanStaleSnakesImpl(referenceTime);
+    }
+
+    private void cleanStaleSnakesImpl(Instant referenceTime) {
         if (activeSnakes.isEmpty()) {
             logger.debug("Cleaning stale snakes, nothing to clean");
             return;
@@ -38,7 +47,7 @@ public class SnakeManager {
 
         int sizeBefore = activeSnakes.size();
 
-        Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_STATE_AGE);
+        Instant staleSnakeTime = referenceTime.minusMillis(STALE_SNAKE_STATE_AGE);
         activeSnakes.entrySet().removeIf(x -> x.getValue().isLastAccessedBefore(staleSnakeTime));
 
         int sizeAfter = activeSnakes.size();
@@ -50,6 +59,7 @@ public class SnakeManager {
 
         int delta = sizeBefore - sizeAfter;
         logger.warn("Cleaning stale snakes, cleaned [{}] snakes older than [{}]", delta, staleSnakeTime);
+
     }
 
     public BattlesnakeInfo root(String name) throws SnakeNotFoundException {

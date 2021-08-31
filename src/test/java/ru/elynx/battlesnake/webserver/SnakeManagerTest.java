@@ -2,6 +2,8 @@ package ru.elynx.battlesnake.webserver;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.engine.strategy.SnakeNotFoundException;
@@ -15,6 +17,22 @@ import ru.elynx.battlesnake.testsnake.MySnakeGameStrategyFactory;
 @Tag("Internals")
 class SnakeManagerTest {
     MySnakeGameStrategyFactory mySnakeFactory = new MySnakeGameStrategyFactory();
+
+    @Test
+    void test_clean_up_stale_snakes() {
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
+
+        // no snakes
+        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now()));
+
+        tested.start(EntityBuilder.gameStateWithName("My Snake"));
+
+        // fresh snake
+        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now()));
+
+        // advance time forward
+        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now().plus(1, ChronoUnit.HOURS)));
+    }
 
     @Test
     void test_root_gives_snake_info() {
