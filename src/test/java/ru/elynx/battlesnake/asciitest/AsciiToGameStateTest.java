@@ -49,6 +49,7 @@ class AsciiToGameStateTest {
         assertNotNull(entity.getRules());
         assertNotNull(entity.getRules().getName());
         assertNotNull(entity.getRules().getVersion());
+        assertTrue(0 <= entity.getRules().getRoyaleHazardDamage(), "Non-negative hazard damage");
 
         assertNotNull(entity.getBoard());
         assertNotNull(entity.getBoard().getDimensions());
@@ -76,7 +77,7 @@ class AsciiToGameStateTest {
             assertNotNull(snake.getHead());
             verifyCoordinates.accept(snake.getHead());
             assertEquals(snake.getHead(), snake.getBody().get(0));
-            assertNotNull(snake.getLength());
+            assertTrue(0 < snake.getLength(), "Snake has positive length");
             assertEquals(snake.getLength(), snake.getBody().size());
             assertNotNull(snake.getShout());
             assertNotNull(snake.getSquad());
@@ -181,6 +182,15 @@ class AsciiToGameStateTest {
 
         assertEquals(28, entity.getBoard().getHazards().size());
         assertEquals(ApiExampleBuilder.royaleRulesetName(), entity.getRules().getName());
+    }
+
+    @Test
+    void test_hazard_damage() {
+        AsciiToGameState tested = new AsciiToGameState("Y");
+
+        GameState entity = tested.setHazardDamage(345).build();
+
+        assertEquals(345, entity.getRules().getRoyaleHazardDamage());
     }
 
     @Test

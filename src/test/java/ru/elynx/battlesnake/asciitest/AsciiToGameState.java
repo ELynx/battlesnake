@@ -14,6 +14,7 @@ public class AsciiToGameState {
     private String rulesetName = ApiExampleBuilder.standardRulesetName();
     private int startSnakeLength = 3;
     private String hazards = null;
+    private int hazardDamage = 15;
     // per-snakes
     private final Map<String, Integer> healths = new HashMap<>();
     private final Map<String, Integer> latencies = new HashMap<>();
@@ -57,6 +58,14 @@ public class AsciiToGameState {
 
         this.hazards = hazards;
         return setRulesetName(ApiExampleBuilder.royaleRulesetName());
+    }
+
+    public AsciiToGameState setHazardDamage(int hazardDamage) {
+        if (hazardDamage < 0)
+            throw new IllegalArgumentException("Hazard Damage must be greater or equal to 0");
+
+        this.hazardDamage = hazardDamage;
+        return this;
     }
 
     public AsciiToGameState setHealth(String name, int health) {
@@ -261,7 +270,7 @@ public class AsciiToGameState {
 
         Board board = new Board(dimensions, food, generatedHazards, snakes);
 
-        Rules rules = new Rules(rulesetName, "1.0.0", 500);
+        Rules rules = new Rules(rulesetName, "1.0.0", 500, hazardDamage);
 
         return new GameState("test-game-id", turn, rules, board, you);
     }

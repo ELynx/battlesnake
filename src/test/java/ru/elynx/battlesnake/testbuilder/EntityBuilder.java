@@ -34,7 +34,7 @@ public class EntityBuilder {
 
         String gameId = "Test Ga|me I|d";
         int turn = 0;
-        Rules rules = new Rules(ApiExampleBuilder.standardRulesetName(), "1.234", 500);
+        Rules rules = new Rules(ApiExampleBuilder.standardRulesetName(), "1.234", 500, 15);
 
         Dimensions dimensions = new Dimensions(15, 11);
         List<Coordinates> food = Collections.emptyList();
@@ -45,7 +45,7 @@ public class EntityBuilder {
     }
 
     public static Rules rulesWithName(String name) {
-        return new Rules(name, "1.000", 500);
+        return new Rules(name, "1.000", 500, 15);
     }
 
     private static Snake snakeWithHead(int x, int y) {

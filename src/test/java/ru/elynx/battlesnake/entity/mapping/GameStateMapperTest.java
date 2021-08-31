@@ -28,6 +28,7 @@ class GameStateMapperTest {
         assertEquals("standard", entity.getRules().getName());
         assertEquals("v.1.2.3", entity.getRules().getVersion());
         assertEquals(500, entity.getRules().getTimeout());
+        assertEquals(14, entity.getRules().getRoyaleHazardDamage());
 
         assertEquals(14, entity.getTurn());
 
