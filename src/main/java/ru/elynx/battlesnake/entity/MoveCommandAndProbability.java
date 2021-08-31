@@ -5,11 +5,13 @@ import lombok.Value;
 
 @Value
 public class MoveCommandAndProbability {
+    private static final double PROBABILITY_1 = 1.0d;
+
     MoveCommand moveCommand;
     double probability;
 
     public static MoveCommandAndProbability from(MoveCommand moveCommand) {
-        return new MoveCommandAndProbability(moveCommand, 1.0d);
+        return new MoveCommandAndProbability(moveCommand, PROBABILITY_1);
     }
 
     public static List<MoveCommandAndProbability> onlyFrom(MoveCommand moveCommand) {
