@@ -16,16 +16,16 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 
 @Service
-public class SnakeStateManager {
+public class SnakeManager {
     private static final long STALE_SNAKE_STATE_ROUTINE_DELAY = 60000; // milliseconds
     private static final long STALE_SNAKE_STATE_AGE = 5000; // milliseconds
 
-    private final Logger logger = LoggerFactory.getLogger(SnakeStateManager.class);
+    private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, SnakeState> activeSnakes = new ConcurrentHashMap<>();
 
     @Autowired
-    public SnakeStateManager(IGameStrategyFactory gameStrategyFactory) {
+    public SnakeManager(IGameStrategyFactory gameStrategyFactory) {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 

@@ -13,12 +13,12 @@ import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 import ru.elynx.battlesnake.testsnake.MySnakeGameStrategyFactory;
 
 @Tag("Internals")
-class SnakeStateManagerTest {
+class SnakeManagerTest {
     MySnakeGameStrategyFactory mySnakeFactory = new MySnakeGameStrategyFactory();
 
     @Test
     void test_root_gives_snake_info() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
         BattlesnakeInfo battlesnakeInfo = tested.root("My Snake");
 
         assertEquals("Test Aut|hor", battlesnakeInfo.getAuthor());
@@ -26,13 +26,13 @@ class SnakeStateManagerTest {
 
     @Test
     void test_root_throws_when_not_found() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
         assertThrows(SnakeNotFoundException.class, () -> tested.root("No Such Snake"));
     }
 
     @Test
     void test_start_does_not_throw() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
@@ -41,7 +41,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_start_throws_when_not_found() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 
@@ -50,7 +50,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_move_does_not_throw() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
@@ -60,7 +60,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_move_throws_when_not_found() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 
@@ -69,7 +69,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_end_does_not_throw_when_prepared() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
@@ -80,7 +80,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_end_throws_when_not_prepared() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("My Snake");
 
@@ -89,7 +89,7 @@ class SnakeStateManagerTest {
 
     @Test
     void test_end_throws_when_not_found() {
-        SnakeStateManager tested = new SnakeStateManager(mySnakeFactory);
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         GameState gameState = EntityBuilder.gameStateWithName("No Such Snake");
 

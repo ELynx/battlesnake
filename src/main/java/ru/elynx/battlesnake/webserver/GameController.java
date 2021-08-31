@@ -24,16 +24,16 @@ import ru.elynx.battlesnake.entity.mapping.MoveMapper;
 @RequestMapping(value = "/battlesnake/api/v1")
 public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
-    private final SnakeStateManager snakeStateManager;
+    private final SnakeManager snakeManager;
     private final StatisticsTracker statisticsTracker;
     private final BattlesnakeInfoMapper battlesnakeInfoMapper;
     private final GameStateMapper gameStateMapper;
     private final MoveMapper moveMapper;
 
     @Autowired
-    public GameController(SnakeStateManager snakeStateManager, StatisticsTracker statisticsTracker,
+    public GameController(SnakeManager snakeManager, StatisticsTracker statisticsTracker,
             BattlesnakeInfoMapper battlesnakeInfoMapper, GameStateMapper gameStateMapper, MoveMapper moveMapper) {
-        this.snakeStateManager = snakeStateManager;
+        this.snakeManager = snakeManager;
         this.statisticsTracker = statisticsTracker;
         this.battlesnakeInfoMapper = battlesnakeInfoMapper;
         this.gameStateMapper = gameStateMapper;
@@ -66,7 +66,7 @@ public class GameController {
 
         statisticsTracker.trackRoot(name);
 
-        BattlesnakeInfo battlesnakeInfo = snakeStateManager.root(name);
+        BattlesnakeInfo battlesnakeInfo = snakeManager.root(name);
         return ResponseEntity.ok(battlesnakeInfoMapper.toDto(battlesnakeInfo));
     }
 
@@ -82,7 +82,7 @@ public class GameController {
 
         validateGameState(name, gameState);
 
-        Void start = snakeStateManager.start(gameState);
+        Void start = snakeManager.start(gameState);
         return ResponseEntity.ok(start);
     }
 
@@ -98,7 +98,7 @@ public class GameController {
 
         validateGameState(name, gameState);
 
-        Move move = snakeStateManager.move(gameState);
+        Move move = snakeManager.move(gameState);
         return ResponseEntity.ok(moveMapper.toDto(move));
     }
 
@@ -114,7 +114,7 @@ public class GameController {
 
         validateGameState(name, gameState);
 
-        Void end = snakeStateManager.end(gameState);
+        Void end = snakeManager.end(gameState);
         return ResponseEntity.ok(end);
     }
 
