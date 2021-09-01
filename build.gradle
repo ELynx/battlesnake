@@ -140,6 +140,14 @@ jacocoTestReport {
         csv.required = false
         html.required = true
     }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                "ru/elynx/battlesnake/**/BattlesnakeApplication.class"
+            ])
+        }))
+    }
 }
 
 var disabledTasks = [
