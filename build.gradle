@@ -132,6 +132,12 @@ test {
     useJUnitPlatform()
 }
 
+task testComponentOnly(type: Test) {
+    useJUnitPlatform() {
+        includeTags("TestComponent")
+    }
+}
+
 jacocoTestReport {
     dependsOn test
 
