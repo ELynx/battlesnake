@@ -109,6 +109,8 @@ class AsciiToGameStateTest {
     void test_turn() {
         AsciiToGameState tested = new AsciiToGameState("Y");
 
+        assertThrows(IllegalArgumentException.class, () -> tested.setTurn(-1));
+
         GameState entity = tested.setTurn(234).build();
 
         assertEquals(234, entity.getTurn());
@@ -132,6 +134,9 @@ class AsciiToGameStateTest {
     void test_start_snake_length() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
 
+        assertThrows(IllegalArgumentException.class, () -> tested.setStartSnakeLength(-1));
+        assertThrows(IllegalArgumentException.class, () -> tested.setStartSnakeLength(0));
+
         GameState entity = tested.setStartSnakeLength(11).build();
 
         assertEquals(4, entity.getBoard().getSnakes().size());
@@ -144,6 +149,9 @@ class AsciiToGameStateTest {
     @Test
     void test_snake_length() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        assertThrows(IllegalArgumentException.class, () -> tested.setLength("A", -1));
+        assertThrows(IllegalArgumentException.class, () -> tested.setLength("A", 0));
 
         GameState entity = tested.setLength("Y", 11).setLength("A", 11).setLength("B", 11).setLength("C", 11).build();
 
@@ -162,6 +170,8 @@ class AsciiToGameStateTest {
                 "___________\n" + //
                 "___________\n" + //
                 "___________\n");
+
+        assertThrows(IllegalArgumentException.class, () -> tested.setHazards("HHHHHHHHHHH\n"));
 
         GameState entity = tested.setHazards("" + //
                 "HHHHHHHHHHH\n" + //
@@ -188,6 +198,8 @@ class AsciiToGameStateTest {
     void test_hazard_damage() {
         AsciiToGameState tested = new AsciiToGameState("Y");
 
+        assertThrows(IllegalArgumentException.class, () -> tested.setHazardDamage(-1));
+
         GameState entity = tested.setHazardDamage(345).build();
 
         assertEquals(345, entity.getRules().getHazardDamage());
@@ -196,6 +208,9 @@ class AsciiToGameStateTest {
     @Test
     void test_health_and_latency() {
         AsciiToGameState tested = new AsciiToGameState("YABC");
+
+        assertThrows(IllegalArgumentException.class, () -> tested.setHealth("A", -1));
+        assertThrows(IllegalArgumentException.class, () -> tested.setLatency("A", -1));
 
         GameState entity = tested //
                 .setHealth("Y", 99) //
