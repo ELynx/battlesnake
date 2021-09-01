@@ -42,17 +42,13 @@ class GameStrategyFactoryTest {
     }
 
     @Test
-    void test_all_combatant_strategies_are_tested() {
-        Stream<String> testedStrategies = provideStrategyNames();
-        Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies();
+    void test_all_strategies_are_tested() {
+        Set<String> testedStrategies = provideStrategyNames().sorted()
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> knownStrategies = gameStrategyFactory.getRegisteredStrategies().stream().sorted()
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        Set<String> temp1 = testedStrategies.sorted().collect(Collectors.toCollection(LinkedHashSet::new));
-        Set<String> temp2 = knownStrategies.stream().filter(name -> {
-            IGameStrategy strategy = gameStrategyFactory.getGameStrategy(name);
-            return strategy.isCombatant();
-        }).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
-
-        assertIterableEquals(temp1, temp2);
+        assertIterableEquals(knownStrategies, testedStrategies);
     }
 
     @ParameterizedTest
