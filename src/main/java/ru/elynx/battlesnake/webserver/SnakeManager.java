@@ -29,13 +29,14 @@ public class SnakeManager {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
+    // visible for testing
     @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL, fixedDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL)
-    private void cleanStaleSnakes() {
+    void cleanStaleSnakes() {
         cleanStaleSnakesImpl(Instant.now());
     }
 
     // visible for testing
-    void cleanStaleSnakeTest(Instant referenceTime) {
+    void test_cleanStaleSnake(Instant referenceTime) { // NOSONAR
         cleanStaleSnakesImpl(referenceTime);
     }
 

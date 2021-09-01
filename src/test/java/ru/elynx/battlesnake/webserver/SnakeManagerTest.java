@@ -19,19 +19,26 @@ class SnakeManagerTest {
     MySnakeGameStrategyFactory mySnakeFactory = new MySnakeGameStrategyFactory();
 
     @Test
-    void test_clean_up_stale_snakes() {
+    void test_clean_up_stale_snakes_scheduled_call() {
+        SnakeManager tested = new SnakeManager(mySnakeFactory);
+
+        assertDoesNotThrow(tested::cleanStaleSnakes);
+    }
+
+    @Test
+    void test_clean_up_stale_snakes_logic() {
         SnakeManager tested = new SnakeManager(mySnakeFactory);
 
         // no snakes
-        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now()));
+        assertDoesNotThrow(() -> tested.test_cleanStaleSnake(Instant.now()));
 
         tested.start(EntityBuilder.gameStateWithName("My Snake"));
 
         // fresh snake
-        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now()));
+        assertDoesNotThrow(() -> tested.test_cleanStaleSnake(Instant.now()));
 
         // advance time forward
-        assertDoesNotThrow(() -> tested.cleanStaleSnakeTest(Instant.now().plus(1, ChronoUnit.HOURS)));
+        assertDoesNotThrow(() -> tested.test_cleanStaleSnake(Instant.now().plus(1, ChronoUnit.HOURS)));
     }
 
     @Test
