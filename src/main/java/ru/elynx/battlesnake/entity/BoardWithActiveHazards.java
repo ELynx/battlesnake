@@ -29,6 +29,11 @@ public class BoardWithActiveHazards extends Board {
         return new BoardWithActiveHazards(board1, board0.getHazards());
     }
 
+    // visible for testing
+    static BoardWithActiveHazards test_createWithNoChecks(Board board, List<Coordinates> activeHazards) {
+        return new BoardWithActiveHazards(board, activeHazards);
+    }
+
     @Override
     public boolean hasInactiveHazards() {
         return getHazards().size() != getActiveHazards().size();
