@@ -49,7 +49,11 @@ public class SnakeMovePredictor {
     }
 
     private List<? extends Coordinates> getRepeatLastMove(Snake snake) {
-        Coordinates dXdY = getDxDy(snake);
+        return List.of(calculateRepeatLastMove(snake));
+    }
+
+    private Coordinates calculateRepeatLastMove(Snake snake) {
+        Coordinates dXdY = calculateDxDy(snake);
 
         // default to UP
         if (Coordinates.ZERO.equals(dXdY)) {
@@ -57,10 +61,10 @@ public class SnakeMovePredictor {
         }
 
         Coordinates head = snake.getHead();
-        return List.of(new Coordinates(head.getX() + dXdY.getX(), head.getY() + dXdY.getY()));
+        return new Coordinates(head.getX() + dXdY.getX(), head.getY() + dXdY.getY());
     }
 
-    private Coordinates getDxDy(Snake snake) {
+    private Coordinates calculateDxDy(Snake snake) {
         // head position this turn
         Coordinates head = snake.getHead();
         // head position last turn
