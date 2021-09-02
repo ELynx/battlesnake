@@ -103,66 +103,87 @@ public class AsciiToGameState {
 
         for (var w = 0; w < dimensions.getWidth(); ++w) {
             for (var h = 0; h < dimensions.getHeight(); ++h) {
+                var symbol = rows.get(h).charAt(w);
                 var coords = coordinatesFromWidthAndHeight(dimensions, w, h);
 
-                var c = rows.get(h).charAt(w);
-
-                if (c == '0') {
+                if (symbol == '0') {
                     food.add(coords);
                 }
 
-                if (c >= 'A' && c <= 'Z') {
-                    String id = String.valueOf(c);
-                    String name = "Snake " + id;
-                    String squad = "Test squad " + id;
-                    String shout = "Test snake " + id;
-                    Coordinates head = coords;
-                    int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
-                    int latency = latencies.getOrDefault(id, 100);
-
-                    char lowercaseC = (char) (c + 'a' - 'A');
-
-                    LinkedList<Coordinates> body = new LinkedList<>();
-                    for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows,
-                            dimensions.getHeight(), dimensions.getWidth(), body, current, lowercaseC)) {
-                        body.add(current);
-
-                        // emergency stop if looped somewhere
-                        if (body.size() > dimensions.getArea()) {
-                            throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
-                        }
-                    }
-
-                    // fill in snake up to start size, simulate starting conditions
-                    int snakeLength = lengths.getOrDefault(id, startSnakeLength);
-                    for (int i = body.size(); i < snakeLength; ++i) {
-                        body.add(body.get(i - 1));
-                    }
-
-                    int length = body.size();
-
-                    Snake snake = new Snake(id, name, health, body, latency, head, length, shout, squad);
+                if (symbol >= 'A' && symbol <= 'Z') {
+                    var snake = makeSnakeFromStart(rows, dimensions, coords, symbol);
 
                     snakes.add(snake);
 
-                    if (c == 'Y') {
+                    if (symbol == 'Y') {
                         you = snake;
                     }
                 }
             }
         }
 
-        if (you == null || snakes.isEmpty()) {
-            throw new IllegalStateException("Not enough snakes or you");
+        if (snakes.isEmpty()) {
+            throw new IllegalStateException("No snakes found");
         }
 
-        List<Coordinates> hazards = getHazards();
+        if (you == null) {
+            throw new IllegalStateException("You snake not found");
+        }
 
-        Board board = new Board(dimensions, food, hazards, snakes);
+        var gameId = buildGameId();
+        var turn = buildTurn();
+        var rules = buildRules();
 
-        Rules rules = new Rules(rulesetName, "1.0.0", 500, hazardDamage);
+        var hazards = buildHazards();
+        var board = new Board(dimensions, food, hazards, snakes);
 
-        return new GameState("test-game-id", turn, rules, board, you);
+        return new GameState(gameId, turn, rules, board, you);
+    }
+
+    private String buildGameId() {
+        return "test-game-id";
+    }
+
+    private int buildTurn() {
+        return turn;
+    }
+
+    private Rules buildRules() {
+        return new Rules(rulesetName, "1.0.0", 500, hazardDamage);
+    }
+
+    private Snake makeSnakeFromStart(List<String> rows, Dimensions dimensions, Coordinates coords, char c) {
+        String id = String.valueOf(c);
+        String name = "Snake " + id;
+        String squad = "Test squad " + id;
+        String shout = "Test snake " + id;
+        Coordinates head = coords;
+        int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
+        int latency = latencies.getOrDefault(id, 100);
+
+        char lowercaseC = (char) (c + 'a' - 'A');
+
+        LinkedList<Coordinates> body = new LinkedList<>();
+        for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows,
+                dimensions.getHeight(), dimensions.getWidth(), body, current, lowercaseC)) {
+            body.add(current);
+
+            // emergency stop if looped somewhere
+            if (body.size() > dimensions.getArea()) {
+                throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
+            }
+        }
+
+        // fill in snake up to start size, simulate starting conditions
+        int snakeLength = lengths.getOrDefault(id, startSnakeLength);
+        for (int i = body.size(); i < snakeLength; ++i) {
+            body.add(body.get(i - 1));
+        }
+
+        int length = body.size();
+
+        Snake snake = new Snake(id, name, health, body, latency, head, length, shout, squad);
+        return snake;
     }
 
     private List<String> extractMainRows() {
@@ -272,7 +293,7 @@ public class AsciiToGameState {
         return result;
     }
 
-    private List<Coordinates> getHazards() {
+    private List<Coordinates> buildHazards() {
         if (hazards == null) {
             return Collections.emptyList();
         }
@@ -283,9 +304,9 @@ public class AsciiToGameState {
         var result = new LinkedList<Coordinates>();
         for (var w = 0; w < dimensions.getWidth(); ++w) {
             for (var h = 0; h < dimensions.getHeight(); ++h) {
-                var c = rows.get(h).charAt(w);
+                var symbol = rows.get(h).charAt(w);
 
-                if (c == 'H') {
+                if (symbol == 'H') {
                     result.add(coordinatesFromWidthAndHeight(dimensions, w, h));
                 }
             }
@@ -295,12 +316,14 @@ public class AsciiToGameState {
     }
 
     List<String> extractHazardRows() {
-        validateHazards();
-        return extractRows(hazards);
-    }
+        var hazardRows = extractRows(hazards);
+        var mainRows = extractRows(ascii);
 
-    void validateHazards() {
-        // TODO
+        if (!dimensionsFromRows(hazardRows).equals(dimensionsFromRows(mainRows))) {
+            throw new IllegalStateException("Different dimensions of ascii and hazards");
+        }
+
+        return hazardRows;
     }
 
     Coordinates coordinatesFromWidthAndHeight(Dimensions dimensions, int w, int h) {
