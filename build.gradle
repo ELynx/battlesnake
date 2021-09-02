@@ -150,6 +150,13 @@ jacocoTestReport {
     }
 }
 
+task jacocoTestReportTest(type: JacocoReport) {
+    dependsOn test
+    executionData test
+
+    sourceSets sourceSets.test
+}
+
 task jacocoTestReportTestComponentOnly(type: JacocoReport) {
     dependsOn testComponentOnly
     executionData testComponentOnly
