@@ -93,28 +93,22 @@ public class AsciiToGameState {
     }
 
     public GameState build() {
-        validateAscii();
-
-        var rows = extractRows();
+        var rows = extractMainRows();
         var dimensions = dimensionsFromRows(rows);
 
-        int width = dimensions.getWidth();
-        int height = dimensions.getHeight();
+        var food = new LinkedList<Coordinates>();
+        var snakes = new LinkedList<Snake>();
 
-        LinkedList<Coordinates> food = new LinkedList<>();
-        LinkedList<Snake> snakes = new LinkedList<>();
         Snake you = null;
 
-        for (int w = 0; w < width; ++w) {
-            for (int h = 0; h < height; ++h) {
-                int x = w;
-                int y = height - h - 1;
-                Coordinates coordinates = new Coordinates(x, y);
+        for (var w = 0; w < dimensions.getWidth(); ++w) {
+            for (var h = 0; h < dimensions.getHeight(); ++h) {
+                var coords = coordinatesFromWidthAndHeight(dimensions, w, h);
 
-                char c = rows.get(h).charAt(w);
+                var c = rows.get(h).charAt(w);
 
                 if (c == '0') {
-                    food.add(coordinates);
+                    food.add(coords);
                 }
 
                 if (c >= 'A' && c <= 'Z') {
@@ -122,7 +116,7 @@ public class AsciiToGameState {
                     String name = "Snake " + id;
                     String squad = "Test squad " + id;
                     String shout = "Test snake " + id;
-                    Coordinates head = coordinates;
+                    Coordinates head = coords;
                     int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
                     int latency = latencies.getOrDefault(id, 100);
 
@@ -130,11 +124,11 @@ public class AsciiToGameState {
 
                     LinkedList<Coordinates> body = new LinkedList<>();
                     for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows,
-                            height, width, body, current, lowercaseC)) {
+                            dimensions.getHeight(), dimensions.getWidth(), body, current, lowercaseC)) {
                         body.add(current);
 
                         // emergency stop if looped somewhere
-                        if (body.size() > height * width) {
+                        if (body.size() > dimensions.getArea()) {
                             throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
                         }
                     }
@@ -162,38 +156,18 @@ public class AsciiToGameState {
             throw new IllegalStateException("Not enough snakes or you");
         }
 
-        List<Coordinates> generatedHazards;
+        List<Coordinates> hazards = getHazards();
 
-        if (hazards == null) {
-            generatedHazards = Collections.emptyList();
-        } else {
-            List<Coordinates> toAdd = new LinkedList<>();
-
-            List<String> rows2 = Arrays.asList(hazards.split("\\r?\\n"));
-            rows2.removeAll(Arrays.asList("", null));
-
-            for (int w = 0; w < width; ++w) {
-                for (int h = 0; h < height; ++h) {
-                    int x = w;
-                    int y = height - h - 1;
-                    Coordinates coords = new Coordinates(x, y);
-
-                    char c = rows2.get(h).charAt(w);
-
-                    if (c == 'H') {
-                        toAdd.add(coords);
-                    }
-                }
-            }
-
-            generatedHazards = toAdd;
-        }
-
-        Board board = new Board(dimensions, food, generatedHazards, snakes);
+        Board board = new Board(dimensions, food, hazards, snakes);
 
         Rules rules = new Rules(rulesetName, "1.0.0", 500, hazardDamage);
 
         return new GameState("test-game-id", turn, rules, board, you);
+    }
+
+    private List<String> extractMainRows() {
+        validateAscii();
+        return extractRows(ascii);
     }
 
     private void validateAscii() {
@@ -202,14 +176,14 @@ public class AsciiToGameState {
         }
     }
 
-    private List<String> extractRows() {
-        var rows = extractRowsByNewline();
+    private List<String> extractRows(String from) {
+        var rows = extractRowsByNewline(from);
         validateRows(rows);
         return rows;
     }
 
-    private List<String> extractRowsByNewline() {
-        List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
+    private List<String> extractRowsByNewline(String from) {
+        List<String> rows = Arrays.asList(from.split("\\r?\\n"));
         rows.removeAll(Arrays.asList("", null));
 
         return rows;
@@ -296,5 +270,41 @@ public class AsciiToGameState {
         addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yDown), '^'));
 
         return result;
+    }
+
+    private List<Coordinates> getHazards() {
+        if (hazards == null) {
+            return Collections.emptyList();
+        }
+
+        var rows = extractHazardRows();
+        var dimensions = dimensionsFromRows(rows);
+
+        var result = new LinkedList<Coordinates>();
+        for (var w = 0; w < dimensions.getWidth(); ++w) {
+            for (var h = 0; h < dimensions.getHeight(); ++h) {
+                var c = rows.get(h).charAt(w);
+
+                if (c == 'H') {
+                    result.add(coordinatesFromWidthAndHeight(dimensions, w, h));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    List<String> extractHazardRows() {
+        validateHazards();
+        return extractRows(hazards);
+    }
+
+    void validateHazards() {
+        // TODO
+    }
+
+    Coordinates coordinatesFromWidthAndHeight(Dimensions dimensions, int w, int h) {
+        int y = dimensions.getHeight() - h - 1;
+        return new Coordinates(w, y);
     }
 }
