@@ -60,13 +60,6 @@ public class AsciiToGameState {
         return setRulesetName(ApiExampleBuilder.royaleRulesetName());
     }
 
-    /**
-     * Set damage done by hazard to snake.
-     *
-     * @param hazardDamage
-     *            value
-     * @return Builder with hazard damage set
-     */
     public AsciiToGameState setHazardDamage(int hazardDamage) {
         if (hazardDamage < 0)
             throw new IllegalArgumentException("Hazard Damage must be greater or equal to 0");
@@ -99,98 +92,19 @@ public class AsciiToGameState {
         return this;
     }
 
-    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, int height, int width,
-            List<Coordinates> soFar, Coordinates center, char lookupChar) {
-        LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
-
-        Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
-            Coordinates coords = pair.getKey();
-
-            // avoid already found pieces
-            if (soFar.contains(coords)) {
-                return null;
-            }
-
-            if (coords.getX() >= 0 && coords.getX() < width && coords.getY() >= 0 && coords.getY() < height) {
-
-                int row = height - coords.getY() - 1;
-                int index = coords.getX();
-
-                char c = rows.get(row).charAt(index);
-
-                // if snake letter or direction came up
-                if (lookupChar == c || pair.getValue().equals(c)) {
-                    // make sure to pass what actually was on the ascii
-                    result.add(new KeyValue<>(coords, c));
-                }
-            }
-
-            return null;
-        };
-
-        int x = center.getX();
-        int y = center.getY();
-
-        int xLeft = x - 1;
-        int xRight = x + 1;
-        int yDown = y - 1;
-        int yUp = y + 1;
-
-        // arrow pointing to center
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xLeft, y), '>'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yUp), 'v'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xRight, y), '<'));
-        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yDown), '^'));
-
-        return result;
-    }
-
-    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<Coordinates> soFar,
-            Coordinates current, char bodyChar) {
-        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current,
-                bodyChar);
-
-        // priority 1 - arrows pointing
-        for (KeyValue<Coordinates, Character> keyValue : neighbours) {
-            if ("<^>v".indexOf(keyValue.getValue()) >= 0) {
-                return keyValue.getKey();
-            }
-        }
-
-        // priority 2 - body characters
-        // there are no other trigger conditions, get 1st or null
-        if (neighbours.isEmpty()) {
-            return null;
-        }
-
-        return neighbours.get(0).getKey();
-    }
-
     public GameState build() {
-        if (ascii.indexOf('V') >= 0) {
-            throw new IllegalStateException("V is not allowed in ascii");
-        }
+        validateAscii();
 
-        List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
-        rows.removeAll(Arrays.asList("", null));
+        var rows = extractRows();
+        var dimensions = dimensionsFromRows(rows);
 
-        final int height = rows.size();
-        if (height == 0) {
-            throw new IllegalStateException("Could not find rows");
-        }
-
-        final int width = rows.get(0).length();
-        rows.forEach(s -> {
-            if (s.isEmpty() || s.length() != width) {
-                throw new IllegalStateException("Rows have invalid size");
-            }
-        });
-
-        Dimensions dimensions = new Dimensions(width, height);
+        int width = dimensions.getWidth();
+        int height = dimensions.getHeight();
 
         LinkedList<Coordinates> food = new LinkedList<>();
         LinkedList<Snake> snakes = new LinkedList<>();
         Snake you = null;
+
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < height; ++h) {
                 int x = w;
@@ -280,5 +194,107 @@ public class AsciiToGameState {
         Rules rules = new Rules(rulesetName, "1.0.0", 500, hazardDamage);
 
         return new GameState("test-game-id", turn, rules, board, you);
+    }
+
+    private void validateAscii() {
+        if (ascii.indexOf('V') >= 0) {
+            throw new IllegalStateException("V is not allowed in ascii");
+        }
+    }
+
+    private List<String> extractRows() {
+        var rows = extractRowsByNewline();
+        validateRows(rows);
+        return rows;
+    }
+
+    private List<String> extractRowsByNewline() {
+        List<String> rows = Arrays.asList(ascii.split("\\r?\\n"));
+        rows.removeAll(Arrays.asList("", null));
+
+        return rows;
+    }
+
+    private void validateRows(List<String> rows) {
+        if (rows.size() == 0) {
+            throw new IllegalStateException("Could not find rows");
+        }
+
+        int width = rows.get(0).length();
+        rows.forEach(s -> {
+            if (s.isEmpty() || s.length() != width) {
+                throw new IllegalStateException("Rows have different or invalid size");
+            }
+        });
+    }
+
+    Dimensions dimensionsFromRows(List<String> rows) {
+        return new Dimensions(rows.get(0).length(), rows.size());
+    }
+
+    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<Coordinates> soFar,
+            Coordinates current, char bodyChar) {
+        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current,
+                bodyChar);
+
+        // priority 1 - arrows pointing
+        for (KeyValue<Coordinates, Character> keyValue : neighbours) {
+            if ("<^>v".indexOf(keyValue.getValue()) >= 0) {
+                return keyValue.getKey();
+            }
+        }
+
+        // priority 2 - body characters
+        // there are no other trigger conditions, get 1st or null
+        if (neighbours.isEmpty()) {
+            return null;
+        }
+
+        return neighbours.get(0).getKey();
+    }
+    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, int height, int width,
+            List<Coordinates> soFar, Coordinates center, char lookupChar) {
+        LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
+
+        Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
+            Coordinates coords = pair.getKey();
+
+            // avoid already found pieces
+            if (soFar.contains(coords)) {
+                return null;
+            }
+
+            if (coords.getX() >= 0 && coords.getX() < width && coords.getY() >= 0 && coords.getY() < height) {
+
+                int row = height - coords.getY() - 1;
+                int index = coords.getX();
+
+                char c = rows.get(row).charAt(index);
+
+                // if snake letter or direction came up
+                if (lookupChar == c || pair.getValue().equals(c)) {
+                    // make sure to pass what actually was on the ascii
+                    result.add(new KeyValue<>(coords, c));
+                }
+            }
+
+            return null;
+        };
+
+        int x = center.getX();
+        int y = center.getY();
+
+        int xLeft = x - 1;
+        int xRight = x + 1;
+        int yDown = y - 1;
+        int yUp = y + 1;
+
+        // arrow pointing to center
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xLeft, y), '>'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yUp), 'v'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(xRight, y), '<'));
+        addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yDown), '^'));
+
+        return result;
     }
 }
