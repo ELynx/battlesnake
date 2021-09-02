@@ -141,18 +141,40 @@ task testComponentOnly(type: Test) {
 jacocoTestReport {
     dependsOn test
 
-    reports {
-        xml.required = false
-        csv.required = false
-        html.required = true
-    }
-
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                 "ru/elynx/battlesnake/**/BattlesnakeApplication.class"
             ])
         }))
+    }
+}
+
+task jacocoTestReportTestComponentOnly(type: JacocoReport) {
+    dependsOn testComponentOnly
+    executionData testComponentOnly
+
+    sourceSets sourceSets.test
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, includes: [
+                "ru/elynx/battlesnake/**/AsciiToGameState.class",
+                "ru/elynx/battlesnake/**/SimplePredictorInformant.class",
+                "ru/elynx/battlesnake/**/MySnake.class",
+                "ru/elynx/battlesnake/**/MySnakeGameStrategyFactory.class"
+            ])
+        }))
+    }
+}
+
+tasks.each {
+    if (it instanceof JacocoReport) {
+        it.reports {
+            xml.required = false
+            csv.required = false
+            html.required = true
+        }
     }
 }
 
