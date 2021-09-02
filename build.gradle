@@ -117,10 +117,12 @@ spotless {
         removeUnusedImports()
         eclipse()
         indentWithSpaces(4)
+        endWithNewline()
     }
     groovyGradle() {
         greclipse()
         indentWithSpaces(4)
+        endWithNewline()
     }
 }
 
