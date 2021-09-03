@@ -140,52 +140,6 @@ public class AsciiToGameState {
         return new GameState(gameId, turn, rules, board, you);
     }
 
-    private String buildGameId() {
-        return "test-game-id";
-    }
-
-    private int buildTurn() {
-        return turn;
-    }
-
-    private Rules buildRules() {
-        return new Rules(rulesetName, "1.0.0", 500, hazardDamage);
-    }
-
-    private Snake makeSnakeFromStart(List<String> rows, Dimensions dimensions, Coordinates coords, char c) {
-        String id = String.valueOf(c);
-        String name = "Snake " + id;
-        String squad = "Test squad " + id;
-        String shout = "Test snake " + id;
-        Coordinates head = coords;
-        int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
-        int latency = latencies.getOrDefault(id, 100);
-
-        char lowercaseC = (char) (c + 'a' - 'A');
-
-        LinkedList<Coordinates> body = new LinkedList<>();
-        for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows,
-                dimensions.getHeight(), dimensions.getWidth(), body, current, lowercaseC)) {
-            body.add(current);
-
-            // emergency stop if looped somewhere
-            if (body.size() > dimensions.getArea()) {
-                throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
-            }
-        }
-
-        // fill in snake up to start size, simulate starting conditions
-        int snakeLength = lengths.getOrDefault(id, startSnakeLength);
-        for (int i = body.size(); i < snakeLength; ++i) {
-            body.add(body.get(i - 1));
-        }
-
-        int length = body.size();
-
-        Snake snake = new Snake(id, name, health, body, latency, head, length, shout, squad);
-        return snake;
-    }
-
     private List<String> extractMainRows() {
         validateAscii();
         return extractRows(ascii);
@@ -223,14 +177,52 @@ public class AsciiToGameState {
         });
     }
 
-    Dimensions dimensionsFromRows(List<String> rows) {
+    private Dimensions dimensionsFromRows(List<String> rows) {
         return new Dimensions(rows.get(0).length(), rows.size());
     }
 
-    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, int height, int width, List<Coordinates> soFar,
-            Coordinates current, char bodyChar) {
-        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, height, width, soFar, current,
-                bodyChar);
+    private Coordinates coordinatesFromWidthAndHeight(Dimensions dimensions, int w, int h) {
+        int y = dimensions.getHeight() - h - 1;
+        return new Coordinates(w, y);
+    }
+
+    private Snake makeSnakeFromStart(List<String> rows, Dimensions dimensions, Coordinates head, char c) {
+        String id = String.valueOf(c);
+        String name = "Snake " + id;
+        String squad = "Test squad " + id;
+        String shout = "Test snake " + id;
+
+        int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
+        int latency = latencies.getOrDefault(id, 100);
+
+        char lowercaseSymbol = (char) (c + 'a' - 'A');
+
+        LinkedList<Coordinates> body = new LinkedList<>();
+
+        for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows, dimensions, body,
+                current, lowercaseSymbol)) {
+            body.add(current);
+
+            // emergency stop if looped somewhere
+            if (body.size() > dimensions.getArea()) {
+                throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
+            }
+        }
+
+        // fill in snake up to start size, simulate starting conditions
+        int snakeLength = lengths.getOrDefault(id, startSnakeLength);
+        for (int i = body.size(); i < snakeLength; ++i) {
+            body.add(body.get(i - 1));
+        }
+
+        int length = body.size();
+
+        return new Snake(id, name, health, body, latency, head, length, shout, squad);
+    }
+
+    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, Dimensions dimensions, List<Coordinates> soFar,
+            Coordinates current, char symbol) {
+        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, dimensions, soFar, current, symbol);
 
         // priority 1 - arrows pointing
         for (KeyValue<Coordinates, Character> keyValue : neighbours) {
@@ -247,8 +239,8 @@ public class AsciiToGameState {
 
         return neighbours.get(0).getKey();
     }
-    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, int height, int width,
-            List<Coordinates> soFar, Coordinates center, char lookupChar) {
+    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, Dimensions dimensions,
+            List<Coordinates> soFar, Coordinates center, char symbol) {
         LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
 
         Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
@@ -259,17 +251,18 @@ public class AsciiToGameState {
                 return null;
             }
 
-            if (coords.getX() >= 0 && coords.getX() < width && coords.getY() >= 0 && coords.getY() < height) {
+            if (coords.getX() >= 0 && coords.getX() < dimensions.getWidth() && coords.getY() >= 0
+                    && coords.getY() < dimensions.getHeight()) {
 
-                int row = height - coords.getY() - 1;
+                int row = dimensions.getHeight() - coords.getY() - 1;
                 int index = coords.getX();
 
-                char c = rows.get(row).charAt(index);
+                char potentialSymbol = rows.get(row).charAt(index);
 
                 // if snake letter or direction came up
-                if (lookupChar == c || pair.getValue().equals(c)) {
+                if (symbol == potentialSymbol || pair.getValue().equals(potentialSymbol)) {
                     // make sure to pass what actually was on the ascii
-                    result.add(new KeyValue<>(coords, c));
+                    result.add(new KeyValue<>(coords, potentialSymbol));
                 }
             }
 
@@ -291,6 +284,18 @@ public class AsciiToGameState {
         addIfChecksUp.apply(new KeyValue<>(new Coordinates(x, yDown), '^'));
 
         return result;
+    }
+
+    private String buildGameId() {
+        return "test-game-id";
+    }
+
+    private int buildTurn() {
+        return turn;
+    }
+
+    private Rules buildRules() {
+        return new Rules(rulesetName, "1.0.0", 500, hazardDamage);
     }
 
     private List<Coordinates> buildHazards() {
@@ -315,7 +320,7 @@ public class AsciiToGameState {
         return result;
     }
 
-    List<String> extractHazardRows() {
+    private List<String> extractHazardRows() {
         var hazardRows = extractRows(hazards);
         var mainRows = extractRows(ascii);
 
@@ -324,10 +329,5 @@ public class AsciiToGameState {
         }
 
         return hazardRows;
-    }
-
-    Coordinates coordinatesFromWidthAndHeight(Dimensions dimensions, int w, int h) {
-        int y = dimensions.getHeight() - h - 1;
-        return new Coordinates(w, y);
     }
 }
