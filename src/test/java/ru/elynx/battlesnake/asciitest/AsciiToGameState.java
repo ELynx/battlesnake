@@ -94,13 +94,13 @@ public class AsciiToGameState {
 
     public GameState build() {
         var rows = extractMainRows();
-        var dimensions = dimensionsFromRows(rows);
 
         var food = new LinkedList<Coordinates>();
         var snakes = new LinkedList<Snake>();
 
         Snake you = null;
 
+        var dimensions = dimensionsFromRows(rows);
         for (var w = 0; w < dimensions.getWidth(); ++w) {
             for (var h = 0; h < dimensions.getHeight(); ++h) {
                 var symbol = rows.get(h).charAt(w);
@@ -111,7 +111,7 @@ public class AsciiToGameState {
                 }
 
                 if (symbol >= 'A' && symbol <= 'Z') {
-                    var snake = makeSnakeFromStart(rows, dimensions, coords, symbol);
+                    var snake = makeSnakeFromStart(rows, coords, symbol);
 
                     snakes.add(snake);
 
@@ -158,7 +158,7 @@ public class AsciiToGameState {
     }
 
     private List<String> extractRowsByNewline(String from) {
-        List<String> rows = Arrays.asList(from.split("\\r?\\n"));
+        var rows = Arrays.asList(from.split("\\r?\\n"));
         rows.removeAll(Arrays.asList("", null));
 
         return rows;
@@ -169,7 +169,7 @@ public class AsciiToGameState {
             throw new IllegalStateException("Could not find rows");
         }
 
-        int width = rows.get(0).length();
+        var width = rows.get(0).length();
         rows.forEach(s -> {
             if (s.isEmpty() || s.length() != width) {
                 throw new IllegalStateException("Rows have different or invalid size");
@@ -182,50 +182,52 @@ public class AsciiToGameState {
     }
 
     private Coordinates coordinatesFromWidthAndHeight(Dimensions dimensions, int w, int h) {
-        int y = dimensions.getHeight() - h - 1;
+        var y = dimensions.getHeight() - h - 1;
         return new Coordinates(w, y);
     }
 
-    private Snake makeSnakeFromStart(List<String> rows, Dimensions dimensions, Coordinates head, char c) {
-        String id = String.valueOf(c);
-        String name = "Snake " + id;
-        String squad = "Test squad " + id;
-        String shout = "Test snake " + id;
+    private Snake makeSnakeFromStart(List<String> rows, Coordinates head, char symbol) {
+        var dimensions = dimensionsFromRows(rows);
 
-        int health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
-        int latency = latencies.getOrDefault(id, 100);
+        var lowercaseSymbol = (char) (symbol + 'a' - 'A');
 
-        char lowercaseSymbol = (char) (c + 'a' - 'A');
+        var body = new LinkedList<Coordinates>();
 
-        LinkedList<Coordinates> body = new LinkedList<>();
-
-        for (Coordinates current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows, dimensions, body,
-                current, lowercaseSymbol)) {
+        for (var current = head; current != null; current = getNextSnakeCoordsDtoOrNull(rows, body, current,
+                lowercaseSymbol)) {
             body.add(current);
 
             // emergency stop if looped somewhere
             if (body.size() > dimensions.getArea()) {
-                throw new IllegalStateException("Loops within snake [" + c + "]: [" + body + ']');
+                throw new IllegalStateException("Loops within snake [" + symbol + "]: [" + body + ']');
             }
         }
 
+        var id = String.valueOf(symbol);
+
         // fill in snake up to start size, simulate starting conditions
-        int snakeLength = lengths.getOrDefault(id, startSnakeLength);
-        for (int i = body.size(); i < snakeLength; ++i) {
+        var length = lengths.getOrDefault(id, startSnakeLength);
+        for (var i = body.size(); i < length; ++i) {
             body.add(body.get(i - 1));
         }
+        length = body.size();
 
-        int length = body.size();
+        var name = "Snake " + id;
+        var squad = "Test squad " + id;
+        var shout = "Test snake " + id;
+
+        var health = healths.getOrDefault(id, Snake.getMaxHealth() - 1);
+        var latency = latencies.getOrDefault(id, 100);
 
         return new Snake(id, name, health, body, latency, head, length, shout, squad);
     }
 
-    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, Dimensions dimensions, List<Coordinates> soFar,
-            Coordinates current, char symbol) {
-        List<KeyValue<Coordinates, Character>> neighbours = getNeighbours(rows, dimensions, soFar, current, symbol);
+    private Coordinates getNextSnakeCoordsDtoOrNull(List<String> rows, List<Coordinates> soFar, Coordinates current,
+            char symbol) {
+        var neighbours = getNeighbours(rows, soFar, current, symbol);
 
         // priority 1 - arrows pointing
-        for (KeyValue<Coordinates, Character> keyValue : neighbours) {
+        for (var keyValue : neighbours) {
             if ("<^>v".indexOf(keyValue.getValue()) >= 0) {
                 return keyValue.getKey();
             }
@@ -239,9 +241,10 @@ public class AsciiToGameState {
 
         return neighbours.get(0).getKey();
     }
-    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, Dimensions dimensions,
-            List<Coordinates> soFar, Coordinates center, char symbol) {
-        LinkedList<KeyValue<Coordinates, Character>> result = new LinkedList<>();
+    private List<KeyValue<Coordinates, Character>> getNeighbours(List<String> rows, List<Coordinates> soFar,
+            Coordinates center, char symbol) {
+        var dimensions = dimensionsFromRows(rows);
+        var result = new LinkedList<KeyValue<Coordinates, Character>>();
 
         Function<KeyValue<Coordinates, Character>, Void> addIfChecksUp = pair -> {
             Coordinates coords = pair.getKey();
@@ -254,10 +257,10 @@ public class AsciiToGameState {
             if (coords.getX() >= 0 && coords.getX() < dimensions.getWidth() && coords.getY() >= 0
                     && coords.getY() < dimensions.getHeight()) {
 
-                int row = dimensions.getHeight() - coords.getY() - 1;
-                int index = coords.getX();
+                var row = dimensions.getHeight() - coords.getY() - 1;
+                var index = coords.getX();
 
-                char potentialSymbol = rows.get(row).charAt(index);
+                var potentialSymbol = rows.get(row).charAt(index);
 
                 // if snake letter or direction came up
                 if (symbol == potentialSymbol || pair.getValue().equals(potentialSymbol)) {
@@ -269,13 +272,13 @@ public class AsciiToGameState {
             return null;
         };
 
-        int x = center.getX();
-        int y = center.getY();
+        var x = center.getX();
+        var y = center.getY();
 
-        int xLeft = x - 1;
-        int xRight = x + 1;
-        int yDown = y - 1;
-        int yUp = y + 1;
+        var xLeft = x - 1;
+        var xRight = x + 1;
+        var yDown = y - 1;
+        var yUp = y + 1;
 
         // arrow pointing to center
         addIfChecksUp.apply(new KeyValue<>(new Coordinates(xLeft, y), '>'));
