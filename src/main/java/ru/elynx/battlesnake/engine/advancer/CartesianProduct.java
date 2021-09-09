@@ -71,6 +71,11 @@ public class CartesianProduct {
             solutions *= singleEntity.size();
         }
 
+        // TODO work out on examples
+        // if (solutions == 0) {
+        // return makeZero();
+        // }
+
         for (int i = 0; i < solutions; i++) {
             int j = 1;
 
