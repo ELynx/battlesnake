@@ -52,7 +52,7 @@ public class GameStateAdvancer {
             }
         }
 
-        return CartesianProductMaker.make(allSnakes);
+        return CartesianProduct.make(allSnakes);
     }
 
     private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
