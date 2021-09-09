@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -22,8 +21,8 @@ public class GameStateAdvancer {
     public Stream<Pair<GameState, Double>> advance(
             BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
-        int turn = makeTurn(gameState);
-        List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
+        var turn = makeTurn(gameState);
+        var snakes = makeSnakes(moveDecisionMaker, gameState);
 
         return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
     }
@@ -35,16 +34,16 @@ public class GameStateAdvancer {
     private List<Pair<List<Snake>, Double>> makeSnakes(
             BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker,
             GameState gameState) {
-        List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
+        var allSnakes = new ArrayList<List<Pair<Snake, Double>>>(gameState.getBoard().getSnakes().size());
 
-        for (Snake current : gameState.getBoard().getSnakes()) {
-            var moveCommands = moveDecisionMaker.apply(current, gameState);
-            List<Pair<Snake, Double>> singleSnake = new ArrayList<>(moveCommands.size());
+        for (Snake currentSnake : gameState.getBoard().getSnakes()) {
+            var moveCommands = moveDecisionMaker.apply(currentSnake, gameState);
+            var singleSnake = new ArrayList<Pair<Snake, Double>>(moveCommands.size());
 
-            for (MoveCommandAndProbability moveCommand : moveCommands) {
-                Snake future = makeSnake(moveCommand.getMoveCommand(), current, gameState);
-                if (future != null) {
-                    singleSnake.add(new Pair<>(future, moveCommand.getProbability()));
+            for (var moveCommand : moveCommands) {
+                var futureSnake = makeSnake(moveCommand.getMoveCommand(), currentSnake, gameState);
+                if (futureSnake != null) {
+                    singleSnake.add(new Pair<>(futureSnake, moveCommand.getProbability()));
                 }
             }
 
@@ -53,46 +52,7 @@ public class GameStateAdvancer {
             }
         }
 
-        return cartesianProduct(allSnakes);
-    }
-
-    private List<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
-        if (allSnakes.isEmpty()) {
-            // there is 100% chance no snake is found
-            return List.of(new Pair<>(Collections.emptyList(), 1.0d));
-        }
-
-        List<Pair<List<Snake>, Double>> result = new ArrayList<>();
-
-        // start copy from stack overflow
-        // https://stackoverflow.com/a/9591777/15529473
-        int solutions = 1;
-
-        for (List<Pair<Snake, Double>> singleSnake : allSnakes) {
-            solutions *= singleSnake.size();
-        }
-
-        for (int i = 0; i < solutions; i++) {
-            int j = 1;
-
-            List<Snake> solution = new ArrayList<>(allSnakes.size());
-            double probability = 1.0d;
-
-            for (var singleSnake : allSnakes) {
-                int index = (i / j) % singleSnake.size();
-                var snake = singleSnake.get(index);
-
-                solution.add(snake.getValue0());
-                probability *= snake.getValue1();
-
-                j *= singleSnake.size();
-            }
-
-            result.add(new Pair<>(solution, probability));
-        }
-        // end copy from stack overflow
-
-        return result;
+        return CartesianProductMaker.make(allSnakes);
     }
 
     private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
