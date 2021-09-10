@@ -61,7 +61,7 @@ public class GameStateAdvancer {
             return null;
         }
 
-        int health = makeStandardHealth(head, snake, gameState);
+        int health = makeHealth(head, snake, gameState);
         if (health <= 0) {
             return null;
         }
@@ -76,16 +76,26 @@ public class GameStateAdvancer {
         return snake.getHead().move(moveCommand);
     }
 
-    private int makeStandardHealth(Coordinates head, Snake snake, GameState gameState) {
+    private int makeHealth(Coordinates head, Snake snake, GameState gameState) {
         if (isFood(head, gameState)) {
             return Snake.getMaxHealth();
         }
 
-        return snake.getHealth() - 1;
+        int decrement = 1;
+
+        if (isHazard(head, gameState)) {
+            decrement += gameState.getRules().getHazardDamage();
+        }
+
+        return snake.getHealth() - decrement;
     }
 
     private boolean isFood(Coordinates coordinates, GameState gameState) {
         return gameState.getBoard().getFood().contains(coordinates);
+    }
+
+    private boolean isHazard(Coordinates coordinates, GameState gameState) {
+        return gameState.getBoard().getActiveHazards().contains(coordinates);
     }
 
     private List<Coordinates> makeBody(int health, Coordinates head, Snake snake) {
@@ -112,10 +122,6 @@ public class GameStateAdvancer {
         // at this point `snakes` have all of heads moved
         List<Coordinates> food = findRemainingFood(gameState.getBoard().getFood(), snakes);
         snakes = eliminateSnakesByCollision(snakes);
-
-        if (gameState.getRules().isRoyale()) {
-            snakes = applyHazards(snakes, gameState);
-        }
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
 
@@ -182,36 +188,6 @@ public class GameStateAdvancer {
 
     private boolean isHeadToHeadLoss(Snake checked, Snake other) {
         return !other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength();
-    }
-
-    private List<Snake> applyHazards(List<Snake> snakes, GameState gameState) {
-        List<Snake> result = new ArrayList<>(snakes.size());
-
-        for (Snake current : snakes) {
-            Snake future = applyHazards(current, gameState);
-            if (future != null) {
-                result.add(future);
-            }
-        }
-
-        return result;
-    }
-
-    private Snake applyHazards(Snake snake, GameState gameState) {
-        int health = makeRoyaleHealth(snake, gameState);
-        if (health <= 0) {
-            return null;
-        }
-
-        return snake.withHealth(health);
-    }
-
-    private int makeRoyaleHealth(Snake snake, GameState gameState) {
-        if (gameState.getBoard().getActiveHazards().contains(snake.getHead())) {
-            return snake.getHealth() - gameState.getRules().getHazardDamage();
-        }
-
-        return snake.getHealth();
     }
 
     private Snake findYouSnake(Snake target, List<Snake> snakes) {
