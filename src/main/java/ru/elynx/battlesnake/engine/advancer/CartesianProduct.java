@@ -31,7 +31,7 @@ public class CartesianProduct {
      *            Pair<E, Double> - Outcome with probability within event.<br>
      *            {Alice, Rock}, 0.5<br>
      *            List<...> - All outcomes of event. Usually probabilities add up to
-     *            1.0.<br>
+     *            1.0. <b>Must not be empty.</b><br>
      *            [{ {Alice, Rock}, 0.5 }, { {Alice, Scissors}, 0.5 }]<br>
      *            List<...> - All independent events.<br>
      *            [ [Alice's plays], [Bob's plays] ]
@@ -48,13 +48,10 @@ public class CartesianProduct {
      *         { [ {Alice, Rock}, {Bob, Scissors} ], 0.25 }<br>
      *         List<...> - all outcomes and their probabilities.<br>
      *         <b>No ordering of elements in any of lists is guaranteed.</b> <br>
-     *         Special case 1: outer list is empty, e.g. no one showed up to the
+     *         Special case: outer list is empty, e.g. no one showed up to the
      *         game.<br>
      *         Returned List of single outcome with no elements.<br>
-     *         [ {[], 1.0} ]<br>
-     *         Special case 2: one or more of inner lists is empty, e.g. one of
-     *         players did not show up to the game.<br>
-     *         Returned as special case 1.
+     *         [ {[], 1.0} ]
      */
     public <E> List<Pair<List<E>, Double>> make(List<List<Pair<E, Double>>> allEntities) {
         if (allEntities.isEmpty()) {
@@ -70,11 +67,6 @@ public class CartesianProduct {
         for (var singleEntity : allEntities) {
             solutions *= singleEntity.size();
         }
-
-        // TODO work out on examples
-        // if (solutions == 0) {
-        // return makeZero();
-        // }
 
         for (int i = 0; i < solutions; i++) {
             int j = 1;
