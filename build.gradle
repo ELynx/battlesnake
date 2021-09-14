@@ -6,13 +6,12 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
     id 'com.diffplug.spotless' version '5.15.0'
-    id 'de.undercouch.download' version '4.1.2'
-    id 'io.freefair.lombok' version '6.1.0'
+    id 'io.freefair.lombok' version '6.2.0'
     id 'jacoco'
 }
 
 group = 'ru.elynx'
-version = '2.0.0'
+version = '2.1.0'
 
 java {
     sourceCompatibility = '11'
@@ -25,9 +24,12 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     implementation 'org.javatuples:javatuples:1.2'
 
-    implementation files("$buildDir/libs/newrelic-api.jar")
+    compileOnly 'com.newrelic.agent.java:newrelic-api:7.2.0'
+    runtimeOnly 'com.newrelic.agent.java:newrelic-agent:7.2.0'
 
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
@@ -36,54 +38,18 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 
+    testImplementation 'com.newrelic.agent.java:newrelic-api:7.2.0'
+
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 }
 
-String newrelicStagingDir = "$buildDir/newrelicStaging"
+String newrelicYamls = 'newrelic*yml'
 String newrelicDestinationDir = "$buildDir/libs"
-String newrelicJars = '**/newrelic*jar'
-String newrelicYamls = '**/newrelic*yml'
-
-task downloadNewrelic(type: Download) {
-    group = 'build'
-
-    mkdir newrelicStagingDir
-
-    src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
-    dest new File(newrelicStagingDir + '/download', 'newrelic-java.zip')
-
-    onlyIfModified true
-}
-
-task unzipNewrelic(type: Copy) {
-    group = 'build'
-
-    from (zipTree(downloadNewrelic.dest)) {
-        include newrelicJars
-        include newrelicYamls
-    }
-    into newrelicStagingDir + '/extracted'
-
-    eachFile { fcp ->
-        fcp.path = fcp.path.replaceFirst('newrelic', '')
-    }
-
-    includeEmptyDirs false
-}
-
-task copyNewrelicJars(type: Copy) {
-    group = 'build'
-
-    from (unzipNewrelic.destinationDir) {
-        include newrelicJars
-    }
-    into newrelicDestinationDir
-}
 
 task copyNewrelicYmls(type: Copy) {
     group = 'build'
 
-    from (unzipNewrelic.destinationDir) {
+    from (rootDir) {
         include newrelicYamls
     }
     into newrelicDestinationDir
@@ -94,7 +60,7 @@ task copyNewrelicYmls(type: Copy) {
     }
 
     TokenFilter.ReplaceString replaceString = new TokenFilter.ReplaceString()
-    replaceString.setFrom('My Application')
+    replaceString.setFrom('APP_NAME_FROM')
     replaceString.setTo(appName)
 
     filter(TokenFilter, add: replaceString)
@@ -103,22 +69,12 @@ task copyNewrelicYmls(type: Copy) {
 task cleanNewrelic(type: Delete) {
     group = 'build'
 
-    delete newrelicStagingDir
     delete fileTree(newrelicDestinationDir).matching {
-        include newrelicJars
         include newrelicYamls
     }
 }
 
-tasks.unzipNewrelic.dependsOn downloadNewrelic
-tasks.copyNewrelicJars.dependsOn unzipNewrelic
-tasks.copyNewrelicYmls.dependsOn unzipNewrelic
-tasks.build.dependsOn copyNewrelicJars
 tasks.build.dependsOn copyNewrelicYmls
-
-tasks.compileJava.dependsOn copyNewrelicJars
-tasks.compileJava.dependsOn copyNewrelicYmls
-
 tasks.clean.dependsOn cleanNewrelic
 
 spotless {
