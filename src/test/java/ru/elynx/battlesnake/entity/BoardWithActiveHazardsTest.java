@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
@@ -97,7 +98,7 @@ class BoardWithActiveHazardsTest {
     }
 
     @Test
-    void test_has_inactive_hazards() {
+    void test_has_inactive_hazards() throws Exception {
         GameState gameState0 = CaseBuilder.eat_in_hazard();
         Board board0 = gameState0.getBoard();
 
@@ -106,10 +107,13 @@ class BoardWithActiveHazardsTest {
 
         assumeTrue(board0.getHazards().size() != board1.getHazards().size());
 
-        BoardWithActiveHazards tested1 = BoardWithActiveHazards.test_createWithNoChecks(board0, board1.getHazards());
+        var ctor = BoardWithActiveHazards.class.getDeclaredConstructor(Board.class, List.class);
+        ctor.setAccessible(true);
+
+        BoardWithActiveHazards tested1 = ctor.newInstance(board0, board1.getHazards());
         assertTrue(tested1.hasInactiveHazards());
 
-        BoardWithActiveHazards tested2 = BoardWithActiveHazards.test_createWithNoChecks(board0, board0.getHazards());
+        BoardWithActiveHazards tested2 = ctor.newInstance(board0, board0.getHazards());
         assertFalse(tested2.hasInactiveHazards());
     }
 }
