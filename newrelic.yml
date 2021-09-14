@@ -1,0 +1,38 @@
+# This file configures the New Relic Agent.
+# New Relic monitors Java applications with deep visibility and low overhead.
+# For more details and additional configuration options visit https://docs.newrelic.com/docs/agents/java-agent/configuration/java-agent-configuration-config-file.
+#
+# This section is for settings common to all environments.
+# Do not add anything above this next line.
+common: &default_settings
+  app_name: APP_NAME_FROM
+
+  # Error collector captures information about uncaught exceptions and
+  # sends them to New Relic for viewing.
+  error_collector:
+
+    # Use this property to exclude specific http status codes from being reported as errors
+    # by providing a comma separated list of status codes.
+    # The default is to exclude 404s. If you want to override
+    # this, you must provide any new value as an empty list is ignored.
+    ignore_status_codes: 404
+
+# Application Environments
+# ------------------------------------------
+# Environment specific settings are in this section.
+# The default environment is production.
+
+development:
+  <<: *default_settings
+  app_name: APP_NAME_FROM (Development)
+
+test:
+  <<: *default_settings
+  app_name: APP_NAME_FROM (Test)
+
+production:
+  <<: *default_settings
+
+staging:
+  <<: *default_settings
+  app_name: APP_NAME_FROM (Staging)
