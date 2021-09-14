@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.javatuples:javatuples:1.2'
 
     compileOnly 'com.newrelic.agent.java:newrelic-api:7.2.0'
+    runtimeOnly 'com.newrelic.agent.java:newrelic-agent:7.2.0'
 
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
