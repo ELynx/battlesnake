@@ -286,16 +286,19 @@ class GameStateAdvancerTest {
 
     @Test
     void test_hazard_damage_non_fatal() {
+        int healthBefore = 40;
+
         GameState from = new AsciiToGameState("" + //
                 "_y_\n" + //
                 "_y_\n" + //
-                "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", 40).build();
+                "_Y_\n").setHazards("__H\n__H\n__H\n").setHealth("Y", healthBefore).build();
 
         GameState to = GameStateAdvancer.advance(moveRight, from);
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(3, to.getBoard().getSnakes().get(0).getLength());
-        assertEquals(40 - 1 - from.getRules().getRoyaleHazardDamage(), to.getBoard().getSnakes().get(0).getHealth());
+        assertEquals(healthBefore - 1 - from.getRules().getHazardDamage(),
+                to.getBoard().getSnakes().get(0).getHealth());
     }
 
     @Test
@@ -321,8 +324,7 @@ class GameStateAdvancerTest {
 
         assertEquals(1, to.getBoard().getSnakes().size());
         assertEquals(4, to.getBoard().getSnakes().get(0).getLength());
-        assertEquals(Snake.getMaxHealth() - from.getRules().getRoyaleHazardDamage(),
-                to.getBoard().getSnakes().get(0).getHealth());
+        assertEquals(Snake.getMaxHealth(), to.getBoard().getSnakes().get(0).getHealth());
     }
 
     @Test
@@ -351,7 +353,11 @@ class GameStateAdvancerTest {
             }
         }, from);
 
-        assertEquals(0, to.getBoard().getSnakes().size());
+        assertEquals(6, to.getBoard().getSnakes().size());
+
+        for (var snake : to.getBoard().getSnakes()) {
+            assertNotEquals("Y", snake.getId());
+        }
     }
 
     @Test

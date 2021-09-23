@@ -22,6 +22,7 @@ public class CoordinatesWithDirection extends Coordinates {
             case UP :
                 return new CoordinatesWithDirection(from.getX(), from.getY() + 1, direction);
             default :
+                // https://github.com/jacoco/jacoco/wiki/FilteringOptions#filters-for-code-where-test-execution-is-questionable-or-impossible-by-design
                 throw new IllegalArgumentException("MoveCommand [" + direction + "] is not a supported direction");
         }
     }

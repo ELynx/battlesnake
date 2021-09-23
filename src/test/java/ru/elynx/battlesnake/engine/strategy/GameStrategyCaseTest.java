@@ -3,7 +3,7 @@ package ru.elynx.battlesnake.engine.strategy;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest.STRATEGY_NAMES;
-import static ru.elynx.battlesnake.engine.strategy.MoveAssert.assertMove;
+import static ru.elynx.battlesnake.engine.strategy.moveassert.MoveAssert.assertMove;
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Optional;
@@ -178,7 +178,7 @@ class GameStrategyCaseTest {
         gameStrategy.init(gameState);
 
         Optional<MoveCommand> move = gameStrategy.processMove(gameState);
-        assertMove(move.orElseThrow(), equalTo(RIGHT)).failing("Pixel").validate(name);
+        assertMove(move.orElseThrow(), equalTo(RIGHT)).failing("Pixel").failing("Voxel").validate(name);
     }
 
     @ParameterizedTest

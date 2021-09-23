@@ -1,15 +1,14 @@
 package ru.elynx.battlesnake.testbuilder;
 
+import lombok.experimental.UtilityClass;
 import ru.elynx.battlesnake.asciitest.AsciiToGameState;
 import ru.elynx.battlesnake.entity.Board;
 import ru.elynx.battlesnake.entity.BoardWithActiveHazards;
 import ru.elynx.battlesnake.entity.GameState;
 
+@UtilityClass
 public class CaseBuilder {
-    private CaseBuilder() {
-    }
-
-    public static GameState empty_space_better_than_snake() {
+    public GameState empty_space_better_than_snake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___A_______\n" + //
                 "___aaa_yyy_\n" + //
@@ -26,7 +25,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_surrounded_by_snake_2_hp() {
+    public GameState avoid_fruit_surrounded_by_snake_2_hp() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -43,7 +42,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_surrounded_by_snake_10_hp() {
+    public GameState avoid_fruit_surrounded_by_snake_10_hp() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "yyyv<______\n" + //
                 "y0^<^______\n" + //
@@ -60,7 +59,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_easy_2_health() {
+    public GameState avoid_fruit_in_corner_easy_2_health() {
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -78,7 +77,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_hard_2_health() {
+    public GameState avoid_fruit_in_corner_hard_2_health() {
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -96,7 +95,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_easy_10_health() {
+    public GameState avoid_fruit_in_corner_easy_10_health() {
         // easy because there is no way out if entering fruit corner
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -114,7 +113,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_fruit_in_corner_hard_10_health() {
+    public GameState avoid_fruit_in_corner_hard_10_health() {
         // hard because it is necessary to predict that growth would close the exit
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
@@ -132,7 +131,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_die_for_food() {
+    public GameState dont_die_for_food() {
         // head to head even with snake of same length is lose
         // health is left at max to avoid starvation rage
         // more of way to prevent greedy grab from under the train
@@ -148,7 +147,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_die_for_food_flip() {
+    public GameState dont_die_for_food_flip() {
         // head to head even with snake of same length is lose
         // health is left at max to avoid starvation rage
         // more of way to prevent greedy grab from under the train
@@ -164,7 +163,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_die_for_food_and_hunt() {
+    public GameState dont_die_for_food_and_hunt() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____y____\n" + //
                 "____y____\n" + //
@@ -177,7 +176,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_die_for_food_and_hunt_flip() {
+    public GameState dont_die_for_food_and_hunt_flip() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____a____\n" + //
                 "____a____\n" + //
@@ -190,7 +189,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_give_up() {
+    public GameState dont_give_up() {
         // given no food spawns, tail will clear out the passage out in 5 turns
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____Y\n" + //
@@ -201,7 +200,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState eat_in_hazard() {
+    public GameState eat_in_hazard() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "___A_____0_\n" + //
@@ -238,7 +237,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState sees_the_inevitable() {
+    public GameState sees_the_inevitable() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -263,7 +262,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState does_not_go_into_hazard_lake() {
+    public GameState does_not_go_into_hazard_lake() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -300,7 +299,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState sees_escape_route() {
+    public GameState sees_escape_route() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -326,7 +325,7 @@ public class CaseBuilder {
     }
 
     // same as above but with added fantasy about other snake's options
-    public static GameState sees_escape_route_plus() {
+    public GameState sees_escape_route_plus() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -351,7 +350,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState hazard_better_than_lose() {
+    public GameState hazard_better_than_lose() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____0_____\n" + //
                 "__0____y___\n" + //
@@ -386,7 +385,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState does_not_corner_self() {
+    public GameState does_not_corner_self() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "________00_\n" + //
                 "________aa_\n" + //
@@ -411,7 +410,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_lock_1() {
+    public GameState avoid_lock_1() {
         // original configuration had ambiguity for B
         // if B moved downwards, it would lock Y as well
         // this depended on what choice `other` component would make
@@ -435,7 +434,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState avoid_lock_2() {
+    public GameState avoid_lock_2() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -452,7 +451,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState can_handle_meta_information() {
+    public GameState can_handle_meta_information() {
         AsciiToGameState generator0 = new AsciiToGameState("" + //
                 "___________\n" + //
                 "______Y____\n" + //
@@ -518,7 +517,7 @@ public class CaseBuilder {
                 gameState1.getYou());
     }
 
-    public static GameState eat_food_immediately() {
+    public GameState eat_food_immediately() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "_____rrrrr_\n" + //
@@ -545,7 +544,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState eat_food_and_conquer_in_two_turns() {
+    public GameState eat_food_and_conquer_in_two_turns() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "_s_________\n" + //
@@ -583,7 +582,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState attempt_on_enemy_life() {
+    public GameState attempt_on_enemy_life() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "____v<_____\n" + //
@@ -619,7 +618,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_step_under_adversary_1() {
+    public GameState dont_step_under_adversary_1() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "__e________\n" + //
@@ -647,7 +646,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_step_under_adversary_2() {
+    public GameState dont_step_under_adversary_2() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_____ggg___\n" + //
                 "_____G_____\n" + //
@@ -675,7 +674,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState dont_go_into_hazard() {
+    public GameState dont_go_into_hazard() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_00________\n" + //
                 "00_________\n" + //
@@ -709,7 +708,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState go_out_of_hazard_fast() {
+    public GameState go_out_of_hazard_fast() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___Y<<<<___\n" + //
@@ -743,7 +742,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState do_not_lock_two_adversaries() {
+    public GameState do_not_lock_two_adversaries() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___v<<___0_\n" + //
                 "___>>v_____\n" + //
@@ -781,7 +780,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState attack_two_adversaries() {
+    public GameState attack_two_adversaries() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___v<____0_\n" + //
                 "___>>v_____\n" + //
@@ -819,7 +818,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState self_lock_1() {
+    public GameState self_lock_1() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "_______Gg__\n" + //
                 "____0_Y_gg_\n" + //
@@ -855,7 +854,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState self_lock_2() {
+    public GameState self_lock_2() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "___________\n" + //
                 "___________\n" + //
@@ -891,7 +890,7 @@ public class CaseBuilder {
         return generator.build();
     }
 
-    public static GameState hunting_case() {
+    public GameState hunting_case() {
         AsciiToGameState generator = new AsciiToGameState("" + //
                 "____eee____\n" + //
                 "____E_e_e_0\n" + //

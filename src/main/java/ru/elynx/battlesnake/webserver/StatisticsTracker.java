@@ -17,6 +17,7 @@ public class StatisticsTracker {
     private static final String RULESET_NAME_PARAMETER = "rulesetName";
     private static final String RULESET_VERSION_PARAMETER = "rulesetVersion";
     private static final String RULESET_TIMEOUT_PARAMETER = "rulesetTimeout";
+    private static final String RULESET_HAZARD_DAMAGE_PARAMETER = "rulesetHazardDamage";
     private static final String VICTORY_PARAMETER = "victory";
     private static final String TURNS_TO_END_PARAMETER = "turnsToEnd";
     private static final String PING_PARAMETER = "pings";
@@ -48,6 +49,7 @@ public class StatisticsTracker {
         NewRelic.addCustomParameter(RULESET_NAME_PARAMETER, gameState.getRules().getName());
         NewRelic.addCustomParameter(RULESET_VERSION_PARAMETER, gameState.getRules().getVersion());
         NewRelic.addCustomParameter(RULESET_TIMEOUT_PARAMETER, gameState.getRules().getTimeout());
+        NewRelic.addCustomParameter(RULESET_HAZARD_DAMAGE_PARAMETER, gameState.getRules().getHazardDamage());
     }
 
     public void trackMove(GameState gameState) {

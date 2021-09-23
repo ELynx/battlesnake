@@ -2,8 +2,8 @@ package ru.elynx.battlesnake.engine.strategy.alphabeta;
 
 import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -20,17 +20,20 @@ import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrateg
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
+    private final BattlesnakeInfo battlesnakeInfo;
     private final IPolySnakeGameStrategy polySnakeGameStrategy;
     private final int maxSearchDepth;
 
-    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy, int maxSearchDepth) {
+    public AlphaBetaStrategy(BattlesnakeInfo battlesnakeInfo, IPolySnakeGameStrategy polySnakeGameStrategy,
+            int maxSearchDepth) {
+        this.battlesnakeInfo = battlesnakeInfo;
         this.polySnakeGameStrategy = polySnakeGameStrategy;
         this.maxSearchDepth = maxSearchDepth;
     }
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2");
+        return battlesnakeInfo;
     }
 
     @Override
@@ -131,16 +134,16 @@ public class AlphaBetaStrategy implements IGameStrategy {
         return step1Score.getValue1() + step2ScoreMax;
     }
 
-    private BiFunction<Snake, GameState, List<MoveCommandWithProbability>> makeStepFunction(MoveCommand moveCommand,
-            Snake snake) {
+    private BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> makeStepFunction(
+            MoveCommand moveCommand, Snake snake) {
         return (Snake someSnake, GameState gameState) -> {
             if (someSnake.getId().equals(snake.getId())) {
-                return MoveCommandWithProbability.onlyFrom(moveCommand);
+                return MoveCommandAndProbability.onlyFrom(moveCommand);
             }
 
             var fromPoly = polySnakeGameStrategy.processMoveWithProbabilities(someSnake, gameState);
             if (fromPoly.isEmpty()) {
-                return MoveCommandWithProbability.onlyFrom(UP);
+                return MoveCommandAndProbability.onlyFrom(UP);
             } else {
                 return fromPoly;
             }
@@ -149,9 +152,18 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Configuration
     public static class AlphaBetaStrategyConfiguration {
+        private static final String FIVE_SKULLS = "\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80";
+
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta0() {
-            return () -> new AlphaBetaStrategy(new WeightedSearchStrategy(), 5);
+            return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2"),
+                    new WeightedSearchStrategy(), 5);
+        }
+
+        @Bean(FIVE_SKULLS)
+        public Supplier<IGameStrategy> alphaBeta1() {
+            return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#52024a", "all-seeing", "freckled", "1"),
+                    new WeightedSearchStrategy(), 5);
         }
     }
 }

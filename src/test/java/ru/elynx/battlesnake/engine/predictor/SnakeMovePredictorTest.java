@@ -1,7 +1,10 @@
 package ru.elynx.battlesnake.engine.predictor;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.javatuples.Pair;
@@ -11,9 +14,66 @@ import ru.elynx.battlesnake.entity.Coordinates;
 import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
+import ru.elynx.battlesnake.testbuilder.EntityBuilder;
 
 @Tag("Internals")
 class SnakeMovePredictorTest {
+    @Test
+    void test_does_not_throw_or_predict_on_empty_snake() {
+        GameState gameState = EntityBuilder.gameState();
+        Snake snake = new Snake("Empty Snake", "Empty Snake", 99, Collections.emptyList(), 100, new Coordinates(0, 0),
+                0, "Shout", "Squad");
+
+        assumeTrue(snake.getLength() == 0);
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+
+        assertDoesNotThrow(() -> {
+            List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+
+            assertEquals(0, predictions.size());
+        });
+    }
+
+    @Test
+    void test_timed_out_on_one_tile() {
+        GameState gameState = EntityBuilder.gameState();
+        Snake snake = new Snake("Timed Out Coiled Snake", "Timed Out Coiled Snake", 100,
+                List.of(new Coordinates(3, 3), new Coordinates(3, 3), new Coordinates(3, 3)), 0, new Coordinates(3, 3),
+                3, "Shout", "Squad");
+
+        assumeTrue(snake.isTimedOut());
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        assertEquals(1, predictions.size());
+
+        // default to UP
+        assertEquals(new Coordinates(3, 4), predictions.get(0).getValue0());
+    }
+
+    @Test
+    void test_timed_out() {
+        GameState gameState = EntityBuilder.gameState();
+        Snake snake = new Snake("Timed Out Coiled Snake", "Timed Out Coiled Snake", 100,
+                List.of(new Coordinates(3, 1), new Coordinates(3, 2), new Coordinates(3, 3)), 0, new Coordinates(3, 1),
+                3, "Shout", "Squad");
+
+        assumeTrue(snake.isTimedOut());
+
+        SimplePredictorInformant informant = new SimplePredictorInformant(gameState);
+        SnakeMovePredictor tested = new SnakeMovePredictor(informant);
+
+        List<Pair<Coordinates, Double>> predictions = tested.predict(snake, gameState);
+        assertEquals(1, predictions.size());
+
+        // dx=0 dy=1
+        assertEquals(new Coordinates(3, 0), predictions.get(0).getValue0());
+    }
+
     @Test
     void test_can_handle_meta_information() {
         GameState gameState = CaseBuilder.can_handle_meta_information();

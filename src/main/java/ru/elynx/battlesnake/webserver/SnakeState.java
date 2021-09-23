@@ -45,7 +45,7 @@ public class SnakeState {
             Board board = BoardWithActiveHazards.fromAdjacentTurns(lastBoard, gameState.getBoard());
             lastBoard = board;
             // recompose the game state only if there is need to do so
-            if (board instanceof BoardWithActiveHazards) {
+            if (board.hasInactiveHazards()) {
                 return new GameState(gameState.getGameId(), gameState.getTurn(), gameState.getRules(), board,
                         gameState.getYou());
             }
@@ -56,7 +56,7 @@ public class SnakeState {
 
     private Void initializeAndProcessStart(GameState gameState) {
         initialize(gameState);
-        return processStartImpl(gameState);
+        return processStartByStrategy(gameState);
     }
 
     private void initialize(GameState gameState) {
@@ -66,7 +66,7 @@ public class SnakeState {
         }
     }
 
-    private Void processStartImpl(GameState gameState) {
+    private Void processStartByStrategy(GameState gameState) {
         return gameStrategy.processStart(gameState);
     }
 
@@ -78,10 +78,10 @@ public class SnakeState {
 
     private Move initializeAndProcessMove(GameState gameState) {
         initialize(gameState);
-        return processMoveImpl(gameState);
+        return processMoveByStrategy(gameState);
     }
 
-    private Move processMoveImpl(GameState gameState) {
+    private Move processMoveByStrategy(GameState gameState) {
         Optional<MoveCommand> currentMove = gameStrategy.processMove(gameState);
         currentMove.ifPresent(moveCommand -> lastMove = moveCommand);
         return new Move(lastMove);
@@ -95,10 +95,10 @@ public class SnakeState {
         }
 
         gameState = addMetaInformation(gameState);
-        return processEndImpl(gameState);
+        return processEndByStrategy(gameState);
     }
 
-    private Void processEndImpl(GameState gameState) {
+    private Void processEndByStrategy(GameState gameState) {
         return gameStrategy.processEnd(gameState);
     }
 }

@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
@@ -41,10 +42,14 @@ class BoardWithActiveHazardsTest {
 
         assertEquals(board1, board1Extra);
         assertEquals(board1.hashCode(), board1Extra.hashCode());
+
+        // also reverse direction for equal coverage
+        assertNotEquals(board1Extra, board0);
+        assertEquals(board1Extra, board1);
     }
 
     @Test
-    void test_null_create_board() {
+    void test_null_board0_create_board() {
         GameState gameState1 = CaseBuilder.eat_in_hazard();
         Board board1 = gameState1.getBoard();
 
@@ -52,6 +57,14 @@ class BoardWithActiveHazardsTest {
 
         assertThat(board1Same, is(instanceOf(Board.class)));
         assertEquals(board1, board1Same);
+    }
+
+    @Test
+    void test_null_board1_throws() {
+        GameState gameState0 = CaseBuilder.eat_in_hazard();
+        Board board0 = gameState0.getBoard();
+
+        assertThrows(NullPointerException.class, () -> BoardWithActiveHazards.fromAdjacentTurns(board0, null));
     }
 
     @Test
@@ -79,7 +92,28 @@ class BoardWithActiveHazardsTest {
 
         Board board1Extra = BoardWithActiveHazards.fromAdjacentTurns(board0, board1);
         assertThat(board1Extra, is(instanceOf(BoardWithActiveHazards.class)));
+        assertTrue(board1Extra.hasInactiveHazards());
 
         assertThat(board1Extra.getActiveHazards(), containsInAnyOrder(board0.getHazards().toArray()));
+    }
+
+    @Test
+    void test_has_inactive_hazards() throws Exception {
+        GameState gameState0 = CaseBuilder.eat_in_hazard();
+        Board board0 = gameState0.getBoard();
+
+        GameState gameState1 = CaseBuilder.does_not_go_into_hazard_lake();
+        Board board1 = gameState1.getBoard();
+
+        assumeTrue(board0.getHazards().size() != board1.getHazards().size());
+
+        var ctor = BoardWithActiveHazards.class.getDeclaredConstructor(Board.class, List.class);
+        ctor.setAccessible(true);
+
+        BoardWithActiveHazards tested1 = ctor.newInstance(board0, board1.getHazards());
+        assertTrue(tested1.hasInactiveHazards());
+
+        BoardWithActiveHazards tested2 = ctor.newInstance(board0, board0.getHazards());
+        assertFalse(tested2.hasInactiveHazards());
     }
 }

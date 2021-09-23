@@ -20,8 +20,4 @@ public interface IGameStrategy {
     default Void processEnd(GameState gameState) {
         return null;
     }
-
-    default boolean isCombatant() {
-        return true;
-    }
 }

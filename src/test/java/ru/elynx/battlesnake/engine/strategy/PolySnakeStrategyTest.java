@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.elynx.battlesnake.entity.GameState;
-import ru.elynx.battlesnake.entity.MoveCommandWithProbability;
+import ru.elynx.battlesnake.entity.MoveCommandAndProbability;
 import ru.elynx.battlesnake.entity.Snake;
 import ru.elynx.battlesnake.testbuilder.CaseBuilder;
 
@@ -28,7 +28,7 @@ class PolySnakeStrategyTest {
     IGameStrategyFactory gameStrategyFactory;
 
     public static Stream<String> providePolyStrategyNames() {
-        return Stream.of("Ahaetulla", "Pixel");
+        return Stream.of("Ahaetulla", "Pixel", "TasteOfSpace");
     }
 
     public static Stream<GameState> provideGameStates() {
@@ -115,8 +115,8 @@ class PolySnakeStrategyTest {
         gameStrategy.setPrimarySnake(gameState.getYou());
         assertEquals(gameStrategy.processMove(gameState),
                 gameStrategy.processMoveWithProbabilities(gameState.getYou(), gameState).stream()
-                        .max(Comparator.comparingDouble(MoveCommandWithProbability::getProbability))
-                        .map(MoveCommandWithProbability::getMoveCommand));
+                        .max(Comparator.comparingDouble(MoveCommandAndProbability::getProbability))
+                        .map(MoveCommandAndProbability::getMoveCommand));
     }
 
     @ParameterizedTest

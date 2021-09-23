@@ -180,11 +180,9 @@ public class FreeSpaceMatrix extends Matrix {
                 ++count;
         }
 
-        if (count > 0) {
-            for (int index = 0; index < boundIndexLimit(); ++index) {
-                if (getValueByIndex(index) == FLOOD_FILL_VALUE)
-                    setValueByIndex(index, count);
-            }
+        for (int index = 0; index < boundIndexLimit(); ++index) {
+            if (getValueByIndex(index) == FLOOD_FILL_VALUE)
+                setValueByIndex(index, count);
         }
 
         return count;

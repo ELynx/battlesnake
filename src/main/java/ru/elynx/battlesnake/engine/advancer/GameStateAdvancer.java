@@ -1,7 +1,7 @@
 package ru.elynx.battlesnake.engine.advancer;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -12,17 +12,17 @@ import ru.elynx.battlesnake.entity.*;
 @UtilityClass
 public class GameStateAdvancer {
     public GameState advance(BiFunction<Snake, GameState, MoveCommand> moveDecisionMaker, GameState gameState) {
-        BiFunction<Snake, GameState, List<MoveCommandWithProbability>> adapter = (Snake snake1,
+        BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> adapter = (Snake snake1,
                 GameState gameState1) -> List
-                        .of(new MoveCommandWithProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
+                        .of(new MoveCommandAndProbability(moveDecisionMaker.apply(snake1, gameState1), 1.0d));
         return advance(adapter, gameState.getYou(), gameState).map(Pair::getValue0).findAny().orElseThrow();
     }
 
     public Stream<Pair<GameState, Double>> advance(
-            BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, Snake you,
+            BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker, Snake you,
             GameState gameState) {
-        int turn = makeTurn(gameState);
-        List<Pair<List<Snake>, Double>> snakes = makeSnakes(moveDecisionMaker, gameState);
+        var turn = makeTurn(gameState);
+        var snakes = makeSnakes(moveDecisionMaker, gameState);
 
         return snakes.stream().map(x -> new Pair<>(assemble(gameState, turn, x.getValue0(), you), x.getValue1()));
     }
@@ -32,17 +32,18 @@ public class GameStateAdvancer {
     }
 
     private List<Pair<List<Snake>, Double>> makeSnakes(
-            BiFunction<Snake, GameState, List<MoveCommandWithProbability>> moveDecisionMaker, GameState gameState) {
-        List<List<Pair<Snake, Double>>> allSnakes = new ArrayList<>(gameState.getBoard().getSnakes().size());
+            BiFunction<Snake, GameState, Collection<MoveCommandAndProbability>> moveDecisionMaker,
+            GameState gameState) {
+        var allSnakes = new ArrayList<List<Pair<Snake, Double>>>(gameState.getBoard().getSnakes().size());
 
-        for (Snake current : gameState.getBoard().getSnakes()) {
-            var moveCommands = moveDecisionMaker.apply(current, gameState);
-            List<Pair<Snake, Double>> singleSnake = new ArrayList<>(moveCommands.size());
+        for (Snake currentSnake : gameState.getBoard().getSnakes()) {
+            var moveCommands = moveDecisionMaker.apply(currentSnake, gameState);
+            var singleSnake = new ArrayList<Pair<Snake, Double>>(moveCommands.size());
 
-            for (MoveCommandWithProbability moveCommand : moveCommands) {
-                Snake future = makeSnake(moveCommand.getMoveCommand(), current, gameState);
-                if (future != null) {
-                    singleSnake.add(new Pair<>(future, moveCommand.getProbability()));
+            for (var moveCommand : moveCommands) {
+                var futureSnake = makeSnake(moveCommand.getMoveCommand(), currentSnake, gameState);
+                if (futureSnake != null) {
+                    singleSnake.add(new Pair<>(futureSnake, moveCommand.getProbability()));
                 }
             }
 
@@ -51,46 +52,7 @@ public class GameStateAdvancer {
             }
         }
 
-        return cartesianProduct(allSnakes);
-    }
-
-    private List<Pair<List<Snake>, Double>> cartesianProduct(List<List<Pair<Snake, Double>>> allSnakes) {
-        if (allSnakes.isEmpty()) {
-            // there is 100% chance no snake is found
-            return List.of(new Pair<>(Collections.emptyList(), 1.0d));
-        }
-
-        List<Pair<List<Snake>, Double>> result = new ArrayList<>();
-
-        // start copy from stack overflow
-        // https://stackoverflow.com/a/9591777/15529473
-        int solutions = 1;
-
-        for (List<Pair<Snake, Double>> singleSnake : allSnakes) {
-            solutions *= singleSnake.size();
-        }
-
-        for (int i = 0; i < solutions; i++) {
-            int j = 1;
-
-            List<Snake> solution = new ArrayList<>(allSnakes.size());
-            double probability = 1.0d;
-
-            for (var singleSnake : allSnakes) {
-                int index = (i / j) % singleSnake.size();
-                var snake = singleSnake.get(index);
-
-                solution.add(snake.getValue0());
-                probability *= snake.getValue1();
-
-                j *= singleSnake.size();
-            }
-
-            result.add(new Pair<>(solution, probability));
-        }
-        // end copy from stack overflow
-
-        return result;
+        return CartesianProduct.make(allSnakes);
     }
 
     private Snake makeSnake(MoveCommand moveCommand, Snake snake, GameState gameState) {
@@ -99,7 +61,7 @@ public class GameStateAdvancer {
             return null;
         }
 
-        int health = makeStandardHealth(head, snake, gameState);
+        int health = makeHealth(head, snake, gameState);
         if (health <= 0) {
             return null;
         }
@@ -114,16 +76,26 @@ public class GameStateAdvancer {
         return snake.getHead().move(moveCommand);
     }
 
-    private int makeStandardHealth(Coordinates head, Snake snake, GameState gameState) {
+    private int makeHealth(Coordinates head, Snake snake, GameState gameState) {
         if (isFood(head, gameState)) {
             return Snake.getMaxHealth();
         }
 
-        return snake.getHealth() - 1;
+        int decrement = 1;
+
+        if (isHazard(head, gameState)) {
+            decrement += gameState.getRules().getHazardDamage();
+        }
+
+        return snake.getHealth() - decrement;
     }
 
     private boolean isFood(Coordinates coordinates, GameState gameState) {
         return gameState.getBoard().getFood().contains(coordinates);
+    }
+
+    private boolean isHazard(Coordinates coordinates, GameState gameState) {
+        return gameState.getBoard().getActiveHazards().contains(coordinates);
     }
 
     private List<Coordinates> makeBody(int health, Coordinates head, Snake snake) {
@@ -150,10 +122,6 @@ public class GameStateAdvancer {
         // at this point `snakes` have all of heads moved
         List<Coordinates> food = findRemainingFood(gameState.getBoard().getFood(), snakes);
         snakes = eliminateSnakesByCollision(snakes);
-
-        if (gameState.getRules().isRoyale()) {
-            snakes = applyHazards(snakes, gameState);
-        }
 
         Board board = new Board(gameState.getBoard().getDimensions(), food, gameState.getBoard().getHazards(), snakes);
 
@@ -220,36 +188,6 @@ public class GameStateAdvancer {
 
     private boolean isHeadToHeadLoss(Snake checked, Snake other) {
         return !other.getId().equals(checked.getId()) && other.getLength() >= checked.getLength();
-    }
-
-    private List<Snake> applyHazards(List<Snake> snakes, GameState gameState) {
-        List<Snake> result = new ArrayList<>(snakes.size());
-
-        for (Snake current : snakes) {
-            Snake future = applyHazards(current, gameState);
-            if (future != null) {
-                result.add(future);
-            }
-        }
-
-        return result;
-    }
-
-    private Snake applyHazards(Snake snake, GameState gameState) {
-        int health = makeRoyaleHealth(snake, gameState);
-        if (health <= 0) {
-            return null;
-        }
-
-        return snake.withHealth(health);
-    }
-
-    private int makeRoyaleHealth(Snake snake, GameState gameState) {
-        if (gameState.getBoard().getActiveHazards().contains(snake.getHead())) {
-            return snake.getHealth() - gameState.getRules().getRoyaleHazardDamage();
-        }
-
-        return snake.getHealth();
     }
 
     private Snake findYouSnake(Snake target, List<Snake> snakes) {

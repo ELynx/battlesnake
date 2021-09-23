@@ -2,16 +2,17 @@ import org.apache.tools.ant.filters.TokenFilter
 
 plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'org.springframework.boot' version '2.5.2'
+    id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
-    id 'com.diffplug.spotless' version '5.14.1'
+    id 'com.diffplug.spotless' version '5.15.0'
     id 'de.undercouch.download' version '4.1.2'
-    id 'io.freefair.lombok' version '6.0.0-m2'
+    id 'io.freefair.lombok' version '6.2.0'
+    id 'jacoco'
 }
 
 group = 'ru.elynx'
-version = '2.0.0'
+version = '2.1.0'
 
 java {
     sourceCompatibility = '11'
@@ -44,6 +45,8 @@ String newrelicJars = '**/newrelic*jar'
 String newrelicYamls = '**/newrelic*yml'
 
 task downloadNewrelic(type: Download) {
+    group = 'build'
+
     mkdir newrelicStagingDir
 
     src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
@@ -53,6 +56,8 @@ task downloadNewrelic(type: Download) {
 }
 
 task unzipNewrelic(type: Copy) {
+    group = 'build'
+
     from (zipTree(downloadNewrelic.dest)) {
         include newrelicJars
         include newrelicYamls
@@ -67,6 +72,8 @@ task unzipNewrelic(type: Copy) {
 }
 
 task copyNewrelicJars(type: Copy) {
+    group = 'build'
+
     from (unzipNewrelic.destinationDir) {
         include newrelicJars
     }
@@ -74,6 +81,8 @@ task copyNewrelicJars(type: Copy) {
 }
 
 task copyNewrelicYmls(type: Copy) {
+    group = 'build'
+
     from (unzipNewrelic.destinationDir) {
         include newrelicYamls
     }
@@ -92,6 +101,8 @@ task copyNewrelicYmls(type: Copy) {
 }
 
 task cleanNewrelic(type: Delete) {
+    group = 'build'
+
     delete newrelicStagingDir
     delete fileTree(newrelicDestinationDir).matching {
         include newrelicJars
@@ -116,10 +127,12 @@ spotless {
         removeUnusedImports()
         eclipse()
         indentWithSpaces(4)
+        endWithNewline()
     }
     groovyGradle() {
         greclipse()
         indentWithSpaces(4)
+        endWithNewline()
     }
 }
 
@@ -129,6 +142,65 @@ application {
 
 test {
     useJUnitPlatform()
+}
+
+task testComponentOnly(type: Test) {
+    group = 'verification'
+
+    useJUnitPlatform() {
+        includeTags("TestComponent")
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                "ru/elynx/battlesnake/**/BattlesnakeApplication.class"
+            ])
+        }))
+    }
+}
+
+task jacocoTestReportTest(type: JacocoReport) {
+    group = 'verification'
+
+    dependsOn test
+    executionData test
+
+    sourceSets sourceSets.test
+}
+
+task jacocoTestReportTestComponentOnly(type: JacocoReport) {
+    group = 'verification'
+
+    dependsOn testComponentOnly
+    executionData testComponentOnly
+
+    sourceSets sourceSets.test
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, includes: [
+                "ru/elynx/battlesnake/**/AsciiToGameState.class",
+                "ru/elynx/battlesnake/**/SimplePredictorInformant.class",
+                "ru/elynx/battlesnake/**/MySnake.class",
+                "ru/elynx/battlesnake/**/MySnakeGameStrategyFactory.class"
+            ])
+        }))
+    }
+}
+
+tasks.each {
+    if (it instanceof JacocoReport) {
+        it.reports {
+            xml.required = false
+            csv.required = false
+            html.required = true
+        }
+    }
 }
 
 var disabledTasks = [

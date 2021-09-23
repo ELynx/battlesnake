@@ -16,21 +16,31 @@ import ru.elynx.battlesnake.entity.GameState;
 import ru.elynx.battlesnake.entity.Move;
 
 @Service
-public class SnakeStateManager {
-    private static final long STALE_SNAKE_STATE_ROUTINE_DELAY = 60000; // milliseconds
+public class SnakeManager {
+    private static final long STALE_SNAKE_STATE_ROUTINE_INTERVAL = 60000; // milliseconds
     private static final long STALE_SNAKE_STATE_AGE = 5000; // milliseconds
 
-    private final Logger logger = LoggerFactory.getLogger(SnakeStateManager.class);
+    private final Logger logger = LoggerFactory.getLogger(SnakeManager.class);
     private final IGameStrategyFactory gameStrategyFactory;
     private final Map<String, SnakeState> activeSnakes = new ConcurrentHashMap<>();
 
     @Autowired
-    public SnakeStateManager(IGameStrategyFactory gameStrategyFactory) {
+    public SnakeManager(IGameStrategyFactory gameStrategyFactory) {
         this.gameStrategyFactory = gameStrategyFactory;
     }
 
-    @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_DELAY, fixedDelay = STALE_SNAKE_STATE_ROUTINE_DELAY)
-    private void cleanStaleSnakes() {
+    // visible for testing
+    @Scheduled(initialDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL, fixedDelay = STALE_SNAKE_STATE_ROUTINE_INTERVAL)
+    void cleanStaleSnakes() {
+        cleanStaleSnakesImpl(Instant.now());
+    }
+
+    // visible for testing
+    void test_cleanStaleSnake(Instant referenceTime) { // NOSONAR
+        cleanStaleSnakesImpl(referenceTime);
+    }
+
+    private void cleanStaleSnakesImpl(Instant referenceTime) {
         if (activeSnakes.isEmpty()) {
             logger.debug("Cleaning stale snakes, nothing to clean");
             return;
@@ -38,7 +48,7 @@ public class SnakeStateManager {
 
         int sizeBefore = activeSnakes.size();
 
-        Instant staleSnakeTime = Instant.now().minusMillis(STALE_SNAKE_STATE_AGE);
+        Instant staleSnakeTime = referenceTime.minusMillis(STALE_SNAKE_STATE_AGE);
         activeSnakes.entrySet().removeIf(x -> x.getValue().isLastAccessedBefore(staleSnakeTime));
 
         int sizeAfter = activeSnakes.size();
@@ -50,6 +60,7 @@ public class SnakeStateManager {
 
         int delta = sizeBefore - sizeAfter;
         logger.warn("Cleaning stale snakes, cleaned [{}] snakes older than [{}]", delta, staleSnakeTime);
+
     }
 
     public BattlesnakeInfo root(String name) throws SnakeNotFoundException {

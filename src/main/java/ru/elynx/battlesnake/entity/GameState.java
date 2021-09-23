@@ -24,12 +24,6 @@ public class GameState {
     }
 
     public boolean isEliminated(Snake snake) {
-        for (Snake someSnake : board.getSnakes()) {
-            if (someSnake.getId().equals(snake.getId())) {
-                return false;
-            }
-        }
-
-        return true;
+        return board.getSnakes().stream().filter(x -> x.getId().equals(snake.getId())).findAny().isEmpty();
     }
 }

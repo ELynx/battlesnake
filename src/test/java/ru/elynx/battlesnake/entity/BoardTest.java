@@ -17,5 +17,6 @@ class BoardTest {
         Board tested = gameState.getBoard();
         assumeFalse(tested.getHazards().size() == 0);
         assertThat(tested.getActiveHazards(), containsInAnyOrder(tested.getHazards().toArray()));
+        assumeFalse(tested.hasInactiveHazards());
     }
 }

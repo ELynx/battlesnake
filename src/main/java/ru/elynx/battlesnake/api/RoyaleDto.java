@@ -8,11 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class RulesetDto {
+public class RoyaleDto {
     @NonNull
-    String name;
-    @NonNull
-    String version;
-    @NonNull
-    SettingsDto settings;
+    Integer shrinkEveryNTurns;
 }

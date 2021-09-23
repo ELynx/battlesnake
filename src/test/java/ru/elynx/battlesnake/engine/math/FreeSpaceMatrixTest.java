@@ -109,6 +109,27 @@ class FreeSpaceMatrixTest {
     }
 
     @Test
+    void test_get_space_full() {
+        int width = 11;
+        int height = 11;
+        Dimensions dimensions = new Dimensions(width, height);
+
+        FreeSpaceMatrix tested = FreeSpaceMatrix.emptyMatrix(dimensions);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; ++y) {
+                tested.setOccupied(new Coordinates(x, y));
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; ++y) {
+                assertEquals(0, tested.getFreeSpace(new Coordinates(x, y)));
+            }
+        }
+    }
+
+    @Test
     void test_get_space() {
         String asciiGameState = "" + //
                 "________________________________________\n" + //

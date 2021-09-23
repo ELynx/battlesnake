@@ -32,7 +32,7 @@ class GameControllerTest {
     @BeforeEach
     void prepareMockMvc() {
         IGameStrategyFactory gameStrategyFactory = new MySnakeGameStrategyFactory();
-        SnakeStateManager snakeStateManager = new SnakeStateManager(gameStrategyFactory);
+        SnakeManager snakeManager = new SnakeManager(gameStrategyFactory);
 
         StatisticsTracker statisticsTracker = new StatisticsTracker();
 
@@ -40,10 +40,16 @@ class GameControllerTest {
         GameStateMapper gameStateMapper = Mappers.getMapper(GameStateMapper.class);
         MoveMapper moveMapper = Mappers.getMapper(MoveMapper.class);
 
-        GameController gameController = new GameController(snakeStateManager, statisticsTracker, battlesnakeInfoMapper,
+        GameController gameController = new GameController(snakeManager, statisticsTracker, battlesnakeInfoMapper,
                 gameStateMapper, moveMapper);
 
         mockMvc = MockMvcBuilders.standaloneSetup(gameController).build();
+    }
+
+    @Test
+    void get_gives_info() {
+        assertDoesNotThrow(() -> mockMvc.perform(get(API_ENDPOINT_BASE)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("author"))));
     }
 
     @Test

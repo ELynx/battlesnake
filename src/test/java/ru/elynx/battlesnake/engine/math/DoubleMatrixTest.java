@@ -94,6 +94,22 @@ class DoubleMatrixTest {
     }
 
     @Test
+    void test_splashes_zero_impact_has_no_effect() {
+        int width = 99;
+        int height = 99;
+        Dimensions dimensions = new Dimensions(width, height);
+        double outsideValue = -765.0d;
+
+        DoubleMatrix matrix = DoubleMatrix.zeroMatrix(dimensions, outsideValue);
+
+        assertFalse(matrix.splash1stOrder(new Coordinates(3, 3), 0.0d));
+        assertFalse(matrix.splash1stOrder(new Coordinates(3, 3), 0.0d, 10.0d));
+
+        assertFalse(matrix.splash2ndOrder(new Coordinates(3, 3), 0.0d));
+        assertFalse(matrix.splash2ndOrder(new Coordinates(3, 3), 0.0d, 10.0d));
+    }
+
+    @Test
     void test_splash_1st_order() {
         int width = 4;
         int height = 4;
