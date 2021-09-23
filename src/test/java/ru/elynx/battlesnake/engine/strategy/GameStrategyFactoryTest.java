@@ -17,12 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Tag("Internals")
 class GameStrategyFactoryTest {
     public static final String STRATEGY_NAMES = "ru.elynx.battlesnake.engine.strategy.GameStrategyFactoryTest#provideStrategyNames";
+    public static final String FIVE_SKULLS = "\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80";
 
     @Autowired
     IGameStrategyFactory gameStrategyFactory;
 
     public static Stream<String> provideStrategyNames() {
-        return Stream.of("Ahaetulla", "Pixel", "Voxel");
+        return Stream.of("Ahaetulla", "Pixel", "Voxel", "Taste of Space", FIVE_SKULLS);
     }
 
     @Test

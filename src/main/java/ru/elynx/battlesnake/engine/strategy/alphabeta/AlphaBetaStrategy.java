@@ -20,17 +20,20 @@ import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrateg
 import ru.elynx.battlesnake.entity.*;
 
 public class AlphaBetaStrategy implements IGameStrategy {
+    private final BattlesnakeInfo battlesnakeInfo;
     private final IPolySnakeGameStrategy polySnakeGameStrategy;
     private final int maxSearchDepth;
 
-    public AlphaBetaStrategy(IPolySnakeGameStrategy polySnakeGameStrategy, int maxSearchDepth) {
+    public AlphaBetaStrategy(BattlesnakeInfo battlesnakeInfo, IPolySnakeGameStrategy polySnakeGameStrategy,
+            int maxSearchDepth) {
+        this.battlesnakeInfo = battlesnakeInfo;
         this.polySnakeGameStrategy = polySnakeGameStrategy;
         this.maxSearchDepth = maxSearchDepth;
     }
 
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
-        return new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2");
+        return battlesnakeInfo;
     }
 
     @Override
@@ -151,7 +154,14 @@ public class AlphaBetaStrategy implements IGameStrategy {
     public static class AlphaBetaStrategyConfiguration {
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta0() {
-            return () -> new AlphaBetaStrategy(new WeightedSearchStrategy(), 5);
+            return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2"),
+                    new WeightedSearchStrategy(), 5);
+        }
+
+        @Bean("\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80")
+        public Supplier<IGameStrategy> alphaBeta1() {
+            return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#52024a", "all-seeing", "freckled", "1"),
+                    new WeightedSearchStrategy(), 5);
         }
     }
 }
