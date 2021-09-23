@@ -1,4 +1,4 @@
-package ru.elynx.battlesnake.engine.strategy.areaofcontrol;
+package ru.elynx.battlesnake.engine.strategy.areacontrol;
 
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
@@ -7,17 +7,17 @@ import ru.elynx.battlesnake.engine.strategy.IGameStrategy;
 import ru.elynx.battlesnake.engine.strategy.weightedsearch.WeightedSearchStrategy;
 import ru.elynx.battlesnake.entity.BattlesnakeInfo;
 
-public class AreaOfControlStrategy extends WeightedSearchStrategy {
+public class AreaControlStrategy extends WeightedSearchStrategy {
     @Override
     public BattlesnakeInfo getBattesnakeInfo() {
         return new BattlesnakeInfo("ELynx", "#ff05e6", "orca", "swoop", "1");
     }
 
     @Configuration
-    public static class AreaOfControlStrategyConfiguration {
-        @Bean("Taste of Space")
-        public Supplier<IGameStrategy> areaOfControl() {
-            return AreaOfControlStrategy::new;
+    public static class AreaControlStrategyConfiguration {
+        @Bean("TasteOfSpace")
+        public Supplier<IGameStrategy> areaControl() {
+            return AreaControlStrategy::new;
         }
     }
 }

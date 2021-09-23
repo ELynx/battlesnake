@@ -152,13 +152,15 @@ public class AlphaBetaStrategy implements IGameStrategy {
 
     @Configuration
     public static class AlphaBetaStrategyConfiguration {
+        private static final String FIVE_SKULLS = "\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80";
+
         @Bean("Voxel")
         public Supplier<IGameStrategy> alphaBeta0() {
             return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#05bfbf", "chomp", "freckled", "2"),
                     new WeightedSearchStrategy(), 5);
         }
 
-        @Bean("\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80\uD83D\uDC80")
+        @Bean(FIVE_SKULLS)
         public Supplier<IGameStrategy> alphaBeta1() {
             return () -> new AlphaBetaStrategy(new BattlesnakeInfo("ELynx", "#52024a", "all-seeing", "freckled", "1"),
                     new WeightedSearchStrategy(), 5);
