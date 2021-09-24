@@ -4,9 +4,11 @@ import static ru.elynx.battlesnake.entity.MoveCommand.*;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
 import org.javatuples.Pair;
@@ -141,13 +143,57 @@ public class AlphaBetaStrategy implements IGameStrategy {
                 return MoveCommandAndProbability.onlyFrom(moveCommand);
             }
 
-            var fromPoly = polySnakeGameStrategy.processMoveWithProbabilities(someSnake, gameState);
-            if (fromPoly.isEmpty()) {
-                return MoveCommandAndProbability.onlyFrom(UP);
-            } else {
-                return fromPoly;
+            if (needSpecialHandling(someSnake, snake, gameState)) {
+                var fromPoly = polySnakeGameStrategy.processMoveWithProbabilities(someSnake, gameState);
+                if (fromPoly.isEmpty()) {
+                    return MoveCommandAndProbability.onlyFrom(UP);
+                } else {
+                    return fromPoly;
+                }
             }
+
+            var fromPolySingle = polySnakeGameStrategy.processMove(someSnake, gameState);
+            return fromPolySingle.map(MoveCommandAndProbability::onlyFrom)
+                    .orElse(MoveCommandAndProbability.onlyFrom(UP));
         };
+    }
+
+    private boolean needSpecialHandling(Snake targetSnake, Snake primarySnake, GameState gameState) {
+        int canHandle = 2;
+
+        // on first turn all snakes have 4 moves, this will lead to explosion of options
+        // since first move is important, use safe option
+        if (gameState.getTurn() == 1) {
+            return false;
+        }
+
+        // check is snake a concern at all
+        if (targetSnake.getHead().getManhattanDistance(primarySnake.getHead()) != 2) {
+            return false;
+        }
+
+        // primary + others
+        if (gameState.getBoard().getSnakes().size() <= 1 + canHandle) {
+            return true;
+        }
+
+        // all snakes that are in proximity
+        List<Snake> proximity = gameState.getBoard().getSnakes().stream()
+                .filter(x -> primarySnake.getHead().getManhattanDistance(x.getHead()) == 2)
+                .sorted(Comparator.comparingInt(Snake::getLength).reversed()).collect(Collectors.toList());
+
+        if (proximity.size() <= canHandle) {
+            return true;
+        }
+
+        // longest in proximity get special treatment
+        for (int i = 0; i < canHandle; ++i) {
+            if (proximity.get(i).getId().equals(targetSnake.getId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Configuration

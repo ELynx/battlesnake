@@ -2,7 +2,6 @@ package ru.elynx.battlesnake.engine.strategy.weightedsearch;
 
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -295,9 +294,9 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
     }
 
     private Optional<MoveCommand> bestMove(Snake snake, MoveCommand toIgnore) {
-        Collection<CoordinatesWithDirection> ranked = snake.getAdvancingMoves();
+        Collection<CoordinatesWithDirection> advancingMoves = snake.getAdvancingMoves();
         int length = snake.getLength();
-        return rank(ranked, length, toIgnore);
+        return rank(advancingMoves, length, toIgnore);
     }
 
     @Override
@@ -325,6 +324,11 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
         return processMoveImpl(gameState.getYou(), gameState);
     }
 
+    @Override
+    public Optional<MoveCommand> processMove(Snake snake, GameState gameState) {
+        return processMoveImpl(snake, gameState);
+    }
+
     private Optional<MoveCommand> processMoveImpl(Snake snake, GameState gameState) {
         applyGameState(snake, gameState);
         return bestMove(snake, null).or(() -> backupMove(snake));
@@ -332,71 +336,7 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     @Override
     public Collection<MoveCommandAndProbability> processMoveWithProbabilities(Snake snake, GameState gameState) {
-        if (needSpecialHandling(snake, gameState)) {
-            return detailedEvaluation(snake, gameState);
-        }
-
-        return singleBestMove(snake, gameState);
-    }
-
-    private boolean needSpecialHandling(Snake snake, GameState gameState) {
-        int canHandle = 2;
-
-        // on first turn all snakes have 4 moves, this will lead to explosion of options
-        // since first move is important, use safe option
-        if (gameState.getTurn() == 1) {
-            return false;
-        }
-
-        // << sanity checks
-        if (primarySnakeId == null) {
-            return false;
-        }
-
-        Optional<Snake> primarySnakeOptional = gameState.getBoard().getSnakes().stream()
-                .filter(x -> x.getId().equals(primarySnakeId)).findAny();
-        if (primarySnakeOptional.isEmpty()) {
-            return false;
-        }
-        // >>
-
-        // check is snake a concern at all
-        Snake primarySnake = primarySnakeOptional.get();
-        if (snake.getHead().getManhattanDistance(primarySnake.getHead()) != 2) {
-            return false;
-        }
-
-        // primary + others
-        if (gameState.getBoard().getSnakes().size() <= 1 + canHandle) {
-            return true;
-        }
-
-        // all snakes that are in proximity
-        List<Snake> proximity = gameState.getBoard().getSnakes().stream()
-                .filter(x -> primarySnake.getHead().getManhattanDistance(x.getHead()) == 2)
-                .sorted(Comparator.comparingInt(Snake::getLength).reversed()).collect(Collectors.toList());
-
-        if (proximity.size() <= canHandle) {
-            return true;
-        }
-
-        // longest in proximity get special treatment
-        for (int i = 0; i < canHandle; ++i) {
-            if (proximity.get(i).getId().equals(snake.getId())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private Collection<MoveCommandAndProbability> singleBestMove(Snake snake, GameState gameState) {
-        Optional<MoveCommand> move = processMoveImpl(snake, gameState);
-        if (move.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return MoveCommandAndProbability.onlyFrom(move.get());
+        return detailedEvaluation(snake, gameState);
     }
 
     private Collection<MoveCommandAndProbability> detailedEvaluation(Snake snake, GameState gameState) {
