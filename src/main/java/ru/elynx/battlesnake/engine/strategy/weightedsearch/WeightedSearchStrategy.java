@@ -190,16 +190,12 @@ public class WeightedSearchStrategy implements IPolySnakeGameStrategy, IPredicto
 
     private double getCrossWeight(Coordinates coordinates) {
         double result = weightMatrix.getValue(coordinates);
-        int items = 0;
+        int items = 1;
         for (Coordinates neighbour : coordinates.getSideNeighbours()) {
             if (isInsideBounds(neighbour)) {
                 result += weightMatrix.getValue(neighbour);
                 ++items;
             }
-        }
-
-        if (items == 0) {
-            return 0.0d;
         }
 
         return result / items;
