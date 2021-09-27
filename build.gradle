@@ -1,14 +1,15 @@
 import org.apache.tools.ant.filters.TokenFilter
 
 plugins {
-    id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'org.springframework.boot' version '2.5.4'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
-    id 'com.diffplug.spotless' version '5.15.0'
+    id 'com.diffplug.spotless' version '5.15.2'
+    id 'com.github.andygoossens.gradle-modernizer-plugin' version '1.6.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
     id 'de.undercouch.download' version '4.1.2'
     id 'io.freefair.lombok' version '6.2.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'jacoco'
+    id 'org.springframework.boot' version '2.5.5'
 }
 
 group = 'ru.elynx'
